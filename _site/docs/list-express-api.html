@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel='stylesheet' href='/static/bootstrap/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='/static/font-awesome/css/font-awesome.min.css'/>
+  <link rel='stylesheet' href='/static/css/pygment_trac.css'/>
+  <link rel='stylesheet' href='/static/css/style.css'/>
+  <script type='text/javascript' src='/static/js/jquery-2.1.4.min.js'></script>
+  <script type='text/javascript' src='/static/bootstrap/js/bootstrap.min.js'></script>
+  <title>List Express API | UIKernel</title>
+</head>
+<body>
+  <div class="page-row">
+    <nav class="navbar-inverse home-menu">
+      <div class="container-fluid container">
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+            <li><a href="/examples/">Examples</a></li>
+            <li><a href="/download.html">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://datakernel.io">DataKernel</a></li>
+            <li><a href="https://github.com/softindex/uikernel" target="_blank">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+  </div>
+  <div class="page-row page-row-expanded">
+    <div class="container content">
+      <div class="row">
+  <div class="col-sm-3 docs-menu">
+    <!-- Docs Nav -->
+
+<ul>
+  <li><h3>Quick Start</h3></li>
+  
+  <li>
+    <a href="/docs/getting-started.html">Getting Started</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/tutorial.html">Tutorial</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/first-grid-component.html">First grid component</a>
+      </li>
+      
+      <li>
+        <a href="/docs/sorting-and-pagination.html">Sorting and pagination</a>
+      </li>
+      
+      <li>
+        <a href="/docs/applying-filters.html">Applying filters</a>
+      </li>
+      
+      <li>
+        <a href="/docs/editing-grid-data.html">Editing grid data</a>
+      </li>
+      
+      <li>
+        <a href="/docs/removing-records.html">Removing records</a>
+      </li>
+      
+      <li>
+        <a href="/docs/creating-records.html">Creating records</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Editors</h3></li>
+  
+  <li>
+    <a href="/docs/editors.html">Overview</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/labels.html">Labels</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/list-model.html">List Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/list-xhr-model.html">XHR Model</a>
+      </li>
+      
+      <li class="active">
+        <a href="/docs/list-express-api.html">Express API</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Grid</h3></li>
+  
+  <li>
+    <a href="/docs/grid-component.html">Component</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-interface.html">Grid Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/grid-model-xhr.html">Grid Xhr Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/grid-model-collection.html">Grid Model Collection</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/validator.html">Validator</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/filter-adapter.html">Filters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-adapters.html">Form Adapters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/express-grid-api.html">Express API</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Form</h3></li>
+  
+  <li>
+    <a href="/docs/form-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-model.html">Model Interface</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/form-xhr-model.html">XHR Model</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Reports</h3></li>
+  
+  <li>
+    <a href="/docs/reports-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-model.html">Model</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-filters.html">Filters</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Examples</h3></li>
+  
+  <li>
+    <a href="/docs/dynamic-columns.html">Dynamic columns</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/bulk-operations.html">Bulk operations</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-example.html">Form</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/suggest-box.html">Suggest Box</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-example.html">Reports</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+
+  </div>
+
+  <div class="col-sm-9 docs-content">
+    <h1>
+      List Express API
+    </h1>
+    <div class="subHeader"></div>
+
+    <p>You can use List Express API to link the Client UI and List sever model.</p>
+
+<p>It can schematically be displayed like this:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>URL</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GET</td>
+      <td>/</td>
+      <td>Get all records</td>
+    </tr>
+    <tr>
+      <td>GET</td>
+      <td>/label/:recordId</td>
+      <td>Get particular record label</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="builder-functions">Builder functions</h2>
+
+<h3 id="model">model</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">model</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">gridModel</span><span class="p">)</span>
+<span class="nx">model</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">req</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">res</span><span class="p">))</span></code></pre></div>
+
+<p>Specify Grid model, which can be an instance or a constructor</p>
+
+<hr />
+
+<h3 id="result">result</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">result</span><span class="p">(</span><span class="kd">function</span> <span class="nx">func</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">data</span><span class="p">))</span></code></pre></div>
+
+<p>Specify send response function</p>
+
+<hr />
+
+<h2 id="usage">Usage</h2>
+
+<p>Pass model instance to Express API:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+<span class="nx">Grid</span><span class="p">.</span><span class="nx">listExpressAPI</span><span class="p">(</span><span class="nx">router</span><span class="p">).</span><span class="nx">model</span><span class="p">(</span><span class="nx">advertisersList</span><span class="p">);</span></code></pre></div>
+
+<p>or use a constructor for that:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">router</span> <span class="o">=</span> <span class="nx">express</span><span class="p">.</span><span class="nx">Router</span><span class="p">();</span>
+<span class="nx">Grid</span><span class="p">.</span><span class="nx">listExpressAPI</span><span class="p">(</span><span class="nx">router</span><span class="p">).</span><span class="nx">model</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nx">CitiesList</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">countryId</span><span class="p">);</span>
+<span class="p">});</span></code></pre></div>
+
+<blockquote>
+  <p>You can also customize your API with some additional methods,
+or perform a similar behaviour using other frameworks of course.</p>
+</blockquote>
+
+
+    <div class="docs-prevnext">
+      
+      <a class="docs-prev pull-left" href="/docs/list-xhr-model.html">&larr; Prev</a>
+      
+      
+      <a class="docs-next pull-right" href="/docs/grid-component.html">Next &rarr;</a>
+      
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+  <div class="page-row footer">
+    
+    <div class="home-copyright container">
+      <div class="row">
+        <div class="copyright col-sm-5">Copyright &copy; 2015 SoftIndex LLC. All Rights Reserved</div>
+        <div class="col-sm-7">
+          <div class="actions pull-right">
+            <a href="/">Home</a>
+            <a href="/docs/getting-started.html">Docs</a>
+            <a href="/examples/">Examples</a>
+            <a href="/download.html">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel='stylesheet' href='/static/bootstrap/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='/static/font-awesome/css/font-awesome.min.css'/>
+  <link rel='stylesheet' href='/static/css/pygment_trac.css'/>
+  <link rel='stylesheet' href='/static/css/style.css'/>
+  <script type='text/javascript' src='/static/js/jquery-2.1.4.min.js'></script>
+  <script type='text/javascript' src='/static/bootstrap/js/bootstrap.min.js'></script>
+  <title>UI library for building forms, editable grids and reports | UIKernel | UIKernel</title>
+</head>
+<body>
+  <div class="page-row">
+    <nav class="navbar-inverse home-menu">
+      <div class="container-fluid container">
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="/docs/getting-started.html">Docs</a></li>
+            <li><a href="/examples/">Examples</a></li>
+            <li><a href="/download.html">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://datakernel.io">DataKernel</a></li>
+            <li><a href="https://github.com/softindex/uikernel" target="_blank">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <div class="home-logo">
+      <center>
+        <img src='/static/images/logo.jpg' />
+        <div class="actions">
+          <a href="/docs/getting-started.html" class="btn btn-lg btn-primary">
+            Get Started
+          </a>
+          <a href="/download.html" class="btn btn-lg btn-success">
+            Download UIKernel v0.15.1
+          </a>
+        </div>
+      </center>
+    </div>
+    <!--div class="home-features">
+      <div class="container">
+        <h2 class='text-center'>Our Modules</h2>
+
+        <div class="col-sm-4 criteria">
+          <i class="fa fa-table"></i>
+          <h3 class="text-center">GRIDS</h3>
+          Make sortable, scrollable and paginated grids.
+          Define cells as inplace editable.
+        </div>
+
+        <div class="col-sm-4 criteria">
+          <i class="fa fa-list-alt"></i>
+          <h3 class="text-center">FORMS</h3>
+          Use forms to filter grid data or edit records in a separate form.
+          Validate data and pass it to your grid.
+        </div>
+
+        <div class="col-sm-4 criteria">
+          <i class="fa fa-line-chart"></i>
+          <h3 class="text-center">REPORTS</h3>
+          Display data statistics at your convenience.
+        </div>
+      </div>
+    </div-->
+    
+  </div>
+  <div class="page-row page-row-expanded home-content">
+    <div class="container content">
+      <div class="love-video row">
+  <div class="col-sm-8">
+    <h3>Simple way to manage complex interfaces</h3>
+    UIKernel is a comprehensive React.js UI library for building forms, editable grids and reports with drilldowns and filters, based on simple unified record model with client-side and server-side validations and data bindings.
+    <!--div class="actions">
+      <a href="/docs/grid-interface.html" class="btn-bordered">Read more</a>
+    </div-->
+  </div>
+  <div class="col-sm-4">
+    <img src="/static/images/example-1.png" class="pull-right" />
+  </div>
+</div>
+<p><br /></p>
+
+<div class="home-example">
+  <h2>Basic grid example</h2>
+  <!-- Example -->
+
+<link href="/examples/final-example/css/uikernel/main.css" rel="stylesheet" type="text/css" />
+<link href="/examples/final-example/css/main.css" rel="stylesheet" type="text/css" />
+
+<script src="/examples/final-example/js/libs/lodash.min.js"></script>
+<script src="/examples/final-example/js/libs/react.0.13.3.min.js"></script>
+<script src="/examples/final-example/js/libs/JSXTransformer-0.13.3.js"></script>
+<script src="/examples/final-example/js/libs/uikernel.js"></script>
+
+<script src="/examples/final-example/js/model/validation.js"></script>
+<script src="/examples/final-example/js/model/model.js"></script>
+<script src="/examples/final-example/js/components/MainComponent.jsx" type="text/jsx"></script>
+<script src="/examples/final-example/js/components/FiltersForm.jsx" type="text/jsx"></script>
+<script src="/examples/final-example/js/columns.jsx" type="text/jsx"></script>
+<script src="/examples/final-example/js/main.jsx" type="text/jsx"></script>
+
+<script src="/examples/final-example/js/libs/popup.jsx" type="text/jsx"></script>
+<script src="/examples/final-example/js/recordForm.jsx" type="text/jsx"></script>
+
+<div id="body"></div>
+<div class="modal fade" id="popup" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="popup-inner-content"></div>
+</div>
+
+</div>
+
+<div class="hide">
+  <h2>Features</h2>
+  <div class="row">
+    <div class="col-sm-6">
+      Basic
+      <ul>
+        <li>Sorting columns</li>
+        <li>Grid pagination</li>
+        <li>Nested column headers</li>
+        <li>Inplace cell editing</li>
+        <li>Realtime grid - save data right after editing</li>
+        <li>Edit and create forms</li>
+        <li>Records removing</li>
+      </ul>
+    </div>
+    <div class="col-sm-6">
+      Advanced
+      <ul>
+        <li>Filters</li>
+        <li>Scrollable grid - if grid exceeds some limit</li>
+        <li>Dynamic columns list - switch on/off some columns</li>
+        <li>Marking fields as new, changed or invalid</li>
+        <li>Extra records - shows and marks edited record even when moving to other page</li>
+        <li>Validation while editing or creating</li>
+        <li>Records selecting - to perform bulk operations if you want</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>More</h2>
+  <ul>
+    <li>Download our <a href="/uikernel/uikernel-0.15.1.tar.gz">starter kit</a></li>
+    <li>Visit our <a href="/docs/getting-started.html">getting started page</a></li>
+    <li>Check the <a href="/docs/tutorial.html">tutorial</a></li>
+    <li>Take a look at the <a href="#">examples page</a></li>
+  </ul>
+</div>
+
+<p><br /></p>
+<h3>Speeds up development</h3>
+<p>You just need to pass model and configuration to make component appear on your page.
+<br />
+<br /></p>
+
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;UIKernel.Grid</span>
+  <span class="na">model=</span><span class="s">{model}</span>
+  <span class="na">cols=</span><span class="s">{columns}</span>
+<span class="nt">/&gt;</span></code></pre></div>
+
+<p><br /></p>
+<h3>Code clarity</h3>
+<p>UIKernel tries to avoid unnecessary abstractions, giving you the opportunity to define model as you want.
+Nevertheless there are basic implementations, that work with client data, and models linking server and
+client interface using API.</p>
+
+    </div>
+  </div>
+  <div class="page-row footer">
+    
+    <div class="home-socials">
+    </div>
+    
+    <div class="home-copyright container">
+      <div class="row">
+        <div class="copyright col-sm-5">Copyright &copy; 2015 SoftIndex LLC. All Rights Reserved</div>
+        <div class="col-sm-7">
+          <div class="actions pull-right">
+            <a href="/">Home</a>
+            <a href="/docs/getting-started.html">Docs</a>
+            <a href="/examples/">Examples</a>
+            <a href="/download.html">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

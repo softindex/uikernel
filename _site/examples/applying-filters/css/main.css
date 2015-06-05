@@ -1,0 +1,20 @@
+.edit-form .changed {
+    background-color: #ffff38;
+}
+.edit-form .error {
+    background-color: #ff8689;
+}
+
+.filters-form {
+    padding-bottom: 10px;
+}
+.filters-form input,
+.edit-form input,
+.filters-form select,
+.edit-form select {
+    margin: 0;
+    width: 100% !important;
+}
+.padding0 {
+    padding: 0;
+}

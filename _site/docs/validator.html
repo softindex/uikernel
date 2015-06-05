@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel='stylesheet' href='/static/bootstrap/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='/static/font-awesome/css/font-awesome.min.css'/>
+  <link rel='stylesheet' href='/static/css/pygment_trac.css'/>
+  <link rel='stylesheet' href='/static/css/style.css'/>
+  <script type='text/javascript' src='/static/js/jquery-2.1.4.min.js'></script>
+  <script type='text/javascript' src='/static/bootstrap/js/bootstrap.min.js'></script>
+  <title>Validator | UIKernel</title>
+</head>
+<body>
+  <div class="page-row">
+    <nav class="navbar-inverse home-menu">
+      <div class="container-fluid container">
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+            <li><a href="/examples/">Examples</a></li>
+            <li><a href="/download.html">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://datakernel.io">DataKernel</a></li>
+            <li><a href="https://github.com/softindex/uikernel" target="_blank">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+  </div>
+  <div class="page-row page-row-expanded">
+    <div class="container content">
+      <div class="row">
+  <div class="col-sm-3 docs-menu">
+    <!-- Docs Nav -->
+
+<ul>
+  <li><h3>Quick Start</h3></li>
+  
+  <li>
+    <a href="/docs/getting-started.html">Getting Started</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/tutorial.html">Tutorial</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/first-grid-component.html">First grid component</a>
+      </li>
+      
+      <li>
+        <a href="/docs/sorting-and-pagination.html">Sorting and pagination</a>
+      </li>
+      
+      <li>
+        <a href="/docs/applying-filters.html">Applying filters</a>
+      </li>
+      
+      <li>
+        <a href="/docs/editing-grid-data.html">Editing grid data</a>
+      </li>
+      
+      <li>
+        <a href="/docs/removing-records.html">Removing records</a>
+      </li>
+      
+      <li>
+        <a href="/docs/creating-records.html">Creating records</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Editors</h3></li>
+  
+  <li>
+    <a href="/docs/editors.html">Overview</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/labels.html">Labels</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/list-model.html">List Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/list-xhr-model.html">XHR Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/list-express-api.html">Express API</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Grid</h3></li>
+  
+  <li>
+    <a href="/docs/grid-component.html">Component</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-interface.html">Grid Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/grid-model-xhr.html">Grid Xhr Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/grid-model-collection.html">Grid Model Collection</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="active">
+    <a href="/docs/validator.html">Validator</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/filter-adapter.html">Filters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-adapters.html">Form Adapters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/express-grid-api.html">Express API</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Form</h3></li>
+  
+  <li>
+    <a href="/docs/form-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-model.html">Model Interface</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/form-xhr-model.html">XHR Model</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Reports</h3></li>
+  
+  <li>
+    <a href="/docs/reports-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-model.html">Model</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-filters.html">Filters</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Examples</h3></li>
+  
+  <li>
+    <a href="/docs/dynamic-columns.html">Dynamic columns</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/bulk-operations.html">Bulk operations</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-example.html">Form</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/suggest-box.html">Suggest Box</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-example.html">Reports</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+
+  </div>
+
+  <div class="col-sm-9 docs-content">
+    <h1>
+      Validator
+    </h1>
+    <div class="subHeader"></div>
+
+    <p>Validation is an important consideration for products. Here are some basic validation examples within UIKernel:</p>
+
+<hr />
+
+<h3 id="createvalidator">createValidator</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">createValidator</span><span class="p">()</span></code></pre></div>
+
+<h2 id="returns-a-builder-needed-to-start-a-definition-of-validation-rules">Returns a builder needed to start a definition of validation rules.</h2>
+
+<h3 id="field">field</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">field</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">,</span> <span class="p">[</span><span class="nx">string</span><span class="o">|</span><span class="kc">null</span> <span class="kd">function</span> <span class="nx">validator</span><span class="p">(</span><span class="nx">value</span><span class="p">),</span> <span class="p">...])</span></code></pre></div>
+
+<p>Add synchronous field validation. Such a function returns error description if existing.</p>
+
+<p>Some basic synchronous validators already exist:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// Check if value is boolean</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="kr">boolean</span><span class="p">(</span><span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if date matches min-to-max range</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="nx">date</span><span class="p">(</span><span class="nb">Date</span> <span class="nx">min</span><span class="p">,</span> <span class="nb">Date</span> <span class="nx">max</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if variants contain the value</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="kr">enum</span><span class="p">(</span><span class="nb">Array</span> <span class="nx">variants</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if value is float</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="kr">float</span><span class="p">(</span><span class="nx">number</span> <span class="nx">min</span><span class="p">,</span> <span class="nx">number</span> <span class="nx">max</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if value matches [id, string label] form</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="nx">listElement</span><span class="p">(</span><span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if value matches [id, string label] form and id is not null</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="nx">listElement</span><span class="p">.</span><span class="nx">isRequired</span><span class="p">(</span><span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if value is not empty</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="nx">notNull</span><span class="p">(</span><span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if value is integer</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="nx">number</span><span class="p">(</span><span class="nx">number</span> <span class="nx">min</span><span class="p">,</span> <span class="nx">number</span> <span class="nx">max</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span>
+
+<span class="c1">// Check if value matches regular expression</span>
+<span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Validators</span><span class="p">.</span><span class="nx">regExp</span><span class="p">(</span><span class="nb">RegExp</span> <span class="nx">regExp</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)</span></code></pre></div>
+
+<p><a href="https://github.com/softindex/uikerneldev.github.io/tree/gh-pages/">Sources</a></p>
+
+<hr />
+
+<h3 id="fields">fields</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">fields</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">validatorFunction</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="nx">ValidationErrors</span> <span class="nx">errors</span><span class="p">))</span></code></pre></div>
+
+<p>Specify multiple synchronous validators for fields group. If errors occur, function complements errors object.</p>
+
+<hr />
+
+<h3 id="asyncdependence">asyncDependence</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncDependence</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">)</span></code></pre></div>
+
+<p>Function specifies server validation dependencies in a client validator.</p>
+
+<hr />
+
+<h3 id="asyncfield">asyncField</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">,</span>  <span class="kd">function</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">cb</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)))</span></code></pre></div>
+
+<p>Add field asynchronous validator.</p>
+
+<hr />
+
+<h3 id="asyncfields">asyncFields</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncFields</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="nx">ValidationErrors</span> <span class="nx">errors</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">cb</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">)))</span></code></pre></div>
+
+<p>Add field asynchonous validators. If errors occur, function complements <code>errors</code> object.</p>
+
+<blockquote>
+  <p><code>err</code> contains the error, that occured during asynchronous function execution, the <code>errors</code> parameter contain
+validation errors.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="validation-example">Validation example</h2>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">yourValidation</span> <span class="o">=</span> <span class="nx">UIKernel</span><span class="p">.</span><span class="nx">createValidator</span><span class="p">()</span>
+  <span class="c1">// Check if country&#39;s present</span>
+  <span class="p">.</span><span class="nx">field</span><span class="p">(</span><span class="s1">&#39;country&#39;</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">notNull</span><span class="p">(</span><span class="s1">&#39;Invalid country.&#39;</span><span class="p">))</span>
+  <span class="c1">// Check if email is valid using regular expressin</span>
+  <span class="p">.</span><span class="nx">field</span><span class="p">(</span><span class="s1">&#39;email&#39;</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">regExp</span><span class="p">(</span>
+    <span class="sr">/^.*@.*$/</span><span class="p">,</span>
+    <span class="s1">&#39;Your email is invalid&#39;</span>
+  <span class="p">))</span>
+  <span class="c1">// Check data isn&#39;t less than &#39;2014-10-01&#39; </span>
+  <span class="p">.</span><span class="nx">field</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">date</span><span class="p">(</span>
+    <span class="s1">&#39;2014-10-01&#39;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="s1">&#39;Timestamp must exceed 2014-10-01&#39;</span>
+  <span class="p">))</span>
+  <span class="c1">// Check if the age matches 15-90 range</span>
+  <span class="p">.</span><span class="nx">field</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="nx">number</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span>
+    <span class="s1">&#39;You do not have the right age&#39;</span>
+  <span class="p">))</span>
+  <span class="c1">// Check if credit isn&#39;t less than 30.5</span>
+   <span class="p">.</span><span class="nx">field</span><span class="p">(</span><span class="s1">&#39;credit&#39;</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="kr">float</span><span class="p">(</span><span class="mf">30.5</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="s1">&#39;You can not take the credit is less than 30.5&#39;</span>
+    <span class="p">))</span>
+  <span class="c1">// Check if user agrees with terms of use</span>
+   <span class="p">.</span><span class="nx">field</span><span class="p">(</span><span class="s1">&#39;agree&#39;</span><span class="p">,</span> <span class="nx">Validators</span><span class="p">.</span><span class="kr">boolean</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span>
+      <span class="s1">&#39;Select that you agree with the rules.&#39;</span>
+    <span class="p">))</span></code></pre></div>
+
+<hr />
+
+<h2 id="building-result">Building result</h2>
+
+<h3 id="getvalidationdependency">getValidationDependency</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">string</span><span class="p">[]</span> <span class="nx">getValidationDependency</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">)</span></code></pre></div>
+
+<p>Get all dependent fields validation needs</p>
+
+<hr />
+
+<h3 id="isvalidrecord">isValidRecord</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">ValidationErrors</span><span class="o">|</span><span class="kc">null</span> <span class="nx">isValidRecord</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">ValidationErrors</span> <span class="nx">result</span><span class="p">))</span></code></pre></div>
+
+<p>Check record validity</p>
+
+
+    <div class="docs-prevnext">
+      
+      <a class="docs-prev pull-left" href="/docs/grid-model-collection.html">&larr; Prev</a>
+      
+      
+      <a class="docs-next pull-right" href="/docs/filter-adapter.html">Next &rarr;</a>
+      
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+  <div class="page-row footer">
+    
+    <div class="home-copyright container">
+      <div class="row">
+        <div class="copyright col-sm-5">Copyright &copy; 2015 SoftIndex LLC. All Rights Reserved</div>
+        <div class="col-sm-7">
+          <div class="actions pull-right">
+            <a href="/">Home</a>
+            <a href="/docs/getting-started.html">Docs</a>
+            <a href="/examples/">Examples</a>
+            <a href="/download.html">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

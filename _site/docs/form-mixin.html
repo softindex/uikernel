@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel='stylesheet' href='/static/bootstrap/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='/static/font-awesome/css/font-awesome.min.css'/>
+  <link rel='stylesheet' href='/static/css/pygment_trac.css'/>
+  <link rel='stylesheet' href='/static/css/style.css'/>
+  <script type='text/javascript' src='/static/js/jquery-2.1.4.min.js'></script>
+  <script type='text/javascript' src='/static/bootstrap/js/bootstrap.min.js'></script>
+  <title>Form mixin | UIKernel</title>
+</head>
+<body>
+  <div class="page-row">
+    <nav class="navbar-inverse home-menu">
+      <div class="container-fluid container">
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+            <li><a href="/examples/">Examples</a></li>
+            <li><a href="/download.html">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://datakernel.io">DataKernel</a></li>
+            <li><a href="https://github.com/softindex/uikernel" target="_blank">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+  </div>
+  <div class="page-row page-row-expanded">
+    <div class="container content">
+      <div class="row">
+  <div class="col-sm-3 docs-menu">
+    <!-- Docs Nav -->
+
+<ul>
+  <li><h3>Quick Start</h3></li>
+  
+  <li>
+    <a href="/docs/getting-started.html">Getting Started</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/tutorial.html">Tutorial</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/first-grid-component.html">First grid component</a>
+      </li>
+      
+      <li>
+        <a href="/docs/sorting-and-pagination.html">Sorting and pagination</a>
+      </li>
+      
+      <li>
+        <a href="/docs/applying-filters.html">Applying filters</a>
+      </li>
+      
+      <li>
+        <a href="/docs/editing-grid-data.html">Editing grid data</a>
+      </li>
+      
+      <li>
+        <a href="/docs/removing-records.html">Removing records</a>
+      </li>
+      
+      <li>
+        <a href="/docs/creating-records.html">Creating records</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Editors</h3></li>
+  
+  <li>
+    <a href="/docs/editors.html">Overview</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/labels.html">Labels</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/list-model.html">List Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/list-xhr-model.html">XHR Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/list-express-api.html">Express API</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Grid</h3></li>
+  
+  <li>
+    <a href="/docs/grid-component.html">Component</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-interface.html">Grid Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/grid-model-xhr.html">Grid Xhr Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/grid-model-collection.html">Grid Model Collection</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/validator.html">Validator</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/filter-adapter.html">Filters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-adapters.html">Form Adapters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/express-grid-api.html">Express API</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Form</h3></li>
+  
+  <li class="active">
+    <a href="/docs/form-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-model.html">Model Interface</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/form-xhr-model.html">XHR Model</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Reports</h3></li>
+  
+  <li>
+    <a href="/docs/reports-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-model.html">Model</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-filters.html">Filters</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Examples</h3></li>
+  
+  <li>
+    <a href="/docs/dynamic-columns.html">Dynamic columns</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/bulk-operations.html">Bulk operations</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-example.html">Form</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/suggest-box.html">Suggest Box</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-example.html">Reports</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+
+  </div>
+
+  <div class="col-sm-9 docs-content">
+    <h1>
+      Form mixin
+    </h1>
+    <div class="subHeader"></div>
+
+    <p><a href="form-example.html">Example</a></p>
+
+<h3 id="initform">initForm</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">initForm</span><span class="p">(</span><span class="nx">object</span> <span class="nx">settings</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">))</span></code></pre></div>
+
+<p>Initialize form</p>
+
+<p><strong>Settings object</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>string[]</td>
+      <td>fields</td>
+      <td>Fields list, that are required to display</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/form-model.html">FormModel</a></td>
+      <td>model</td>
+      <td>Model of form</td>
+    </tr>
+    <tr>
+      <td>Object</td>
+      <td>data</td>
+      <td>Preset data</td>
+    </tr>
+    <tr>
+      <td>Object</td>
+      <td>changes</td>
+      <td>Preset changes</td>
+    </tr>
+    <tr>
+      <td>boolean</td>
+      <td>submitAll=false</td>
+      <td>Send all form for validity check</td>
+    </tr>
+    <tr>
+      <td>boolean</td>
+      <td>partialErrorChecking=false</td>
+      <td>Activate partial gradual form validation</td>
+    </tr>
+    <tr>
+      <td>boolean</td>
+      <td>autoSubmit</td>
+      <td>Automatic submit before updateField</td>
+    </tr>
+    <tr>
+      <td>Function</td>
+      <td>autoSubmitHandler</td>
+      <td>Automatic submit handler</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="isloaded">isLoaded</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kr">boolean</span> <span class="nx">isLoaded</span><span class="p">()</span></code></pre></div>
+
+<p>Check if data loaded</p>
+
+<hr />
+
+<h3 id="haschanges">hasChanges</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kr">boolean</span> <span class="nx">hasChanges</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">)</span></code></pre></div>
+
+<p>Check if form field has validity errors</p>
+
+<hr />
+
+<h3 id="haserror">hasError</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kr">boolean</span> <span class="nx">hasError</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">)</span> <span class="p">{</span></code></pre></div>
+
+<p>Check if form field has validity errors</p>
+
+<hr />
+
+<h3 id="clearerror">clearError</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearError</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">)</span></code></pre></div>
+
+<p>Clear field error mark</p>
+
+<hr />
+
+<h3 id="getdata">getData</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nb">Object</span> <span class="nx">getData</span><span class="p">()</span></code></pre></div>
+
+<p>Get form data, or <strong>null</strong> if it’s absent</p>
+
+<hr />
+
+<h3 id="getvalidationerrors">getValidationErrors</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">ValidationErrors</span> <span class="nx">getValidationErrors</span><span class="p">()</span></code></pre></div>
+
+<p>Get form errors</p>
+
+<hr />
+
+<h3 id="getfielderrors">getFieldErrors</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">string</span><span class="p">[]</span> <span class="nx">getFieldErrors</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">)</span></code></pre></div>
+
+<p>Get field errors</p>
+
+<hr />
+
+<h3 id="getglobalerror">getGlobalError</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nb">Error</span> <span class="nx">getGlobalError</span><span class="p">()</span></code></pre></div>
+
+<p>Get global error data, or <strong>null</strong> if it’s absent</p>
+
+<hr />
+
+<h3 id="updatefield">updateField</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">updateField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span>
+<span class="nx">updateField</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span></code></pre></div>
+
+<p>Update form value. Is used as the Editors onSubmit handler.
+Values param gets event or data.</p>
+
+<hr />
+
+<h3 id="validatefield">validateField</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">validateField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span>
+<span class="nx">validateField</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span></code></pre></div>
+
+<p>Update form value and validate form</p>
+
+<hr />
+
+<h3 id="validateform">validateForm</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">validateForm</span><span class="p">(</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">))</span></code></pre></div>
+
+<p>Validate form</p>
+
+<hr />
+
+<h3 id="set">set</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">set</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">data</span><span class="p">)</span></code></pre></div>
+
+<p>Set data in the form</p>
+
+<hr />
+
+<h3 id="submitdata">submitData</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">submitData</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">data</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">data</span><span class="p">))</span></code></pre></div>
+
+<p>Submit data</p>
+
+<hr />
+
+<h3 id="submit">submit</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">submit</span><span class="p">(</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">data</span><span class="p">))</span></code></pre></div>
+
+<p>Send form data to the model</p>
+
+<hr />
+
+<h3 id="clearchanges">clearChanges</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearChanges</span><span class="p">()</span></code></pre></div>
+
+<p>Clear form changes</p>
+
+
+    <div class="docs-prevnext">
+      
+      <a class="docs-prev pull-left" href="/docs/express-grid-api.html">&larr; Prev</a>
+      
+      
+      <a class="docs-next pull-right" href="/docs/form-model.html">Next &rarr;</a>
+      
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+  <div class="page-row footer">
+    
+    <div class="home-copyright container">
+      <div class="row">
+        <div class="copyright col-sm-5">Copyright &copy; 2015 SoftIndex LLC. All Rights Reserved</div>
+        <div class="col-sm-7">
+          <div class="actions pull-right">
+            <a href="/">Home</a>
+            <a href="/docs/getting-started.html">Docs</a>
+            <a href="/examples/">Examples</a>
+            <a href="/download.html">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

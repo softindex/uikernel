@@ -1,0 +1,35 @@
+#body {
+    margin: 0 auto;
+}
+
+.data-grid {
+  margin-bottom: 5px;
+}
+
+.btn-outline {
+    background-color: transparent;
+}
+
+.btn-success:hover, .btn-success:focus, .btn-success:active, .btn-success.active, .open .dropdown-toggle.btn-success {
+    background-color: rgb(26, 124, 185);
+    border-color: rgb(26, 124, 185);
+    color: white !important;
+    transition: 1s;
+}
+
+.btn-success.btn-outline {
+    color: rgb(28, 132, 198);
+    border-color: rgb(28,132,198);
+    transition: 1s;
+}
+
+.search > input {
+    width:100%;
+}
+
+tr.error {
+    background-color: #FFBDC4;
+}
+.data-grid {
+    margin: 10px 0;
+}

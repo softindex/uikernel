@@ -1,0 +1,1 @@
+var reportsModel = UIKernelReports.createXhrModel('http://democube.uikernel.io');

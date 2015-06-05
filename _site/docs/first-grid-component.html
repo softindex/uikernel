@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel='stylesheet' href='/static/bootstrap/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='/static/font-awesome/css/font-awesome.min.css'/>
+  <link rel='stylesheet' href='/static/css/pygment_trac.css'/>
+  <link rel='stylesheet' href='/static/css/style.css'/>
+  <script type='text/javascript' src='/static/js/jquery-2.1.4.min.js'></script>
+  <script type='text/javascript' src='/static/bootstrap/js/bootstrap.min.js'></script>
+  <title>First grid component | UIKernel</title>
+</head>
+<body>
+  <div class="page-row">
+    <nav class="navbar-inverse home-menu">
+      <div class="container-fluid container">
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/docs/getting-started.html">Docs</a></li>
+            <li><a href="/examples/">Examples</a></li>
+            <li><a href="/download.html">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://datakernel.io">DataKernel</a></li>
+            <li><a href="https://github.com/softindex/uikernel" target="_blank">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+  </div>
+  <div class="page-row page-row-expanded">
+    <div class="container content">
+      <div class="row">
+  <div class="col-sm-3 docs-menu">
+    <!-- Docs Nav -->
+
+<ul>
+  <li><h3>Quick Start</h3></li>
+  
+  <li>
+    <a href="/docs/getting-started.html">Getting Started</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/tutorial.html">Tutorial</a>
+    
+    <ul>
+      
+      <li class="active">
+        <a href="/docs/first-grid-component.html">First grid component</a>
+      </li>
+      
+      <li>
+        <a href="/docs/sorting-and-pagination.html">Sorting and pagination</a>
+      </li>
+      
+      <li>
+        <a href="/docs/applying-filters.html">Applying filters</a>
+      </li>
+      
+      <li>
+        <a href="/docs/editing-grid-data.html">Editing grid data</a>
+      </li>
+      
+      <li>
+        <a href="/docs/removing-records.html">Removing records</a>
+      </li>
+      
+      <li>
+        <a href="/docs/creating-records.html">Creating records</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Editors</h3></li>
+  
+  <li>
+    <a href="/docs/editors.html">Overview</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/labels.html">Labels</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/list-model.html">List Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/list-xhr-model.html">XHR Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/list-express-api.html">Express API</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Grid</h3></li>
+  
+  <li>
+    <a href="/docs/grid-component.html">Component</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-interface.html">Grid Model</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/grid-model-xhr.html">Grid Xhr Model</a>
+      </li>
+      
+      <li>
+        <a href="/docs/grid-model-collection.html">Grid Model Collection</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/validator.html">Validator</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/filter-adapter.html">Filters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/grid-adapters.html">Form Adapters</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/express-grid-api.html">Express API</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Form</h3></li>
+  
+  <li>
+    <a href="/docs/form-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-model.html">Model Interface</a>
+    
+    <ul>
+      
+      <li>
+        <a href="/docs/form-xhr-model.html">XHR Model</a>
+      </li>
+      
+    </ul>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Reports</h3></li>
+  
+  <li>
+    <a href="/docs/reports-mixin.html">Mixin</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-model.html">Model</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-filters.html">Filters</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+<ul>
+  <li><h3>Examples</h3></li>
+  
+  <li>
+    <a href="/docs/dynamic-columns.html">Dynamic columns</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/bulk-operations.html">Bulk operations</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/form-example.html">Form</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/suggest-box.html">Suggest Box</a>
+    
+  </li>
+  
+  <li>
+    <a href="/docs/reports-example.html">Reports</a>
+    
+  </li>
+  
+</ul>
+<hr />
+
+
+  </div>
+
+  <div class="col-sm-9 docs-content">
+    <h1>
+      First grid component
+    </h1>
+    <div class="subHeader"></div>
+
+    <p>We’ll create the first component named as Contact Book and display our test data.</p>
+
+<p><a href="/examples/first-grid-component/" target="_blank">Live demo</a> and <a href="https://github.com/softindex/uikerneldev.github.io/tree/gh-pages/_site/examples/first-grid-component" target="_blank">code example</a> are available here.</p>
+
+<h3 id="main-component">Main component</h3>
+
+<p>The main component takes several props, including the Grid model and columns.</p>
+
+<p><code>MainComponent.jsx</code>:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">MainComponent</span> <span class="o">=</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
+  <span class="nx">getInitialState</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="nx">model</span> <span class="c1">// let&#39;s store model in the state</span>
+    <span class="p">};</span>
+  <span class="p">},</span>
+  <span class="nx">render</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span>
+      <span class="o">&lt;</span><span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Grid</span>
+        <span class="nx">model</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">.</span><span class="nx">model</span><span class="p">}</span> <span class="c1">// Grid model</span>
+        <span class="nx">cols</span><span class="o">=</span><span class="p">{</span><span class="nx">columns</span><span class="p">}</span> <span class="c1">// columns configuration</span>
+      <span class="o">/&gt;</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span></code></pre></div>
+
+<h3 id="grid-model">Grid Model</h3>
+
+<p>Let’s create a client model and pass it some fake data.</p>
+
+<p><code>model.js</code>:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">model</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Models</span><span class="p">.</span><span class="nx">Grid</span><span class="p">.</span><span class="nx">Collection</span><span class="p">({</span>
+  <span class="nx">data</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span><span class="mi">1</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Sonya&quot;</span><span class="p">,</span> <span class="nx">surname</span><span class="o">:</span> <span class="s2">&quot;Weaver&quot;</span><span class="p">,</span> <span class="nx">phone</span><span class="o">:</span> <span class="s2">&quot;555-0159&quot;</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">59</span><span class="p">,</span> <span class="nx">gender</span><span class="o">:</span> <span class="mi">1</span><span class="p">}],</span>
+    <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span><span class="mi">2</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Bates&quot;</span><span class="p">,</span> <span class="nx">surname</span><span class="o">:</span> <span class="s2">&quot;Weaver&quot;</span><span class="p">,</span> <span class="nx">phone</span><span class="o">:</span> <span class="s2">&quot;555-0144&quot;</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">54</span><span class="p">,</span> <span class="nx">gender</span><span class="o">:</span> <span class="mi">2</span><span class="p">}],</span>
+    <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="p">{</span><span class="nx">id</span><span class="o">:</span><span class="mi">3</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s2">&quot;Rodriguez&quot;</span><span class="p">,</span> <span class="nx">surname</span><span class="o">:</span> <span class="s2">&quot;Terrell&quot;</span><span class="p">,</span> <span class="nx">phone</span><span class="o">:</span> <span class="s2">&quot;555-0146&quot;</span><span class="p">,</span> <span class="nx">age</span><span class="o">:</span> <span class="mi">40</span><span class="p">,</span> <span class="nx">gender</span><span class="o">:</span> <span class="mi">2</span><span class="p">}]</span>
+    <span class="c1">// ...</span>
+  <span class="p">]</span>
+<span class="p">});</span></code></pre></div>
+
+<h3 id="columns-configuration">Columns configuration</h3>
+
+<p><code>columns.jsx</code>:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">columns</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;First Name&#39;</span><span class="p">,</span> <span class="c1">// columns title</span>
+    <span class="nx">render</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">record</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// method to render a cell</span>
+      <span class="k">return</span> <span class="nx">record</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span> <span class="c1">// returns HTML. Escape ampersand result</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">surname</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Last Name&#39;</span><span class="p">,</span>
+    <span class="nx">render</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;surname&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">record</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">record</span><span class="p">.</span><span class="nx">surname</span><span class="p">;</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">phone</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Phone&#39;</span><span class="p">,</span>
+    <span class="nx">render</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;phone&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">record</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">record</span><span class="p">.</span><span class="nx">phone</span><span class="p">;</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">age</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Age&#39;</span><span class="p">,</span>
+    <span class="nx">render</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">record</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">record</span><span class="p">.</span><span class="nx">age</span><span class="p">;</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">gender</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Gender&#39;</span><span class="p">,</span>
+    <span class="nx">render</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">record</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">switch</span> <span class="p">(</span><span class="nx">record</span><span class="p">.</span><span class="nx">gender</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="mi">1</span><span class="o">:</span> <span class="k">return</span> <span class="s1">&#39;Male&#39;</span><span class="p">;</span>
+        <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="k">return</span> <span class="s1">&#39;Female&#39;</span><span class="p">;</span>
+        <span class="k">default</span><span class="o">:</span> <span class="k">return</span> <span class="s1">&#39;Undefined&#39;</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">}]</span>
+  <span class="p">}</span>
+<span class="p">};</span></code></pre></div>
+
+<h3 id="main-file">Main file</h3>
+
+<p>Render the main component.</p>
+
+<p><code>main.jsx</code>:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">React</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="o">&lt;</span><span class="nx">MainComponent</span><span class="o">/&gt;</span><span class="p">,</span> <span class="nb">document</span><span class="p">.</span><span class="nx">body</span><span class="p">);</span></code></pre></div>
+
+
+
+    <div class="docs-prevnext">
+      
+      <a class="docs-prev pull-left" href="/docs/tutorial.html">&larr; Prev</a>
+      
+      
+      <a class="docs-next pull-right" href="/docs/sorting-and-pagination.html">Next &rarr;</a>
+      
+    </div>
+  </div>
+</div>
+
+    </div>
+  </div>
+  <div class="page-row footer">
+    
+    <div class="home-copyright container">
+      <div class="row">
+        <div class="copyright col-sm-5">Copyright &copy; 2015 SoftIndex LLC. All Rights Reserved</div>
+        <div class="col-sm-7">
+          <div class="actions pull-right">
+            <a href="/">Home</a>
+            <a href="/docs/getting-started.html">Docs</a>
+            <a href="/examples/">Examples</a>
+            <a href="/download.html">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
