@@ -1,0 +1,14 @@
+docs
+src
+vendor
+themes
+gulp
+.idea
+.editorconfig
+.eslintrc
+.gitignore
+.jscsrc
+.npmignore
+gulpfile.js
+bower.json
+npm-debug.log

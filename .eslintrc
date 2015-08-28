@@ -1,0 +1,19 @@
+plugins: ["react"]
+
+ecmaFeatures:
+  jsx: true
+  generators: true
+
+env:
+  browser: true
+  jquery: true
+  node: true
+
+rules:
+  quotes: [2, "single"]
+  strict: [0, 'global']
+  global-strict: [2, 'always']
+  no-cond-assign: 0
+  no-underscore-dangle: 0
+  consistent-return: 0
+  react/jsx-uses-react: 1
