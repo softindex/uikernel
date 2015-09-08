@@ -92,8 +92,6 @@ var GridUIMixin = {
 
       // If required page is not included in the range of existing pages,
       // request existing in a moment page
-      // TODO can be optimized, making the model to send the last page,
-      // TODO if the page has gone beyond the existing range
       page = this._checkPage(this.state.page, this.state.viewCount, obj.count);
       if (page !== this.state.page) {
         this.state.page = page;
