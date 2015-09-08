@@ -503,6 +503,22 @@ var GridDataMixin = {
     return additionalIds;
   },
 
+  _removeRecord: function (recordId, cb) {
+    this._removeTR(recordId);
+    this.unselectRecord(recordId, true);
+    delete this.state.data[recordId];
+    delete this.state.recordsInfo[recordId];
+    delete this.state.changes[recordId];
+    delete this.state.errors[recordId];
+    delete this.state.editor[recordId];
+    this.setState({
+      data: this.state.data,
+      changes: this.state.changes,
+      errors: this.state.errors,
+      editor: this.state.editor
+    }, cb ? cb.bind(this) : null);
+  },
+
   _validateRow: utils.throttle(function (row, cb) {
     var record = this._getRecord(row);
 
