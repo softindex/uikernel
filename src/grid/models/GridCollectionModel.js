@@ -14,6 +14,16 @@ var utils = require('../../common/utils');
 var AbstractGridModel = require('./AbstractGridModel');
 var Validator = require('../../common/validation/Validator');
 
+/**
+ * Specifies a grid model that will work with array data passed to it as a parameter.
+ *
+ * @param {Object}    options
+ * @param {Object[]}  options.data              Data array
+ * @param {Function}  [options.filtersHandler]
+ * @param {Validator} [options.validator]
+ * @param {string[]}  [options.requiredFields]
+ * @constructor
+ */
 var GridCollectionModel = function (options) {
   AbstractGridModel.call(this);
 
