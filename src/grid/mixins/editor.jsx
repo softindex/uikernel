@@ -124,7 +124,7 @@ var GridEditorMixin = {
     this._updateField(row, column);
 
     if (this.props.realtime) {
-      this.save();
+      this.save(this.props.onRealtimeSubmit);
     } else {
       this._validateRow(row);
     }
