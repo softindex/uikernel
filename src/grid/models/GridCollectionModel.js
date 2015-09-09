@@ -38,14 +38,14 @@ GridCollectionModel.prototype.setData = function (data) {
 GridCollectionModel.prototype.create = function (record, cb) {
   var i;
 
+  var validateRecord = utils.clone(record);
+
   for (i in this._requiredFields) {
     var field = this._requiredFields[i];
-    if (!(field in record)) {
-      return cb(Error('Fill the form correctly'));
-    }
+    validateRecord[field] = record[field] || null;
   }
 
-  this.isValidRecord(record, function (err, validationErrors) {
+  this.isValidRecord(validateRecord, function (err, validationErrors) {
     if (err) {
       return cb(err);
     }
