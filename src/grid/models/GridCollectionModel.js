@@ -43,11 +43,11 @@ GridCollectionModel.prototype = new AbstractGridModel();
  */
 GridCollectionModel.prototype.create = function (record, cb) {
   var i;
-
+  var field;
   var validateRecord = utils.clone(record);
 
   for (i in this._requiredFields) {
-    var field = this._requiredFields[i];
+    field = this._requiredFields[i];
     validateRecord[field] = record[field] || null;
   }
 
