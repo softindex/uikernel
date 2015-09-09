@@ -37,6 +37,15 @@ GridCollectionModel.prototype = new AbstractGridModel();
 GridCollectionModel.prototype.constructor = AbstractGridModel;
 
 /**
+ * Set data array in model
+ *
+ * @param {Object[]} data
+ */
+GridCollectionModel.prototype.setData = function (data) {
+  this.data = data;
+};
+
+/**
  * Add a record to local collection
  *
  * @param {Object}      record  Record object
