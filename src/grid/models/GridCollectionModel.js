@@ -25,6 +25,10 @@ var GridCollectionModel = function (options) {
 };
 GridCollectionModel.prototype = new AbstractGridModel();
 
+GridCollectionModel.prototype.setData = function (data) {
+  this.data = data;
+};
+
 /**
  * Add a record to local collection
  *
