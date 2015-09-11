@@ -52,9 +52,9 @@ var FormMixin = {
     function done() {
       ctx.state._formMixin.model.on('update', ctx._handleModelChange);
       ctx.forceUpdate();
-      ctx._validateForm(function (err) {
+      ctx._validateForm(function () {
         if (cb) {
-          cb(err);
+          cb();
         }
       });
     }
@@ -127,7 +127,7 @@ var FormMixin = {
 
   clearError: function (field) {
     if (this._isNotInitialized()) {
-      throw Error('Call "clearError" before initialize form. Use this.isLoaded() for checking.');
+      return;
     }
 
     if (this.state._formMixin.validating) {
@@ -224,7 +224,7 @@ var FormMixin = {
    */
   updateField: function (fields, values) {
     if (this._isNotInitialized()) {
-      throw Error('Call "updateField" before initialize form. Use this.isLoaded() for checking.');
+      return;
     }
 
     values = utils.parseValueFromEvent(values);
@@ -242,16 +242,13 @@ var FormMixin = {
 
   validateField: function (fields, values) {
     if (this.state._formMixin.autoSubmit) {
-      throw Error('Use "validateField" method to update value in autoSubmit mode');
+      throw Error('Use updateField method to update value in autoSubmit mode');
     }
     this.updateField(fields, values);
     this.validateForm();
   },
 
   validateForm: function (cb) {
-    if (this._isNotInitialized()) {
-      throw Error('Call "validateForm" before initialize form. Use this.isLoaded() for checking.');
-    }
     this._validateForm(function (err) {
       if (typeof cb === 'function') {
         return cb(err);
@@ -266,7 +263,7 @@ var FormMixin = {
    */
   set: function (data) {
     if (this._isNotInitialized()) {
-      throw Error('Call "set" before initialize form. Use this.isLoaded() for checking.');
+      return;
     }
 
     utils.assign(this.state._formMixin.changes, data);
@@ -293,7 +290,7 @@ var FormMixin = {
 
   submitData: function (data, cb) {
     if (this._isNotInitialized()) {
-      throw Error('Call "submitData" before initialize form. Use this.isLoaded() for checking.');
+      return;
     }
 
     this.set(data);
@@ -307,7 +304,7 @@ var FormMixin = {
    */
   submit: function (cb) {
     if (this._isNotInitialized()) {
-      throw Error('Call "submit" before initialize form. Use this.isLoaded() for checking.');
+      return;
     }
 
     var changes = this._getChanges();
@@ -358,7 +355,7 @@ var FormMixin = {
 
   clearChanges: function () {
     if (this._isNotInitialized()) {
-      throw Error('Call "clearChanges" before initialize form. Use this.isLoaded() for checking.');
+      return;
     }
 
     this.state._formMixin.errors.clear();
@@ -369,9 +366,6 @@ var FormMixin = {
   },
 
   setPartialErrorChecking: function (value) {
-    if (this._isNotInitialized()) {
-      throw Error('Call "setPartialErrorChecking" before initialize form. Use this.isLoaded() for checking.');
-    }
     this.state._formMixin.partialErrorChecking = value;
     this.forceUpdate();
   },
