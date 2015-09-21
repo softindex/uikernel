@@ -51,11 +51,13 @@ var FormMixin = {
 
     function done() {
       ctx.state._formMixin.model.on('update', ctx._handleModelChange);
-      ctx.forceUpdate();
-      ctx._validateForm(function () {
-        if (cb) {
-          cb();
-        }
+      ctx.setState(ctx.state, function () {
+        ctx._validateForm(function () {
+          if (cb) {
+            // Don't send validation errors
+            cb();
+          }
+        });
       });
     }
 
@@ -67,11 +69,12 @@ var FormMixin = {
         }*/
         if (err) {
           ctx.state._formMixin.globalError = err;
-          ctx.forceUpdate();
-          if (cb) {
-            return cb(err);
-          }
-          throw err;
+          ctx.setState(ctx.state, function () {
+            if (cb) {
+              return cb(err);
+            }
+            throw err;
+          });
         }
         ctx.state._formMixin.data = data;
         done();
@@ -125,7 +128,7 @@ var FormMixin = {
     return this.state._formMixin.errors.hasError(field);
   },
 
-  clearError: function (field) {
+  clearError: function (field, cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -142,7 +145,7 @@ var FormMixin = {
       this.state._formMixin.errors.clearField(field);
     }
 
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
   /**
@@ -221,8 +224,9 @@ var FormMixin = {
    *
    * @param {string|string[]}  fields  Parameters
    * @param {*}                values   Event or data
+   * @param {Function}         [cb]       CallBack
    */
-  updateField: function (fields, values) {
+  updateField: function (fields, values, cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -236,16 +240,16 @@ var FormMixin = {
 
     this.set(utils.zipObject(fields, values));
     if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler);
+      this.submit(this.state._formMixin.autoSubmitHandler, cb);
     }
   },
 
-  validateField: function (fields, values) {
+  validateField: function (fields, values, cb) {
     if (this.state._formMixin.autoSubmit) {
       throw Error('Use updateField method to update value in autoSubmit mode');
     }
     this.updateField(fields, values);
-    this.validateForm();
+    this.validateForm(cb);
   },
 
   validateForm: function (cb) {
@@ -259,9 +263,10 @@ var FormMixin = {
   /**
    * Set data in the form
    *
-   * @param {Object} data Data
+   * @param {Object}    data  Data
+   * @param {Function}  [cb]    CallBack
    */
-  set: function (data) {
+  set: function (data, cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -279,7 +284,7 @@ var FormMixin = {
         delete this.state._formMixin.changes[i];
       }
     }
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
   submitData: function (data, cb) {
@@ -294,7 +299,7 @@ var FormMixin = {
   /**
    * Send form data to the model
    *
-   * @param {Function}  cb  CallBack function
+   * @param {Function}  [cb]  CallBack function
    */
   submit: function (cb) {
     if (this._isNotInitialized()) {
@@ -340,14 +345,15 @@ var FormMixin = {
         }, this);
       }
 
-      this.forceUpdate();
-      if (typeof cb === 'function') {
-        cb(err, data);
-      }
+      this.setState(this.state, function () {
+        if (typeof cb === 'function') {
+          cb(err, data);
+        }
+      });
     }.bind(this));
   },
 
-  clearChanges: function () {
+  clearChanges: function (cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -356,12 +362,12 @@ var FormMixin = {
     this.state._formMixin.changes = {};
     this.state._formMixin.globalError = false;
     this.state._formMixin.partialErrorChecking = this.state._formMixin.partialErrorCheckingDefault;
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
-  setPartialErrorChecking: function (value) {
+  setPartialErrorChecking: function (value, cb) {
     this.state._formMixin.partialErrorChecking = value;
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
   /**
@@ -372,7 +378,7 @@ var FormMixin = {
    */
   _handleModelChange: function (changes) {
     utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
-    this.forceUpdate();
+    this.setState(this.state);
   },
 
   _initState: function (settings) {
@@ -430,12 +436,12 @@ var FormMixin = {
         }
       }
 
-      this.forceUpdate();
-
-      if (!validErrors.isEmpty()) {
-        return cb(validErrors);
-      }
-      cb(err);
+      this.setState(this.state, function () {
+        if (!validErrors.isEmpty()) {
+          return cb(validErrors);
+        }
+        cb(err);
+      });
     }.bind(this));
   }),
 
