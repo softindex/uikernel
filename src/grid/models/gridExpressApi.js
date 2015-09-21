@@ -16,18 +16,19 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
  * Form Express API for Grid model interaction
  *
  * @param {Object}    router
+ * @param {string[]}  availableMethods
  * @return {GridExpressApi}
  * @constructor
  */
-function GridExpressApi(router) {
+function GridExpressApi(router, availableMethods) {
   if (!(this instanceof GridExpressApi)) {
     return new GridExpressApi(router);
   }
 
   var builderContext = this;
 
-  router
-    .get('/', function (req, res, next) {
+  if (!availableMethods || availableMethods.indexOf('read') >= 0) {
+    router.get('/', function (req, res, next) {
       var settings = {};
       if (req.query.limit) {
         settings.limit = req.query.limit;
@@ -50,37 +51,51 @@ function GridExpressApi(router) {
       builderContext._getModel(req, res).read(settings, function (err, response) {
         builderContext._result(err, response, req, res, next);
       });
-    })
-    .get('/:recordId', function (req, res, next) {
+    });
+  }
+
+  if (!availableMethods || availableMethods.indexOf('getRecord') >= 0) {
+    router.get('/:recordId', function (req, res, next) {
       var cols = req.query.cols ? JSON.parse(req.query.cols) : null;
       builderContext._getModel(req, res).getRecord(req.params.recordId, cols, function (err, response) {
         builderContext._result(err, response, req, res, next);
       });
-    })
-    .put('/', function (req, res, next) {
+    });
+  }
+
+  if (!availableMethods || availableMethods.indexOf('update') >= 0) {
+    router.put('/', function (req, res, next) {
       builderContext._getModel(req, res).update(req.body, function (err, response) {
         if (err && !Array.isArray(err)) {
           return builderContext._result(err, null, req, res, next);
         }
         builderContext._result(null, {data: response, error: err}, req, res, next);
       });
-    })
-    .post('/', function (req, res, next) {
+    });
+  }
+
+  if (!availableMethods || availableMethods.indexOf('create') >= 0) {
+    router.post('/', function (req, res, next) {
       builderContext._getModel(req, res).create(req.body, function (err, data) {
         if (err && !(err instanceof ValidationErrors)) {
           return builderContext._result(err, null, req, res, next);
         }
         builderContext._result(null, {data: data, error: err}, req, res, next);
       });
-    })
-    .post('/validation', function (req, res, next) {
+    });
+  }
+
+  if (!availableMethods || availableMethods.indexOf('isValidRecord') >= 0) {
+    router.post('/validation', function (req, res, next) {
       builderContext._getModel(req, res).isValidRecord(req.body, function (err, errors) {
         builderContext._result(err, errors, req, res, next);
       });
-    })
-    .use(function (err, req, res, next) {
-      builderContext._result(err, null, req, res, next);
     });
+  }
+
+  router.use(function (err, req, res, next) {
+    builderContext._result(err, null, req, res, next);
+  });
 }
 
 /**
