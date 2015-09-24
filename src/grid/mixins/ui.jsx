@@ -249,6 +249,7 @@ var GridUIMixin = {
     var header = this._formHeader();
     var totalsDisplayed = false;
     var i;
+    var className;
     var totalsRowHTML = '';
 
     // If data for result line display exists, form it
@@ -257,12 +258,20 @@ var GridUIMixin = {
         if (!this._isViewColumn(i)) {
           continue;
         }
-        if (this.state.totals.hasOwnProperty(i)) {
-          totalsRowHTML += '<td>' + this._getCellHTML(i, this.state.totals, false) + '</td>';
-          totalsDisplayed = true;
+
+        className = this.props.cols[i].className;
+        if (className) {
+          totalsRowHTML += '<td class="' + className + '">';
         } else {
-          totalsRowHTML += '<td></td>';
+          totalsRowHTML += '<td>';
         }
+
+        if (this.state.totals.hasOwnProperty(i)) {
+          totalsRowHTML += this._getCellHTML(i, this.state.totals, false);
+          totalsDisplayed = true;
+        }
+
+        totalsRowHTML += '</td>';
       }
     }
 
