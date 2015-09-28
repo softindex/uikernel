@@ -36,6 +36,7 @@ FormXhrModel.prototype = new EventsModel();
 FormXhrModel.prototype.getData = function (fields, cb) {
   var parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.fields = JSON.stringify(fields);
+  delete parsedUrl.search;
 
   this._xhr({
     method: 'GET',
@@ -61,6 +62,7 @@ FormXhrModel.prototype.getData = function (fields, cb) {
 FormXhrModel.prototype.getData = function (fields, cb) {
   var parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.fields = JSON.stringify(fields);
+  delete parsedUrl.search;
 
   this._xhr({
     method: 'GET',
@@ -124,6 +126,7 @@ FormXhrModel.prototype.isValidRecord = function (record, cb) {
     var parsedUrl = url.parse(this._apiUrl, true);
     parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
     parsedUrl.query.record = JSON.stringify(record);
+    delete parsedUrl.search;
 
     // Server validation start
     this._xhr({
