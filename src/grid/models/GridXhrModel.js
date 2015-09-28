@@ -42,6 +42,7 @@ var GridXhrModel = function (settings) {
     .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
 };
 GridXhrModel.prototype = new AbstractGridModel();
+GridXhrModel.prototype.constructor = GridXhrModel;
 
 /**
  * Add a record

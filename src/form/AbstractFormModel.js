@@ -22,6 +22,7 @@ var AbstractFormModel = function () {
   EventsModel.call(this);
 };
 AbstractFormModel.prototype = new EventsModel();
+AbstractFormModel.prototype.constructor = AbstractFormModel;
 
 /**
  * Get data

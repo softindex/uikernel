@@ -142,6 +142,7 @@ exports.decorate = function (obj, decor) {
     }
   }
   Decorator.prototype = obj;
+  Decorator.prototype.constructor = Decorator;
   return new Decorator();
 };
 

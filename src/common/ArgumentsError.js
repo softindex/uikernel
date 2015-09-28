@@ -20,5 +20,6 @@ function ArgumentsError(message) {
 }
 
 ArgumentsError.prototype = Error();
+ArgumentsError.prototype.constructor = ArgumentsError;
 
 module.exports = ArgumentsError;

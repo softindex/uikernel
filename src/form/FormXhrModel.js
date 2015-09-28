@@ -32,6 +32,7 @@ var FormXhrModel = function (settings) {
     .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
 };
 FormXhrModel.prototype = new EventsModel();
+FormXhrModel.prototype.constructor = FormXhrModel;
 
 FormXhrModel.prototype.getData = function (fields, cb) {
   var parsedUrl = url.parse(this._apiUrl, true);

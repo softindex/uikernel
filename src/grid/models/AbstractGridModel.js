@@ -23,6 +23,7 @@ var AbstractGridModel = function () {
   EventsModel.call(this);
 };
 AbstractGridModel.prototype = new EventsModel();
+AbstractGridModel.prototype.constructor = AbstractGridModel;
 
 /**
  * Add a record

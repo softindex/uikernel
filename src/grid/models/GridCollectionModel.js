@@ -34,6 +34,7 @@ var GridCollectionModel = function (options) {
   this._requiredFields = options.requiredFields || [];
 };
 GridCollectionModel.prototype = new AbstractGridModel();
+GridCollectionModel.prototype.constructor = AbstractGridModel;
 
 /**
  * Add a record to local collection

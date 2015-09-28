@@ -26,6 +26,7 @@ var FormModel = function (defaultValues, validation) {
   this._data = defaultValues ? utils.clone(defaultValues) : {};
 };
 FormModel.prototype = new AbstractFormModel();
+FormModel.prototype.constructor = FormModel;
 
 /**
  * Get data
