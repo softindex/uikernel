@@ -20,7 +20,12 @@
  */
 module.exports = function (min, max, error) {
   return function (value) {
-    if (!value && value !== 0 || parseInt(value, 10).toString() !== value.toString() || value < min || value > max) {
+    if (
+      !value && value !== 0 ||
+      parseInt(value, 10).toString() !== value.toString() ||
+      typeof min === 'number' && value < min ||
+      typeof max === 'number' && value > max
+    ) {
       return error;
     }
   };
