@@ -83,7 +83,8 @@ var FormMixin = {
    * @returns {boolean}
    */
   isLoaded: function () {
-    return this.state && this.state._formMixin && Boolean(this.state._formMixin.data);
+    return this.state && this.state._formMixin &&
+      Boolean(this.state._formMixin.data || this.state._formMixin.globalError);
   },
 
   /**
