@@ -66,7 +66,9 @@ FormModel.prototype.submit = function (changes, cb) {
       this.trigger('update', changes);
     }
 
-    cb(validErrors, changes);
+    if (cb) {
+      cb(validErrors, changes);
+    }
   }.bind(this));
 };
 
