@@ -15,7 +15,7 @@ require('./lib/fix_generators');
 var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
-  createValidator: require('./lib/common/validation/createValidator'),
+  createValidator: require('./lib/common/validation/Validator/browser'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
