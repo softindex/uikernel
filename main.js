@@ -15,7 +15,7 @@ require('./lib/fix_generators');
 var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
-  createValidator: require('./lib/common/validation/createValidator'),
+  createValidator: require('./lib/common/validation/Validator/common'),
   gridExpressApi: require('./lib/grid/models/gridExpressApi'),
   listExpressApi: require('./lib/list/ListExpressApi'),
   formExpressApi: require('./lib/form/FormExpressApi'),

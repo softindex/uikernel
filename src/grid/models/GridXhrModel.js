@@ -10,11 +10,10 @@
 
 'use strict';
 
-var utils = require('../../common/utils');
 var url = require('url');
 var AbstractGridModel = require('./AbstractGridModel');
 var defaultXHR = require('../../common/defaultXHR');
-var Validator = require('../../common/validation/Validator');
+var Validator = require('../../common/validation/Validator/common');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 /**
@@ -22,8 +21,7 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
  *
  * @param {Object}    settings                          Model settings
  * @param {string}    settings.api                      API address
- * @param {Validator} [settings.commonValidator]        General validator
- * @param {bool}      [settings.serverValidation=true]  Check async validation flag
+ * @param {Validator} [settings.validator]        General validator
  * @param {Function}  [settings.xhr]                    XHR interface
  * @constructor
  */
@@ -34,8 +32,7 @@ var GridXhrModel = function (settings) {
     throw Error('Initialization problem: \'api\' must be specified.');
   }
 
-  this._commonValidator = settings.commonValidator || new Validator();
-  this._serverValidation = settings.serverValidation || true;
+  this._validator = settings.validator || new Validator();
   this._xhr = settings.xhr || defaultXHR;
   this._apiUrl = settings.api
     .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
@@ -202,7 +199,7 @@ GridXhrModel.prototype.update = function (changes, cb) {
  * @returns {Array}  Dependencies
  */
 GridXhrModel.prototype.getValidationDependency = function (fields) {
-  return this._commonValidator.getValidationDependency(fields);
+  return this._validator.getValidationDependency(fields);
 };
 
 /**
@@ -212,44 +209,7 @@ GridXhrModel.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 GridXhrModel.prototype.isValidRecord = function (record, cb) {
-  if (this._serverValidation && !utils.isEmpty(record)) {
-    var parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
-    delete parsedUrl.search;
-
-    // Server validation start
-    this._xhr({
-      method: 'POST',
-      headers: {'Content-type': 'application/json'},
-      uri: url.format(parsedUrl),
-      body: JSON.stringify(record)
-    }, function (err, resp, body) {
-      if (err) {
-        if (resp.status === 413) {
-          // When request exceeds server limits and
-          // client validators are able to find errors,
-          // we need to return these errors
-          return this._commonValidator.isValidRecord(record, function (err2, errors) {
-            if (!err2 && errors.isEmpty()) {
-              return cb(err);
-            }
-            cb(err2, errors);
-          });
-        }
-        return cb(err);
-      }
-
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return cb(e);
-      }
-
-      cb(null, ValidationErrors.createFromJSON(body));
-    }.bind(this));
-  } else {
-    this._commonValidator.isValidRecord(record, cb);
-  }
+  this._validator.isValidRecord(record, cb);
 };
 
 module.exports = GridXhrModel;

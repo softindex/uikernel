@@ -54,6 +54,15 @@ function GridExpressApi(router, availableMethods) {
     });
   }
 
+  if (!availableMethods || availableMethods.indexOf('isValidRecord') >= 0) {
+    router.get('/validation', function (req, res, next) {
+      var record = JSON.parse(req.query.record);
+      builderContext._getModel(req, res).isValidRecord(record, function (err, errors) {
+        builderContext._result(err, errors, req, res, next);
+      });
+    });
+  }
+
   if (!availableMethods || availableMethods.indexOf('getRecord') >= 0) {
     router.get('/:recordId', function (req, res, next) {
       var cols = req.query.cols ? JSON.parse(req.query.cols) : null;
@@ -81,14 +90,6 @@ function GridExpressApi(router, availableMethods) {
           return builderContext._result(err, null, req, res, next);
         }
         builderContext._result(null, {data: data, error: err}, req, res, next);
-      });
-    });
-  }
-
-  if (!availableMethods || availableMethods.indexOf('isValidRecord') >= 0) {
-    router.post('/validation', function (req, res, next) {
-      builderContext._getModel(req, res).isValidRecord(req.body, function (err, errors) {
-        builderContext._result(err, errors, req, res, next);
       });
     });
   }
