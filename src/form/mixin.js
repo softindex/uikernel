@@ -270,15 +270,21 @@ var FormMixin = {
     }
 
     utils.assign(this.state._formMixin.changes, data);
-    utils.assign(this.state._formMixin.changes, utils.pick(
+
+    var dependent = utils.pick(
       this.state._formMixin.data,
       this.state._formMixin.model.getValidationDependency(
         Object.keys(this.state._formMixin.changes)
       )
-    ));
+    );
+
+    utils.assign(this.state._formMixin.changes, dependent);
 
     for (var i in this.state._formMixin.changes) {
-      if (utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i])) {
+      if (
+        utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i]) &&
+        !dependent.hasOwnProperty(i)
+      ) {
         delete this.state._formMixin.changes[i];
       }
     }
