@@ -12,7 +12,7 @@
 
 var utils = require('../common/utils');
 var AbstractFormModel = require('./AbstractFormModel');
-var Validator = require('../common/validation/Validator');
+var Validator = require('../common/validation/Validator/common');
 
 /**
  * Simple form model

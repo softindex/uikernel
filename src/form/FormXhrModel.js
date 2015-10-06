@@ -10,11 +10,10 @@
 
 'use strict';
 
-var utils = require('../common/utils');
 var url = require('url');
 var EventsModel = require('../common/Events');
 var defaultXHR = require('../common/defaultXHR');
-var Validator = require('../common/validation/Validator');
+var Validator = require('../common/validation/Validator/common');
 var ValidationErrors = require('../common/validation/ValidationErrors');
 
 var FormXhrModel = function (settings) {
@@ -25,7 +24,6 @@ var FormXhrModel = function (settings) {
   }
 
   this._validator = settings.validator || new Validator();
-  this._serverValidation = settings.serverValidation || false;
   this._xhr = settings.xhr || defaultXHR;
   this._apiUrl = settings.api
     .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
@@ -123,43 +121,7 @@ FormXhrModel.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 FormXhrModel.prototype.isValidRecord = function (record, cb) {
-  if (this._serverValidation && !utils.isEmpty(record)) {
-    var parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
-    parsedUrl.query.record = JSON.stringify(record);
-    delete parsedUrl.search;
-
-    // Server validation start
-    this._xhr({
-      method: 'GET',
-      uri: url.format(parsedUrl)
-    }, function (err, resp, body) {
-      if (err) {
-        if (resp.status === 413) {
-          // When request exceeds server limits and
-          // client validators are able to find errors,
-          // we need to return these errors
-          return this._validator.isValidRecord(record, function (err2, errors) {
-            if (!err2 && errors.isEmpty()) {
-              return cb(err);
-            }
-            cb(err2, errors);
-          });
-        }
-        return cb(err);
-      }
-
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return cb(e);
-      }
-
-      cb(null, ValidationErrors.createFromJSON(body));
-    }.bind(this));
-  } else {
-    this._validator.isValidRecord(record, cb);
-  }
+  this._validator.isValidRecord(record, cb);
 };
 
 module.exports = FormXhrModel;

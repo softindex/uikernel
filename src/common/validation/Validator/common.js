@@ -11,8 +11,8 @@
 'use strict';
 
 var suspend = require('suspend');
-var ValidationErrors = require('./ValidationErrors');
-var utils = require('../utils');
+var ValidationErrors = require('../ValidationErrors');
+var utils = require('../../utils');
 
 /**
  * Validation check model
@@ -20,6 +20,10 @@ var utils = require('../utils');
  * @constructor
  */
 var Validator = function () {
+  if (!(this instanceof Validator)) {
+    return new Validator();
+  }
+
   this._settings = {
     validators: {},
     groupValidators: [],
@@ -133,7 +137,7 @@ Validator.prototype.getValidationDependency = function (fields) {
 };
 
 /**
- * Check record validity
+ * Check client record validity
  *
  * @param {Object}  record   Record
  * @returns {ValidationErrors|null} Record validity

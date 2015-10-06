@@ -12,7 +12,7 @@
 
 var utils = require('../../common/utils');
 var AbstractGridModel = require('./AbstractGridModel');
-var Validator = require('../../common/validation/Validator');
+var Validator = require('../../common/validation/Validator/common');
 
 /**
  * Specifies a grid model that will work with array data passed to it as a parameter.
