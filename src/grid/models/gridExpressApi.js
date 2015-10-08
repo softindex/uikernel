@@ -60,9 +60,8 @@ function GridExpressApi(router, availableMethods) {
     });
   });
 
-  router.get('/validation', function (req, res, next) {
-    var record = JSON.parse(req.query.record);
-    builderContext._getModel(req, res).isValidRecord(record, function (err, errors) {
+  router.post('/validation', function (req, res, next) {
+    builderContext._getModel(req, res).isValidRecord(req.body, function (err, errors) {
       builderContext._result(err, errors, req, res, next);
     });
   });

@@ -35,9 +35,8 @@ function FormExpressAPI(router) {
         ctx._result(null, {data: data, error: err}, req, res, next);
       });
     })
-    .get('/validation', function (req, res, next) {
-      var record = JSON.parse(req.query.record);
-      ctx._getModel(req, res).isValidRecord(record, function (err, data) {
+    .post('/validation', function (req, res, next) {
+      ctx._getModel(req, res).isValidRecord(req.body, function (err, data) {
         ctx._result(err, data, req, res, next);
       });
     });

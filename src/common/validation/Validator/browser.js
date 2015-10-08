@@ -10,7 +10,6 @@
 
 'use strict';
 
-var url = require('url');
 var Validator = require('./common');
 var ValidationErrors = require('../ValidationErrors');
 var defaultXHR = require('../../defaultXHR');
@@ -42,14 +41,11 @@ ClientValidator.prototype.isValidRecord = function (record, cb) {
     return Validator.prototype.isValidRecord.call(this, record, cb);
   }
 
-  var parsedUrl = url.parse(this._settings.serverValidationUrl, true);
-  parsedUrl.query.record = JSON.stringify(record);
-  delete parsedUrl.search;
-
   // Server validation start
   this._settings.xhr({
-    method: 'GET',
-    uri: url.format(parsedUrl)
+    method: 'POST',
+    body: JSON.stringify(record),
+    uri: this._settings.serverValidationUrl
   }, function (err, resp, body) {
     if (err) {
       if (resp.status === 413) {
