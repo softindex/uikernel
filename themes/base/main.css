@@ -179,18 +179,20 @@
 }
 
 .data-grid .dgrid-body-table tr.new:nth-child(odd) td {
-  background-color: #9AE57E;
+  background-color: #A9E2FB;
 }
 
 .data-grid .dgrid-body-table tr.new:nth-child(even) td {
-  background-color: #B6FAB3;
+  background-color: #B4E8FF;
 }
+
 .data-grid .dgrid-body-table tr.changed:nth-child(odd) td {
   background-color: #FFFF00;
 }
 .data-grid .dgrid-body-table tr.changed:nth-child(even) td {
   background-color: #FFFF00;
 }
+
 .data-grid .dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
   background-color: #ffffcc;
 }
