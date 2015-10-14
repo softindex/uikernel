@@ -30,6 +30,9 @@ var RESET_VIEW_COLUMNS = 1 << 1;
 var RESET_MODEL = 1 << 2;
 
 var GridComponent = React.createClass({
+  propTypes: {
+    className: React.PropTypes.string
+  },
   mixins: [
     gridMixinColumns,       // Columns control function
     gridMixinPagination,    // Pagination control function
@@ -82,9 +85,14 @@ var GridComponent = React.createClass({
   render: function () {
     var component = this;
     var header = this._formHeader();
+    var gridClassNames = ['data-grid'];
+
+    if (this.props.className) {
+      gridClassNames.push(this.props.className);
+    }
 
     return (
-      <div className="data-grid">
+      <div className={gridClassNames.join(' ')}>
         <table cellSpacing="0" className="dgrid-header">
           <colgroup>{header.colGroup}</colgroup>
             {header.cols.map(function (row, colKey) {
