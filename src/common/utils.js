@@ -124,7 +124,6 @@ exports.parseValueFromEvent = function (event) {
   if (event && typeof event === 'object' && event.target && ['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) >= 0) {
     switch (event.target.type) {
       case 'checkbox': return event.target.checked;
-      case 'number': return Number(event.target.value);
     }
     return event.target.value;
   }

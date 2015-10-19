@@ -44,11 +44,15 @@ var GridComponent = React.createClass({
     gridMixinSelect         // Rows selection control function (Select)
   ],
   componentDidMount: function () {
-    this.props.model.on('update', this._setData);
+    if (this.props.model) {
+      this.props.model.on('update', this._setData);
+    }
     this.updateTable();
   },
   componentWillUnmount: function () {
-    this.props.model.off('update', this._setData);
+    if (this.props.model) {
+      this.props.model.off('update', this._setData);
+    }
   },
   componentWillReceiveProps: function (nextProps) {
     var oldProps = this.props;
@@ -76,8 +80,12 @@ var GridComponent = React.createClass({
         this._renderBody();
       }
       if (reset & RESET_MODEL) {
-        oldProps.model.off('update', this._setData);
-        this.props.model.on('update', this._setData);
+        if (oldProps.model) {
+          oldProps.model.off('update', this._setData);
+        }
+        if (this.props.model) {
+          this.props.model.on('update', this._setData);
+        }
         this.reset();
       }
     });

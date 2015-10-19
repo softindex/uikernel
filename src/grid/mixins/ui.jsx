@@ -68,6 +68,10 @@ var GridUIMixin = {
   updateTable: function (cb) {
     this._showLoader(true);
 
+    if (!this.props.model) {
+      return;
+    }
+
     this._loadData({
       limit: this.state.viewCount,
       offset: this.state.page * this.state.viewCount,
