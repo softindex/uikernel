@@ -4,6 +4,7 @@
 
 .data-grid {
   color: #000;
+  display: table;
   border-top: 1px solid #DDDDDD;
   border-left: 1px solid #DDDDDD;
   font-family: Arial Unicode MS, Arial, sans-serif;
