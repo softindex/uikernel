@@ -273,3 +273,22 @@
   border-color: transparent transparent #888 transparent;
   border-width: 0 4px 5px 4px;
 }
+
+/* Visible scroll in Max OS Chrome */
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+}
+
+::-webkit-scrollbar:vertical {
+  width: 11px;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 11px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  border: 2px solid #f3f3f4;
+  background-color: rgba(0, 0, 0, .5);
+}
