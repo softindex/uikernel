@@ -116,7 +116,7 @@ var GridUIMixin = {
         this._renderBody();
         this._showLoader(false);
         if (cb) {
-          cb.call(this);
+          cb();
         }
       });
     }.bind(this));
