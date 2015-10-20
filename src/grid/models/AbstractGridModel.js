@@ -77,7 +77,7 @@ AbstractGridModel.prototype.getRecord = function (id, fields, cb) {
  * @abstract
  */
 AbstractGridModel.prototype.update = function (changes, cb) {
-  cb(null);
+  cb(null, []);
 };
 
 /**
