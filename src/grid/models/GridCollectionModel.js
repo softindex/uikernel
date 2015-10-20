@@ -192,7 +192,7 @@ GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
  */
 GridCollectionModel.prototype.update = function (changes, cb) {
   var completed = 0;
-  var errors = [];
+  var result = [];
   var applayChanges = [];
   var finish = false;
 
@@ -209,14 +209,15 @@ GridCollectionModel.prototype.update = function (changes, cb) {
 
       if (validErrors.isEmpty()) {
         utils.assign(this._getRecordByID(change[0])[1], change[1]);
+        result.push(change);
         applayChanges.push(change);
       } else {
-        errors.push([change[0], validErrors]);
+        result.push([change[0], validErrors]);
       }
 
       if (++completed === changes.length) {
         this.trigger('update', applayChanges);
-        return cb(errors.length ? errors : null, applayChanges);
+        return cb(null, result);
       }
     }.bind(this));
   }.bind(this));

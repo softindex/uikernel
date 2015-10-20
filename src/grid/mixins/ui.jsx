@@ -189,6 +189,10 @@ var GridUIMixin = {
    * @private
    */
   _renderBody: function () {
+    if (!this.state.data) {
+      return;
+    }
+
     var i;
     var row;
     var htmlExtra = '';

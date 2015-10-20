@@ -81,6 +81,7 @@ var GridComponent = React.createClass({
         this._renderBody();
       }
       if (reset & RESET_MODEL) {
+        this.state.data = null;
         if (oldProps.model) {
           oldProps.model.off('update', this._setData);
         }

@@ -80,11 +80,21 @@ function GridExpressApi(router, availableMethods) {
     if (availableMethods && availableMethods(req).indexOf('update') === -1) {
       return next();
     }
-    builderContext._getModel(req, res).update(req.body, function (err, response) {
-      if (err && !Array.isArray(err)) {
-        return builderContext._result(err, null, req, res, next);
+    builderContext._getModel(req, res).update(req.body, function (err, data) {
+      if (!err) {
+        data = data.reduce(function (result, record) {
+          if (record[1] instanceof ValidationErrors) {
+            result.errors.push(record);
+          } else {
+            result.changes.push(record);
+          }
+          return result;
+        }, {
+          changes: [],
+          errors: []
+        });
       }
-      builderContext._result(null, {data: response, error: err}, req, res, next);
+      builderContext._result(err, data, req, res, next);
     });
   });
 

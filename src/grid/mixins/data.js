@@ -27,7 +27,7 @@ var GridDataMixin = {
   },
   getInitialState: function () {
     return {
-      data: {},
+      data: null,
       changes: {},
       errors: {},
       totals: {},
@@ -146,35 +146,30 @@ var GridDataMixin = {
       }
 
       if (err) {
-        if (Array.isArray(err)) {
-          // Process all validation errors
-          err.forEach(function (record) {
-            var row = this._getRowID(record[0]);
-            var recordErrors = record[1];
-
-            // Skip records that are user changed while data processing
-            if (!utils.isEqual(this.state.changes[row], changes[row])) {
-              return;
-            }
-
-            this.state.errors[row] = recordErrors;
-
-            // Redraw error fields
-            recordErrors.getFailedFields().forEach(function (field) {
-              this._renderBinds(row, field);
-            }, this);
-          }, this);
-        } else {
-          return cb(err);
-        }
+        return cb(err);
       }
 
-      // Cancel changed data status of the parameters, that are changed
-      // while data processing
-      utils.forEach(changes, function (rowChanges, row) {
-        utils.forEach(rowChanges, function (value, field) {
-          var isEqual = this.state.changes[row] && utils.isEqual(value, this.state.changes[row][field]);
-          if (isEqual && !this.state.errors[row]) {
+      data.forEach(function (record) {
+        var row = this._getRowID(record[0]);
+
+        // Skip records that are user changed while data processing
+        if (!utils.isEqual(this.state.changes[row], changes[row])) {
+          return;
+        }
+
+        // Process validation errors
+        if (record[1] instanceof ValidationErrors) {
+          this.state.errors[row] = record[1];
+          // Redraw error fields
+          record[1].getFailedFields().forEach(function (field) {
+            this._renderBinds(row, field);
+          }, this);
+          return;
+        }
+
+        // Cancel changed data status of the parameters, that are changed
+        utils.forEach(changes[row], function (value, field) {
+          if (utils.isEqual(value, this.state.changes[row][field])) {
             delete this.state.changes[row][field];
             this._renderBinds(row, field);
           }
@@ -187,7 +182,7 @@ var GridDataMixin = {
             this._removeRecord(row);
           }
         }
-      }, this);
+      }.bind(this));
 
       if (typeof cb === 'function') {
         cb(null, data);

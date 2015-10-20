@@ -164,8 +164,6 @@ GridXhrModel.prototype.update = function (changes, cb) {
     uri: this._apiUrl,
     body: JSON.stringify(changes)
   }, function (err, resp, body) {
-    var i;
-
     if (err) {
       return cb(err);
     }
@@ -176,19 +174,15 @@ GridXhrModel.prototype.update = function (changes, cb) {
       return cb(e);
     }
 
-    if (body.data) {
-      this.trigger('update', body.data);
+    if (body.changes.length) {
+      this.trigger('update', body.changes);
     }
 
-    if (body.error) {
-      for (i = 0; i < body.error.length; i++) {
-        body.error[i][1] = ValidationErrors.createFromJSON(body.error[i][1]);
-      }
-      return cb(body.error, body.data);
-    } else {
-      cb(null, body.data);
-    }
+    body.errors.forEach(function (error) {
+      error[1] = ValidationErrors.createFromJSON(error[1]);
+    });
 
+    cb(null, body.changes.concat(body.errors));
   }.bind(this));
 };
 

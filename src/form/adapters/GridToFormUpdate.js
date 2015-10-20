@@ -11,6 +11,7 @@
 'use strict';
 
 var utils = require('../../common/utils');
+var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 /**
  * Adapter that allows us to use Grid model record as a form model
@@ -55,12 +56,13 @@ GridToFormUpdate.prototype.submit = function (changes, cb) {
   var record = utils.clone(changes);
   this._adapter.model.update([[this._adapter.id, record]], function (err, data) {
     if (err) {
-      if (err instanceof Error) {
-        return cb(err);
-      }
-      return cb(err[0][1]);
+      return cb(err);
     }
-    cb(null, data[0][1]);
+    var result = data[0][1];
+    if (result instanceof ValidationErrors) {
+      return cb(result);
+    }
+    cb(null, result);
   });
 };
 
