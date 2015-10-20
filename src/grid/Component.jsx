@@ -75,6 +75,7 @@ var GridComponent = React.createClass({
     this.setState({}, function () {
       if (reset & RESET_COLUMNS) {
         this._updateColumnsConfiguration();
+        this._resetSorting();
       }
       if (reset & RESET_VIEW_COLUMNS) {
         this._renderBody();
