@@ -165,6 +165,10 @@ var GridSelectMixin = {
     return utils.clone(this.state.selected);
   },
 
+  _getAllSelected: function () {
+    return this.state.selected;
+  },
+
   /**
    * Trigger selected records count change handler
    *

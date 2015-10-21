@@ -490,10 +490,13 @@ var GridDataMixin = {
    * @private
    */
   _getAdditionalIds: function () {
-    var additionalIds = utils.union(this._getRecordsWithStatus(), this.getAllSelected());
+    var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllSelected());
+    var id;
     for (var row in this.state.changes) {
-      // TODO Entry can simultaneously have the status of, and be changed
-      additionalIds.push(this.state.recordsInfo[row].id);
+      id = this.state.recordsInfo[row].id;
+      if (additionalIds.indexOf(id) >= 0) {
+        additionalIds.push(id);
+      }
     }
     return additionalIds;
   },
