@@ -63,10 +63,9 @@ var FormMixin = {
 
     if (!ctx.state._formMixin.data) {
       settings.model.getData(settings.fields, function (err, data) {
-        // TODO It requires verification, but the function can be called in componentWillMount
-        /*if (!ctx.isMounted()) {
+        if (!ctx.isMounted()) {
           return;
-        }*/
+        }
         if (err) {
           ctx.state._formMixin.globalError = err;
           ctx.setState(ctx.state, function () {
