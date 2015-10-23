@@ -75,7 +75,7 @@ var GridUIMixin = {
     this._loadData({
       limit: this.state.viewCount,
       offset: this.state.page * this.state.viewCount,
-      sort: this._getNotDefaultSorts(),
+      sort: this._sortingToArray(),
       fields: Object.keys(this.state.confBinds.params),
       extra: this._getAdditionalIds()
     }, function (err, obj) {

@@ -10,102 +10,181 @@
 
 'use strict';
 
+var React = require('react');
+var utils = require('../../common/utils');
+
 var GridSortingMixin = {
+  propTypes: (function () {
+    var sortElementProp = React.PropTypes.shape({
+      column: React.PropTypes.string,
+      direction: React.PropTypes.string
+    });
+
+    var sortProp = React.PropTypes.oneOfType([
+      sortElementProp,
+      React.PropTypes.arrayOf(sortElementProp)
+    ]);
+
+    return {
+      onSorting: React.PropTypes.func,
+      defaultSort: function (props, propName) {
+        if (!props.defaultSort) {
+          return;
+        }
+        var validProp = sortProp(props, propName);
+        if (validProp) {
+          return validProp;
+        }
+        if (props.hasOwnProperty('sort')) {
+          return Error('You can not set "defaultSort" when specified "sort" prop');
+        }
+      },
+      sort: function (props, propName) {
+        if (!props.sort) {
+          return;
+        }
+        var validProp = sortProp(props, propName);
+        if (validProp) {
+          return validProp;
+        }
+        if (!props.onSorting) {
+          return Error('You need to define prop "onSorting" when set "sort"');
+        }
+      }
+    };
+  })(),
+
   getInitialState: function () {
     return {
-      confSort: this._getSortConfig(),
       sort: this._getDefaultSort()
     };
+  },
+
+  /**
+   * Sort by column
+   *
+   * @param {string} column
+   * @param {string} direction
+   */
+  sort: function (column, direction) {
+    if (this._isSortingPropsMode()) {
+      throw Error('You can not use this function when set prop "sort"');
+    }
+
+    var sort = {
+      column: column,
+      direction: direction
+    };
+
+    if (this.props.multipleSorting) {
+      this.state.sort.push(sort);
+    } else {
+      this.state.sort = sort;
+    }
+
+    this._applySorting();
+
+    if (this.props.onSorting) {
+      this.props.onSorting(this.state.sort, column, direction);
+    }
+  },
+
+  /**
+   * Get sort direction
+   *
+   * @return {object|object[]}
+   */
+  getSortDirection: function () {
+    if (this._isSortingPropsMode()) {
+      return this.props.sort;
+    }
+    return this.state.sort;
   },
 
   /**
    * Reset to default sort parameters
    */
   resetSorting: function () {
-    this._resetSorting();
+    var sort = this._getDefaultSort();
+
+    if (this._isSortingPropsMode()) {
+      this.onSorting(sort);
+      return;
+    }
+
+    this.state.sort = sort;
     this.forceUpdate();
   },
-  _resetSorting: function () {
-    this.state.confSort = this._getSortConfig();
-    this.state.sort = this._getDefaultSort();
-  },
 
   /**
-   * Use parameter name for table sort
+   * Use column name for table sort
    *
-   * @param {string} param  Sort parameter name
+   * @param {string} column  Column name
    * @private
    */
-  _sortRow: function (param) {
-    var i;
+  _sortCol: function (column) {
     var newOrder;
-    var cycle = this.state.confSort[param];
-    var sorts = this.state.sort;
-    var inQueue = false;
+    var cycle = this.props.cols[column].sortCycle;
+    var newSorts = utils.clone(this.getSortDirection());
+    var sortElement = {column: column};
+    var currentSortIndex;
+    var currentSort;
 
     if (this.props.multipleSorting) {
-      for (i = 0; i < sorts.length; i++) {
-        if (sorts[i][0] === param) {
-          inQueue = true;
-          newOrder = i === sorts.length - 1 ?
-            cycle[(cycle.indexOf(sorts[i][1]) + 1) % cycle.length] :
-            cycle[0];
-          if (newOrder === 'default') {
-            sorts.splice(i, 1);
-          } else if (i === sorts.length - 1) {
-            sorts[i][1] = newOrder;
-          } else {
-            sorts.splice(i, 1);
-            sorts.push([param, newOrder]);
-          }
-          break;
+      // Find an element among the other sorts
+      currentSortIndex = utils.findIndex(newSorts, function (sort) {
+        return sort.column === column;
+      });
+
+      if (currentSortIndex >= 0) {
+        currentSort = newSorts[currentSortIndex];
+
+        // Determine the direction of sorting
+        if (currentSortIndex < newSorts.length - 1) {
+          newOrder = cycle[0];
+        } else {
+          // If the item is the last one, select the next direction of sorting
+          newOrder = cycle[(cycle.indexOf(currentSort.direction) + 1) % cycle.length];
         }
-      }
-      if (!inQueue) {
-        sorts.push([param, cycle[0]]);
+
+        if (newOrder === 'default') {
+          // Remove item from the sorts
+          newSorts.splice(currentSortIndex, 1);
+        } else if (currentSortIndex === newSorts.length - 1) {
+          // Set new direction, if the last element
+          currentSort.direction = newOrder;
+        } else {
+          // Move the item to the end, if it is already in sorts
+          newSorts.splice(currentSortIndex, 1);
+          sortElement.direction = newOrder;
+          newSorts.push(sortElement);
+        }
+      } else {
+        // Add new element
+        sortElement.direction = newOrder = cycle[0];
+        newSorts.push(sortElement);
       }
     } else {
-      sorts = [[
-        param,
-        sorts[0] && sorts[0][0] === param ?
-          cycle[(cycle.indexOf(sorts[0][1]) + 1) % cycle.length] :
-          cycle[0]
-      ]];
-    }
-
-    this.state.sort = sorts;
-
-    this.updateTable();
-  },
-
-  /**
-   * Get current column sort parameter name
-   *
-   * @param {number} id           Column ID
-   * @returns {string|undefined}  Param name
-   * @private
-   */
-  _getSortParam: function (id) {
-    return this.props.cols[id].hasOwnProperty('sortCycle') && (this.props.cols[id].sortField || id);
-  },
-
-  /**
-   * Get sort configuration object
-   *
-   * @returns {object} Sort configuration
-   * @private
-   */
-  _getSortConfig: function () {
-    var sortConfig = {};
-    var sortParam;
-    var i;
-    for (i in this.props.cols) {
-      sortParam = this._getSortParam(i);
-      if (sortParam) {
-        sortConfig[sortParam] = this.props.cols[i].sortCycle;
+      if (newSorts && newSorts.column === column) {
+        // Select the next direction of sorting
+        newOrder = cycle[(cycle.indexOf(newSorts.direction) + 1) % cycle.length];
+      } else {
+        newOrder = cycle[0];
+      }
+      if (newOrder === 'default') {
+        newSorts = null;
+      } else {
+        sortElement.direction = newOrder;
+        newSorts = sortElement;
       }
     }
-    return sortConfig;
+
+    if (this._isSortingPropsMode()) {
+      this.props.onSorting(newSorts, column, newOrder);
+    } else {
+      this.state.sort = newSorts;
+      this._applySorting();
+    }
   },
 
   /**
@@ -115,60 +194,99 @@ var GridSortingMixin = {
    * @private
    */
   _getDefaultSort: function () {
-    var sort = [];
-    var i;
-    for (i in this.props.cols) {
-      if (this.props.cols[i].sortDefault) {
-        sort.push([this._getSortParam(i), this.props.cols[i].sortDefault]);
-        if (!this.props.multipleSorting) {
-          break;
-        }
-      }
+    if (this.props.defaultSort) {
+      return utils.cloneDeep(this.props.defaultSort);
     }
-    return sort;
+    return null;
   },
 
   /**
    * Get current mode and column sort parameter
    *
-   * @param columnId  Column ID
-   * @returns {{field: {string}, sort: {string}}|{}} Sort parameter and mode
+   * @param   column                                  Column ID
+   * @returns {{field: {string}, sort: {string}}|{}}  Sort parameter and mode
    * @private
    */
-  _getSortParams: function (columnId) {
-    var i;
-    var lastSorting;
-    var params = {};
-    if (this.props.cols[columnId].sortCycle) {
-      params.field = this._getSortParam(columnId);
-      if (this.props.multipleSorting) {
-        for (i = 0; i < this.state.sort.length; i++) {
-          if (this.state.sort[i][0] === params.field) {
-            break;
-          }
-        }
-        params.sort = i === this.state.sort.length ?
-          'default' : this.state.sort[i][1];
-      } else {
-        // When sort is not multiple, display just the last one
-        if (this.state.sort.length) {
-          lastSorting = this.state.sort[this.state.sort.length - 1];
-          params.sort = lastSorting[0] === params.field ? lastSorting[1] : 'default';
-        } else {
-          params.sort = 'default';
-        }
-      }
+  _getSortParams: function (column) {
+    var params = {column: column};
+    var sortIndex;
+    var sorts = this.getSortDirection();
+
+    if (!this.props.cols[column].sortCycle) {
+      return null;
     }
+
+    if (!sorts) {
+      params.direction = 'default';
+      return params;
+    }
+
+    if (this.props.multipleSorting) {
+      sortIndex = utils.findIndex(sorts, function (sort) {
+        return sort.column === params.column;
+      });
+
+      if (sortIndex < 0 || sortIndex < sorts.length - 1) {
+        params.direction = 'default';
+      } else {
+        params.direction = sorts[sortIndex].direction;
+      }
+      return params;
+    }
+
+    if (sorts.column === column) {
+      params.direction = sorts.direction;
+    } else {
+      params.direction = 'default';
+    }
+
     return params;
   },
 
-  _getNotDefaultSorts: function () {
-    return this.state.sort.reduce(function (result, item) {
-      if (item[1] !== 'default') {
-        result.push(item);
+  /**
+   * Does sorting using props
+   *
+   * @return {boolean}
+   * @private
+   */
+  _isSortingPropsMode: function () {
+    return this.props.hasOwnProperty('sort');
+  },
+
+  /**
+   * Convert sorting to array
+   *
+   * @return {{}[]|{}} sorts
+   * @private
+   */
+  _sortingToArray: function () {
+    function toArray(sort) {
+      return [sort.column, sort.direction];
+    }
+
+    var direction = this.getSortDirection();
+    if (!direction) {
+      return null;
+    }
+
+    if (this.props.multipleSorting) {
+      if (!direction.length) {
+        return null;
       }
-      return result;
-    }, []);
+      return direction.map(toArray);
+    }
+
+    return [toArray(direction)];
+  },
+
+  /**
+   * Redraw sort
+   *
+   * @private
+   */
+  _applySorting: function () {
+    this._setPage(0);
+    this.updateTable();
   }
 };
 

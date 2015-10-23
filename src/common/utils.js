@@ -201,10 +201,7 @@ exports.clone = function (obj) {
   }
 
   if (Array.isArray(obj)) {
-    return obj.reduce(function (result, value) {
-      result.push(value);
-      return result;
-    }, []);
+    return obj.slice(0);
   }
 
   var cloned = {};
@@ -220,10 +217,7 @@ exports.cloneDeep = function (obj) {
   }
 
   if (Array.isArray(obj)) {
-    return obj.reduce(function (result, value) {
-      result.push(this.cloneDeep(value));
-      return result;
-    }.bind(this), []);
+    return obj.slice(0);
   }
 
   var cloned = {};

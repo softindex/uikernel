@@ -71,18 +71,19 @@ var GridColumnsMixin = {
         })
       );
 
-      sortParams = this._getSortParams(columnId);
       addInfo = {
-        className: [
-          this._getColumnClass(columnId),
-          sortParams.sort
-        ].join(' '),
+        className: this._getColumnClass(columnId),
         name: this.props.cols[columnId].name,
         cols: 1,
-        rows: 1,
-        field: sortParams.field,
-        sort: sortParams.sort
+        rows: 1
       };
+
+      sortParams = this._getSortParams(columnId);
+      if (sortParams) {
+        addInfo.className += ' ' + sortParams.direction;
+        addInfo.field = sortParams.column;
+        addInfo.sort = sortParams.direction;
+      }
 
       if (this.props.cols[columnId].hasOwnProperty('parent')) {
         if (this.props.cols[columnId].parent !== lastParent.name) {

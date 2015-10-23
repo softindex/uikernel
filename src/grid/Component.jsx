@@ -28,6 +28,7 @@ var gridMixinSelect = require('./mixins/select');
 var RESET_COLUMNS = 1 << 0;
 var RESET_VIEW_COLUMNS = 1 << 1;
 var RESET_MODEL = 1 << 2;
+var RESET_SORT = 1 << 3;
 
 var GridComponent = React.createClass({
   propTypes: {
@@ -67,6 +68,9 @@ var GridComponent = React.createClass({
     if (!utils.isEqual(this.props.model, nextProps.model)) {
       reset |= RESET_MODEL;
     }
+    if (!utils.isEqual(this.props.sort, nextProps.sort)) {
+      reset |= RESET_SORT;
+    }
 
     if (!reset) {
       return;
@@ -75,7 +79,9 @@ var GridComponent = React.createClass({
     this.setState({}, function () {
       if (reset & RESET_COLUMNS) {
         this._updateColumnsConfiguration();
-        this._resetSorting();
+      }
+      if (reset & RESET_SORT) {
+        this._applySorting();
       }
       if (reset & RESET_VIEW_COLUMNS) {
         this._renderBody();
@@ -115,7 +121,7 @@ var GridComponent = React.createClass({
                         className={col.className}
                         onClick={
                           col.sort ?
-                            component._sortRow.bind(component, col.field) :
+                            component._sortCol.bind(component, col.field) :
                             null
                           }
                         colSpan={col.cols}
