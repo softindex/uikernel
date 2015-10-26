@@ -226,9 +226,19 @@ var GridDataMixin = {
    * Reset to initial table state
    */
   reset: function () {
-    this.setPage(0, function () {
-      this.resetSorting();
-    });
+    this._reset();
+    this.updateTable();
+  },
+
+  /**
+   * Reset to initial table state
+   * @private
+   */
+  _reset: function () {
+    if (!this._isSortingPropsMode()) {
+      this._resetSorting();
+    }
+    this._setPage(0);
   },
 
   /**

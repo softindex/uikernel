@@ -25,10 +25,9 @@ var gridMixinEditor = require('./mixins/editor');
 var gridMixinUI = require('./mixins/ui');
 var gridMixinSelect = require('./mixins/select');
 
-var RESET_COLUMNS = 1 << 0;
+var RESET_MODEL = 1 << 0;
 var RESET_VIEW_COLUMNS = 1 << 1;
-var RESET_MODEL = 1 << 2;
-var RESET_SORT = 1 << 3;
+var RESET_SORT = 1 << 2;
 
 var GridComponent = React.createClass({
   propTypes: {
@@ -59,14 +58,11 @@ var GridComponent = React.createClass({
     var oldProps = this.props;
     var reset = 0;
 
-    if (!utils.isEqual(this.props.cols, nextProps.cols)) {
-      reset |= RESET_COLUMNS;
+    if (!utils.isEqual(this.props.model, nextProps.model)) {
+      reset |= RESET_MODEL;
     }
     if (!utils.isEqual(this.props.viewColumns, nextProps.viewColumns)) {
       reset |= RESET_VIEW_COLUMNS;
-    }
-    if (!utils.isEqual(this.props.model, nextProps.model)) {
-      reset |= RESET_MODEL;
     }
     if (!utils.isEqual(this.props.sort, nextProps.sort)) {
       reset |= RESET_SORT;
@@ -77,24 +73,20 @@ var GridComponent = React.createClass({
     }
 
     this.setState({}, function () {
-      if (reset & RESET_COLUMNS) {
-        this._updateColumnsConfiguration();
-      }
-      if (reset & RESET_SORT) {
-        this._applySorting();
-      }
-      if (reset & RESET_VIEW_COLUMNS) {
+      if (reset & RESET_SORT || reset & RESET_MODEL) {
+        if (reset & RESET_MODEL) {
+          this.state.data = null;
+          if (oldProps.model) {
+            oldProps.model.off('update', this._setData);
+          }
+          if (this.props.model) {
+            this.props.model.on('update', this._setData);
+          }
+          this._reset();
+        }
+        this.updateTable();
+      } else if (reset & RESET_VIEW_COLUMNS) {
         this._renderBody();
-      }
-      if (reset & RESET_MODEL) {
-        this.state.data = null;
-        if (oldProps.model) {
-          oldProps.model.off('update', this._setData);
-        }
-        if (this.props.model) {
-          this.props.model.on('update', this._setData);
-        }
-        this.reset();
       }
     });
   },

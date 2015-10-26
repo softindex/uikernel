@@ -11,24 +11,9 @@
 'use strict';
 
 var React = require('react');
+var utils = require('../../common/utils');
 
 var GridColumnsMixin = {
-  getInitialState: function () {
-    return {
-      // Columns and parameters they depend on binding
-      confBinds: this._getBindsConfig()
-    };
-  },
-
-  /**
-   * Update columns configuration
-   *
-   * @private
-   */
-  _updateColumnsConfiguration: function () {
-    this.state.confBinds = this._getBindsConfig();
-  },
-
   /**
    * Column visibility flag
    *
@@ -104,25 +89,59 @@ var GridColumnsMixin = {
     return {cols: rows, colGroup: colGroup};
   },
 
-  _getBindsConfig: function () {
+  /**
+   * Get the names of the parameters that are required to display the grid
+   *
+   * @return {string[]}
+   * @private
+   */
+  _getFieldsToRender: function () {
     var i;
-    var j;
-    var byParams = {};
-    var byCols = {};
-    var bind;
     var cols = this.props.cols;
+    var columns = [];
+    for (i in cols) {
+      columns = utils.union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
+    }
+    return columns;
+  },
+
+  /**
+   * Does the parameters to display grid
+   *
+   * @param   {string}  field
+   * @return  {boolean}
+   * @private
+   */
+  _isFieldAffectsRender: function (field) {
+    var i;
+    var cols = this.props.cols;
+    for (i in cols) {
+      if (cols[i].render.indexOf(field) >= 0) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  /**
+   * Get a dependent column
+   *
+   * @param   {string}    field
+   * @return  {string[]}
+   * @private
+   */
+  _getDependentColumns: function (field) {
+    var i;
+    var cols = this.props.cols;
+    var columns = [];
 
     for (i in cols) {
-      bind = cols[i].render.slice(0, cols[i].render.length - 1);
-      for (j = 0; j < bind.length; j++) {
-        if (!byParams[bind[j]]) {
-          byParams[bind[j]] = [];
-        }
-        byParams[bind[j]].push(i);
+      if (cols[i].render.indexOf(field) < 0) {
+        continue;
       }
-      byCols[i] = bind;
+      columns.push(i);
     }
-    return {params: byParams, cols: byCols};
+    return columns;
   },
 
   _getColumnClass: function (id) {

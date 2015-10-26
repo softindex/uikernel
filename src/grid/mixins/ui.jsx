@@ -76,7 +76,7 @@ var GridUIMixin = {
       limit: this.state.viewCount,
       offset: this.state.page * this.state.viewCount,
       sort: this._sortingToArray(),
-      fields: Object.keys(this.state.confBinds.params),
+      fields: this._getFieldsToRender(),
       extra: this._getAdditionalIds()
     }, function (err, obj) {
       var data;
@@ -222,11 +222,11 @@ var GridUIMixin = {
    */
   _renderBinds: function (row, param) {
     // If parameter does not affect on the redraw, do nothing
-    if (!this.state.confBinds.params.hasOwnProperty(param)) {
+    if (!this._isFieldAffectsRender(param)) {
       return;
     }
 
-    this.state.confBinds.params[param].forEach(function (column) {
+    this._getDependentColumns(param).forEach(function (column) {
       if (this._isViewColumn(column) && !this._isEditorVisible(row, column)) {
         this._updateField(row, column);
       }

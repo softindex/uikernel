@@ -68,7 +68,7 @@ var GridSortingMixin = {
    */
   sort: function (column, direction) {
     if (this._isSortingPropsMode()) {
-      throw Error('You can not use this function when set prop "sort"');
+      throw Error('You can not use function "sort" when set prop "sort"');
     }
 
     var sort = {
@@ -82,7 +82,7 @@ var GridSortingMixin = {
       this.state.sort = sort;
     }
 
-    this._applySorting();
+    this.setPage(0);
 
     if (this.props.onSorting) {
       this.props.onSorting(this.state.sort, column, direction);
@@ -105,6 +105,19 @@ var GridSortingMixin = {
    * Reset to default sort parameters
    */
   resetSorting: function () {
+    if (this._isSortingPropsMode()) {
+      throw Error('You can not use function "resetSorting" when set prop "sort"');
+    }
+
+    this._resetSorting();
+    this.forceUpdate();
+  },
+
+  /**
+   * Reset to default sort parameters
+   * @private
+   */
+  _resetSorting: function () {
     var sort = this._getDefaultSort();
 
     if (this._isSortingPropsMode()) {
@@ -113,7 +126,6 @@ var GridSortingMixin = {
     }
 
     this.state.sort = sort;
-    this.forceUpdate();
   },
 
   /**
@@ -183,7 +195,7 @@ var GridSortingMixin = {
       this.props.onSorting(newSorts, column, newOrder);
     } else {
       this.state.sort = newSorts;
-      this._applySorting();
+      this.setPage(0);
     }
   },
 
@@ -277,16 +289,6 @@ var GridSortingMixin = {
     }
 
     return [toArray(direction)];
-  },
-
-  /**
-   * Redraw sort
-   *
-   * @private
-   */
-  _applySorting: function () {
-    this._setPage(0);
-    this.updateTable();
   }
 };
 
