@@ -13,7 +13,7 @@
 
 .data-grid table {
   width: 100%;
-  table-layout: fixed;
+  /*table-layout: fixed;*/
 }
 
 .dgrid-body-wrapper {
@@ -163,54 +163,54 @@
   margin: 0;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(odd) {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) {
   background: #fff;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(even) {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) {
   background: #f9f9f9;
 }
 
-.data-grid .dgrid-body-table tr.others:nth-child(odd) {
+.data-grid tbody.dgrid-body-table tr.others:nth-child(odd) {
   background: #FFFFE1;
 }
 
-.data-grid .dgrid-body-table tr.others:nth-child(even) {
+.data-grid tbody.dgrid-body-table tr.others:nth-child(even) {
   background: #FFFFFF;
 }
 
-.data-grid .dgrid-body-table tr.new:nth-child(odd) td {
+.data-grid tbody.dgrid-body-table tr.new:nth-child(odd) td {
   background-color: #A9E2FB;
 }
 
-.data-grid .dgrid-body-table tr.new:nth-child(even) td {
+.data-grid tbody.dgrid-body-table tr.new:nth-child(even) td {
   background-color: #B4E8FF;
 }
 
-.data-grid .dgrid-body-table tr.changed:nth-child(odd) td {
+.data-grid tbody.dgrid-body-table tr.changed:nth-child(odd) td {
   background-color: #FFFF00;
 }
-.data-grid .dgrid-body-table tr.changed:nth-child(even) td {
+.data-grid tbody.dgrid-body-table tr.changed:nth-child(even) td {
   background-color: #FFFF00;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
   background-color: #ffffcc;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(even) td.dgrid-changed {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-changed {
   background-color: #F0F09A;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(odd) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error {
   background-color: #FFBDC4;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(even) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error {
   background-color: #ffcccc;
 }
 
-.data-grid .dgrid-body-table tr:hover {
+.data-grid tbody.dgrid-body-table tr:hover {
   background-color: #ffffd0;
 }
 

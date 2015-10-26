@@ -101,54 +101,43 @@ var GridComponent = React.createClass({
 
     return (
       <div className={gridClassNames.join(' ')}>
-        <table cellSpacing="0" className="dgrid-header">
-          <colgroup>{header.colGroup}</colgroup>
-            {header.cols.map(function (row, colKey) {
-              return (
-                <tr key={colKey}>
-                  {row.map(function (col, rowKey) {
-                    return (
-                      <th
-                        key={rowKey}
-                        className={col.className}
-                        onClick={
-                          col.sort ?
-                            component._sortCol.bind(component, col.field) :
-                            null
-                          }
-                        colSpan={col.cols}
-                        rowSpan={col.rows}
-                        dangerouslySetInnerHTML={{
-                          __html: col.name || ''
-                        }}
-                      />
-                    );
-                  })}
-                </tr>
-              );
-            })}
-        </table>
-        <div
-          style={{maxHeight: this.props.height}}
-          className={[
-            'dgrid-body-wrapper',
-            this.props.height ? 'dgrid-scrollable' : null
-          ].join(' ')}
+        <table
+          cellSpacing="0"
+          className="dgrid-body-table"
+          ref="body"
+          onClick={this.handleBodyClick}
         >
-          <div className="dgrid-body">
-            <div className="dgrid-loader" ref="loader"></div>
-            <table
-              cellSpacing="0"
-              className="dgrid-body-table"
-              ref="body"
-              onClick={this.handleBodyClick}
-            >
-              <colgroup>{header.colGroup}</colgroup>
-              <tbody ref="tbody"/>
-            </table>
-          </div>
-        </div>
-        {this._renderTotals()}
+          <colgroup>{header.colGroup}</colgroup>
+          <thead>
+          {header.cols.map(function (row, colKey) {
+            return (
+              <tr key={colKey}>
+                {row.map(function (col, rowKey) {
+                  return (
+                    <th
+                      key={rowKey}
+                      className={col.className}
+                      onClick={
+                        col.sort ?
+                          component._sortCol.bind(component, col.field) :
+                          null
+                        }
+                      colSpan={col.cols}
+                      rowSpan={col.rows}
+                      dangerouslySetInnerHTML={{
+                        __html: col.name || ''
+                      }}
+                    />
+                  );
+                })}
+              </tr>
+            );
+          })}
+          </thead>
+          <tbody className="dgrid-body-table" ref="tbody"/>
+          {this._renderTotals()}
+        </table>
+        <div className="dgrid-loader" ref="loader"></div>
         {this._renderPagination()}
       </div>
     );

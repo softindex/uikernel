@@ -254,7 +254,6 @@ var GridUIMixin = {
   },
 
   _renderTotals: function () {
-    var header = this._formHeader();
     var totalsDisplayed = false;
     var i;
     var className;
@@ -284,10 +283,9 @@ var GridUIMixin = {
     }
 
     return totalsDisplayed ? (
-      <table cellSpacing="0" className="dgrid-totals">
-        <colgroup>{header.colGroup}</colgroup>
+      <tfoot className="dgrid-totals">
         <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
-      </table>
+      </tfoot>
     ) : null;
   },
 
