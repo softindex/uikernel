@@ -253,12 +253,12 @@ var GridUIMixin = {
       .remove();
   },
 
-  _renderTotals: function () {
-    var header = this._formHeader();
+  _renderTotals: function (isScrollable) {
     var totalsDisplayed = false;
     var i;
     var className;
     var totalsRowHTML = '';
+    var totalsGrid = null;
 
     // If data for result line display exists, form it
     if (this.state.totals) {
@@ -283,12 +283,23 @@ var GridUIMixin = {
       }
     }
 
-    return totalsDisplayed ? (
-      <table cellSpacing="0" className="dgrid-totals">
-        <colgroup>{header.colGroup}</colgroup>
-        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
-      </table>
-    ) : null;
+    if (isScrollable) {
+      var header = this._formHeader();
+      totalsGrid = (
+        <table cellSpacing="0" className="dgrid-totals">
+          <colgroup>{header.colGroup}</colgroup>
+          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
+        </table>
+      );
+    } else {
+      totalsGrid = (
+        <tfoot className="dgrid-totals">
+          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
+        </tfoot>
+      );
+    }
+
+    return totalsDisplayed ? totalsGrid : null;
   },
 
   _updateField: function (row, column) {

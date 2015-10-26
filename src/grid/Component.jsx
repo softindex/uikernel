@@ -90,6 +90,101 @@ var GridComponent = React.createClass({
       }
     });
   },
+  renderScrollableGrid: function (component, header, gridClassNames) {
+    return (
+      <div className={gridClassNames.join(' ')}>
+        <table cellSpacing="0" className="dgrid-header">
+          <colgroup>{header.colGroup}</colgroup>
+          {header.cols.map(function (row, colKey) {
+            return (
+              <tr key={colKey}>
+                {row.map(function (col, rowKey) {
+                  return (
+                    <th
+                      key={rowKey}
+                      className={col.className}
+                      onClick={
+                          col.sort ?
+                            component._sortCol.bind(component, col.field) :
+                            null
+                          }
+                      colSpan={col.cols}
+                      rowSpan={col.rows}
+                      dangerouslySetInnerHTML={{
+                          __html: col.name || ''
+                        }}
+                    />
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </table>
+        <div
+          style={{maxHeight: this.props.height}}
+          className='dgrid-body-wrapper dgrid-scrollable'
+        >
+          <div className="dgrid-body">
+            <div className="dgrid-loader" ref="loader"></div>
+            <table
+              cellSpacing="0"
+              ref="body"
+              onClick={this.handleBodyClick}
+            >
+              <colgroup>{header.colGroup}</colgroup>
+              <tbody className="dgrid-body-table" ref="tbody"/>
+            </table>
+          </div>
+        </div>
+        {this._renderTotals(this.props.height)}
+        {this._renderPagination()}
+      </div>
+    );
+  },
+  renderGrid: function (component, header, gridClassNames) {
+    return (
+      <div className={gridClassNames.join(' ')}>
+        <div className="dgrid-loader" ref="loader"></div>
+        <table
+          cellSpacing="0"
+          className="dgrid-body-table"
+          ref="body"
+          onClick={this.handleBodyClick}
+        >
+          <thead>
+            {header.cols.map(function (row, colKey) {
+              return (
+                <tr key={colKey}>
+                  {row.map(function (col, rowKey) {
+                    return (
+                      <th
+                        key={rowKey}
+                        className={col.className}
+
+                        onClick={
+                            col.sort ?
+                              component._sortCol.bind(component, col.field) :
+                              null
+                            }
+                        colSpan={col.cols}
+                        rowSpan={col.rows}
+                        dangerouslySetInnerHTML={{
+                            __html: col.name || ''
+                          }}
+                      />
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </thead>
+          <tbody className="dgrid-body-table" ref="tbody"/>
+          {this._renderTotals(this.props.height)}
+        </table>
+        {this._renderPagination()}
+      </div>
+    );
+  },
   render: function () {
     var component = this;
     var header = this._formHeader();
@@ -99,59 +194,12 @@ var GridComponent = React.createClass({
       gridClassNames.push(this.props.className);
     }
 
-    return (
-      <div className={gridClassNames.join(' ')}>
-        <table cellSpacing="0" className="dgrid-header">
-          <colgroup>{header.colGroup}</colgroup>
-            {header.cols.map(function (row, colKey) {
-              return (
-                <tr key={colKey}>
-                  {row.map(function (col, rowKey) {
-                    return (
-                      <th
-                        key={rowKey}
-                        className={col.className}
-                        onClick={
-                          col.sort ?
-                            component._sortCol.bind(component, col.field) :
-                            null
-                          }
-                        colSpan={col.cols}
-                        rowSpan={col.rows}
-                        dangerouslySetInnerHTML={{
-                          __html: col.name || ''
-                        }}
-                      />
-                    );
-                  })}
-                </tr>
-              );
-            })}
-        </table>
-        <div
-          style={{maxHeight: this.props.height}}
-          className={[
-            'dgrid-body-wrapper',
-            this.props.height ? 'dgrid-scrollable' : null
-          ].join(' ')}
-        >
-          <div className="dgrid-body">
-            <div className="dgrid-loader" ref="loader"></div>
-            <table
-              cellSpacing="0"
-              className="dgrid-body-table"
-              ref="body"
-              onClick={this.handleBodyClick}
-            >
-              <colgroup>{header.colGroup}</colgroup>
-              <tbody ref="tbody"/>
-            </table>
-          </div>
-        </div>
-        {this._renderTotals()}
-        {this._renderPagination()}
-      </div>
-    );
+    if (!this.props.height) {
+      gridClassNames.push('data-grid-left');
+      return this.renderGrid(component, header, gridClassNames);
+    }
+
+    return this.renderScrollableGrid(component, header, gridClassNames);
   }
 });
 
