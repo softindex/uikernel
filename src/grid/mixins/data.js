@@ -484,14 +484,14 @@ var GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: function (settings, cb) {
+  _loadData: utils.throttle(function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
       if (err && this.props.errorHandler) {
         this.props.errorHandler(err);
       }
       cb(err, data);
     }.bind(this));
-  },
+  }),
 
   /**
    * Find record IDs that need to be displayed additionally
