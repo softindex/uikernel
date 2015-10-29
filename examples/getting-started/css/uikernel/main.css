@@ -1,5 +1,10 @@
+/**
+ * Copyright 2015, SoftIndex LLC.
+ */
+
 .data-grid {
   color: #000;
+  display: table;
   border-top: 1px solid #DDDDDD;
   border-left: 1px solid #DDDDDD;
   font-family: Arial Unicode MS, Arial, sans-serif;
@@ -13,7 +18,6 @@
 
 .dgrid-body-wrapper {
   position: relative;
-  border-right: 1px solid #DDDDDD;
   border-bottom: 1px solid #DDDDDD;
 }
 
@@ -82,7 +86,6 @@
 .data-grid th.asc,
 .data-grid th.desc {
   cursor: pointer;
-  white-space: nowrap;
 }
 
 .data-grid th.asc:before {
@@ -177,18 +180,20 @@
 }
 
 .data-grid .dgrid-body-table tr.new:nth-child(odd) td {
-  background-color: #9AE57E;
+  background-color: #A9E2FB;
 }
 
 .data-grid .dgrid-body-table tr.new:nth-child(even) td {
-  background-color: #B6FAB3;
+  background-color: #B4E8FF;
 }
+
 .data-grid .dgrid-body-table tr.changed:nth-child(odd) td {
   background-color: #FFFF00;
 }
 .data-grid .dgrid-body-table tr.changed:nth-child(even) td {
   background-color: #FFFF00;
 }
+
 .data-grid .dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
   background-color: #ffffcc;
 }
@@ -224,6 +229,7 @@
   border-right: 1px solid #ccc;
   border-left: solid 1px #ccc;
   position: absolute;
+  top: 0;
   z-index: 10000;
   background-color: #ffffff;
 }
@@ -266,36 +272,4 @@
 .suggest-box .select-btn .arrow.up {
   border-color: transparent transparent #888 transparent;
   border-width: 0 4px 5px 4px;
-}
-
-.drillDown {
-  margin: 0 auto;
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  background: url('./img/drillDown.png') no-repeat;
-}
-.drillDown:hover {
-  background-color: #ddd;
-}
-
-.drillDownMenu {
-  position: absolute;
-  margin: 0 0 0 -10px;
-  border-top: 1px solid #ccc;
-  border-left: 1px solid #ccc;
-  background: #fff;
-}
-
-.drillDownMenuElement {
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  padding: 2px 7px;
-  cursor: pointer;
-}
-.drillDownMenuElement:hover {
-  background: #ddd;
-}
-.data-grid {
-  margin: 10px 0;
 }
