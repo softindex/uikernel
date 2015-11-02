@@ -11,6 +11,7 @@
 'use strict';
 
 var React = require('react');
+var utils = require('../common/utils');
 
 var DatePickerEditor = React.createClass({
   getDefaultProps: function () {
@@ -111,12 +112,10 @@ var DatePickerEditor = React.createClass({
   render: function () {
     return (
       <input
-        id={this.props.id}
-        className={this.props.className}
+        {...utils.omit(this.props, 'value')}
         ref="input"
         type="text"
         onChange={this.setDate}
-        onFocus={this.props.onFocus}
       />
     );
   }
