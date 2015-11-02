@@ -12,7 +12,7 @@
 
 var xhr = require('xhr');
 
-var defaultXHR = function (settings, cb) {
+var defaultXhr = function (settings, cb) {
   xhr(settings, function (err, response, body) {
     if (err && body) {
       try {
@@ -26,4 +26,4 @@ var defaultXHR = function (settings, cb) {
   });
 };
 
-module.exports = defaultXHR;
+module.exports = defaultXhr;

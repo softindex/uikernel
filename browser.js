@@ -26,7 +26,7 @@ var Module = {
     FormXhr: require('./lib/form/FormXhrModel'),
     ValidationErrors: require('./lib/common/validation/ValidationErrors'),
     List: {
-      Xhr: require('./lib/list/ListXHRModel')
+      Xhr: require('./lib/list/ListXhrModel')
     }
   },
   AbstractModels: {
