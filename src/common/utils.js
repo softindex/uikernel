@@ -212,17 +212,23 @@ exports.clone = function (obj) {
 };
 
 exports.cloneDeep = function (obj) {
+  var i;
+  var cloned;
+
   if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
     return obj;
   }
 
   if (Array.isArray(obj)) {
-    return obj.slice(0);
-  }
-
-  var cloned = {};
-  for (var i in obj) {
-    cloned[i] = this.cloneDeep(obj[i]);
+    cloned = [];
+    for (i = 0; i < obj.length; i++) {
+      cloned.push(this.cloneDeep(obj[i]));
+    }
+  } else {
+    cloned = {};
+    for (i in obj) {
+      cloned[i] = this.cloneDeep(obj[i]);
+    }
   }
   return cloned;
 };
