@@ -10,7 +10,7 @@ var FiltersForm = (function () {
 
   return React.createClass({
     mixins: [UIKernel.Mixins.Form],
-    componentWillMount: function () {
+    componentDidMount: function () {
       this.initForm({ // initialize filters form
         fields: ['search', 'age', 'gender'],
         model: new UIKernel.Models.Form(defaultFilters),
@@ -28,6 +28,10 @@ var FiltersForm = (function () {
       this.submitData(defaultFilters, this.onSubmit);
     },
     render() {
+      if (!this.isLoaded()) {
+        return <span>Loading...</span>;
+      }
+
       var data = this.getData();
 
       return (

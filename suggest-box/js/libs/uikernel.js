@@ -17,7 +17,7 @@ require('./lib/fix_generators');
 var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
-  createValidator: require('./lib/common/validation/createValidator'),
+  createValidator: require('./lib/common/validation/Validator/browser'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
@@ -67,7 +67,7 @@ var Module = {
 global.UIKernel = module.exports = Module;
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/common/ArgumentsError":2,"./lib/common/Events":3,"./lib/common/validation/ValidationErrors":6,"./lib/common/validation/createValidator":8,"./lib/common/validation/validators/boolean":9,"./lib/common/validation/validators/date":10,"./lib/common/validation/validators/enum":11,"./lib/common/validation/validators/float":12,"./lib/common/validation/validators/listElement":13,"./lib/common/validation/validators/notNull":14,"./lib/common/validation/validators/number":15,"./lib/common/validation/validators/regExp":16,"./lib/editors/Checkbox":17,"./lib/editors/DatePicker":18,"./lib/editors/Select":19,"./lib/editors/SuggestBox":20,"./lib/fix_generators":21,"./lib/form/AbstractFormModel":22,"./lib/form/FormModel":23,"./lib/form/FormXhrModel":24,"./lib/form/adapters/GridToFormCreate":25,"./lib/form/adapters/GridToFormUpdate":26,"./lib/form/mixin":27,"./lib/grid/Component":28,"./lib/grid/models/AbstractGridModel":37,"./lib/grid/models/GridCollectionModel":38,"./lib/grid/models/GridXhrModel":39,"./lib/grid/models/applyGridFilters":40,"./lib/list/AbstractListModel":41,"./lib/list/ListXHRModel":42}],2:[function(require,module,exports){
+},{"./lib/common/ArgumentsError":2,"./lib/common/Events":3,"./lib/common/validation/ValidationErrors":6,"./lib/common/validation/Validator/browser":7,"./lib/common/validation/validators/boolean":9,"./lib/common/validation/validators/date":10,"./lib/common/validation/validators/enum":11,"./lib/common/validation/validators/float":12,"./lib/common/validation/validators/listElement":13,"./lib/common/validation/validators/notNull":14,"./lib/common/validation/validators/number":15,"./lib/common/validation/validators/regExp":16,"./lib/editors/Checkbox":17,"./lib/editors/DatePicker":18,"./lib/editors/Select":19,"./lib/editors/SuggestBox":20,"./lib/fix_generators":21,"./lib/form/AbstractFormModel":22,"./lib/form/FormModel":23,"./lib/form/FormXhrModel":24,"./lib/form/adapters/GridToFormCreate":25,"./lib/form/adapters/GridToFormUpdate":26,"./lib/form/mixin":27,"./lib/grid/Component":28,"./lib/grid/models/AbstractGridModel":37,"./lib/grid/models/GridCollectionModel":38,"./lib/grid/models/GridXhrModel":39,"./lib/grid/models/applyGridFilters":40,"./lib/list/AbstractListModel":41,"./lib/list/ListXHRModel":42}],2:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -90,6 +90,7 @@ function ArgumentsError(message) {
 }
 
 ArgumentsError.prototype = Error();
+ArgumentsError.prototype.constructor = ArgumentsError;
 
 module.exports = ArgumentsError;
 
@@ -326,7 +327,6 @@ exports.parseValueFromEvent = function (event) {
   if (event && typeof event === 'object' && event.target && ['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) >= 0) {
     switch (event.target.type) {
       case 'checkbox': return event.target.checked;
-      case 'number': return Number(event.target.value);
     }
     return event.target.value;
   }
@@ -344,6 +344,7 @@ exports.decorate = function (obj, decor) {
     }
   }
   Decorator.prototype = obj;
+  Decorator.prototype.constructor = Decorator;
   return new Decorator();
 };
 
@@ -403,10 +404,7 @@ exports.clone = function (obj) {
   }
 
   if (Array.isArray(obj)) {
-    return obj.reduce(function (result, value) {
-      result.push(value);
-      return result;
-    }, []);
+    return obj.slice(0);
   }
 
   var cloned = {};
@@ -422,10 +420,7 @@ exports.cloneDeep = function (obj) {
   }
 
   if (Array.isArray(obj)) {
-    return obj.reduce(function (result, value) {
-      result.push(this.cloneDeep(value));
-      return result;
-    }.bind(this), []);
+    return obj.slice(0);
   }
 
   var cloned = {};
@@ -728,9 +723,88 @@ module.exports = ValidationErrors;
 
 'use strict';
 
+var Validator = require('./common');
+var ValidationErrors = require('../ValidationErrors');
+var defaultXHR = require('../../defaultXHR');
+
+/**
+ * Get validator.
+ *
+ * @param {string}  serverValidationUrl
+ * @param {Object}  xhr
+ *
+ * @return {Validator}
+ * @type {Module}
+ */
+var ClientValidator = function (serverValidationUrl, xhr) {
+  if (!(this instanceof ClientValidator)) {
+    return new ClientValidator(serverValidationUrl, xhr);
+  }
+
+  Validator.call(this);
+  this._settings.serverValidationUrl = serverValidationUrl;
+  this._settings.xhr = xhr || defaultXHR;
+};
+
+ClientValidator.prototype = new Validator();
+ClientValidator.prototype.constructor = ClientValidator;
+
+ClientValidator.prototype.isValidRecord = function (record, cb) {
+  if (!this._settings.serverValidationUrl) {
+    return Validator.prototype.isValidRecord.call(this, record, cb);
+  }
+
+  // Server validation start
+  this._settings.xhr({
+    method: 'POST',
+    headers: {'Content-type': 'application/json'},
+    body: JSON.stringify(record),
+    uri: this._settings.serverValidationUrl
+  }, function (err, resp, body) {
+    if (err) {
+      if (resp.status === 413) {
+        // When request exceeds server limits and
+        // client validators are able to find errors,
+        // we need to return these errors
+        Validator.prototype.isValidRecord.call(this, record, function (err2, errors) {
+          if (errors.isEmpty()) {
+            return cb(err);
+          }
+          cb(err2, errors);
+        });
+        return;
+      }
+      return cb(err);
+    }
+
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      return cb(e);
+    }
+
+    cb(null, ValidationErrors.createFromJSON(body));
+  }.bind(this));
+};
+
+module.exports = ClientValidator;
+
+},{"../../defaultXHR":4,"../ValidationErrors":6,"./common":8}],8:[function(require,module,exports){
+/**
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
+ */
+
+'use strict';
+
 var suspend = require('suspend');
-var ValidationErrors = require('./ValidationErrors');
-var utils = require('../utils');
+var ValidationErrors = require('../ValidationErrors');
+var utils = require('../../utils');
 
 /**
  * Validation check model
@@ -738,6 +812,10 @@ var utils = require('../utils');
  * @constructor
  */
 var Validator = function () {
+  if (!(this instanceof Validator)) {
+    return new Validator();
+  }
+
   this._settings = {
     validators: {},
     groupValidators: [],
@@ -851,7 +929,7 @@ Validator.prototype.getValidationDependency = function (fields) {
 };
 
 /**
- * Check record validity
+ * Check client record validity
  *
  * @param {Object}  record   Record
  * @returns {ValidationErrors|null} Record validity
@@ -928,34 +1006,7 @@ Validator.prototype.isValidRecord = suspend.async(regeneratorRuntime.mark(functi
 
 module.exports = Validator;
 
-},{"../utils":5,"./ValidationErrors":6,"suspend":52}],8:[function(require,module,exports){
-/**
- * Copyright (с) 2015, SoftIndex LLC.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
- */
-
-'use strict';
-
-var Validator = require('./Validator');
-
-/**
- * Get validator.
- *
- * @return {Validator}
- * @type {Module}
- */
-function createValidator() {
-  return new Validator();
-}
-
-module.exports = createValidator;
-
-},{"./Validator":7}],9:[function(require,module,exports){
+},{"../../utils":5,"../ValidationErrors":6,"suspend":52}],9:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -1066,7 +1117,12 @@ module.exports = function (variants, error) {
  */
 module.exports = function (min, max, error) {
   return function (value) {
-    if (!value && value !== 0 || parseFloat(value).toString() !== value.toString() || value < min || value > max) {
+    if (
+      !value && value !== 0 ||
+      isNaN(Number(value)) ||
+      typeof min === 'number' && value < min ||
+      typeof max === 'number' && value > max
+    ) {
       return error;
     }
   };
@@ -1159,7 +1215,12 @@ module.exports = function (error) {
  */
 module.exports = function (min, max, error) {
   return function (value) {
-    if (!value && value !== 0 || parseInt(value, 10).toString() !== value.toString() || value < min || value > max) {
+    if (
+      !value && value !== 0 ||
+      parseInt(value, 10).toString() !== value.toString() ||
+      typeof min === 'number' && value < min ||
+      typeof max === 'number' && value > max
+    ) {
       return error;
     }
   };
@@ -1815,6 +1876,7 @@ var AbstractFormModel = function () {
   EventsModel.call(this);
 };
 AbstractFormModel.prototype = new EventsModel();
+AbstractFormModel.prototype.constructor = AbstractFormModel;
 
 /**
  * Get data
@@ -1877,7 +1939,7 @@ module.exports = AbstractFormModel;
 
 var utils = require('../common/utils');
 var AbstractFormModel = require('./AbstractFormModel');
-var Validator = require('../common/validation/Validator');
+var Validator = require('../common/validation/Validator/common');
 
 /**
  * Simple form model
@@ -1891,6 +1953,7 @@ var FormModel = function (defaultValues, validation) {
   this._data = defaultValues ? utils.clone(defaultValues) : {};
 };
 FormModel.prototype = new AbstractFormModel();
+FormModel.prototype.constructor = FormModel;
 
 /**
  * Get data
@@ -1930,7 +1993,9 @@ FormModel.prototype.submit = function (changes, cb) {
       this.trigger('update', changes);
     }
 
-    cb(validErrors, changes);
+    if (cb) {
+      cb(validErrors, changes);
+    }
   }.bind(this));
 };
 
@@ -1956,7 +2021,7 @@ FormModel.prototype.isValidRecord = function (record, cb) {
 
 module.exports = FormModel;
 
-},{"../common/utils":5,"../common/validation/Validator":7,"./AbstractFormModel":22}],24:[function(require,module,exports){
+},{"../common/utils":5,"../common/validation/Validator/common":8,"./AbstractFormModel":22}],24:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -1969,11 +2034,10 @@ module.exports = FormModel;
 
 'use strict';
 
-var utils = require('../common/utils');
 var url = require('url');
 var EventsModel = require('../common/Events');
 var defaultXHR = require('../common/defaultXHR');
-var Validator = require('../common/validation/Validator');
+var Validator = require('../common/validation/Validator/common');
 var ValidationErrors = require('../common/validation/ValidationErrors');
 
 var FormXhrModel = function (settings) {
@@ -1984,17 +2048,18 @@ var FormXhrModel = function (settings) {
   }
 
   this._validator = settings.validator || new Validator();
-  this._serverValidation = settings.serverValidation || false;
   this._xhr = settings.xhr || defaultXHR;
   this._apiUrl = settings.api
     .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
     .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
 };
 FormXhrModel.prototype = new EventsModel();
+FormXhrModel.prototype.constructor = FormXhrModel;
 
 FormXhrModel.prototype.getData = function (fields, cb) {
   var parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.fields = JSON.stringify(fields);
+  delete parsedUrl.search;
 
   this._xhr({
     method: 'GET',
@@ -2020,6 +2085,7 @@ FormXhrModel.prototype.getData = function (fields, cb) {
 FormXhrModel.prototype.getData = function (fields, cb) {
   var parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.fields = JSON.stringify(fields);
+  delete parsedUrl.search;
 
   this._xhr({
     method: 'GET',
@@ -2079,47 +2145,12 @@ FormXhrModel.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 FormXhrModel.prototype.isValidRecord = function (record, cb) {
-  if (this._serverValidation && !utils.isEmpty(record)) {
-    var parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
-    parsedUrl.query.record = JSON.stringify(record);
-
-    // Server validation start
-    this._xhr({
-      method: 'GET',
-      uri: url.format(parsedUrl)
-    }, function (err, resp, body) {
-      if (err) {
-        if (resp.status === 413) {
-          // When request exceeds server limits and
-          // client validators are able to find errors,
-          // we need to return these errors
-          return this._validator.isValidRecord(record, function (err2, errors) {
-            if (!err2 && errors.isEmpty()) {
-              return cb(err);
-            }
-            cb(err2, errors);
-          });
-        }
-        return cb(err);
-      }
-
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return cb(e);
-      }
-
-      cb(null, ValidationErrors.createFromJSON(body));
-    }.bind(this));
-  } else {
-    this._validator.isValidRecord(record, cb);
-  }
+  this._validator.isValidRecord(record, cb);
 };
 
 module.exports = FormXhrModel;
 
-},{"../common/Events":3,"../common/defaultXHR":4,"../common/utils":5,"../common/validation/ValidationErrors":6,"../common/validation/Validator":7,"url":48}],25:[function(require,module,exports){
+},{"../common/Events":3,"../common/defaultXHR":4,"../common/validation/ValidationErrors":6,"../common/validation/Validator/common":8,"url":48}],25:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -2210,6 +2241,7 @@ module.exports = GridToFormCreate;
 'use strict';
 
 var utils = require('../../common/utils');
+var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 /**
  * Adapter that allows us to use Grid model record as a form model
@@ -2254,12 +2286,13 @@ GridToFormUpdate.prototype.submit = function (changes, cb) {
   var record = utils.clone(changes);
   this._adapter.model.update([[this._adapter.id, record]], function (err, data) {
     if (err) {
-      if (err instanceof Error) {
-        return cb(err);
-      }
-      return cb(err[0][1]);
+      return cb(err);
     }
-    cb(null, data[0][1]);
+    var result = data[0][1];
+    if (result instanceof ValidationErrors) {
+      return cb(result);
+    }
+    cb(null, result);
   });
 };
 
@@ -2323,7 +2356,7 @@ GridToFormUpdate.prototype.off = function (event, cb) {
 
 module.exports = GridToFormUpdate;
 
-},{"../../common/utils":5}],27:[function(require,module,exports){
+},{"../../common/utils":5,"../../common/validation/ValidationErrors":6}],27:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -2377,23 +2410,29 @@ var FormMixin = {
 
     function done() {
       ctx.state._formMixin.model.on('update', ctx._handleModelChange);
-      ctx.forceUpdate();
-      ctx.validateForm(cb);
+      ctx.setState(ctx.state, function () {
+        ctx._validateForm(function () {
+          if (cb) {
+            // Don't send validation errors
+            cb();
+          }
+        });
+      });
     }
 
     if (!ctx.state._formMixin.data) {
       settings.model.getData(settings.fields, function (err, data) {
-        // TODO It requires verification, but the function can be called in componentWillMount
-        /*if (!ctx.isMounted()) {
+        if (!ctx.isMounted()) {
           return;
-        }*/
+        }
         if (err) {
           ctx.state._formMixin.globalError = err;
-          ctx.forceUpdate();
-          if (cb) {
-            return cb(err);
-          }
-          throw err;
+          ctx.setState(ctx.state, function () {
+            if (cb) {
+              return cb(err);
+            }
+            throw err;
+          });
         }
         ctx.state._formMixin.data = data;
         done();
@@ -2409,7 +2448,8 @@ var FormMixin = {
    * @returns {boolean}
    */
   isLoaded: function () {
-    return this.state && this.state._formMixin && Boolean(this.state._formMixin.data);
+    return this.state && this.state._formMixin &&
+      Boolean(this.state._formMixin.data || this.state._formMixin.globalError);
   },
 
   /**
@@ -2446,7 +2486,7 @@ var FormMixin = {
     return this.state._formMixin.errors.hasError(field);
   },
 
-  clearError: function (field) {
+  clearError: function (field, cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -2463,7 +2503,7 @@ var FormMixin = {
       this.state._formMixin.errors.clearField(field);
     }
 
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
   /**
@@ -2542,8 +2582,9 @@ var FormMixin = {
    *
    * @param {string|string[]}  fields  Parameters
    * @param {*}                values   Event or data
+   * @param {Function}         [cb]       CallBack
    */
-  updateField: function (fields, values) {
+  updateField: function (fields, values, cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -2557,16 +2598,16 @@ var FormMixin = {
 
     this.set(utils.zipObject(fields, values));
     if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler);
+      this.submit(this.state._formMixin.autoSubmitHandler, cb);
     }
   },
 
-  validateField: function (fields, values) {
+  validateField: function (fields, values, cb) {
     if (this.state._formMixin.autoSubmit) {
       throw Error('Use updateField method to update value in autoSubmit mode');
     }
     this.updateField(fields, values);
-    this.validateForm();
+    this.validateForm(cb);
   },
 
   validateForm: function (cb) {
@@ -2580,27 +2621,34 @@ var FormMixin = {
   /**
    * Set data in the form
    *
-   * @param {Object} data Data
+   * @param {Object}    data  Data
+   * @param {Function}  [cb]    CallBack
    */
-  set: function (data) {
+  set: function (data, cb) {
     if (this._isNotInitialized()) {
       return;
     }
 
     utils.assign(this.state._formMixin.changes, data);
-    utils.assign(this.state._formMixin.changes, utils.pick(
+
+    var dependent = utils.pick(
       this.state._formMixin.data,
       this.state._formMixin.model.getValidationDependency(
         Object.keys(this.state._formMixin.changes)
       )
-    ));
+    );
+
+    utils.assign(this.state._formMixin.changes, dependent);
 
     for (var i in this.state._formMixin.changes) {
-      if (utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i])) {
+      if (
+        utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i]) &&
+        !dependent.hasOwnProperty(i)
+      ) {
         delete this.state._formMixin.changes[i];
       }
     }
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
   submitData: function (data, cb) {
@@ -2615,7 +2663,7 @@ var FormMixin = {
   /**
    * Send form data to the model
    *
-   * @param {Function}  cb  CallBack function
+   * @param {Function}  [cb]  CallBack function
    */
   submit: function (cb) {
     if (this._isNotInitialized()) {
@@ -2661,14 +2709,15 @@ var FormMixin = {
         }, this);
       }
 
-      this.forceUpdate();
-      if (typeof cb === 'function') {
-        cb(err, data);
-      }
+      this.setState(this.state, function () {
+        if (typeof cb === 'function') {
+          cb(err, data);
+        }
+      });
     }.bind(this));
   },
 
-  clearChanges: function () {
+  clearChanges: function (cb) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -2677,12 +2726,12 @@ var FormMixin = {
     this.state._formMixin.changes = {};
     this.state._formMixin.globalError = false;
     this.state._formMixin.partialErrorChecking = this.state._formMixin.partialErrorCheckingDefault;
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
-  setPartialErrorChecking: function (value) {
+  setPartialErrorChecking: function (value, cb) {
     this.state._formMixin.partialErrorChecking = value;
-    this.forceUpdate();
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
   /**
@@ -2693,7 +2742,7 @@ var FormMixin = {
    */
   _handleModelChange: function (changes) {
     utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
-    this.forceUpdate();
+    this.setState(this.state);
   },
 
   _initState: function (settings) {
@@ -2751,12 +2800,12 @@ var FormMixin = {
         }
       }
 
-      this.forceUpdate();
-
-      if (!validErrors.isEmpty()) {
-        return cb(validErrors);
-      }
-      cb(err);
+      this.setState(this.state, function () {
+        if (!validErrors.isEmpty()) {
+          return cb(validErrors);
+        }
+        cb(err);
+      });
     }.bind(this));
   }),
 
@@ -2806,11 +2855,14 @@ var gridMixinEditor = require('./mixins/editor');
 var gridMixinUI = require('./mixins/ui');
 var gridMixinSelect = require('./mixins/select');
 
-var RESET_COLUMNS = 1 << 0;
+var RESET_MODEL = 1 << 0;
 var RESET_VIEW_COLUMNS = 1 << 1;
-var RESET_MODEL = 1 << 2;
+var RESET_SORT = 1 << 2;
 
 var GridComponent = React.createClass({displayName: "GridComponent",
+  propTypes: {
+    className: React.PropTypes.string
+  },
   mixins: [
     gridMixinColumns,       // Columns control function
     gridMixinPagination,    // Pagination control function
@@ -2822,24 +2874,28 @@ var GridComponent = React.createClass({displayName: "GridComponent",
     gridMixinSelect         // Rows selection control function (Select)
   ],
   componentDidMount: function () {
-    this.props.model.on('update', this._setData);
+    if (this.props.model) {
+      this.props.model.on('update', this._setData);
+    }
     this.updateTable();
   },
   componentWillUnmount: function () {
-    this.props.model.off('update', this._setData);
+    if (this.props.model) {
+      this.props.model.off('update', this._setData);
+    }
   },
   componentWillReceiveProps: function (nextProps) {
     var oldProps = this.props;
     var reset = 0;
 
-    if (!utils.isEqual(this.props.cols, nextProps.cols)) {
-      reset |= RESET_COLUMNS;
+    if (!utils.isEqual(this.props.model, nextProps.model)) {
+      reset |= RESET_MODEL;
     }
     if (!utils.isEqual(this.props.viewColumns, nextProps.viewColumns)) {
       reset |= RESET_VIEW_COLUMNS;
     }
-    if (!utils.isEqual(this.props.model, nextProps.model)) {
-      reset |= RESET_MODEL;
+    if (!utils.isEqual(this.props.sort, nextProps.sort)) {
+      reset |= RESET_SORT;
     }
 
     if (!reset) {
@@ -2847,25 +2903,34 @@ var GridComponent = React.createClass({displayName: "GridComponent",
     }
 
     this.setState({}, function () {
-      if (reset & RESET_COLUMNS) {
-        this._updateColumnsConfiguration();
-      }
-      if (reset & RESET_VIEW_COLUMNS) {
+      if (reset & RESET_SORT || reset & RESET_MODEL) {
+        if (reset & RESET_MODEL) {
+          this.state.data = null;
+          if (oldProps.model) {
+            oldProps.model.off('update', this._setData);
+          }
+          if (this.props.model) {
+            this.props.model.on('update', this._setData);
+          }
+          this._reset();
+        }
+        this.updateTable();
+      } else if (reset & RESET_VIEW_COLUMNS) {
         this._renderBody();
-      }
-      if (reset & RESET_MODEL) {
-        oldProps.model.off('update', this._setData);
-        this.props.model.on('update', this._setData);
-        this.reset();
       }
     });
   },
   render: function () {
     var component = this;
     var header = this._formHeader();
+    var gridClassNames = ['data-grid'];
+
+    if (this.props.className) {
+      gridClassNames.push(this.props.className);
+    }
 
     return (
-      React.createElement("div", {className: "data-grid"}, 
+      React.createElement("div", {className: gridClassNames.join(' ')}, 
         React.createElement("table", {cellSpacing: "0", className: "dgrid-header"}, 
           React.createElement("colgroup", null, header.colGroup), 
             header.cols.map(function (row, colKey) {
@@ -2878,7 +2943,7 @@ var GridComponent = React.createClass({displayName: "GridComponent",
                         className: col.className, 
                         onClick: 
                           col.sort ?
-                            component._sortRow.bind(component, col.field) :
+                            component._sortCol.bind(component, col.field) :
                             null, 
                           
                         colSpan: col.cols, 
@@ -2936,24 +3001,9 @@ module.exports = GridComponent;
 'use strict';
 
 var React = require('react');
+var utils = require('../../common/utils');
 
 var GridColumnsMixin = {
-  getInitialState: function () {
-    return {
-      // Columns and parameters they depend on binding
-      confBinds: this._getBindsConfig()
-    };
-  },
-
-  /**
-   * Update columns configuration
-   *
-   * @private
-   */
-  _updateColumnsConfiguration: function () {
-    this.state.confBinds = this._getBindsConfig();
-  },
-
   /**
    * Column visibility flag
    *
@@ -2996,18 +3046,19 @@ var GridColumnsMixin = {
         })
       );
 
-      sortParams = this._getSortParams(columnId);
       addInfo = {
-        className: [
-          this._getColumnClass(columnId),
-          sortParams.sort
-        ].join(' '),
+        className: this._getColumnClass(columnId),
         name: this.props.cols[columnId].name,
         cols: 1,
-        rows: 1,
-        field: sortParams.field,
-        sort: sortParams.sort
+        rows: 1
       };
+
+      sortParams = this._getSortParams(columnId);
+      if (sortParams) {
+        addInfo.className += ' ' + sortParams.direction;
+        addInfo.field = sortParams.column;
+        addInfo.sort = sortParams.direction;
+      }
 
       if (this.props.cols[columnId].hasOwnProperty('parent')) {
         if (this.props.cols[columnId].parent !== lastParent.name) {
@@ -3028,25 +3079,59 @@ var GridColumnsMixin = {
     return {cols: rows, colGroup: colGroup};
   },
 
-  _getBindsConfig: function () {
+  /**
+   * Get the names of the parameters that are required to display the grid
+   *
+   * @return {string[]}
+   * @private
+   */
+  _getFieldsToRender: function () {
     var i;
-    var j;
-    var byParams = {};
-    var byCols = {};
-    var bind;
     var cols = this.props.cols;
+    var columns = [];
+    for (i in cols) {
+      columns = utils.union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
+    }
+    return columns;
+  },
+
+  /**
+   * Does the parameters to display grid
+   *
+   * @param   {string}  field
+   * @return  {boolean}
+   * @private
+   */
+  _isFieldAffectsRender: function (field) {
+    var i;
+    var cols = this.props.cols;
+    for (i in cols) {
+      if (cols[i].render.indexOf(field) >= 0) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  /**
+   * Get a dependent column
+   *
+   * @param   {string}    field
+   * @return  {string[]}
+   * @private
+   */
+  _getDependentColumns: function (field) {
+    var i;
+    var cols = this.props.cols;
+    var columns = [];
 
     for (i in cols) {
-      bind = cols[i].render.slice(0, cols[i].render.length - 1);
-      for (j = 0; j < bind.length; j++) {
-        if (!byParams[bind[j]]) {
-          byParams[bind[j]] = [];
-        }
-        byParams[bind[j]].push(i);
+      if (cols[i].render.indexOf(field) < 0) {
+        continue;
       }
-      byCols[i] = bind;
+      columns.push(i);
     }
-    return {params: byParams, cols: byCols};
+    return columns;
   },
 
   _getColumnClass: function (id) {
@@ -3056,7 +3141,7 @@ var GridColumnsMixin = {
 
 module.exports = GridColumnsMixin;
 
-},{"react":"DYtedT"}],30:[function(require,module,exports){
+},{"../../common/utils":5,"react":"DYtedT"}],30:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -3086,7 +3171,7 @@ var GridDataMixin = {
   },
   getInitialState: function () {
     return {
-      data: {},
+      data: null,
       changes: {},
       errors: {},
       totals: {},
@@ -3205,35 +3290,30 @@ var GridDataMixin = {
       }
 
       if (err) {
-        if (Array.isArray(err)) {
-          // Process all validation errors
-          err.forEach(function (record) {
-            var row = this._getRowID(record[0]);
-            var recordErrors = record[1];
-
-            // Skip records that are user changed while data processing
-            if (!utils.isEqual(this.state.changes[row], changes[row])) {
-              return;
-            }
-
-            this.state.errors[row] = recordErrors;
-
-            // Redraw error fields
-            recordErrors.getFailedFields().forEach(function (field) {
-              this._renderBinds(row, field);
-            }, this);
-          }, this);
-        } else {
-          return cb(err);
-        }
+        return cb(err);
       }
 
-      // Cancel changed data status of the parameters, that are changed
-      // while data processing
-      utils.forEach(changes, function (rowChanges, row) {
-        utils.forEach(rowChanges, function (value, field) {
-          var isEqual = this.state.changes[row] && utils.isEqual(value, this.state.changes[row][field]);
-          if (isEqual && !this.state.errors[row]) {
+      data.forEach(function (record) {
+        var row = this._getRowID(record[0]);
+
+        // Skip records that are user changed while data processing
+        if (!utils.isEqual(this.state.changes[row], changes[row])) {
+          return;
+        }
+
+        // Process validation errors
+        if (record[1] instanceof ValidationErrors) {
+          this.state.errors[row] = record[1];
+          // Redraw error fields
+          record[1].getFailedFields().forEach(function (field) {
+            this._renderBinds(row, field);
+          }, this);
+          return;
+        }
+
+        // Cancel changed data status of the parameters, that are changed
+        utils.forEach(changes[row], function (value, field) {
+          if (utils.isEqual(value, this.state.changes[row][field])) {
             delete this.state.changes[row][field];
             this._renderBinds(row, field);
           }
@@ -3246,7 +3326,7 @@ var GridDataMixin = {
             this._removeRecord(row);
           }
         }
-      }, this);
+      }.bind(this));
 
       if (typeof cb === 'function') {
         cb(null, data);
@@ -3290,9 +3370,19 @@ var GridDataMixin = {
    * Reset to initial table state
    */
   reset: function () {
-    this.setPage(0, function () {
-      this.resetSorting();
-    });
+    this._reset();
+    this.updateTable();
+  },
+
+  /**
+   * Reset to initial table state
+   * @private
+   */
+  _reset: function () {
+    if (!this._isSortingPropsMode()) {
+      this._resetSorting();
+    }
+    this._setPage(0);
   },
 
   /**
@@ -3538,14 +3628,14 @@ var GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: function (settings, cb) {
+  _loadData: utils.throttle(function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
       if (err && this.props.errorHandler) {
         this.props.errorHandler(err);
       }
       cb(err, data);
     }.bind(this));
-  },
+  }),
 
   /**
    * Find record IDs that need to be displayed additionally
@@ -3554,12 +3644,31 @@ var GridDataMixin = {
    * @private
    */
   _getAdditionalIds: function () {
-    var additionalIds = utils.union(this._getRecordsWithStatus(), this.getAllSelected());
+    var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllSelected());
+    var id;
     for (var row in this.state.changes) {
-      // TODO Entry can simultaneously have the status of, and be changed
-      additionalIds.push(this.state.recordsInfo[row].id);
+      id = this.state.recordsInfo[row].id;
+      if (additionalIds.indexOf(id) >= 0) {
+        additionalIds.push(id);
+      }
     }
     return additionalIds;
+  },
+
+  _removeRecord: function (recordId, cb) {
+    this._removeTR(recordId);
+    this.unselectRecord(recordId, true);
+    delete this.state.data[recordId];
+    delete this.state.recordsInfo[recordId];
+    delete this.state.changes[recordId];
+    delete this.state.errors[recordId];
+    delete this.state.editor[recordId];
+    this.setState({
+      data: this.state.data,
+      changes: this.state.changes,
+      errors: this.state.errors,
+      editor: this.state.editor
+    }, cb ? cb.bind(this) : null);
   },
 
   _validateRow: utils.throttle(function (row, cb) {
@@ -3710,7 +3819,7 @@ var GridEditorMixin = {
     this._updateField(row, column);
 
     if (this.props.realtime) {
-      this.save();
+      this.save(this.props.onRealtimeSubmit);
     } else {
       this._validateRow(row);
     }
@@ -4055,6 +4164,10 @@ var GridSelectMixin = {
     return utils.clone(this.state.selected);
   },
 
+  _getAllSelected: function () {
+    return this.state.selected;
+  },
+
   /**
    * Trigger selected records count change handler
    *
@@ -4086,102 +4199,193 @@ module.exports = GridSelectMixin;
 
 'use strict';
 
+var React = require('react');
+var utils = require('../../common/utils');
+
 var GridSortingMixin = {
+  propTypes: (function () {
+    var sortElementProp = React.PropTypes.shape({
+      column: React.PropTypes.string,
+      direction: React.PropTypes.string
+    });
+
+    var sortProp = React.PropTypes.oneOfType([
+      sortElementProp,
+      React.PropTypes.arrayOf(sortElementProp)
+    ]);
+
+    return {
+      onSorting: React.PropTypes.func,
+      defaultSort: function (props, propName) {
+        if (!props.defaultSort) {
+          return;
+        }
+        var validProp = sortProp(props, propName);
+        if (validProp) {
+          return validProp;
+        }
+        if (props.hasOwnProperty('sort')) {
+          return Error('You can not set "defaultSort" when specified "sort" prop');
+        }
+      },
+      sort: function (props, propName) {
+        if (!props.sort) {
+          return;
+        }
+        var validProp = sortProp(props, propName);
+        if (validProp) {
+          return validProp;
+        }
+        if (!props.onSorting) {
+          return Error('You need to define prop "onSorting" when set "sort"');
+        }
+      }
+    };
+  })(),
+
   getInitialState: function () {
     return {
-      confSort: this._getSortConfig(),
       sort: this._getDefaultSort()
     };
+  },
+
+  /**
+   * Sort by column
+   *
+   * @param {string} column
+   * @param {string} direction
+   */
+  sort: function (column, direction) {
+    if (this._isSortingPropsMode()) {
+      throw Error('You can not use function "sort" when set prop "sort"');
+    }
+
+    var sort = {
+      column: column,
+      direction: direction
+    };
+
+    if (this.props.multipleSorting) {
+      this.state.sort.push(sort);
+    } else {
+      this.state.sort = sort;
+    }
+
+    this.setPage(0);
+
+    if (this.props.onSorting) {
+      this.props.onSorting(this.state.sort, column, direction);
+    }
+  },
+
+  /**
+   * Get sort direction
+   *
+   * @return {object|object[]}
+   */
+  getSortDirection: function () {
+    if (this._isSortingPropsMode()) {
+      return this.props.sort;
+    }
+    return this.state.sort;
   },
 
   /**
    * Reset to default sort parameters
    */
   resetSorting: function () {
+    if (this._isSortingPropsMode()) {
+      throw Error('You can not use function "resetSorting" when set prop "sort"');
+    }
+
     this._resetSorting();
     this.forceUpdate();
   },
+
+  /**
+   * Reset to default sort parameters
+   * @private
+   */
   _resetSorting: function () {
-    this.state.confSort = this._getSortConfig();
-    this.state.sort = this._getDefaultSort();
+    var sort = this._getDefaultSort();
+
+    if (this._isSortingPropsMode()) {
+      this.onSorting(sort);
+      return;
+    }
+
+    this.state.sort = sort;
   },
 
   /**
-   * Use parameter name for table sort
+   * Use column name for table sort
    *
-   * @param {string} param  Sort parameter name
+   * @param {string} column  Column name
    * @private
    */
-  _sortRow: function (param) {
-    var i;
+  _sortCol: function (column) {
     var newOrder;
-    var cycle = this.state.confSort[param];
-    var sorts = this.state.sort;
-    var inQueue = false;
+    var cycle = this.props.cols[column].sortCycle;
+    var newSorts = utils.clone(this.getSortDirection());
+    var sortElement = {column: column};
+    var currentSortIndex;
+    var currentSort;
 
     if (this.props.multipleSorting) {
-      for (i = 0; i < sorts.length; i++) {
-        if (sorts[i][0] === param) {
-          inQueue = true;
-          newOrder = i === sorts.length - 1 ?
-            cycle[(cycle.indexOf(sorts[i][1]) + 1) % cycle.length] :
-            cycle[0];
-          if (newOrder === 'default') {
-            sorts.splice(i, 1);
-          } else if (i === sorts.length - 1) {
-            sorts[i][1] = newOrder;
-          } else {
-            sorts.splice(i, 1);
-            sorts.push([param, newOrder]);
-          }
-          break;
+      // Find an element among the other sorts
+      currentSortIndex = utils.findIndex(newSorts, function (sort) {
+        return sort.column === column;
+      });
+
+      if (currentSortIndex >= 0) {
+        currentSort = newSorts[currentSortIndex];
+
+        // Determine the direction of sorting
+        if (currentSortIndex < newSorts.length - 1) {
+          newOrder = cycle[0];
+        } else {
+          // If the item is the last one, select the next direction of sorting
+          newOrder = cycle[(cycle.indexOf(currentSort.direction) + 1) % cycle.length];
         }
-      }
-      if (!inQueue) {
-        sorts.push([param, cycle[0]]);
+
+        if (newOrder === 'default') {
+          // Remove item from the sorts
+          newSorts.splice(currentSortIndex, 1);
+        } else if (currentSortIndex === newSorts.length - 1) {
+          // Set new direction, if the last element
+          currentSort.direction = newOrder;
+        } else {
+          // Move the item to the end, if it is already in sorts
+          newSorts.splice(currentSortIndex, 1);
+          sortElement.direction = newOrder;
+          newSorts.push(sortElement);
+        }
+      } else {
+        // Add new element
+        sortElement.direction = newOrder = cycle[0];
+        newSorts.push(sortElement);
       }
     } else {
-      sorts = [[
-        param,
-        sorts[0] && sorts[0][0] === param ?
-          cycle[(cycle.indexOf(sorts[0][1]) + 1) % cycle.length] :
-          cycle[0]
-      ]];
-    }
-
-    this.state.sort = sorts;
-
-    this.updateTable();
-  },
-
-  /**
-   * Get current column sort parameter name
-   *
-   * @param {number} id           Column ID
-   * @returns {string|undefined}  Param name
-   * @private
-   */
-  _getSortParam: function (id) {
-    return this.props.cols[id].hasOwnProperty('sortCycle') && (this.props.cols[id].sortField || id);
-  },
-
-  /**
-   * Get sort configuration object
-   *
-   * @returns {object} Sort configuration
-   * @private
-   */
-  _getSortConfig: function () {
-    var sortConfig = {};
-    var sortParam;
-    var i;
-    for (i in this.props.cols) {
-      sortParam = this._getSortParam(i);
-      if (sortParam) {
-        sortConfig[sortParam] = this.props.cols[i].sortCycle;
+      if (newSorts && newSorts.column === column) {
+        // Select the next direction of sorting
+        newOrder = cycle[(cycle.indexOf(newSorts.direction) + 1) % cycle.length];
+      } else {
+        newOrder = cycle[0];
+      }
+      if (newOrder === 'default') {
+        newSorts = null;
+      } else {
+        sortElement.direction = newOrder;
+        newSorts = sortElement;
       }
     }
-    return sortConfig;
+
+    if (this._isSortingPropsMode()) {
+      this.props.onSorting(newSorts, column, newOrder);
+    } else {
+      this.state.sort = newSorts;
+      this.setPage(0);
+    }
   },
 
   /**
@@ -4191,66 +4395,95 @@ var GridSortingMixin = {
    * @private
    */
   _getDefaultSort: function () {
-    var sort = [];
-    var i;
-    for (i in this.props.cols) {
-      if (this.props.cols[i].sortDefault) {
-        sort.push([this._getSortParam(i), this.props.cols[i].sortDefault]);
-        if (!this.props.multipleSorting) {
-          break;
-        }
-      }
+    if (this.props.defaultSort) {
+      return utils.cloneDeep(this.props.defaultSort);
     }
-    return sort;
+    return null;
   },
 
   /**
    * Get current mode and column sort parameter
    *
-   * @param columnId  Column ID
-   * @returns {{field: {string}, sort: {string}}|{}} Sort parameter and mode
+   * @param   column                                  Column ID
+   * @returns {{field: {string}, sort: {string}}|{}}  Sort parameter and mode
    * @private
    */
-  _getSortParams: function (columnId) {
-    var i;
-    var lastSorting;
-    var params = {};
-    if (this.props.cols[columnId].sortCycle) {
-      params.field = this._getSortParam(columnId);
-      if (this.props.multipleSorting) {
-        for (i = 0; i < this.state.sort.length; i++) {
-          if (this.state.sort[i][0] === params.field) {
-            break;
-          }
-        }
-        params.sort = i === this.state.sort.length ?
-          'default' : this.state.sort[i][1];
-      } else {
-        // When sort is not multiple, display just the last one
-        if (this.state.sort.length) {
-          lastSorting = this.state.sort[this.state.sort.length - 1];
-          params.sort = lastSorting[0] === params.field ? lastSorting[1] : 'default';
-        } else {
-          params.sort = 'default';
-        }
-      }
+  _getSortParams: function (column) {
+    var params = {column: column};
+    var sortIndex;
+    var sorts = this.getSortDirection();
+
+    if (!this.props.cols[column].sortCycle) {
+      return null;
     }
+
+    if (!sorts) {
+      params.direction = 'default';
+      return params;
+    }
+
+    if (this.props.multipleSorting) {
+      sortIndex = utils.findIndex(sorts, function (sort) {
+        return sort.column === params.column;
+      });
+
+      if (sortIndex < 0 || sortIndex < sorts.length - 1) {
+        params.direction = 'default';
+      } else {
+        params.direction = sorts[sortIndex].direction;
+      }
+      return params;
+    }
+
+    if (sorts.column === column) {
+      params.direction = sorts.direction;
+    } else {
+      params.direction = 'default';
+    }
+
     return params;
   },
 
-  _getNotDefaultSorts: function () {
-    return this.state.sort.reduce(function (result, item) {
-      if (item[1] !== 'default') {
-        result.push(item);
+  /**
+   * Does sorting using props
+   *
+   * @return {boolean}
+   * @private
+   */
+  _isSortingPropsMode: function () {
+    return this.props.hasOwnProperty('sort');
+  },
+
+  /**
+   * Convert sorting to array
+   *
+   * @return {{}[]|{}} sorts
+   * @private
+   */
+  _sortingToArray: function () {
+    function toArray(sort) {
+      return [sort.column, sort.direction];
+    }
+
+    var direction = this.getSortDirection();
+    if (!direction) {
+      return null;
+    }
+
+    if (this.props.multipleSorting) {
+      if (!direction.length) {
+        return null;
       }
-      return result;
-    }, []);
+      return direction.map(toArray);
+    }
+
+    return [toArray(direction)];
   }
 };
 
 module.exports = GridSortingMixin;
 
-},{}],35:[function(require,module,exports){
+},{"../../common/utils":5,"react":"DYtedT"}],35:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -4558,11 +4791,15 @@ var GridUIMixin = {
   updateTable: function (cb) {
     this._showLoader(true);
 
+    if (!this.props.model) {
+      return;
+    }
+
     this._loadData({
       limit: this.state.viewCount,
       offset: this.state.page * this.state.viewCount,
-      sort: this._getNotDefaultSorts(),
-      fields: Object.keys(this.state.confBinds.params),
+      sort: this._sortingToArray(),
+      fields: this._getFieldsToRender(),
       extra: this._getAdditionalIds()
     }, function (err, obj) {
       var data;
@@ -4582,8 +4819,6 @@ var GridUIMixin = {
 
       // If required page is not included in the range of existing pages,
       // request existing in a moment page
-      // TODO can be optimized, making the model to send the last page,
-      // TODO if the page has gone beyond the existing range
       page = this._checkPage(this.state.page, this.state.viewCount, obj.count);
       if (page !== this.state.page) {
         this.state.page = page;
@@ -4604,7 +4839,7 @@ var GridUIMixin = {
         this._renderBody();
         this._showLoader(false);
         if (cb) {
-          cb.call(this);
+          cb();
         }
       });
     }.bind(this));
@@ -4677,6 +4912,10 @@ var GridUIMixin = {
    * @private
    */
   _renderBody: function () {
+    if (!this.state.data) {
+      return;
+    }
+
     var i;
     var row;
     var htmlExtra = '';
@@ -4706,11 +4945,11 @@ var GridUIMixin = {
    */
   _renderBinds: function (row, param) {
     // If parameter does not affect on the redraw, do nothing
-    if (!this.state.confBinds.params.hasOwnProperty(param)) {
+    if (!this._isFieldAffectsRender(param)) {
       return;
     }
 
-    this.state.confBinds.params[param].forEach(function (column) {
+    this._getDependentColumns(param).forEach(function (column) {
       if (this._isViewColumn(column) && !this._isEditorVisible(row, column)) {
         this._updateField(row, column);
       }
@@ -4731,28 +4970,17 @@ var GridUIMixin = {
       .find('td[key=' + colId + ']');
   },
 
-  _removeRecord: function (recordId, cb) {
+  _removeTR: function (recordId) {
     $(this.refs.body.getDOMNode())
       .find('tr[key=' + recordId + ']')
       .remove();
-    this.unselectRecord(recordId, true);
-    delete this.state.data[recordId];
-    delete this.state.recordsInfo[recordId];
-    delete this.state.changes[recordId];
-    delete this.state.errors[recordId];
-    delete this.state.editor[recordId];
-    this.setState({
-      data: this.state.data,
-      changes: this.state.changes,
-      errors: this.state.errors,
-      editor: this.state.editor
-    }, cb ? cb.bind(this) : null);
   },
 
   _renderTotals: function () {
     var header = this._formHeader();
     var totalsDisplayed = false;
     var i;
+    var className;
     var totalsRowHTML = '';
 
     // If data for result line display exists, form it
@@ -4761,12 +4989,20 @@ var GridUIMixin = {
         if (!this._isViewColumn(i)) {
           continue;
         }
-        if (this.state.totals.hasOwnProperty(i)) {
-          totalsRowHTML += '<td>' + this._getCellHTML(i, this.state.totals, false) + '</td>';
-          totalsDisplayed = true;
+
+        className = this.props.cols[i].className;
+        if (className) {
+          totalsRowHTML += '<td class="' + className + '">';
         } else {
-          totalsRowHTML += '<td></td>';
+          totalsRowHTML += '<td>';
         }
+
+        if (this.state.totals.hasOwnProperty(i)) {
+          totalsRowHTML += this._getCellHTML(i, this.state.totals, false);
+          totalsDisplayed = true;
+        }
+
+        totalsRowHTML += '</td>';
       }
     }
 
@@ -4832,6 +5068,7 @@ var AbstractGridModel = function () {
   EventsModel.call(this);
 };
 AbstractGridModel.prototype = new EventsModel();
+AbstractGridModel.prototype.constructor = AbstractGridModel;
 
 /**
  * Add a record
@@ -4885,7 +5122,7 @@ AbstractGridModel.prototype.getRecord = function (id, fields, cb) {
  * @abstract
  */
 AbstractGridModel.prototype.update = function (changes, cb) {
-  cb(null);
+  cb(null, []);
 };
 
 /**
@@ -4927,8 +5164,18 @@ module.exports = AbstractGridModel;
 
 var utils = require('../../common/utils');
 var AbstractGridModel = require('./AbstractGridModel');
-var Validator = require('../../common/validation/Validator');
+var Validator = require('../../common/validation/Validator/common');
 
+/**
+ * Specifies a grid model that will work with array data passed to it as a parameter.
+ *
+ * @param {Object}    options
+ * @param {Object[]}  options.data              Data array
+ * @param {Function}  [options.filtersHandler]
+ * @param {Validator} [options.validator]
+ * @param {string[]}  [options.requiredFields]
+ * @constructor
+ */
 var GridCollectionModel = function (options) {
   AbstractGridModel.call(this);
 
@@ -4939,6 +5186,16 @@ var GridCollectionModel = function (options) {
   this._requiredFields = options.requiredFields || [];
 };
 GridCollectionModel.prototype = new AbstractGridModel();
+GridCollectionModel.prototype.constructor = AbstractGridModel;
+
+/**
+ * Set data array in model
+ *
+ * @param {Object[]} data
+ */
+GridCollectionModel.prototype.setData = function (data) {
+  this.data = data;
+};
 
 /**
  * Add a record to local collection
@@ -4948,15 +5205,15 @@ GridCollectionModel.prototype = new AbstractGridModel();
  */
 GridCollectionModel.prototype.create = function (record, cb) {
   var i;
+  var field;
+  var validateRecord = utils.clone(record);
 
   for (i in this._requiredFields) {
-    var field = this._requiredFields[i];
-    if (!(field in record)) {
-      return cb(Error('Fill the form correctly'));
-    }
+    field = this._requiredFields[i];
+    validateRecord[field] = record[field] || null;
   }
 
-  this.isValidRecord(record, function (err, validationErrors) {
+  this.isValidRecord(validateRecord, function (err, validationErrors) {
     if (err) {
       return cb(err);
     }
@@ -5087,7 +5344,7 @@ GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
  */
 GridCollectionModel.prototype.update = function (changes, cb) {
   var completed = 0;
-  var errors = [];
+  var result = [];
   var applayChanges = [];
   var finish = false;
 
@@ -5104,14 +5361,15 @@ GridCollectionModel.prototype.update = function (changes, cb) {
 
       if (validErrors.isEmpty()) {
         utils.assign(this._getRecordByID(change[0])[1], change[1]);
+        result.push(change);
         applayChanges.push(change);
       } else {
-        errors.push([change[0], validErrors]);
+        result.push([change[0], validErrors]);
       }
 
       if (++completed === changes.length) {
         this.trigger('update', applayChanges);
-        return cb(errors.length ? errors : null, applayChanges);
+        return cb(null, result);
       }
     }.bind(this));
   }.bind(this));
@@ -5152,7 +5410,7 @@ GridCollectionModel.prototype._getRecordByID = function (id) {
 
 module.exports = GridCollectionModel;
 
-},{"../../common/utils":5,"../../common/validation/Validator":7,"./AbstractGridModel":37}],39:[function(require,module,exports){
+},{"../../common/utils":5,"../../common/validation/Validator/common":8,"./AbstractGridModel":37}],39:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -5165,11 +5423,10 @@ module.exports = GridCollectionModel;
 
 'use strict';
 
-var utils = require('../../common/utils');
 var url = require('url');
 var AbstractGridModel = require('./AbstractGridModel');
 var defaultXHR = require('../../common/defaultXHR');
-var Validator = require('../../common/validation/Validator');
+var Validator = require('../../common/validation/Validator/common');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 /**
@@ -5177,8 +5434,7 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
  *
  * @param {Object}    settings                          Model settings
  * @param {string}    settings.api                      API address
- * @param {Validator} [settings.commonValidator]        General validator
- * @param {bool}      [settings.serverValidation=true]  Check async validation flag
+ * @param {Validator} [settings.validator]        General validator
  * @param {Function}  [settings.xhr]                    XHR interface
  * @constructor
  */
@@ -5189,14 +5445,14 @@ var GridXhrModel = function (settings) {
     throw Error('Initialization problem: \'api\' must be specified.');
   }
 
-  this._commonValidator = settings.commonValidator || new Validator();
-  this._serverValidation = settings.serverValidation || true;
+  this._validator = settings.validator || new Validator();
   this._xhr = settings.xhr || defaultXHR;
   this._apiUrl = settings.api
     .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
     .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
 };
 GridXhrModel.prototype = new AbstractGridModel();
+GridXhrModel.prototype.constructor = GridXhrModel;
 
 /**
  * Add a record
@@ -5321,8 +5577,6 @@ GridXhrModel.prototype.update = function (changes, cb) {
     uri: this._apiUrl,
     body: JSON.stringify(changes)
   }, function (err, resp, body) {
-    var i;
-
     if (err) {
       return cb(err);
     }
@@ -5333,19 +5587,15 @@ GridXhrModel.prototype.update = function (changes, cb) {
       return cb(e);
     }
 
-    if (body.data) {
-      this.trigger('update', body.data);
+    if (body.changes.length) {
+      this.trigger('update', body.changes);
     }
 
-    if (body.error) {
-      for (i = 0; i < body.error.length; i++) {
-        body.error[i][1] = ValidationErrors.createFromJSON(body.error[i][1]);
-      }
-      return cb(body.error, body.data);
-    } else {
-      cb(null, body.data);
-    }
+    body.errors.forEach(function (error) {
+      error[1] = ValidationErrors.createFromJSON(error[1]);
+    });
 
+    cb(null, body.changes.concat(body.errors));
   }.bind(this));
 };
 
@@ -5356,7 +5606,7 @@ GridXhrModel.prototype.update = function (changes, cb) {
  * @returns {Array}  Dependencies
  */
 GridXhrModel.prototype.getValidationDependency = function (fields) {
-  return this._commonValidator.getValidationDependency(fields);
+  return this._validator.getValidationDependency(fields);
 };
 
 /**
@@ -5366,49 +5616,12 @@ GridXhrModel.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 GridXhrModel.prototype.isValidRecord = function (record, cb) {
-  if (this._serverValidation && !utils.isEmpty(record)) {
-    var parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
-    delete parsedUrl.search;
-
-    // Server validation start
-    this._xhr({
-      method: 'POST',
-      headers: {'Content-type': 'application/json'},
-      uri: url.format(parsedUrl),
-      body: JSON.stringify(record)
-    }, function (err, resp, body) {
-      if (err) {
-        if (resp.status === 413) {
-          // When request exceeds server limits and
-          // client validators are able to find errors,
-          // we need to return these errors
-          return this._commonValidator.isValidRecord(record, function (err2, errors) {
-            if (!err2 && errors.isEmpty()) {
-              return cb(err);
-            }
-            cb(err2, errors);
-          });
-        }
-        return cb(err);
-      }
-
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return cb(e);
-      }
-
-      cb(null, ValidationErrors.createFromJSON(body));
-    }.bind(this));
-  } else {
-    this._commonValidator.isValidRecord(record, cb);
-  }
+  this._validator.isValidRecord(record, cb);
 };
 
 module.exports = GridXhrModel;
 
-},{"../../common/defaultXHR":4,"../../common/utils":5,"../../common/validation/ValidationErrors":6,"../../common/validation/Validator":7,"./AbstractGridModel":37,"url":48}],40:[function(require,module,exports){
+},{"../../common/defaultXHR":4,"../../common/validation/ValidationErrors":6,"../../common/validation/Validator/common":8,"./AbstractGridModel":37,"url":48}],40:[function(require,module,exports){
 /**
  * Copyright (с) 2015, SoftIndex LLC.
  * All rights reserved.
@@ -7101,11 +7314,11 @@ module.exports=require('DYtedT');
   function wrap(innerFn, outerFn, self, tryLocsList) {
     // If outerFn provided, then outerFn.prototype instanceof Generator.
     var generator = Object.create((outerFn || Generator).prototype);
+    var context = new Context(tryLocsList || []);
 
-    generator._invoke = makeInvokeMethod(
-      innerFn, self || null,
-      new Context(tryLocsList || [])
-    );
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
 
     return generator;
   }
@@ -7172,7 +7385,11 @@ module.exports=require('DYtedT');
   };
 
   runtime.mark = function(genFun) {
-    genFun.__proto__ = GeneratorFunctionPrototype;
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+    }
     genFun.prototype = Object.create(Gp);
     return genFun;
   };
@@ -7191,45 +7408,57 @@ module.exports=require('DYtedT');
   }
 
   function AsyncIterator(generator) {
-    // This invoke function is written in a style that assumes some
-    // calling function (or Promise) will handle exceptions.
-    function invoke(method, arg) {
-      var result = generator[method](arg);
-      var value = result.value;
-      return value instanceof AwaitArgument
-        ? Promise.resolve(value.arg).then(invokeNext, invokeThrow)
-        : Promise.resolve(value).then(function(unwrapped) {
-            // When a yielded Promise is resolved, its final value becomes
-            // the .value of the Promise<{value,done}> result for the
-            // current iteration. If the Promise is rejected, however, the
-            // result for this iteration will be rejected with the same
-            // reason. Note that rejections of yielded Promises are not
-            // thrown back into the generator function, as is the case
-            // when an awaited Promise is rejected. This difference in
-            // behavior between yield and await is important, because it
-            // allows the consumer to decide what to do with the yielded
-            // rejection (swallow it and continue, manually .throw it back
-            // into the generator, abandon iteration, whatever). With
-            // await, by contrast, there is no opportunity to examine the
-            // rejection reason outside the generator function, so the
-            // only option is to throw it from the await expression, and
-            // let the generator function handle the exception.
-            result.value = unwrapped;
-            return result;
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value instanceof AwaitArgument) {
+          return Promise.resolve(value.arg).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
           });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration. If the Promise is rejected, however, the
+          // result for this iteration will be rejected with the same
+          // reason. Note that rejections of yielded Promises are not
+          // thrown back into the generator function, as is the case
+          // when an awaited Promise is rejected. This difference in
+          // behavior between yield and await is important, because it
+          // allows the consumer to decide what to do with the yielded
+          // rejection (swallow it and continue, manually .throw it back
+          // into the generator, abandon iteration, whatever). With
+          // await, by contrast, there is no opportunity to examine the
+          // rejection reason outside the generator function, so the
+          // only option is to throw it from the await expression, and
+          // let the generator function handle the exception.
+          result.value = unwrapped;
+          resolve(result);
+        }, reject);
+      }
     }
 
     if (typeof process === "object" && process.domain) {
       invoke = process.domain.bind(invoke);
     }
 
-    var invokeNext = invoke.bind(generator, "next");
-    var invokeThrow = invoke.bind(generator, "throw");
-    var invokeReturn = invoke.bind(generator, "return");
     var previousPromise;
 
     function enqueue(method, arg) {
-      var enqueueResult =
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
         // If enqueue has been called before, then we want to wait until
         // all previous Promises have been resolved before calling invoke,
         // so that results are always delivered in the correct order. If
@@ -7242,17 +7471,12 @@ module.exports=require('DYtedT');
         // execute code before the first await. Since we implement simple
         // async functions in terms of async generators, it is especially
         // important to get this right, even though it requires care.
-        previousPromise ? previousPromise.then(function() {
-          return invoke(method, arg);
-        }) : new Promise(function(resolve) {
-          resolve(invoke(method, arg));
-        });
-
-      // Avoid propagating enqueueResult failures to Promises returned by
-      // later invocations of the iterator.
-      previousPromise = enqueueResult["catch"](function(ignored){});
-
-      return enqueueResult;
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
     }
 
     // Define the unified helper method that is used to implement .next,
