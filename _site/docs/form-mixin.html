@@ -336,7 +336,7 @@
 
 <h3 id="clearerror">clearError</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearError</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearError</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span></code></pre></div>
 
 <p>Clear field error mark</p>
 
@@ -376,8 +376,8 @@
 
 <h3 id="updatefield">updateField</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">updateField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span>
-<span class="nx">updateField</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">updateField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span>
+<span class="nx">updateField</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span></code></pre></div>
 
 <p>Update form value. Is used as the Editors onSubmit handler.
 Values param gets event or data.</p>
@@ -386,8 +386,8 @@ Values param gets event or data.</p>
 
 <h3 id="validatefield">validateField</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">validateField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span>
-<span class="nx">validateField</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">validateField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span>
+<span class="nx">validateField</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="o">*</span> <span class="nx">values</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span></code></pre></div>
 
 <p>Update form value and validate form</p>
 
@@ -403,7 +403,7 @@ Values param gets event or data.</p>
 
 <h3 id="set">set</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">set</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">data</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">set</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">data</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span></code></pre></div>
 
 <p>Set data in the form</p>
 
@@ -427,7 +427,7 @@ Values param gets event or data.</p>
 
 <h3 id="clearchanges">clearChanges</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearChanges</span><span class="p">()</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearChanges</span><span class="p">(</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">())</span></code></pre></div>
 
 <p>Clear form changes</p>
 

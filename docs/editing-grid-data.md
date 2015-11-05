@@ -84,7 +84,7 @@ var columns = {
 We'll also need to validate our edited data. Define your validation rules using regular expressions for example.
 
 `validation.js`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 var Validation = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid last name.'))
@@ -98,7 +98,7 @@ var Validation = UIKernel.createValidator()
 And turn validation on in your Grid model.
 
 `model.js`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 var model = new UIKernel.Models.Grid.Collection({
   // ...
   validation: Validation
@@ -110,7 +110,7 @@ var model = new UIKernel.Models.Grid.Collection({
 The last task is to make it able to discard and save our edited data.
 
 `MainComponent.jsx`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 onSave: function () {
   this.refs.grid.save(function (err) {
     if (err) {

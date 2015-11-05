@@ -11,7 +11,7 @@ Let's make our records removable.
 
 Add delete function to our Grid model. 
 
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 var model = new UIKernel.Models.Grid.Collection({
   // ...
 });
@@ -26,7 +26,7 @@ model.delete = function (id) {
 
 To do that, we'll start with a remove button. Here, we'll create it as the first column.
 `columns.js`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 var columns = {
   tools: {
     width: 50,

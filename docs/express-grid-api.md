@@ -7,6 +7,12 @@ next: form-mixin.html
 
 You can use Grid Express API to link the client UI and Grid server model.
 
+## Initialization
+
+{% highlight javascript %}
+UIKernel.gridExpressApi(Express router, string[]|function(req, res) availableMethods)
+{% endhighlight %}
+
 It can schematically be displayed like this:
 
 | Method   | URL   | Description |

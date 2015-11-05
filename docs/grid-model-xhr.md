@@ -11,7 +11,7 @@ Grid Model Xhr specifies the Grid model that interacts with the server API.
 
 ## GridXhrModel
 
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 GridXhrModel(Object settings) 
 {% endhighlight %}
 
@@ -20,6 +20,5 @@ GridXhrModel(Object settings)
 | Type      | Name                           | Description                 |
 |-----------|--------------------------------|-----------------------------|
 | string    | settings.api                   | API address                 |
-| [Validator](/docs/validator.html) | settings.commonValidator       | General validator           |
-| boolean   | settings.serverValidation=true | Check async validation flag |
+| [Validator](/docs/validator.html) | settings.validator       | General validator           |
 | Function  | settings.xhr                   | XHR interface               |

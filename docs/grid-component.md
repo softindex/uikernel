@@ -30,6 +30,12 @@ Grid is a simple component for managing:
 | number[] | viewVariants | One page records count choices |
 | Function | onSelectedChange | Custom records selection change handler |
 | boolean | multipleSorting | Multiple sorting flag |
+| string | className | Class name |
+| Object \| Object[] | defaultSort | Default sorting |
+| Object \| Object[] | sort | Sorting |
+| Function | onSorting | Sorting handler |
+
+
 
 ---
 
@@ -37,7 +43,7 @@ Grid is a simple component for managing:
 
 Columns list is specified as an object with column string IDs as keys and column configuration objects as values.
 
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 {
   {string}: {                       // Column ID
     name: {string},                 // Column tag <th> content
@@ -47,7 +53,6 @@ Columns list is specified as an object with column string IDs as keys and column
 
     sortField: {string},            // Sorting parameter
     sortCycle: {string[]},          // Sorting modes sequence
-    sortDefault: {string},          // Is default sorted column flag
 
     editorField: {string|string[]}, // Editable fields
 

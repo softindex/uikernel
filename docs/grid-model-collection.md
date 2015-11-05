@@ -11,7 +11,7 @@ Grid Model Collection specifies a model that will work with array data passed to
 
 ## GridCollectionModel
 
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 GridCollectionModel(Object settings) 
 {% endhighlight %}
 
@@ -22,3 +22,13 @@ GridCollectionModel(Object settings)
 | Array[]   | options.data                   | Data array                  |
 | Object    | options.filtersHandler         | Filtration                  |
 | [Validator](/docs/validator.html) | settings.validation            | Validation                  |
+
+### setData
+
+{% highlight javascript %}
+ setData(Array[] data)
+{% endhighlight %}
+ 
+Set data array in model.
+
+---

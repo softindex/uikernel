@@ -26,14 +26,16 @@ var MainComponent = React.createClass({
   someAction: function () { // this function can do anything what you need
     var num = this.refs.grid.getAllSelected().length;
     if (this.state.blackMode) {
-      if (num) {
-        alert('You select all but ' + num + ' records');
+      if (num > 1) {
+        alert('You have selected all but ' + num + ' records');
+      } else if (num == 1) {
+        alert('You have selected all but ' + num + ' record');
       } else {
-        alert('You select all records');
+        alert('You have selected all records');
       }
     } else {
       if (num) {
-        alert('You select ' + num + ' records');
+        alert('You have selected ' + num + ' records');
       } else {
         alert('You have not selected any records');
       }

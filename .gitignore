@@ -1,5 +1,7 @@
 .idea
 _site
 lib
+dist
+bower_components
 node_modules
 Gemfile.lock

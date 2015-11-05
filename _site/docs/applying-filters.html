@@ -265,7 +265,7 @@
 
   <span class="k">return</span> <span class="nx">React</span><span class="p">.</span><span class="nx">createClass</span><span class="p">({</span>
     <span class="nx">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Mixins</span><span class="p">.</span><span class="nx">Form</span><span class="p">],</span>
-    <span class="nx">componentWillMount</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">componentDidMount</span><span class="o">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
       <span class="k">this</span><span class="p">.</span><span class="nx">initForm</span><span class="p">({</span> <span class="c1">// initialize filters form</span>
         <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;search&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">],</span>
         <span class="nx">model</span><span class="o">:</span> <span class="k">new</span> <span class="nx">UIKernel</span><span class="p">.</span><span class="nx">Models</span><span class="p">.</span><span class="nx">Form</span><span class="p">(</span><span class="nx">defaultFilters</span><span class="p">),</span>
@@ -283,6 +283,10 @@
       <span class="k">this</span><span class="p">.</span><span class="nx">submitData</span><span class="p">(</span><span class="nx">defaultFilters</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">onSubmit</span><span class="p">);</span>
     <span class="p">},</span>
     <span class="nx">render</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isLoaded</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">&lt;</span><span class="nx">span</span><span class="o">&gt;</span><span class="nx">Loading</span><span class="p">...</span><span class="o">&lt;</span><span class="err">/span&gt;;</span>
+      <span class="p">}</span>
+
       <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getData</span><span class="p">();</span>
 
       <span class="k">return</span> <span class="p">(</span>

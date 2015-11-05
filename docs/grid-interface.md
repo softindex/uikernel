@@ -75,6 +75,16 @@ Applies record changes.
 
 ---
 
+### setData
+
+{% highlight javascript %}
+ setData(Object[] data)
+{% endhighlight %}
+ 
+Set data array in model.
+
+---
+
 ### getValidationDependency
 
 {% highlight javascript %}

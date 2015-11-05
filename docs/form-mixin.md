@@ -63,7 +63,7 @@ Check if form field has validity errors
 ### clearError
 
 {% highlight javascript %}
-clearError(string field)
+clearError(string field, function callback())
 {% endhighlight %}
 
 Clear field error mark
@@ -113,8 +113,8 @@ Get global error data, or **null** if it's absent
 ### updateField
 
 {% highlight javascript %}
-updateField(string fields, * values)
-updateField(string[] fields, * values)
+updateField(string fields, * values, function callback())
+updateField(string[] fields, * values, function callback())
 {% endhighlight %}
 
 Update form value. Is used as the Editors onSubmit handler.
@@ -125,8 +125,8 @@ Values param gets event or data.
 ### validateField
 
 {% highlight javascript %}
-validateField(string fields, * values)
-validateField(string[] fields, * values)
+validateField(string fields, * values, function callback())
+validateField(string[] fields, * values, function callback())
 {% endhighlight %}
 
 Update form value and validate form
@@ -146,7 +146,7 @@ Validate form
 ### set
 
 {% highlight javascript %}
-set(Object data)
+set(Object data, function callback())
 {% endhighlight %}
 
 Set data in the form
@@ -176,7 +176,7 @@ Send form data to the model
 ### clearChanges
 
 {% highlight javascript %}
-clearChanges()
+clearChanges(function callback())
 {% endhighlight %}
 
 Clear form changes

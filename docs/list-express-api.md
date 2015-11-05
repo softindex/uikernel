@@ -20,7 +20,7 @@ It can schematically be displayed like this:
 
 ### model
 
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 model(Object gridModel)
 model(function(Object req, Object res))
 {% endhighlight %}

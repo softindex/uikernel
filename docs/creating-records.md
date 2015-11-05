@@ -16,7 +16,7 @@ Let's create a create form component using UIKernel.Adapters.Grid.toFormCreate a
 Note that the form uses validation rules we've specified before. You can also mark the fields as changed or invalid.
 
 `CreateFormComponent.jsx`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 var CreateFormComponent = React.createClass({
   mixins: [UIKernel.Mixins.Form],
   componentDidMount() {
@@ -144,7 +144,7 @@ var CreateFormComponent = React.createClass({
 {% endhighlight %}
 
 Include it to `index.html`:
-{% highlight html tabsize=2 %}
+{% highlight html %}
 <!-- Create form component -->
 <script src="js/components/CreateFormComponent.jsx" type="text/jsx"></script>
 {% endhighlight %}
@@ -152,7 +152,7 @@ Include it to `index.html`:
 And modify main component by adding component initialization and create record handler.
 
 `MainComponent.jsx`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 addRecord: function (recordId) {
   this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
 }
@@ -167,7 +167,7 @@ addRecord: function (recordId) {
 Finally we'll pass required fields to our model.
 
 `model.js`:
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 var model = new UIKernel.Models.Grid.Collection({
   // ...
   requiredFields: ["name", "surname", "phone", "age", "gender"]
