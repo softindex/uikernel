@@ -35,12 +35,12 @@
   - id: grid-component
     title: Component
   - id: grid-interface
-    title: Grid Model
+    title: Grid Model Interface
     subitems:
     - id: grid-model-xhr
       title: Grid Xhr Model
     - id: grid-model-collection
-      title: Grid Model Collection
+      title: Grid Collection Model
   - id: validator
     title: Validator
   - id: filter-adapter
