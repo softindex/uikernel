@@ -225,6 +225,11 @@
   </li>
   
   <li>
+    <a href="/docs/data-binding.html">Data Binding</a>
+    
+  </li>
+  
+  <li>
     <a href="/docs/suggest-box.html">Suggest Box</a>
     
   </li>
@@ -254,7 +259,9 @@
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">createValidator</span><span class="p">()</span></code></pre></div>
 
-<h2 id="returns-a-builder-needed-to-start-a-definition-of-validation-rules">Returns a builder needed to start a definition of validation rules.</h2>
+<p>Returns a builder needed to start ер definition of validation rules.</p>
+
+<hr />
 
 <h3 id="field">field</h3>
 
@@ -313,7 +320,7 @@
 
 <h3 id="asyncfield">asyncField</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">,</span>  <span class="kd">function</span> <span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">cb</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">errorMessage</span><span class="p">)))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncField</span><span class="p">(</span><span class="nx">string</span> <span class="nx">field</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">validator</span><span class="p">)</span></code></pre></div>
 
 <p>Add field asynchronous validator.</p>
 
@@ -321,7 +328,7 @@
 
 <h3 id="asyncfields">asyncFields</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncFields</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="nx">ValidationErrors</span> <span class="nx">errors</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">cb</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">err</span><span class="p">)))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Validator</span> <span class="nx">asyncFields</span><span class="p">(</span><span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">validator</span><span class="p">)</span></code></pre></div>
 
 <p>Add field asynchonous validators. If errors occur, function complements <code>errors</code> object.</p>
 
@@ -374,7 +381,7 @@ validation errors.</p>
 
 <h3 id="isvalidrecord">isValidRecord</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">ValidationErrors</span><span class="o">|</span><span class="kc">null</span> <span class="nx">isValidRecord</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">ValidationErrors</span> <span class="nx">result</span><span class="p">))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">ValidationErrors</span><span class="o">|</span><span class="kc">null</span> <span class="nx">isValidRecord</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
 
 <p>Check record validity</p>
 

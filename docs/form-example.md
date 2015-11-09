@@ -7,7 +7,8 @@ next: suggest-box.html
 
 Example of simple form creating that edits 2nd table record.
 
-[Live demo](/examples/form/){:target="_blank"} and [code example]({{site.github}}_site/examples/form){:target="_blank"} are available here.
+* [Live demo](/examples/form/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/form){:target="_blank"}
 
 Let's describe fields we need
 

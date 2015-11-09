@@ -5,6 +5,13 @@ next: tutorial.html
 redirect_from: "docs/index.html"
 ---
 
+## Installation
+
+Install UIKernel via npm:
+{% highlight html %}
+$ npm install uikernel
+{% endhighlight %}
+
 ## Starter Kit
 
 Download the starter kit to get started.

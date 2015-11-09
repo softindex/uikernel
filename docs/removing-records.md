@@ -7,9 +7,10 @@ next: creating-records.html
 
 Let's make our records removable.
 
-[Live demo](/examples/removing-records/){:target="_blank"} and [code example]({{site.github}}_site/examples/removing-records){:target="_blank"} are available here.
+* [Live demo](/examples/removing-records/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/removing-records){:target="_blank"}
 
-Add delete function to our Grid model. 
+Add the delete method to our Grid model. 
 
 {% highlight javascript %}
 var model = new UIKernel.Models.Grid.Collection({
@@ -36,7 +37,7 @@ var columns = {
     onClickRefs: {
       del: function (event, recordId, record, grid) { // ref="del" click handler
         grid.getModel().delete(recordId); // our delete function
-        grid.updateTable(); // update table after delete a record
+        grid.updateTable(); // update table after deleting a record
       }
     }
   },

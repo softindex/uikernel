@@ -225,6 +225,11 @@
   </li>
   
   <li>
+    <a href="/docs/data-binding.html">Data Binding</a>
+    
+  </li>
+  
+  <li>
     <a href="/docs/suggest-box.html">Suggest Box</a>
     
   </li>
@@ -260,6 +265,7 @@
 <hr />
 
 <h2 id="gridcomponent-props">GridComponent props</h2>
+<hr />
 
 <table>
   <thead>
@@ -342,6 +348,240 @@
     </tr>
   </tbody>
 </table>
+
+<hr />
+
+<h2 id="methods">Methods</h2>
+
+<h3 id="set">set</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">set</span><span class="p">(</span><span class="nx">recordId</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">data</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
+
+<p>Change table record</p>
+
+<hr />
+
+<h3 id="getrecord">getRecord</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getRecord</span><span class="p">(</span><span class="nx">recordId</span><span class="p">)</span></code></pre></div>
+
+<p>Get record data</p>
+
+<hr />
+
+<h3 id="getrecordchanges">getRecordChanges</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getRecordChanges</span><span class="p">(</span><span class="nx">recordId</span><span class="p">)</span></code></pre></div>
+
+<p>Get record changes object</p>
+
+<hr />
+
+<h3 id="geterrors">getErrors</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getErrors</span><span class="p">()</span></code></pre></div>
+
+<p>Get validation errors</p>
+
+<hr />
+
+<h3 id="getmodel">getModel</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getModel</span><span class="p">(</span><span class="nx">recordId</span><span class="p">)</span></code></pre></div>
+
+<p>Get table model</p>
+
+<hr />
+
+<h3 id="save">save</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">save</span><span class="p">([</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">])</span></code></pre></div>
+
+<p>Save grid changes</p>
+
+<hr />
+
+<h3 id="clearrecordchanges">clearRecordChanges</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearRecordChanges</span><span class="p">(</span><span class="nx">recordId</span><span class="p">)</span></code></pre></div>
+
+<p>Clear record changes</p>
+
+<hr />
+
+<h3 id="clearallchanges">clearAllChanges</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">clearAllChanges</span><span class="p">()</span></code></pre></div>
+
+<p>Clear all table changes</p>
+
+<hr />
+
+<h3 id="reset">reset</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">reset</span><span class="p">()</span></code></pre></div>
+
+<p>Reset to initial table state</p>
+
+<hr />
+
+<h3 id="handlechangeviewcount">handleChangeViewCount</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">handleChangeViewCount</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span></code></pre></div>
+
+<p>Change event handler of displayed rows count in a table</p>
+
+<hr />
+
+<h3 id="handlefirstpage">handleFirstPage</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">handleFirstPage</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span></code></pre></div>
+
+<p>Move to first page event handler</p>
+
+<hr />
+
+<h3 id="handlelastpage">handleLastPage</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">handleLastPage</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span></code></pre></div>
+
+<p>Move to last page event handler</p>
+
+<hr />
+
+<h3 id="handleprevpage">handlePrevPage</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">handlePrevPage</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span></code></pre></div>
+
+<p>Move to previous page event handler</p>
+
+<hr />
+
+<h3 id="handlenextpage">handleNextPage</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">handleNextPage</span><span class="p">(</span><span class="nx">event</span><span class="p">)</span></code></pre></div>
+
+<p>Move to next page event handler</p>
+
+<hr />
+
+<h3 id="getcurrentpage">getCurrentPage</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getCurrentPage</span><span class="p">()</span></code></pre></div>
+
+<p>Get current page index number</p>
+
+<hr />
+
+<h3 id="getcountrecords">getCountRecords</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getCountRecords</span><span class="p">()</span></code></pre></div>
+
+<p>Get records number</p>
+
+<hr />
+
+<h3 id="setpage">setPage</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">setPage</span><span class="p">(</span><span class="nx">page</span><span class="p">)</span></code></pre></div>
+
+<p>Move to another page</p>
+
+<hr />
+
+<h3 id="setviewcount">setViewCount</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">setViewCount</span><span class="p">(</span><span class="nx">viewCount</span><span class="p">)</span></code></pre></div>
+
+<p>Set displayed elements count</p>
+
+<hr />
+
+<h3 id="getpagescount">getPagesCount</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getPagesCount</span><span class="p">()</span></code></pre></div>
+
+<p>Get pages count</p>
+
+<hr />
+
+<h3 id="sort">sort</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">sort</span><span class="p">(</span><span class="nx">string</span> <span class="nx">column</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">direction</span><span class="p">)</span></code></pre></div>
+
+<p>Sort by column</p>
+
+<hr />
+
+<h3 id="getsortdirection">getSortDirection</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getSortDirection</span><span class="p">()</span></code></pre></div>
+
+<p>Get sort direction</p>
+
+<hr />
+
+<h3 id="resetsorting">resetSorting:</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">resetSorting</span><span class="p">()</span></code></pre></div>
+
+<p>Reset to default sort parameters</p>
+
+<hr />
+
+<h3 id="addrecordstatus">addRecordStatus</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">addRecordStatus</span><span class="p">(</span><span class="nx">recordId</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">status</span><span class="p">)</span></code></pre></div>
+
+<p>Add record status</p>
+
+<hr />
+
+<h3 id="addrecordstatusgroup">addRecordStatusGroup</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">addRecordStatusGroup</span><span class="p">(</span><span class="nb">Array</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">status</span><span class="p">)</span></code></pre></div>
+
+<p>Add status to records group</p>
+
+<hr />
+
+<h3 id="removerecordstatus">removeRecordStatus</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">removeRecordStatus</span><span class="p">(</span><span class="nx">recordId</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">status</span><span class="p">)</span></code></pre></div>
+
+<p>Remove record status</p>
+
+<hr />
+
+<h3 id="isstatus">isStatus</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">isStatus</span><span class="p">(</span><span class="nx">recordId</span><span class="p">,</span> <span class="nx">string</span> <span class="nx">status</span><span class="p">)</span></code></pre></div>
+
+<p>Check record status presence</p>
+
+<hr />
+
+<h3 id="getallwithstatus">getAllWithStatus</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getAllWithStatus</span><span class="p">(</span><span class="nx">string</span> <span class="nx">status</span><span class="p">)</span></code></pre></div>
+
+<p>Get all record IDs that have the status</p>
+
+<hr />
+
+<h3 id="removerecordstatusall">removeRecordStatusAll</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">removeRecordStatusAll</span><span class="p">(</span><span class="nx">string</span> <span class="nx">status</span><span class="p">)</span></code></pre></div>
+
+<p>Remove records status</p>
+
+<hr />
+
+<h3 id="updatetable">updateTable</h3>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">updateTable</span><span class="p">([</span><span class="kd">function</span> <span class="nx">callback</span><span class="p">])</span></code></pre></div>
+
+<p>Fetch server data</p>
 
 <hr />
 

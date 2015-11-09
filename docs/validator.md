@@ -15,7 +15,8 @@ Validation is an important consideration for products. Here are some basic valid
 Validator createValidator() 
 {% endhighlight %}
 
-Returns a builder needed to start a definition of validation rules.
+Returns a builder needed to start ер definition of validation rules.
+
 ---
 
 ### field
@@ -85,7 +86,7 @@ Function specifies server validation dependencies in a client validator.
 ### asyncField
 
 {% highlight javascript %}
-Validator asyncField(string field,  function (value, function cb(Error err, string errorMessage)))
+Validator asyncField(string field, function validator)
 {% endhighlight %}
 
 Add field asynchronous validator.
@@ -95,7 +96,7 @@ Add field asynchronous validator.
 ### asyncFields
 
 {% highlight javascript %}
-Validator asyncFields(string[] fields, function (Object record, ValidationErrors errors, function cb(Error err)))
+Validator asyncFields(string[] fields, function validator)
 {% endhighlight %}
 
 Add field asynchonous validators. If errors occur, function complements `errors` object.
@@ -152,7 +153,7 @@ Get all dependent fields validation needs
 ### isValidRecord
 
 {% highlight javascript %}
- ValidationErrors|null isValidRecord(Object record, function callback(Error error, ValidationErrors result))
+ValidationErrors|null isValidRecord(Object record, function callback)
 {% endhighlight %}
 
 Check record validity

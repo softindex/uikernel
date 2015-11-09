@@ -17,7 +17,7 @@ Adapter which utilizes Grid as a model([AbstractGridModel](/docs/grid-interface.
 ### submit
  
 {% highlight javascript %}
-submit(Object record, function callback(string error, number recordId))
+submit(Object record, function callback)
 {% endhighlight %}
 
 Creating a new record.
@@ -35,7 +35,7 @@ Adapter that allows us to use Grid model record([AbstractGridModel](/docs/grid-i
 ### submit
  
 {% highlight javascript %}
- submit (Object changes, function callback(string error, Object changes))
+ submit (Object changes, function callback)
 {% endhighlight %}
 
 Applies form changes.

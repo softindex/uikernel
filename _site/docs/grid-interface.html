@@ -225,6 +225,11 @@
   </li>
   
   <li>
+    <a href="/docs/data-binding.html">Data Binding</a>
+    
+  </li>
+  
+  <li>
     <a href="/docs/suggest-box.html">Suggest Box</a>
     
   </li>
@@ -258,7 +263,7 @@
 
 <h3 id="create">create</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">create</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nx">string</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">number</span> <span class="nx">recordId</span><span class="p">))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">create</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
 
 <p>Adds a record and returns its ID.</p>
 
@@ -266,7 +271,7 @@
 
 <h3 id="read">read</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">read</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">settings</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">,</span> <span class="nb">Object</span><span class="p">[]</span> <span class="nx">result</span><span class="p">))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">read</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">settings</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
 
 <p>Reads records, filters, sorts and limits them.</p>
 
@@ -350,7 +355,7 @@ Usually they are edited records, that are displayed in spite of filters and curr
 
 <h3 id="getrecord">getRecord</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getRecord</span> <span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">,</span> <span class="nb">Object</span> <span class="nx">record</span><span class="p">))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">getRecord</span> <span class="p">(</span><span class="nx">id</span><span class="p">,</span> <span class="nx">string</span><span class="p">[]</span> <span class="nx">fields</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
 
 <p>Get record by ID.</p>
 
@@ -358,7 +363,7 @@ Usually they are edited records, that are displayed in spite of filters and curr
 
 <h3 id="update">update</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">update</span><span class="p">(</span><span class="nb">Array</span><span class="p">[]</span> <span class="nx">changes</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">,</span> <span class="nb">Array</span><span class="p">[]</span> <span class="nx">changes</span><span class="p">))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">update</span><span class="p">(</span><span class="nb">Array</span><span class="p">[]</span> <span class="nx">changes</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
 
 <p>Applies record changes.</p>
 
@@ -375,7 +380,7 @@ is caused with the ability to create group validators.</p>
 
 <h3 id="isvalidrecord">isValidRecord</h3>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">ValidationErrors</span><span class="o">|</span><span class="kc">null</span> <span class="nx">isValidRecord</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">(</span><span class="nb">Error</span> <span class="nx">error</span><span class="p">,</span> <span class="nx">ValidationErrors</span> <span class="nx">result</span><span class="p">))</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">ValidationErrors</span><span class="o">|</span><span class="kc">null</span> <span class="nx">isValidRecord</span><span class="p">(</span><span class="nb">Object</span> <span class="nx">record</span><span class="p">,</span> <span class="kd">function</span> <span class="nx">callback</span><span class="p">)</span></code></pre></div>
 
 <p>Validates a record.</p>
 

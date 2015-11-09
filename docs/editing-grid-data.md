@@ -7,7 +7,8 @@ next: removing-records.html
 
 Time to make our form editable.
 
-[Live demo](/examples/editing-grid-data/){:target="_blank"} and [code example]({{site.github}}_site/examples/editing-grid-data){:target="_blank"} are available here.
+* [Live demo](/examples/editing-grid-data/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/editing-grid-data){:target="_blank"}
 
 ### Columns configuration
 

@@ -7,7 +7,8 @@ next: sorting-and-pagination.html
 
 We'll create the first component named as Contact Book and display our test data.
 
-[Live demo](/examples/first-grid-component/){:target="_blank"} and [code example]({{site.github}}_site/examples/first-grid-component){:target="_blank"} are available here.
+* [Live demo](/examples/first-grid-component/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/first-grid-component){:target="_blank"}
 
 ### Main component
 

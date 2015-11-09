@@ -16,7 +16,7 @@ Model that is able to create, read, edit, remove and validate records.
 ### create
 
 {% highlight javascript %}
- create(Object record, function callback(string error, number recordId))
+ create(Object record, function callback)
 {% endhighlight %}
 
 Adds a record and returns its ID.
@@ -26,7 +26,7 @@ Adds a record and returns its ID.
 ### read
 
 {% highlight javascript %}
- read(Object settings, function callback(Error error, Object[] result))
+ read(Object settings, function callback)
 {% endhighlight %}
 
 Reads records, filters, sorts and limits them.
@@ -58,7 +58,7 @@ Usually they are edited records, that are displayed in spite of filters and curr
 ### getRecord
  
 {% highlight javascript %}
- getRecord (id, string[] fields, function callback(Error error, Object record))
+ getRecord (id, string[] fields, function callback)
 {% endhighlight %}
 
 Get record by ID.
@@ -68,7 +68,7 @@ Get record by ID.
 ### update
 
 {% highlight javascript %}
- update(Array[] changes, function callback(Error error, Array[] changes))
+update(Array[] changes, function callback)
 {% endhighlight %}
  
 Applies record changes.
@@ -89,7 +89,7 @@ is caused with the ability to create group validators.
 ### isValidRecord
 
 {% highlight javascript %}
- ValidationErrors|null isValidRecord(Object record, function callback(Error error, ValidationErrors result))
+ ValidationErrors|null isValidRecord(Object record, function callback)
 {% endhighlight %}
 
 Validates a record.

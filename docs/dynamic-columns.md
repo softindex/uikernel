@@ -7,7 +7,8 @@ next: bulk-operations.html
 
 Make the columns more dynamic.
 
-[Live demo](/examples/dynamic-columns/){:target="_blank"} and [code example]({{site.github}}_site/examples/dynamic-columns){:target="_blank"} are available here.
+* [Live demo](/examples/dynamic-columns/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/dynamic-columns){:target="_blank"}
 
 ### Create dynamic form
 
@@ -181,4 +182,4 @@ var popup = {
 
 Include Form, popup, bootstrap and jquery.
 
-Bootstrap needs jquery version higher 1.9.1
+Bootstrap needs jquery version higher than 1.9.1

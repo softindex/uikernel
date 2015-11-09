@@ -5,7 +5,8 @@ prev: form-example.html
 next: reports-example.html
 ---
 
-[Live demo](/examples/suggest-box/){:target="_blank"} and [code example]({{site.github}}_site/examples/suggest-box){:target="_blank"} are available here.
+* [Live demo](/examples/suggest-box/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/suggest-box){:target="_blank"}
 
 ### Create suggest box form
 

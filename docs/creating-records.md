@@ -7,7 +7,8 @@ next: editors.html
 
 The finishing touch will be a create record form.
 
-[Live demo](/examples/creating-records/){:target="_blank"} and [code example]({{site.github}}_site/examples/creating-records){:target="_blank"} are available here.
+* [Live demo](/examples/creating-records/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/creating-records)
 
 ### Create form component
 

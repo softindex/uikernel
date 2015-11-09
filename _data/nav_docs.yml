@@ -74,6 +74,8 @@
     title: Bulk operations
   - id: form-example
     title: Form
+  - id: data-binding
+    title: Data Binding
   - id: suggest-box
     title: Suggest Box
   - id: reports-example

@@ -7,7 +7,8 @@ next: editing-grid-data.html
 
 We'll apply search filters at this step.
 
-[Live demo](/examples/applying-filters/){:target="_blank"} and [code example]({{site.github}}_site/examples/applying-filters){:target="_blank"} are available here.
+* [Live demo](/examples/applying-filters/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/applying-filters){:target="_blank"}
 
 ### Filters component
 

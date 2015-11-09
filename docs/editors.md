@@ -5,13 +5,11 @@ prev: creating-records.html
 next: labels.html
 ---
 
-### A list of complex editors props.
+### The list of complex editors props.
 
 * [Select](#Select)
 * [DatePicker](#DatePicker)
 * [SuggestBox](#SuggestBox)
-* [Grid](#Grid)
-* [ListEditor](#ListEditor)
 
 ---
 
@@ -62,27 +60,3 @@ next: labels.html
 |  | value | Field value |
 
 ---
-
-## <span id="Grid">Grid</span>
-
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| Object | columns | Columns object |
-| string | labelField | Label field |
-| Function | labelGenerator | Function that generates ID for new records |
-| function | onChange | Value change handler |
-| function | onChangeLabel | Label change handler |
-|  | value | Field value |
-
----
-
-
-## <span id="ListEditor">ListEditor</span>
-
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| Object | columns | Columns object |
-| function | onChange | Value change handler |
-| function | onSelectedChange | Selection change handler |
-| Object | validation | Model validation rules |
-| | value | Field value |

@@ -7,7 +7,8 @@ next: applying-filters.html
 
 Let's teach our grid to sort column data and use pagination.
 
-[Live demo](/examples/sorting-and-pagination/){:target="_blank"} and [code example]({{site.github}}_site/examples/sorting-and-pagination){:target="_blank"} are available here.
+* [Live demo](/examples/sorting-and-pagination/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/sorting-and-pagination){:target="_blank"}
 
 ### Main component
 

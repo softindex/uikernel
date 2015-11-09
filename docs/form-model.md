@@ -12,7 +12,7 @@ Model for form requests handling.
 ### getData
 
 {% highlight javascript %}
- getData(string[] fields, function callback(Error error, Object data))
+ getData(string[] fields, function callback)
 {% endhighlight %}
 
 Returns all requested fields.
@@ -22,7 +22,7 @@ Returns all requested fields.
 ### submit
 
 {% highlight javascript %}
- submit(Object changes, function callback(Error error, Object changes))
+ submit(Object changes, [function callback])
 {% endhighlight %}
  
 Process form data
@@ -40,10 +40,10 @@ is caused with the ability to create group validators.
 
 ----
 
-### isValid
+### isValidRecord
 
 {% highlight javascript %}
- isValid(Object record, function callback(Error error, ValidationErrors result))
+isValidRecord(Object record, function callback)
 {% endhighlight %}
 
 Validates records.
