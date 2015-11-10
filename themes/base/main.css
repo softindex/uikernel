@@ -82,13 +82,13 @@
   z-index: 1;
 }
 
-.data-grid th.default,
-.data-grid th.asc,
-.data-grid th.desc {
+.data-grid th.dgrid-default,
+.data-grid th.dgrid-asc,
+.data-grid th.dgrid-desc {
   cursor: pointer;
 }
 
-.data-grid th.asc:before {
+.data-grid th.dgrid-asc:before {
   content: '';
   position: relative;
   display: inline-block;
@@ -98,7 +98,7 @@
   left: -5px;
 }
 
-.data-grid th.desc:before {
+.data-grid th.dgrid-desc:before {
   content: '';
   position: relative;
   display: inline-block;
