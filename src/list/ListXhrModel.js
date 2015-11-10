@@ -11,7 +11,6 @@
 'use strict';
 
 var url = require('url');
-var utils = require('../common/utils');
 var defaultXhr = require('../common/defaultXhr');
 
 /**
@@ -39,7 +38,7 @@ ListXMLHttpRequestModel.prototype.read = function (search, cb) {
   var parsedUrl = url.parse(this._apiUrl, true);
   delete parsedUrl.search;
   if (search) {
-    parsedUrl.query.v = utils.escape(search);
+    parsedUrl.query.v = search;
   }
 
   this._xhr({
