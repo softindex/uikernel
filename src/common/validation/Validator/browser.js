@@ -12,7 +12,7 @@
 
 var Validator = require('./common');
 var ValidationErrors = require('../ValidationErrors');
-var defaultXHR = require('../../defaultXHR');
+var defaultXhr = require('../../defaultXhr');
 
 /**
  * Get validator.
@@ -30,7 +30,7 @@ var ClientValidator = function (serverValidationUrl, xhr) {
 
   Validator.call(this);
   this._settings.serverValidationUrl = serverValidationUrl;
-  this._settings.xhr = xhr || defaultXHR;
+  this._settings.xhr = xhr || defaultXhr;
 };
 
 ClientValidator.prototype = new Validator();

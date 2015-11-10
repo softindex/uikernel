@@ -12,7 +12,7 @@
 
 var url = require('url');
 var AbstractGridModel = require('./AbstractGridModel');
-var defaultXHR = require('../../common/defaultXHR');
+var defaultXhr = require('../../common/defaultXhr');
 var Validator = require('../../common/validation/Validator/common');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 
@@ -33,7 +33,7 @@ var GridXhrModel = function (settings) {
   }
 
   this._validator = settings.validator || new Validator();
-  this._xhr = settings.xhr || defaultXHR;
+  this._xhr = settings.xhr || defaultXhr;
   this._apiUrl = settings.api
     .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
     .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end

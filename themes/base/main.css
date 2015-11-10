@@ -225,9 +225,7 @@
 #__suggestBoxPopUp {
   max-height: 200px;
   overflow-y: scroll;
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  border-left: solid 1px #ccc;
+  border: 1px solid #ccc;
   position: absolute;
   top: 0;
   z-index: 10000;
@@ -236,10 +234,17 @@
 
 .__suggestBoxPopUp-option {
   border-right: 1px solid #ccc;
-  border-top: 1px solid #ccc;
   padding: 5px 10px;
   cursor: pointer;
   min-height: 30px;
+}
+
+.__suggestBoxPopUp-option:first-child {
+  border-top: 0;
+}
+
+.__suggestBoxPopUp-option:last-child {
+  border-bottom: 0;
 }
 
 .__suggestBoxPopUp-option:hover {

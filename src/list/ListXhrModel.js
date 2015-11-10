@@ -12,7 +12,7 @@
 
 var url = require('url');
 var utils = require('../common/utils');
-var defaultXHR = require('../common/defaultXHR');
+var defaultXhr = require('../common/defaultXhr');
 
 /**
  * Simple list client model which works via XMLHttpRequest
@@ -23,7 +23,7 @@ var defaultXHR = require('../common/defaultXHR');
  */
 function ListXMLHttpRequestModel(apiURL, xhr) {
   this._apiURL = apiURL;
-  this._xhr = xhr || defaultXHR;
+  this._xhr = xhr || defaultXhr;
   this._apiUrl = apiURL
     .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
     .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end

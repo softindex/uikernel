@@ -61,9 +61,14 @@ var SuggestBoxEditor = React.createClass({
   },
   componentDidUpdate: function (prevProps, prevState) {
     var $popUpElement = $('#' + OPTIONS_ELEMENT_ID);
+    var $containerElement;
+    var containerOffset;
+    var popupHeight;
+
     if (!utils.isEqual(prevState.options, this.state.options)) {
       if (this.state.options.length) {
-        var $containerElement = $(this.refs.container.getDOMNode());
+        $containerElement = $(this.refs.container.getDOMNode());
+        containerOffset = $containerElement.offset();
 
         if (!$popUpElement.length) {
           $popUpElement = $('<div id="' + OPTIONS_ELEMENT_ID + '"></div>');
@@ -72,10 +77,18 @@ var SuggestBoxEditor = React.createClass({
         $popUpElement
           .html(this.getOptionsListHTML())
           .css({
-            top: $containerElement.offset().top + $containerElement.height(),
-            left: $containerElement.offset().left
-          })
-          .width($containerElement.width());
+            top: containerOffset.top + $containerElement.height(),
+            left: containerOffset.left,
+            width: $containerElement.width()
+          });
+
+        // if window height is too short, expand list upwards
+        popupHeight = $popUpElement.height();
+        if (($popUpElement.offset().top + popupHeight) > $(window).height()) {
+          $popUpElement.css({
+            top: containerOffset.top - popupHeight
+          });
+        }
       } else if ($popUpElement) {
         $popUpElement.remove();
       }

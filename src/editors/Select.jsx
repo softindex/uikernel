@@ -70,7 +70,6 @@ var SelectEditor = React.createClass({
     return (
       <select
         {...utils.omit(this.props, 'value')}
-        ref="input"
         value={valueIndex}
         onChange={this.handleChange}
         disabled={this.props.disabled || this.state.loading}
