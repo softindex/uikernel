@@ -99,6 +99,10 @@ var DatePickerEditor = React.createClass({
     }
   },
 
+  focus: function () {
+    this.refs.input.getDOMNode().focus();
+  },
+
   /**
    * Change usual date format to jQuery UI one
    *
