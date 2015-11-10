@@ -41,6 +41,7 @@ var GridColumnsMixin = {
     var lastParent = {name: ''};
     var addInfo;
     var sortParams;
+    var classNames;
 
     for (columnId in this.props.cols) {
       // Skip column if it's invisible
@@ -56,8 +57,8 @@ var GridColumnsMixin = {
         })
       );
 
+      classNames = [this._getColumnClass(columnId)];
       addInfo = {
-        className: this._getColumnClass(columnId),
         name: this.props.cols[columnId].name,
         cols: 1,
         rows: 1
@@ -65,10 +66,12 @@ var GridColumnsMixin = {
 
       sortParams = this._getSortParams(columnId);
       if (sortParams) {
-        addInfo.className += ' ' + sortParams.direction;
+        classNames.push('dgrid-' + sortParams.direction);
         addInfo.field = sortParams.column;
         addInfo.sort = sortParams.direction;
       }
+
+      addInfo.className = classNames.join(' ');
 
       if (this.props.cols[columnId].hasOwnProperty('parent')) {
         if (this.props.cols[columnId].parent !== lastParent.name) {
