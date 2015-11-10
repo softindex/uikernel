@@ -239,14 +239,6 @@
   min-height: 30px;
 }
 
-.__suggestBoxPopUp-option:first-child {
-  border-top: 0;
-}
-
-.__suggestBoxPopUp-option:last-child {
-  border-bottom: 0;
-}
-
 .__suggestBoxPopUp-option:hover {
   background-color: #dddddd;
 }

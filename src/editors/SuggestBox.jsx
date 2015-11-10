@@ -82,7 +82,7 @@ var SuggestBoxEditor = React.createClass({
             width: $containerElement.width()
           });
 
-        // if window height is too short, expand list upwards
+        // If window height is too short, expand list upwards
         popupHeight = $popUpElement.height();
         if (($popUpElement.offset().top + popupHeight) > $(window).height()) {
           $popUpElement.css({
