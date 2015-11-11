@@ -22,7 +22,9 @@ next: editing-grid-data.html
 2. Data binding - [Demo](/examples/data-binding){:target='_blank'}, [Source](/docs/data-binding.html)
 3. Dynamic columns - [Demo](/examples/dynamic-columns){:target='_blank'}, [Source](/docs/dynamic-columns.html)
 4. Bulk operations - [Demo](/examples/bulk-operations){:target='_blank'}, [Source](/docs/bulk-operations.html)
-5. Suggestbox - [Demo](/examples/suggest-box){:target='_blank'}, [Source](/docs/suggest-box.html)
+5. Select - [Demo](/examples/select){:target='_blank'}, [Source](/docs/select.html)
+6. DatePicker - [Demo](/examples/datepicker){:target='_blank'}, [Source](/docs/datepicker.html)
+7. Suggestbox - [Demo](/examples/suggest-box){:target='_blank'}, [Source](/docs/suggest-box.html)
 
 ### Reports
 
