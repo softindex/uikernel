@@ -223,8 +223,9 @@
 }
 
 #__suggestBoxPopUp {
-  max-height: 200px;
-  overflow-y: scroll;
+  display: block;
+  max-height: 300px;
+  overflow-y: auto;
   border: 1px solid #ccc;
   position: absolute;
   top: 0;
@@ -232,15 +233,57 @@
   background-color: #ffffff;
 }
 
-.__suggestBoxPopUp-option {
-  border-right: 1px solid #ccc;
-  padding: 5px 10px;
-  cursor: pointer;
-  min-height: 30px;
+.__suggestBoxPopUpTable {
+  display: table;
+  width: 100%;
 }
 
-.__suggestBoxPopUp-option:hover {
-  background-color: #dddddd;
+.__suggestBoxPopUp-option {
+  border-right: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  min-height: 30px;
+  display: table-row;
+}
+
+.__suggestBoxPopUp-option div:not(:last-child) {
+  white-space: nowrap;
+}
+
+.__suggestBoxPopUp-option div {
+  display: table-cell;
+  margin: 0 10px;
+  padding: 5px 10px;
+}
+
+.__suggestBoxPopUp-option:not(.__suggestBoxPopUp-option-selectable) {
+  color: #aaa;
+}
+
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-regular div:first-child {
+  padding-left: 20px;
+}
+
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-group {
+  font-weight: 600;
+  color: inherit;
+}
+
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-header {
+  font-weight: 800;
+  background-color: #f9f9f9;
+  color: inherit;
+}
+
+.__suggestBoxPopUp-option {
+  cursor: default;
+}
+
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable {
+  cursor: pointer;
+}
+
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable:hover {
+  background-color: #eee;
 }
 
 .suggest-box.select input {
