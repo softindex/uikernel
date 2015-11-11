@@ -61,6 +61,7 @@ var SuggestBoxEditor = React.createClass({
   },
   componentDidUpdate: function (prevProps, prevState) {
     var $popUpElement = $('#' + OPTIONS_ELEMENT_ID);
+    var $popUpTable = $popUpElement.find('.__suggestBoxPopUpTable');
     var $containerElement;
     var containerOffset;
     var popupHeight;
@@ -72,15 +73,17 @@ var SuggestBoxEditor = React.createClass({
 
         if (!$popUpElement.length) {
           $popUpElement = $('<div id="' + OPTIONS_ELEMENT_ID + '"></div>');
+          $popUpTable = $('<div class="__suggestBoxPopUpTable"></div>');
+          $popUpElement.html($popUpTable);
           $('body').append($popUpElement);
         }
-        $popUpElement
-          .html(this.getOptionsListHTML())
-          .css({
-            top: containerOffset.top + $containerElement.height(),
-            left: containerOffset.left,
-            width: $containerElement.width()
-          });
+
+        $popUpTable.html(this.getOptionsListHTML());
+        $popUpElement.css({
+          top: $containerElement.offset().top + $containerElement.height(),
+          left: $containerElement.offset().left,
+          minWidth: $containerElement.width()
+        });
 
         // If window height is too short, expand list upwards
         popupHeight = $popUpElement.height();
@@ -95,7 +98,7 @@ var SuggestBoxEditor = React.createClass({
     }
   },
   handleMouseDown: function (e) {
-    if (!this.isMounted()) {
+    if (!this.isMounted() || e.button !== 0) {
       return;
     }
 
@@ -109,9 +112,14 @@ var SuggestBoxEditor = React.createClass({
     }
 
     if ($popup.find($target).length) {
-      var option = this.state.options[$target.attr('data-key')];
-      this.refs.input.getDOMNode().value = option[1];
-      this.saveValue(option);
+      if (!$target.attr('data-key')) {
+        $target = $target.parent();
+      }
+      if ($target.hasClass('__suggestBoxPopUp-option-selectable')) {
+        var option = this.state.options[$target.attr('data-key')];
+        this.refs.input.getDOMNode().value = this._getLabel(option);
+        this.saveValue(option);
+      }
     } else if ($target[0] !== $popup[0] && !$container.find($target).length) {
       this.saveValueWithValidation();
     }
@@ -141,6 +149,10 @@ var SuggestBoxEditor = React.createClass({
     }
   },
 
+  _getLabel: function (option) {
+    return Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label;
+  },
+
   _openList: function () {
     this.search('', function (data) {
       this.setState({options: data}, function () {
@@ -151,9 +163,23 @@ var SuggestBoxEditor = React.createClass({
 
   getOptionsListHTML: function () {
     return this.state.options.reduce(function (result, option, key) {
-      return result + '<div data-key="' + key + '" class="__suggestBoxPopUp-option">' +
-          utils.escape(option[1]) +
-        '</div>';
+      var className = '__suggestBoxPopUp-option';
+      if (option.id) {
+        className += ' __suggestBoxPopUp-option-selectable';
+      }
+
+      switch (option.type) {
+        case 'group':
+        case 'header':
+        case 'regular':
+          className += ' __suggestBoxPopUp-option-' + option.type;
+      }
+
+      return result + '<div data-key="' + key + '" class="' + className + '">' + (
+        Array.isArray(option.label) ? option.label.map(function (label) {
+          return '<div>' + label + '</div>';
+        }).join('') : '<div>' + utils.escape(option.label) + '</div>'
+      ) + '</div>';
     }, '');
   },
 
@@ -165,10 +191,10 @@ var SuggestBoxEditor = React.createClass({
   saveValue: function (nextValue) {
     this.setState({options: []});
 
-    if (!utils.isEqual(this.props.value, nextValue[0])) {
-      this.props.onChange(nextValue[0]);
+    if (!utils.isEqual(this.props.value, nextValue.id)) {
+      this.props.onChange(nextValue.id);
       if (this.props.onLabelChange) {
-        this.props.onLabelChange(nextValue[1]);
+        this.props.onLabelChange(nextValue.label);
       }
     }
     if (this.props.onBlur) {
@@ -184,7 +210,10 @@ var SuggestBoxEditor = React.createClass({
     var value = input.value;
 
     if (!value) {
-      this.saveValue([null, '']);
+      this.saveValue({
+        id: null,
+        value: ''
+      });
       return;
     }
 
@@ -194,19 +223,19 @@ var SuggestBoxEditor = React.createClass({
         return;
       }
 
-      var resultIndex = 0;
-      if (data.length !== 1) {
-        resultIndex = utils.findIndex(data, function (option) {
-          return option[1] === value;
-        });
-      }
+      var resultIndex = utils.findIndex(data, function (option) {
+        return option.id && value === this._getLabel(option);
+      }.bind(this));
 
       if (resultIndex < 0) {
-        this.saveValue([null, value]);
+        this.saveValue({
+          id: null,
+          value: value
+        });
         return;
       }
 
-      input.value = data[resultIndex][1];
+      input.value = this._getLabel(data[resultIndex]);
       this.saveValue(data[resultIndex]);
     });
   },
