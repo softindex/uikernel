@@ -58,24 +58,6 @@ FormXhrModel.prototype.getData = function (fields, cb) {
   });
 };
 
-FormXhrModel.prototype.getData = function (fields, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
-  parsedUrl.query.fields = JSON.stringify(fields);
-  delete parsedUrl.search;
-
-  this._xhr({
-    method: 'GET',
-    uri: url.format(parsedUrl)
-  }, function (err, resp, body) {
-    if (typeof cb === 'function') {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, JSON.parse(body));
-    }
-  });
-};
-
 FormXhrModel.prototype.submit = function (changes, cb) {
   this._xhr({
     method: 'POST',

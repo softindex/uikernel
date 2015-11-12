@@ -17,7 +17,8 @@ var Validator = require('../common/validation/Validator/common');
 /**
  * Simple form model
  *
- * @param {Object} defaultValues Default form field values
+ * @param {Object}    defaultValues Default form field values
+ * @param {Validator} validation    Validation
  * @constructor
  */
 var FormModel = function (defaultValues, validation) {
