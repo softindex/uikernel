@@ -10,10 +10,11 @@
 
 'use strict';
 
-var del = require('del');
+var gulp = require('gulp');
 
-function docsClear(done) {
-  del('docs', done);
+function copy() {
+  return gulp.src(['./examples/**/*', './docs/**/*'])
+    .pipe(gulp.dest('_site'));
 }
 
-module.exports = docsClear;
+module.exports = copy;

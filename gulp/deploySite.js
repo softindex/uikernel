@@ -1,0 +1,26 @@
+/**
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
+ */
+
+'use strict';
+
+var gulp = require('gulp');
+var ghPages = require('gulp-gh-pages');
+
+var options = {
+  remoteUrl: 'git@github.com:IreneIrene/uikernel.git',
+  branch: 'gh-pages'
+};
+
+function deploySite() {
+  return gulp.src('./_site/**/*')
+    .pipe(ghPages(options));
+}
+
+module.exports = deploySite;

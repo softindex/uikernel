@@ -1,0 +1,21 @@
+<!-- Docs Nav -->
+{% for section in site.data.nav_docs %}
+<ul>
+  <li><h3>{{ section.title }}</h3></li>
+  {% for item in section.items %}
+  <li{% if page.id == item.id %} class="active"{% endif %}>
+    <a href="/docs/{{ item.id }}.html">{{ item.title }}</a>
+    {% if item.subitems %}
+    <ul>
+      {% for subitem in item.subitems %}
+      <li{% if page.id == subitem.id %} class="active"{% endif %}>
+        <a href="/docs/{{ subitem.id }}.html">{{ subitem.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+<hr />
+{% endfor %}
