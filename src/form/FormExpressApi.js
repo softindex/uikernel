@@ -10,16 +10,17 @@
 
 'use strict';
 
+var express = require('express');
 var ValidationErrors = require('../common/validation/ValidationErrors');
 
-function FormExpressAPI(router) {
-  if (!(this instanceof FormExpressAPI)) {
-    return new FormExpressAPI(router);
+function FormExpressApi() {
+  if (!(this instanceof FormExpressApi)) {
+    return new FormExpressApi();
   }
 
   var ctx = this;
 
-  router
+  ctx._router = new express.Router()
     .get('/', function (req, res, next) {
       var fields = req.query.fields ? JSON.parse(req.query.fields) : null;
       ctx._getModel(req, res).getData(fields, function (err, data) {
@@ -42,7 +43,7 @@ function FormExpressAPI(router) {
     });
 }
 
-FormExpressAPI.prototype.model = function (model) {
+FormExpressApi.prototype.model = function (model) {
   if (typeof model === 'function') {
     this._getModel = model;
   } else {
@@ -52,16 +53,19 @@ FormExpressAPI.prototype.model = function (model) {
   }
   return this;
 };
-FormExpressAPI.prototype.result = function (func) {
+FormExpressApi.prototype.result = function (func) {
   this._result = func;
   return this;
 };
+FormExpressApi.prototype.getRouter = function () {
+  return this._router;
+};
 
 // Default implementation
-FormExpressAPI.prototype._getModel = function () {
+FormExpressApi.prototype._getModel = function () {
   throw Error('Model is not defined.');
 };
-FormExpressAPI.prototype._result = function (err, data, req, res, next) {
+FormExpressApi.prototype._result = function (err, data, req, res, next) {
   if (err) {
     next(err);
   } else {
@@ -69,4 +73,4 @@ FormExpressAPI.prototype._result = function (err, data, req, res, next) {
   }
 };
 
-module.exports = FormExpressAPI;
+module.exports = FormExpressApi;

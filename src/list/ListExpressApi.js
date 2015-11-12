@@ -10,21 +10,22 @@
 
 'use strict';
 
+var express = require('express');
+
 /**
  * Form Express API for List model interaction
  *
- * @param router
  * @return {ListExpressApi}
  * @constructor
  */
-function ListExpressApi(router) {
+function ListExpressApi() {
   if (!(this instanceof ListExpressApi)) {
-    return new ListExpressApi(router);
+    return new ListExpressApi();
   }
 
   var builderContext = this;
 
-  router
+  builderContext._router = new express.Router()
     .get('/', function (req, res, next) {
       builderContext._read(req.query.v, req, builderContext._getModel(req, res), function (err, response) {
         builderContext._result(err, response, req, res, next);
@@ -61,6 +62,9 @@ ListExpressApi.prototype.read = function (func) {
 ListExpressApi.prototype.result = function (func) {
   this._result = func;
   return this;
+};
+ListExpressApi.prototype.getRouter = function () {
+  return this._router;
 };
 
 // Default implementation
