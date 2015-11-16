@@ -25,18 +25,19 @@ function ListExpressApi() {
 
   var builderContext = this;
 
-  builderContext._router = new express.Router()
-    .get('/', function (req, res, next) {
+  builderContext.middlewares = {
+    read: [function (req, res, next) {
       builderContext._read(req.query.v, req, builderContext._getModel(req, res), function (err, response) {
         builderContext._result(err, response, req, res, next);
       });
-    })
-    .get('/label/:id', function (req, res, next) {
+    }],
+    getLabel: [function (req, res, next) {
       var id = JSON.parse(req.params.id);
       builderContext._getLabel(id, req, builderContext._getModel(req, res), function (err, response) {
         builderContext._result(err, response, req, res, next);
       });
-    });
+    }]
+  };
 }
 
 /**
@@ -55,16 +56,33 @@ ListExpressApi.prototype.model = function (model) {
   }
   return this;
 };
-ListExpressApi.prototype.read = function (func) {
-  this._read = func;
+
+ListExpressApi.prototype.read = function (middlewares) {
+  if (!Array.isArray(middlewares)) {
+    middlewares = [middlewares];
+  }
+  this.middlewares.read = middlewares.concat(this.middlewares.read);
   return this;
 };
+
+ListExpressApi.prototype.getLabel = function (middlewares) {
+  if (!Array.isArray(middlewares)) {
+    middlewares = [middlewares];
+  }
+  this.middlewares.getLabel = middlewares.concat(this.middlewares.getLabel);
+  return this;
+};
+
 ListExpressApi.prototype.result = function (func) {
   this._result = func;
   return this;
 };
 ListExpressApi.prototype.getRouter = function () {
-  return this._router;
+  var builderContext = this;
+
+  return new express.Router()
+    .get('/', builderContext.read)
+    .get('/label/:id', builderContext.getLabel);
 };
 
 // Default implementation
