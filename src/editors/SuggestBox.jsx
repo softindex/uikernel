@@ -80,8 +80,8 @@ var SuggestBoxEditor = React.createClass({
 
         $popUpTable.html(this.getOptionsListHTML());
         $popUpElement.css({
-          top: $containerElement.offset().top + $containerElement.height(),
-          left: $containerElement.offset().left,
+          top: containerOffset.top + $containerElement.height(),
+          left: containerOffset.left,
           minWidth: $containerElement.width()
         });
 
@@ -171,7 +171,7 @@ var SuggestBoxEditor = React.createClass({
       switch (option.type) {
         case 'group':
         case 'header':
-        case 'regular':
+        case 'subitem':
           className += ' __suggestBoxPopUp-option-' + option.type;
       }
 

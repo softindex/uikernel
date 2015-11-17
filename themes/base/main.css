@@ -259,7 +259,7 @@
   color: #aaa;
 }
 
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-regular div:first-child {
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-subitem div:first-child {
   padding-left: 20px;
 }
 
