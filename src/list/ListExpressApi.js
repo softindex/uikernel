@@ -77,7 +77,7 @@ ListExpressApi.prototype._result = function (err, data, req, res, next) {
   if (err) {
     next(err);
   } else {
-    res.send(data);
+    res.json(data);
   }
 };
 
