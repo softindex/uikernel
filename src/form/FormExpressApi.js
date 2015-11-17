@@ -20,14 +20,14 @@ function FormExpressApi() {
 
   var ctx = this;
 
-  ctx._router = new express.Router()
-    .get('/', function (req, res, next) {
+  ctx.middlewares = {
+    getData: [function (req, res, next) {
       var fields = req.query.fields ? JSON.parse(req.query.fields) : null;
       ctx._getModel(req, res).getData(fields, function (err, data) {
         ctx._result(err, data, req, res, next);
       });
-    })
-    .post('/', function (req, res, next) {
+    }],
+    submit: [function (req, res, next) {
       ctx._getModel(req, res).submit(req.body, function (err, data) {
         if (err && !(err instanceof ValidationErrors)) {
           ctx._result(err, null, req, res, next);
@@ -35,12 +35,13 @@ function FormExpressApi() {
         }
         ctx._result(null, {data: data, error: err}, req, res, next);
       });
-    })
-    .post('/validation', function (req, res, next) {
+    }],
+    validate: [function (req, res, next) {
       ctx._getModel(req, res).isValidRecord(req.body, function (err, data) {
         ctx._result(err, data, req, res, next);
       });
-    });
+    }]
+  };
 }
 
 FormExpressApi.prototype.model = function (model) {
@@ -53,12 +54,42 @@ FormExpressApi.prototype.model = function (model) {
   }
   return this;
 };
+
+FormExpressApi.prototype.getData = function (middlewares) {
+  if (!Array.isArray(middlewares)) {
+    middlewares = [middlewares];
+  }
+  this.middlewares.getData = middlewares.concat(this.middlewares.getData);
+  return this;
+};
+
+FormExpressApi.prototype.submit = function (middlewares) {
+  if (!Array.isArray(middlewares)) {
+    middlewares = [middlewares];
+  }
+  this.middlewares.submit = middlewares.concat(this.middlewares.submit);
+  return this;
+};
+
+FormExpressApi.prototype.validate = function (middlewares) {
+  if (!Array.isArray(middlewares)) {
+    middlewares = [middlewares];
+  }
+  this.middlewares.validate = middlewares.concat(this.middlewares.validate);
+  return this;
+};
+
 FormExpressApi.prototype.result = function (func) {
   this._result = func;
   return this;
 };
 FormExpressApi.prototype.getRouter = function () {
-  return this._router;
+  var ctx = this;
+
+  return new express.Router()
+    .get('/', ctx.middlewares.getData)
+    .post('/', ctx.middlewares.submit)
+    .post('/validation', ctx.middlewares.validate);
 };
 
 // Default implementation
