@@ -17,6 +17,7 @@
     "prepublish": "gulp bundle"
   },
   "dependencies": {
+    "express": "^4.13.3",
     "react": "~0.13.3",
     "regenerator": "~0.8.36",
     "suspend": "~0.6.1",
