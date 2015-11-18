@@ -102,7 +102,7 @@ var GridStatusesMixin = {
 
     // Remove element's class
     $(this.refs.body.getDOMNode())
-      .find('tr[key=' + recordId + ']')
+      .find('tr[key=' + row + ']')
       .removeClass(status);
   },
 
