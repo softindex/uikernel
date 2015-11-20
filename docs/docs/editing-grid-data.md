@@ -5,14 +5,13 @@ prev: applying-filters.html
 next: removing-records.html
 ---
 
-Time to make our form editable.
+Our grid already has sorting, pagination, and filtering. Now it's time to make it editable.
 
 * [Live demo](/examples/editing-grid-data/){:target="_blank"}
 * [Code]({{site.github}}_site/examples/editing-grid-data){:target="_blank"}
 
-### Columns configuration
 
-First of all let's make fields editable via UIKernel.Editors.
+First, let's modify our columns by adding `editor`to them, which will simply return inputs. Only in the gender column it will return `UIKernel.Editors.Select`.
 
 `columns.js`:
 {% highlight javascript %}
@@ -80,19 +79,30 @@ var columns = {
 };
 {% endhighlight %}
 
-### Validation configuration
+You may have noticed that all inputs and `UIKernel.Editors.Select` have some props passed to them via `{...this.props}`.
 
-We'll also need to validate our edited data. Define your validation rules using regular expressions for example.
+
+We'll also need to validate our edited data. So let's define some validation rules.
 
 `validation.js`:
 {% highlight javascript %}
-var Validation = UIKernel.createValidator()
+var validation = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
   .field('age', UIKernel.Validators.regExp(/^[^0]\d{0,2}$/, 'Invalid age.'))
-  .field('gender', UIKernel.Validators.regExp(/^[12]$/, 'Invalid gender.'));
+  .field('gender', UIKernel.Validators.regExp(/^[12]$/, 'Invalid gender.'))
+  .field('customField', function (value) {
+    if (value % 2 === 0) {
+      return 'N';
+    }
+  });
 {% endhighlight %}
+
+We first create a validator instance by calling `UIKernel.createValidator()`.
+Then we call `field()` to define validation rules. We pass it two arguments: a column name and a validation function.
+In this example, we're using only `UIKernel.Validators.regExp()`. There are much more UIKernel validation functions.
+You can check them here.
 
 ### Grid Model
 
