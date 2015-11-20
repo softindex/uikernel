@@ -15,7 +15,7 @@ var jsdoc = require('gulp-jsdoc');
 
 function generateJSDoc() {
   return gulp.src(['main.js', 'lib/**/*.js'])
-    .pipe(jsdoc('./docs'));
+    .pipe(jsdoc('./jsdoc'));
 }
 
 module.exports = generateJSDoc;

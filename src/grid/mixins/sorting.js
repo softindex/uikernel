@@ -268,7 +268,7 @@ var GridSortingMixin = {
   /**
    * Convert sorting to array
    *
-   * @return {{}[]|{}} sorts
+   * @return {Object[]|Object} sorts
    * @private
    */
   _sortingToArray: function () {
