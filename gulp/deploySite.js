@@ -13,14 +13,9 @@
 var gulp = require('gulp');
 var ghPages = require('gulp-gh-pages');
 
-var options = {
-  remoteUrl: 'git@github.com:IreneIrene/uikernel.git',
-  branch: 'gh-pages'
-};
-
 function deploySite() {
   return gulp.src('./_site/**/*')
-    .pipe(ghPages(options));
+    .pipe(ghPages());
 }
 
 module.exports = deploySite;
