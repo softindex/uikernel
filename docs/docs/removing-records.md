@@ -5,13 +5,12 @@ prev: editing-grid-data.html
 next: creating-records.html
 ---
 
-Let's make our records removable.
-
 * [Live demo](/examples/removing-records/){:target="_blank"}
 * [Code]({{site.github}}_site/examples/removing-records){:target="_blank"}
 
-Add the delete method to our Grid model. 
+That's the simple part. First, let's add the delete method to our model.
 
+`model.js`:
 {% highlight javascript %}
 var model = new UIKernel.Models.Grid.Collection({
   // ...
@@ -24,8 +23,12 @@ model.delete = function (id) {
   return id;
 };
 {% endhighlight %}
+---
 
-To do that, we'll start with a remove button. Here, we'll create it as the first column.
+Next, let's create a new column named `tools` and configure it. We'll set its width by defining the `width` property.
+The `render` method will return the remove button.
+In `onClickRefs`, we'll define the function for removing records from our grid.
+
 `columns.js`:
 {% highlight javascript %}
 var columns = {
@@ -44,3 +47,6 @@ var columns = {
   // ...
 };
 {% endhighlight %}
+---
+
+That's all. Now we can remove our grid records.

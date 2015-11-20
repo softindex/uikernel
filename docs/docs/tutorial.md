@@ -4,8 +4,10 @@ id: tutorial
 prev: getting-started.html
 next: first-grid-component.html
 ---
+* [Live demo](/examples/creating-records/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/creating-records){:target="_blank"}
 
-This tutorial shows us how to build forms and editable grids with UIKernel. The steps for this tutorial are as follows:
+This tutorial demonstrates how to build forms and editable grids with UIKernel. The steps for this tutorial are as follows:
 
 1. Create a grid
 2. Add sorting and pagination to our grid
@@ -15,41 +17,40 @@ This tutorial shows us how to build forms and editable grids with UIKernel. The 
 6. Create a from for adding records to our grid
 
 
-To get started, install the [UIKernel package](https://www.npmjs.com/package/uikernel){:target="_blank"} through npm:
+To get started, we will need to install the [UIKernel package](https://www.npmjs.com/package/uikernel){:target="_blank"}.
+In the command line, run the following command:
 
 {% highlight html %}
 npm install uikernel
 {% endhighlight %}
 
-Then create a directory with the following structure:
+This will create a `node_modules` folder in which will be UIKernel.
+
+Then [download](/download.html) CSS & Images.
+
+Next, create a directory with the following structure:
 
 {% highlight html %}
--- css
---- uikernel
---- bootstrap.min.css
--- js
---- components
----- FiltersForm.jsx
----- CreateForm.jsx
----- MainComponent.jsx
---- libs
----- JSXTransformer-0.13.3.js
----- jquery.min.js
----- lodash.min.js
----- react.0.13.3.min.js
----- uikernel.js
---- model
----- model.js
----- validation.js
---- columns.jsx
---- main.jsx
--- index.html
+|-- css
+    |-- uikernel
+        * css and images we've downloaded
+    bootstrap.min.css
+    main.css
+|-- js
+    |-- components
+        FiltersForm.jsx
+        CreateForm.jsx
+        MainComponent.jsx
+    |-- libs
+        uikernel.js
+    |-- model
+        model.js
+        validation.js
+    columns.jsx
+    main.jsx
+index.html
 {% endhighlight %}
-
-As you can see, we've also included some extra libs, such as
-[React](https://facebook.github.io/react/downloads.html){:target="_blank"},
-[jQuery](https://jquery.com/download/){:target="_blank"}, and
-[Bootstrap](http://getbootstrap.com/getting-started/#download){:target="_blank"}.
+---
 
 Our `index.html` file should look like this:
 
@@ -64,33 +65,37 @@ Our `index.html` file should look like this:
     <link href="css/main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    <div id="body"></div>
 
-    <script src="js/libs/jquery.min.js"></script>
-    <script src="js/libs/lodash.min.js"></script>
-    <script src="js/libs/react.0.13.3.min.js"></script>
-    <script src="js/libs/JSXTransformer-0.13.3.js"></script>
-    <script src="js/libs/uikernel.js"></script>
 
-    <!-- Validation -->
-    <script src="js/model/validation.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+<script src="js/libs/uikernel.js"></script>
 
-    <!-- Our first model -->
-    <script src="js/model/model.js"></script>
+<!-- Validation -->
+<script src="js/model/validation.js"></script>
 
-    <!-- Our main component -->
-    <script src="js/components/MainComponent.jsx" type="text/jsx"></script>
+<!-- Our first model -->
+<script src="js/model/model.js"></script>
 
-    <!-- Its columns -->
-    <script src="js/columns.jsx" type="text/jsx"></script>
+<!-- Our main component -->
+<script src="js/components/MainComponent.jsx" type="text/jsx"></script>
 
-    <!-- Filters form component -->
-    <script src="js/components/FiltersForm.jsx" type="text/jsx"></script>
+<!-- Its columns -->
+<script src="js/columns.jsx" type="text/jsx"></script>
 
-    <!-- Main file to render -->
-    <script src="js/main.jsx" type="text/jsx"></script>
+<!-- Form for filtering records -->
+<script src="js/components/FiltersForm.jsx" type="text/jsx"></script>
+
+<!-- Form for creating new records -->
+<script src="js/components/CreateForm.jsx" type="text/jsx"></script>
+
+<!-- Main file to render -->
+<script src="js/main.jsx" type="text/jsx"></script>
 </body>
 </html>
 {% endhighlight %}
+---
 
-Now you can move on to the next step of our tutorial.
+Now you can move on to the first step of our tutorial.

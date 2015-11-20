@@ -2,7 +2,7 @@
 title: Form mixin
 id: form-mixin
 prev: express-grid-api.html
-next: form-model.html
+next: form-interface.html
 ---
 
 [Example](form-example.html)
@@ -19,8 +19,8 @@ Initialize form
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
-| string[] |     fields                       | Fields list, that are required to display
-| [FormModel](/docs/form-model.html) | model                        | Model of form
+| string[] |     **fields**                       | Fields list, that are required to display
+| [FormModel](/docs/form-model.html) | **model**   | Form model
 | Object |    data                       | Preset data
 | Object |    changes                     | Preset changes
 | boolean |      submitAll=false            | Send all form for validity check

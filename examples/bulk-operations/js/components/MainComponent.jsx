@@ -53,7 +53,7 @@ var MainComponent = React.createClass({
     var buttonText = this.state.blackMode ? 'Clear all' : 'Select all';
 
     return (
-      <div>
+      <div className="container">
         <div className="row">
           <div className="col-sm-12">
             <a className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>

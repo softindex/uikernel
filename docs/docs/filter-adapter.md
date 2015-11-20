@@ -15,10 +15,4 @@ AbstractGridModel applyFilters(AbstractGridModel model, Object filters)
 
 Set default filters to the GridModel.
 
-## Example
-{% highlight javascript %}
- var modelWithFilters = UIKernel.applyFilters(GridModel, filters) 
- // Returns new filtered model
-{% endhighlight %}
-
-Now utilizing the default set of filters instead of the old filter.
+Check out [Usage Example](applying-filters.html).

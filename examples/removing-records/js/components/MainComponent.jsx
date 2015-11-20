@@ -32,7 +32,7 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <div>
+      <div className="container">
         <div className="panel panel-primary">
           <div className="panel-heading">
             <h3 className="panel-title">Filters</h3>
@@ -47,14 +47,12 @@ var MainComponent = React.createClass({
           <div className="panel-heading">
             <h3 className="panel-title">Records</h3>
           </div>
-          <div className="panel-body padding0">
-            <UIKernel.Grid
-              ref="grid"
-              model={this.state.model} // Grid model
-              cols={columns} // columns configuration
-              viewCount={10} // 10 records limit to display by default
-            />
-          </div>
+          <UIKernel.Grid
+            ref="grid"
+            model={this.state.model} // Grid model
+            cols={columns} // columns configuration
+            viewCount={10} // 10 records limit to display by default
+          />
           <div className="panel-footer">
             <button className="btn btn-success" onClick={this.onClear}>
               Clear

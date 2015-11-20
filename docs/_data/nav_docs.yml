@@ -34,6 +34,8 @@
   items:
   - id: grid-component
     title: Component
+  - id: grid-columns
+    title: Grid Columns
   - id: grid-interface
     title: Grid Model Interface
     subitems:
@@ -53,9 +55,11 @@
   items:
   - id: form-mixin
     title: Mixin
-  - id: form-model
+  - id: form-interface
     title: Model Interface
     subitems:
+    - id: form-model
+      title: Form Model
     - id: form-xhr-model
       title: XHR Model
 - title: Reports

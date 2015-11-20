@@ -35,7 +35,7 @@ var MainComponent = React.createClass({
     var currentPage = dimensionNames[lastDimension];
 
     return (
-      <div>
+      <div className="container">
         {this.getReportsBreadcrumbs().map(function (crumb, key) {
           return <span key={key}>{crumb.param}({crumb.value}) &gt; </span>;
         })}

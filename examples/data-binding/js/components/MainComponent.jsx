@@ -26,27 +26,29 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <div className="row">
-        <div className="col-sm-6">
-          <h3>Grid with autosaving</h3>
-          <UIKernel.Grid
-            model={this.state.model} // Grid model
-            cols={columns} // columns configuration
-            viewCount={10}
-            realtime={true}
-          />
-        </div>
-        <div className="col-sm-6">
-          <h3>Grid without autosaving</h3>
-          <UIKernel.Grid
-            ref="grid"
-            model={this.state.model}
-            cols={columns}
-            viewCount={10}
-            />
-          <a className="btn btn-success" onClick={this.onClear}>Clear</a>
-          {' '}
-          <a className="btn btn-primary" onClick={this.onSave}>Save</a>
+      <div className="container">
+        <div className="row">
+          <div className="col-sm-6">
+            <h3>Grid with autosaving</h3>
+            <UIKernel.Grid
+              model={this.state.model} // Grid model
+              cols={columns} // columns configuration
+              viewCount={10}
+              realtime={true}
+              />
+          </div>
+          <div className="col-sm-6">
+            <h3>Grid without autosaving</h3>
+            <UIKernel.Grid
+              ref="grid"
+              model={this.state.model}
+              cols={columns}
+              viewCount={10}
+              />
+            <a className="btn btn-success" onClick={this.onClear}>Clear</a>
+            {' '}
+            <a className="btn btn-primary" onClick={this.onSave}>Save</a>
+          </div>
         </div>
       </div>
     );

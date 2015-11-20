@@ -1,6 +1,11 @@
 #body {
     margin: 0 auto;
 }
+
+.container {
+  padding-top: 10px;
+}
+
 .btn-success {
     margin: 0 15px 15px 0;
 }

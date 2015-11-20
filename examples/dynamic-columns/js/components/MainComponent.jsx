@@ -38,17 +38,15 @@ var MainComponent = React.createClass({
   render() {
     return (
       <div>
-        <div>
-          <a className="btn btn-success" onClick={this.openColumnsForm}>
-            <i className="fa fa-th-list"></i>{' '}Columns
-          </a>
-          <UIKernel.Grid
-            cols={columns}
-            model={this.state.model}
-            viewColumns={this.state.cols}
-            viewCount={20}
-            />
-        </div>
+        <a className="btn btn-success" onClick={this.openColumnsForm}>
+          <i className="fa fa-th-list"></i>{' '}Columns
+        </a>
+        <UIKernel.Grid
+          cols={columns}
+          model={this.state.model}
+          viewColumns={this.state.cols}
+          viewCount={20}
+          />
       </div>
     );
   }

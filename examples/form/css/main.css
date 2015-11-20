@@ -1,3 +1,7 @@
+.container {
+  padding-top: 10px;
+}
+
 .edit-form .changed {
     background-color: #ffff38;
 }

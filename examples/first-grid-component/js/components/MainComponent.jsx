@@ -16,10 +16,12 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <UIKernel.Grid
-        model={this.state.model} // Grid model
-        cols={columns} // columns configuration
-      />
+      <div className="container">
+        <UIKernel.Grid
+          model={this.state.model} // Grid model
+          cols={columns} // columns configuration
+        />
+      </div>
     );
   }
 });

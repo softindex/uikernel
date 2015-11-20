@@ -1,20 +1,3 @@
-.edit-form .changed {
-    background-color: #ffff38;
-}
-.edit-form .error {
-    background-color: #ff8689;
-}
-
-.filters-form {
-    padding-bottom: 10px;
-}
-.filters-form input,
-.edit-form input,
-.filters-form select,
-.edit-form select {
-    margin: 0;
-    width: 100% !important;
-}
-.data-grid {
-    margin: 10px 0;
+.container {
+  padding-top: 10px;
 }

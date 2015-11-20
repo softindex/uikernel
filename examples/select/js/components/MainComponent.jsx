@@ -27,7 +27,7 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <div>
+      <div className="container">
         <span>Selected: {this.state.label}</span>
         <br />
         <UIKernel.Editors.Select

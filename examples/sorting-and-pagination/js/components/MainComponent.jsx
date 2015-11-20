@@ -16,11 +16,13 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <UIKernel.Grid
-        model={this.state.model} // Grid model
-        cols={columns} // columns configuration
-        viewCount={10} // 10 records limit to display by default
-      />
+      <div className="container">
+        <UIKernel.Grid
+          model={this.state.model} // Grid model
+          cols={columns} // columns configuration
+          viewCount={10} // 10 records limit to display by default
+          />
+      </div>
     );
   }
 });

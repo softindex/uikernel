@@ -15,9 +15,8 @@ Download the starter kit to get started.
   </a>
 </center>
 
-In the root directory of the starter kit, create `index.html` with the following contents.
+In the root directory of the starter kit, create `index.html` with the following contents:
 
-`index.html`:
 {% highlight html %}
 <!DOCTYPE html>
 <html>
@@ -46,12 +45,9 @@ In the root directory of the starter kit, create `index.html` with the following
 </html>
 {% endhighlight %}
 
-Here, we've included the required libraries - React, JQuery and UIKernel, and additionally some helpful libs.
+Here, we've included the required libraries - React, JQuery and UIKernel, and some other helpful libs.
 
-The file named `main.jsx` is going to be the main React entry point, where we'd like to render our first UIKernel.Grid.
-As you see it also needs columns list to display and model as a store.
-
-It's a great habbit to separate logic, so we'll create `columns.js` and `model.js` files too.
+The file named `main.jsx` is going to be the main React entry point, where we'd like to render our first `UIKernel.Grid`.
 
 `main.jsx`:
 {% highlight html %}
@@ -62,6 +58,10 @@ React.render(
   />
 , document.body);
 {% endhighlight %}
+
+As you can see, the `UIKernel.Grid` component has two props: `cols` and `model`. We need to define the values of these props.
+
+It's a good practice to separate logic, so we'll create the `columns.js` and `model.js` files.
 
 List columns data as an object.
 
@@ -89,7 +89,7 @@ var columns = {
 };
 {% endhighlight %}
 
-Use UIKernel.Models.Grid.Collection to write your first model, which's going to respond with a fake data of 3 records.
+Use `UIKernel.Models.Grid.Collection` to create your first model.
 
 `model.js`:
 {% highlight javascript %}
@@ -114,7 +114,7 @@ var model = new UIKernel.Models.Grid.Collection({
 });
 {% endhighlight %}
 
-And that's all. [Live demo](/examples/getting-started/){:target="_blank"} and [code example]({{ site.github }}_site/examples/getting-started){:target="_blank"} are available here.
+And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}_site/examples/getting-started){:target="_blank"}.
 
 ## Want CommonJS?
 
@@ -125,4 +125,4 @@ If you want to use UIKernel with
 
 ## Next Steps
 
-Check out [the tutorial](/docs/tutorial.html) and the other examples in the starter kit's `examples` directory to learn more.
+Check out [the tutorial](/docs/tutorial.html) and [examples](/examples/index.html) to learn more.

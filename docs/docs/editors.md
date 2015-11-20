@@ -5,7 +5,7 @@ prev: creating-records.html
 next: labels.html
 ---
 
-### The list of complex editors props.
+UIKernel provides the following editors:
 
 * [Select](#Select)
 * [DatePicker](#DatePicker)
@@ -14,49 +14,62 @@ next: labels.html
 ---
 
 ## <span id="Select">Select</span>
-[Example](select.html)
+Select is a simple component for ReactJS. It is used to create a drop-down list.
+
+[Example](select.html){:target="_blank"}
+
+### Select Properties
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
+| | **value** | Field value |
+| function | **onChange** | Selection change handler |
 | boolean | disabled=false | Disabled flag |
 | [ListModel](list-model.html) | model | Model object should have 'read' method |
-| function | onChange | Selection change handler |
 | function | onChangeLabel | Label change handler |
 | Array | options | Options in a [[id, option], ...] format |
-| | value | Field value |
 
 ---
-
+>If you pass Select the options prop, you don't need to pass it the model prop, and vice versa.
 
 ## <span id="DatePicker">DatePicker</span>
-[Example](datepicker.html)
+DatePicker is a ReactJS component that allows the user to select a date.
+
+[Example](datepicker.html){:target="_blank"}
+
+### DatePicker Properties
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
+|  | **value** | Field value |
+| function | **onChange** | Value change handler |
 | string | format | Inner field value format |
 | Date | min | Minimum date value |
 | Date | max | Maximum date value |
 | function | onBlur | Element lost focus handler |
-| function | onChange | Value change handler |
 | function | onFocus | Element focus handler |
 | boolean | show | Show on init flag |
 | string | textFormat | Displayed field value format |
-|  | value | Field value |
+
 
 ---
 
 ## <span id="SuggestBox">SuggestBox</span>
-[Example](suggest-box.html)
+SuggestBox is a ReactJS component that can be used to quickly create a drop-down list with support for searching and scrolling.
+
+[Example](suggest-box.html){:target="_blank"}
+
+### SuggestBox Properties
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
+|  | **value** | Field value |
+| function | **onChange** | Selection change handler |
 | number | debounce | Search timeout, ms |
 | boolean | disabled | Disabled flag |
-| [ListModel](list-model.html) | model | Model object should have 'read' mathod |
+| [ListModel](list-model.html) | model | Model object should have the 'read' method |
 | function | onBlur | Element lost focus value |
-| function | onChange | Selection change handler |
 | function | onChangeLabel | Label change handler |
 | boolean | select | Select button visibility flag |
-|  | value | Field value |
 
 ---

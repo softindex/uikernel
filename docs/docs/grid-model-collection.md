@@ -5,23 +5,23 @@ prev: grid-model-xhr.html
 next: validator.html
 ---
 
-Grid Collection Model specifies a model that will work with array data passed to it as a parameter.
+Grid Collection Model is a model that works with an array of data passed to it as a parameter.
 
-*GridCollectionModel extends [AbstractGridModel](/docs/grid-interface.html){:target="_blank"}*
+*Grid Collection Model extends [AbstractGridModel](/docs/grid-interface.html){:target="_blank"}*
 
-## GridCollectionModel
+## Grid Collection Model
 
 {% highlight javascript %}
-GridCollectionModel(Object settings) 
+Grid Collection Model(Object settings)
 {% endhighlight %}
 
-**Settings:** 
+**Settings:**
 
 | Type      | Name                           | Description                 |
 |-----------|--------------------------------|-----------------------------|
-| Array[]   | options.data                   | Data array                  |
-| Object    | options.filtersHandler         | Filtration                  |
-| [Validator](/docs/validator.html) | settings.validation            | Validation                  |
+| Array[]   | **data**                   | Data array                  |
+| Object    | filtersHandler         | Filtration                  |
+| [Validator](/docs/validator.html) | validation            | Validation                  |
 
 ---
 
@@ -30,7 +30,7 @@ GridCollectionModel(Object settings)
 {% highlight javascript %}
  setData(Array[] data)
 {% endhighlight %}
- 
-Set data array in model.
+
+Pass data to a model.
 
 ---

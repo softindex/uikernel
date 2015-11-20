@@ -5,19 +5,19 @@ prev: grid-model-collection.html
 next: filter-adapter.html
 ---
 
-Validation is an important consideration for products. Here are some basic validation examples within UIKernel:
-
----
+UIKernel provides a way to validate data, so that the user can be notified of invalid input before submitting a form or changes in an editable grid.
 
 ### createValidator
 
 {% highlight javascript %}
-Validator createValidator() 
+UIKernel.createValidator()
 {% endhighlight %}
 
-Returns a builder needed to start ер definition of validation rules.
+Returns a builder that allows to define validation rules.
 
 ---
+
+## Validator methods
 
 ### field
 
@@ -25,9 +25,55 @@ Returns a builder needed to start ер definition of validation rules.
 Validator field(string field, [string|null function validator(value), ...])
 {% endhighlight %}
 
-Add synchronous field validation. Such a function returns error description if existing.
+Add synchronous field validation.
 
-Some basic synchronous validators already exist:
+
+### fields
+
+{% highlight javascript %}
+Validator fields(string[] fields, function validatorFunction(Object record, ValidationErrors errors))
+{% endhighlight %}
+
+Specify multiple synchronous validators for a group of fields. If errors occur, function complements errors object.
+
+---
+
+### asyncDependence
+
+{% highlight javascript %}
+Validator asyncDependence(string[] fields)
+{% endhighlight %}
+
+Specifies server validation dependencies in a client validator.
+
+---
+
+### asyncField
+
+{% highlight javascript %}
+Validator asyncField(string field, function validator)
+{% endhighlight %}
+
+Add an asynchronous validator to a field.
+
+---
+
+### asyncFields
+
+{% highlight javascript %}
+Validator asyncFields(string[] fields, function validator)
+{% endhighlight %}
+
+Add an asynchronous validator to fields. If any errors occur, the callback with the parameter being  an `ValidationErrors` object will be invoked.
+
+> `err` contains the error that occurred during the asynchronous function execution.
+The `errors` parameter contains validation errors.
+
+---
+
+## Built-in Validation Rules
+
+A set of basic validation rules is provided:
 
 {% highlight javascript %}
 // Check if value is boolean
@@ -57,59 +103,27 @@ UIKernel.Validators.number(number min, number max, string errorMessage)
 // Check if value matches regular expression
 UIKernel.Validators.regExp(RegExp regExp, string errorMessage)
 {% endhighlight %}
-
-
 [Sources]({{ site.github }})
 
 ---
 
-### fields
+## Custom Validation Rules
 
+You can also create your own validation rules. For example:
 {% highlight javascript %}
-Validator fields(string[] fields, function validatorFunction(Object record, ValidationErrors errors))
+function (value) {
+  if (value % 2 === 0) {
+    return 'Numbers can be odd only';
+  }
+}
 {% endhighlight %}
-
-Specify multiple synchronous validators for fields group. If errors occur, function complements errors object.
 
 ---
 
-### asyncDependence
+## Validation Example
 
 {% highlight javascript %}
-Validator asyncDependence(string[] fields)
-{% endhighlight %}
-
-Function specifies server validation dependencies in a client validator.
-
----
-
-### asyncField
-
-{% highlight javascript %}
-Validator asyncField(string field, function validator)
-{% endhighlight %}
-
-Add field asynchronous validator.
-
----
-
-### asyncFields
-
-{% highlight javascript %}
-Validator asyncFields(string[] fields, function validator)
-{% endhighlight %}
-
-Add field asynchonous validators. If errors occur, function complements `errors` object.
-
-> `err` contains the error, that occured during asynchronous function execution, the `errors` parameter contain
-validation errors.
-
----
-
-## Validation example
-
-{% highlight javascript %}
-var yourValidation = UIKernel.createValidator()
+var validator = UIKernel.createValidator()
   // Check if country's present
   .field('country', Validators.notNull('Invalid country.'))
   // Check if email is valid using regular expressin
@@ -117,7 +131,7 @@ var yourValidation = UIKernel.createValidator()
     /^.*@.*$/,
     'Your email is invalid'
   ))
-  // Check data isn't less than '2014-10-01' 
+  // Check data isn't less than '2014-10-01'
   .field('timestamp', Validators.date(
     '2014-10-01', null,
     'Timestamp must exceed 2014-10-01'
@@ -127,13 +141,20 @@ var yourValidation = UIKernel.createValidator()
     'You do not have the right age'
   ))
   // Check if credit isn't less than 30.5
-   .field('credit', Validators.float(30.5, null,
-      'You can not take the credit is less than 30.5'
-    ))
+  .field('credit', Validators.float(30.5, null,
+    'You can not take the credit is less than 30.5'
+  ))
   // Check if user agrees with terms of use
-   .field('agree', Validators.boolean(true,
-      'Select that you agree with the rules.'
-    ))
+  .field('agree', Validators.boolean(true,
+    'Select that you agree with the rules.'
+  ))
+  // Check if a number is odd
+  .field('someField', function (value) {
+    if (value % 2 === 0) {
+      return 'Numbers can be odd only';
+    }
+   })
+
 {% endhighlight %}
 
 ---
@@ -157,3 +178,4 @@ ValidationErrors|null isValidRecord(Object record, function callback)
 {% endhighlight %}
 
 Check record validity
+

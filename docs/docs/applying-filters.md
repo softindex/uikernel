@@ -4,11 +4,11 @@ id: applying-filters
 prev: sorting-and-pagination.html
 next: editing-grid-data.html
 ---
-
-Sometimes you may wish to add filtering to your grid. There are only a few things we need to do here: create the form, define a filter handler in our model, and render the form.
-
 * [Live demo](/examples/applying-filters/){:target="_blank"}
 * [Code]({{site.github}}_site/examples/applying-filters){:target="_blank"}
+
+Sometimes you may wish to add filtering to your grid.
+There are only a few things we need to do here: create a form, teach our model to work with filters, and render the form.
 
 Let’s create the form first. Here's the code for that:
 
@@ -88,11 +88,15 @@ var FiltersForm = (function () {
 ---
 We add an object of filters to the `FiltersForm` component as its state.
 
-In `updateValue()`, we change the value of filters and call `onSubmit()`, which is passed to `FiltersForm` through a prop and has `applyFilters()` set as a callback.
+In `updateValue`, we change the value of filters and call `onSubmit`,
+which is passed to `FiltersForm` through props and has `onChangeFiltersHandler` set as a callback.
+`onChangeFiltersHandler` will call `applyGridFilters`, which accepts a model and filters as parameters and returns a new model.
+We'll define `onChangeFiltersHandler` in `MainComponent` a bit later.
 
-In `onClear()`, we assign filters their initial value and call `onSubmit()`.
+In `onClear`, we assign filters their initial value and call the callback from  `MainComponent`.
 
-The `render()` method returns a tree of React components, but all what is interesting for us is inputs. We pass them `onChange` props with `updateValue()` set as callbacks.
+The `render` method returns a tree of React components, but all what is interesting for us is inputs.
+We pass them the `onChange` props with `updateValue` set as callbacks.
 
 ---
 
@@ -130,12 +134,52 @@ var model = new UIKernel.Models.Grid.Collection({
 {% endhighlight %}
 ---
 
-Finally, let's render our form in `MainComponent`. Above the code for the grid, type the following:
+Finally, let's add the `onChangeFiltersHandler` method to our `MainComponent` and render our form. Open your `MainComponent.jsx` file and modify it as bellow:
 
-`MainComponent.jsx`:
 {% highlight html %}
-<FiltersForm onSubmit={this.applyFilters} />
+// ...
+onChangeFiltersHandler: function (filters) {
+  this.setState({
+    model: UIKernel.applyGridFilters(model, filters)
+  });
+},
+render: function () {
+  return (
+    <div className="container">
+      <div className="panel panel-primary">
+        <div className="panel-heading">
+          <h3 className="panel-title">Filters</h3>
+        </div>
+        <div className="panel-body">
+          <FiltersForm
+            onSubmit={this.onChangeFiltersHandler}
+          />
+        </div>
+      </div>
+      <div className="panel panel-info">
+        <div className="panel-heading">
+          <h3 className="panel-title">Records</h3>
+        </div>
+        <UIKernel.Grid
+          model={this.state.model} // Grid model
+          cols={columns} // columns configuration
+          viewCount={10} // 10 records limit to display by default
+        />
+      </div>
+    </div>
+  );
+}
 {% endhighlight %}
 ---
 
-Now go ahead and type into your filter box and see the grid data change.
+Here, we've added some Bootstrap markup to display our form and grid beautifully.
+We also need to set padding for our form. So let's open our `main.css` file and type the following:
+
+{% highlight html %}
+.filters-form {
+    padding-bottom: 10px;
+}
+{% endhighlight %}
+---
+
+Now go ahead and type into the fields and see the grid data change.

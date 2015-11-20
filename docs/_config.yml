@@ -1,6 +1,6 @@
 highlighter: pygments
 markdown: kramdown
-uikernel_version: 0.16.0
+uikernel_version: 0.16.1
 github: https://github.com/softindex/uikernel/tree/gh-pages/
 github_uikernel: https://github.com/softindex/uikernel
 exclude:

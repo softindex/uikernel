@@ -5,18 +5,11 @@ prev: removing-records.html
 next: editors.html
 ---
 
-The finishing touch will be a create record form.
-
 * [Live demo](/examples/creating-records/){:target="_blank"}
 * [Code]({{site.github}}_site/examples/creating-records)
 
-### Create form component
+First, let's create a form for adding new records to our grid. Open your `CreateFormComponent.jsx` file and paste there the following code:
 
-Let's create a create form component using UIKernel.Adapters.Grid.toFormCreate adapter and list the fields.
-
-Note that the form uses validation rules we've specified before. You can also mark the fields as changed or invalid.
-
-`CreateFormComponent.jsx`:
 {% highlight javascript %}
 var CreateFormComponent = React.createClass({
   mixins: [UIKernel.Mixins.Form],
@@ -34,7 +27,7 @@ var CreateFormComponent = React.createClass({
       partialErrorChecking: true
     });
   },
-  save: function (e) { // save record handler
+  save: function (e) {
     e.preventDefault();
     this.submit(function (err, recordId) {
       if (!err) {
@@ -143,14 +136,52 @@ var CreateFormComponent = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
-Include it to `index.html`:
-{% highlight html %}
-<!-- Create form component -->
-<script src="js/components/CreateFormComponent.jsx" type="text/jsx"></script>
+Here, we're using the `UIKernel.Mixins.Form` mixin.
+
+We initialize our form by calling `initForm` in `componentDidMount`. The argument passed to `initForm` is an object with settings.
+The `fields` property contains an array of form field names.
+In the `model` property, we call `UIKernel.Adapters.Grid.toFormCreate` to create a model, which uses the grid model for creating new records.
+We pass it our grid model and an object of default field values as arguments.
+`submitAll: true` means that all form will be sent for validation, `partialErrorChecking: true` - that the form fields will be validated in response to user input.
+
+Note that the form uses validation rules we've specified before. You can also mark the fields as changed or invalid.
+
+In the `save` method, we call `submit`, which sends data to our model.
+If `submit` is successful, the  callback from  `MainComponent` will be invoked.
+
+In `render`, we call `isLoaded` to check if data loaded, `getData` to get the form data, and `getGlobalError` to get global errors if there are any.
+
+All inputs have the `onChange`, `onFocus`, and `onBlur` props with callbacks set.
+
+`updateField` updates the field value.
+
+`clearError` clears the field error mark.
+
+`validateForm` validates the form.
+
+Using the ternary operator, we dynamically add classes to our elements.
+The ternary operator allows us to specify two different classes, one if a function returns true and one for false.
+
+`hasError` checks if a form field has validity errors.
+
+`hasChanges` checks if a form field has been changed.
+
+---
+
+Now let's open our `main.css` and add there the following code:
+{% highlight javascript %}
+.edit-form .changed {
+    background-color: #ffff38;
+}
+.edit-form .error {
+    background-color: #ff8689;
+}
 {% endhighlight %}
+---
 
-And modify main component by adding component initialization and create record handler.
+Next up, let's modify `MainComponent` by adding it a new method named `addRecord`. It will be invoked as soon as the form is submitted.
 
 `MainComponent.jsx`:
 {% highlight javascript %}
@@ -159,13 +190,29 @@ addRecord: function (recordId) {
 }
 
 // ...
-
-<CreateFormComponent
-  onSubmit={this.addRecord}
-/>
 {% endhighlight %}
+---
 
-Finally we'll pass required fields to our model.
+Additionally, we'll initialize our form and pass it the `onSubmit` property.
+{% highlight javascript %}
+// ...
+<div className="col-sm-8">
+  <div className="panel panel-primary">
+    <div className="panel-heading">
+      <h3 className="panel-title">Add record</h3>
+    </div>
+    <div className="panel-body">
+      <CreateFormComponent
+        onSubmit={this.addRecord}
+      />
+    </div>
+  </div>
+</div>
+//...
+{% endhighlight %}
+---
+
+Finally, let's add the `requiredFields` property to our model.
 
 `model.js`:
 {% highlight javascript %}
@@ -181,3 +228,9 @@ model.delete = function (id) {
   return id;
 };
 {% endhighlight %}
+---
+
+## Conclusion
+Using UIKernel, we’ve built an editable grid, which has sorting, filtering and pagination, without too much work.
+The capabilities of UIKernel go beyond what we’ve seen here. Check out more examples [here](../examples){:target="_blank"}.
+

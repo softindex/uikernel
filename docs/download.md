@@ -8,9 +8,9 @@ nav-menu: download
 
 Download the starter kit to get started.
 
-* [UIKernel v{{ site.uikernel_version }} (development)](/download/uikernel.js){:download="uikernel.js"}
-* [UIKernel v{{ site.uikernel_version }} (production)](/download/uikernel.min.js){:download="uikernel.min.js"}
-* [CSS & Images](/download/static.zip){:download="static.zip"}
+* [UIKernel v{{ site.uikernel_version }} (development)](/dist/uikernel.js){:download="uikernel.js"}
+* [UIKernel v{{ site.uikernel_version }} (production)](/dist/uikernel.min.js){:download="uikernel.min.js"}
+* [CSS & Images](/dist/static.zip){:download="static.zip"}
 
 The uncompressed, development version of UI Kernel core.
 

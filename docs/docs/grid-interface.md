@@ -1,7 +1,7 @@
 ---
 title: Grid Model
 id: grid-interface
-prev: grid-component.html
+prev: grid-columns.html
 next: grid-model-xhr.html
 ---
 
@@ -56,13 +56,13 @@ Usually they are edited records, that are displayed in spite of filters and curr
 ---
 
 ### getRecord
- 
+
 {% highlight javascript %}
  getRecord (id, string[] fields, function callback)
 {% endhighlight %}
 
 Get record by ID.
- 
+
 ---
 
 ### update
@@ -70,7 +70,7 @@ Get record by ID.
 {% highlight javascript %}
 update(Array[] changes, function callback)
 {% endhighlight %}
- 
+
 Applies record changes.
 
 ---
@@ -95,6 +95,6 @@ is caused with the ability to create group validators.
 Validates a record.
 
 ---
- 
+
 
 

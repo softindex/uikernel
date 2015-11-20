@@ -64,8 +64,9 @@ var columns = {
   }
 };
 {% endhighlight %}
+---
 
-Now we need to render our grid in the `render()` method of another component. So let's create `MainComponent`.
+Now we need to render our grid. Let's do it in the `render` method of another component named `MainComponent`.
 
 `MainComponent.jsx`:
 {% highlight javascript %}
@@ -77,17 +78,29 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <UIKernel.Grid
-        model={this.state.model} // Grid model
-        cols={columns} // columns configuration
-      />
+      <div className="container">
+        <UIKernel.Grid
+          model={this.state.model} // Grid model
+          cols={columns} // columns configuration
+        />
+      </div>
     );
   }
 });
 {% endhighlight %}
+---
 
+We'll also set padding for our `div`.
 
-We'll render `MainComponent` in a separate file.
+`main.css`:
+{% highlight javascript %}
+.container {
+  padding-top: 10px;
+}
+{% endhighlight %}
+---
+
+Finally, let's render `MainComponent` in a separate file.
 
 `main.jsx`:
 {% highlight javascript %}

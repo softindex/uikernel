@@ -5,12 +5,12 @@ prev: editors.html
 next: list-model.html
 ---
 
-Some editors return string names after his changes. While working with IDs in user interfaces it's often needed to synchronize them with string names; e.g. a countryId for updating the database and the country name string for displaying to the user.
-UIKernel has editors that support automatic synchronization, they are `SuggestBox` and `Select`.
+Some editors return string names. While working with IDs in user interfaces,
+it's often needed to synchronize them with string names; e.g. a country id for updating the database and a country name for displaying it to the user.
 
-This speeds up the initial rendering of the grid, since no additional AJAX calls are needed to resolve country ID into country name. 
+UIKernel provides editors that support automatic synchronization. They are `SuggestBox` and `Select`.
 
-You need to use `onLabelChange={handler)}` prop to automatically synchronize id and string name.
+You need to use an `onLabelChange={handler)}` prop to automatically synchronize IDs and string names.
 
 ---
 
@@ -25,7 +25,7 @@ You need to use `onLabelChange={handler)}` prop to automatically synchronize id 
 />
 {% endhighlight %}
 
-> `this.updateField` updates the field value without checking validation
+> `this.updateField` updates the field value without validation
 
 ---
 
@@ -46,3 +46,5 @@ countryId: {
   ...
 }
 {% endhighlight %}
+
+`onLabelChange={handler}` speeds up the initial rendering of the grid, since no additional XHR calls are needed to resolve a country id into a country name.

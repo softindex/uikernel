@@ -5,7 +5,7 @@ prev: form-model.html
 next: reports-mixin.html
 ---
 
-Form XHR Model specifies Form model which interacts with the server API.
+Form XHR Model is a model which interacts with the server API.
 
 ### Constructor
 
@@ -13,7 +13,7 @@ Form XHR Model specifies Form model which interacts with the server API.
 UIKernel.FormXhrModel(Object settings)
 {% endhighlight %}
 
-**Settings:** 
+**Settings:**
 
 | Type                              | Name                  | Description                 |
 |-----------------------------------|-----------------------|-----------------------------|

@@ -48,7 +48,7 @@ var MainComponent = React.createClass({
     var currentPage = dimensionNames[lastDimension];
 
     return (
-      <div>
+      <div className="container">
         <ol className="breadcrumb">
           {this.getReportsBreadcrumbs().map(function (crumb, key) {
             return <li><a href="#" onClick={this.setPage.bind(null, key)}>{crumb.param}({crumb.value})</a></li>;
