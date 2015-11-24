@@ -24,7 +24,7 @@
 .dgrid-scrollable {
   overflow-x: hidden;
   overflow-y: scroll;
-  padding-right: 5px;
+  padding-right: 1px;
 }
 
 .dgrid-body {
