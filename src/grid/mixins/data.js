@@ -21,7 +21,8 @@ var GridDataMixin = {
       update: React.PropTypes.func,
       isValidRecord: React.PropTypes.func,
       getValidationDependency: React.PropTypes.func,
-      errorHandler: React.PropTypes.func
+      onError: React.PropTypes.func,
+      onPageLoad: React.PropTypes.func
     }),
     saveFullRecord: React.PropTypes.bool
   },
@@ -486,8 +487,11 @@ var GridDataMixin = {
    */
   _loadData: utils.throttle(function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
-      if (err && this.props.errorHandler) {
-        this.props.errorHandler(err);
+      if (err && this.props.onError) {
+        this.props.onError(err);
+      }
+      if (this.props.onPageLoad) {
+        this.props.onPageLoad(data);
       }
       cb(err, data);
     }.bind(this));
