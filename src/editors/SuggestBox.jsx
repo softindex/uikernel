@@ -15,6 +15,16 @@ var utils = require('../common/utils');
 
 var OPTIONS_ELEMENT_ID = '__suggestBoxPopUp';
 
+var classes = {
+  optionsTable: '__suggestBoxPopUpTable',
+  option: '__suggestBoxPopUp-option',
+  optionFocused: '__suggestBoxPopUp-option-focused',
+  optionSelectable: '__suggestBoxPopUp-option-selectable',
+  optionGroup: '__suggestBoxPopUp-option-group',
+  optionHeader: '__suggestBoxPopUp-option-header',
+  optionSubitem: '__suggestBoxPopUp-option-subitem'
+};
+
 var SuggestBoxEditor = React.createClass({
   propTypes: {
     select: React.PropTypes.bool,
@@ -35,7 +45,8 @@ var SuggestBoxEditor = React.createClass({
   getInitialState: function () {
     return {
       options: [],
-      neatSearchTimeout: null
+      neatSearchTimeout: null,
+      lastValidValue: ''
     };
   },
   componentDidMount: function () {
@@ -61,7 +72,7 @@ var SuggestBoxEditor = React.createClass({
   },
   componentDidUpdate: function (prevProps, prevState) {
     var $popUpElement = $('#' + OPTIONS_ELEMENT_ID);
-    var $popUpTable = $popUpElement.find('.__suggestBoxPopUpTable');
+    var $popUpTable = $popUpElement.find('.' + classes.optionsTable);
     var $containerElement;
     var containerOffset;
     var popupHeight;
@@ -73,7 +84,8 @@ var SuggestBoxEditor = React.createClass({
 
         if (!$popUpElement.length) {
           $popUpElement = $('<div id="' + OPTIONS_ELEMENT_ID + '"></div>');
-          $popUpTable = $('<div class="__suggestBoxPopUpTable"></div>');
+          $popUpTable = $('<div class="' + classes.optionsTable + '"></div>');
+          $popUpTable.on('mouseover', this.handleMouseOver);
           $popUpElement.html($popUpTable);
           $('body').append($popUpElement);
         }
@@ -93,8 +105,102 @@ var SuggestBoxEditor = React.createClass({
           });
         }
       } else if ($popUpElement) {
+        $popUpTable.off('mouseover', this.handleMouseOver);
         $popUpElement.remove();
       }
+    }
+  },
+  _highlightOption: function ($target) {
+    var $popUpElement = $('#' + OPTIONS_ELEMENT_ID);
+    var $focusedOption = $('.' + classes.optionFocused);
+
+    if (typeof $target === 'string') {
+      switch ($target) {
+        case 'next':
+          $target = $focusedOption.next();
+          if (!$target.length) {
+            $target = $('.' + classes.option + ':first');
+          }
+          break;
+        case 'prev':
+          $target = $focusedOption.prev();
+          if (!$target.length) {
+            $target = $('.' + classes.option + ':last');
+          }
+          break;
+        default:
+          return;
+      }
+    }
+
+    if (!$target.length) {
+      $target = $('#' + OPTIONS_ELEMENT_ID + ' .' + classes.option + ':first');
+    }
+    this._scrollIntoViewAndFocus($target, $popUpElement);
+  },
+  _scrollIntoViewAndFocus: function ($target, $container) {
+    var target = $target.get(0);
+    var container = $container.get(0);
+    var $focusedOption = $('.' + classes.optionFocused);
+
+    $focusedOption.removeClass(classes.optionFocused);
+    $target.addClass(classes.optionFocused);
+
+    if (target.offsetTop - container.scrollTop >= container.clientHeight - target.clientHeight) {
+      container.scrollTop = target.offsetTop - container.clientHeight + target.clientHeight;
+    } else if (target.offsetTop - container.scrollTop < 0) {
+      container.scrollTop = target.offsetTop;
+    }
+  },
+  isSelectableOption: function ($target) {
+    return $target.hasClass(classes.optionSelectable);
+  },
+  handleKeyDown: function (e) {
+    switch (e.keyCode) {
+      case 40: // down arrow
+        e.preventDefault();
+        if (this.state.options.length) {
+          this._highlightOption('next');
+        } else {
+          this._openList();
+        }
+        break;
+      case 38: // up arrow
+        e.preventDefault();
+        if (this.state.options.length) {
+          this._highlightOption('prev');
+        } else {
+          this._openList();
+        }
+        break;
+      case 13: // enter
+        e.preventDefault();
+        var $target = $('.' + classes.optionFocused);
+        if (!$target.attr('data-key')) {
+          $target = $target.parent();
+        }
+        if (this.isSelectableOption($target)) {
+          var option = this.state.options[$target.attr('data-key')];
+          this.refs.input.getDOMNode().value = this._getLabel(option);
+          this.saveValueWithValidation(option.id);
+        } else {
+          this.saveValueWithValidation();
+        }
+        break;
+      case 27: // escape
+        e.preventDefault();
+        this._closeList();
+        this.saveValueWithValidation();
+        break;
+    }
+  },
+  handleMouseOver: function (e) {
+    var $target = $(e.target);
+    if (!$target.attr('data-key')) {
+      $target = $target.parent('.' + classes.option);
+    }
+    if (this.isSelectableOption($target)) {
+      this._highlightOption($target);
     }
   },
   handleMouseDown: function (e) {
@@ -115,12 +221,13 @@ var SuggestBoxEditor = React.createClass({
       if (!$target.attr('data-key')) {
         $target = $target.parent();
       }
-      if ($target.hasClass('__suggestBoxPopUp-option-selectable')) {
+      if (this.isSelectableOption($target)) {
         var option = this.state.options[$target.attr('data-key')];
         this.refs.input.getDOMNode().value = this._getLabel(option);
         this.saveValue(option);
       }
     } else if ($target[0] !== $popup[0] && !$container.find($target).length) {
+      this._closeList();
       this.saveValueWithValidation();
     }
   },
@@ -134,45 +241,65 @@ var SuggestBoxEditor = React.createClass({
       this.setState({options: data});
     });
   },
-
-  toggleList: function () {
-    if (!this.props.select || this.props.disabled) {
+  _getLabel: function (option) {
+    return Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label;
+  },
+  _openList: function () {
+    if (this.props.disabled) {
       return;
     }
+    this.search('', function (data) {
+      this.setState({options: data}, function () {
+        var selectedIndex = utils.findIndex(this.state.options, function (option) {
+          return utils.isEqual(option.id, this.props.value);
+        }.bind(this));
 
-    if (this.state.options.length) {
-      this.setState({options: []}, function () {
-        this.refs.input.getDOMNode().focus();
+        if (selectedIndex >= 0) {
+          var container = $('#' + OPTIONS_ELEMENT_ID);
+          var option = container.find('.' + classes.option + ':eq(' + selectedIndex + ')');
+          this._scrollIntoViewAndFocus(option, container);
+        }
       });
+    });
+  },
+  _openListAndFocus: function () {
+    if (this.props.disabled) {
+      return;
+    }
+    this._openList();
+    this.refs.input.getDOMNode().focus();
+    this.refs.input.getDOMNode().select();
+  },
+  _closeList: function () {
+    if (this.props.disabled) {
+      return;
+    }
+    this.setState({options: []});
+  },
+  _toggleList: function () {
+    if (this.state.options.length) {
+      this._closeList();
     } else {
       this._openList();
     }
   },
-
-  _getLabel: function (option) {
-    return Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label;
-  },
-
-  _openList: function () {
-    this.search('', function (data) {
-      this.setState({options: data}, function () {
-        this.refs.input.getDOMNode().focus();
-      });
-    });
-  },
-
   getOptionsListHTML: function () {
     return this.state.options.reduce(function (result, option, key) {
-      var className = '__suggestBoxPopUp-option';
+      var className = classes.option;
       if (option.id) {
-        className += ' __suggestBoxPopUp-option-selectable';
+        className += ' ' + classes.optionSelectable;
       }
 
       switch (option.type) {
         case 'group':
+          className += ' ' + classes.optionGroup;
+          break;
         case 'header':
+          className += ' ' + classes.optionHeader;
+          break;
         case 'subitem':
-          className += ' __suggestBoxPopUp-option-' + option.type;
+          className += ' ' + classes.optionSubitem;
+          break;
       }
 
       return result + '<div data-key="' + key + '" class="' + className + '">' + (
@@ -189,7 +316,7 @@ var SuggestBoxEditor = React.createClass({
    * @param {Array} nextValue New SuggestBox value
    */
   saveValue: function (nextValue) {
-    this.setState({options: []});
+    this._closeList();
 
     if (!utils.isEqual(this.props.value, nextValue.id)) {
       this.props.onChange(nextValue.id);
@@ -205,9 +332,9 @@ var SuggestBoxEditor = React.createClass({
   /**
    * Input text check and right save call
    */
-  saveValueWithValidation: function () {
+  saveValueWithValidation: function (value) {
     var input = this.refs.input.getDOMNode();
-    var value = input.value;
+    value = value || input.value;
 
     if (!value) {
       this.saveValue({
@@ -228,10 +355,7 @@ var SuggestBoxEditor = React.createClass({
       }.bind(this));
 
       if (resultIndex < 0) {
-        this.saveValue({
-          id: null,
-          value: value
-        });
+        this.refs.input.getDOMNode().value = this.state.lastValidValue;
         return;
       }
 
@@ -280,18 +404,12 @@ var SuggestBoxEditor = React.createClass({
         throw err;
       }
 
+      this.state.lastValidValue = label;
+
       if (curValue === value) {
         this.refs.input.getDOMNode().value = label;
       }
     }.bind(this));
-  },
-
-  focus: function () {
-    if (this.props.select) {
-      this._openList();
-    } else {
-      this.refs.input.getDOMNode().focus();
-    }
   },
 
   render: function () {
@@ -309,15 +427,19 @@ var SuggestBoxEditor = React.createClass({
         className={wrapperClasses.join(' ')}
         ref="container"
       >
-        <div className="search" onClick={this.toggleList}>
+        <div className="search">
           <input
             {...utils.omit(this.props, ['value', 'onBlur'])}
             ref="input"
             type="text"
             onChange={this.handleChange}
+            onKeyDown={this.handleKeyDown}
+            onClick={this._openListAndFocus}
+            onFocus={this._openListAndFocus}
+            onBlur={this._closeList}
           />
           {this.props.select ?
-            <div className="select-btn">
+            <div className="select-btn" onClick={this._toggleList}>
               <div className={arrowClasses.join(' ')}></div>
             </div>
           : null}
