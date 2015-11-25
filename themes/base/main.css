@@ -316,24 +316,24 @@
 }
 
 /* Grid component (left layout) */
-.dgrid-no-scrollable {
+.dgrid-not-scrollable {
   position: relative;
   width: 100%;
   border: none;
 }
-.dgrid-no-scrollable .dgrid-body-table {
+.dgrid-not-scrollable .dgrid-body-table {
   border: 1px solid #ddd;
   table-layout: auto;
 }
-.dgrid-no-scrollable .dgrid-body-table {
+.dgrid-not-scrollable .dgrid-body-table {
   border: 1px solid #ddd;
   border-spacing: 0;
 }
-.dgrid-no-scrollable  td {
+.dgrid-not-scrollable  td {
   padding: 5px;
   display: table-cell;
 }
-.dgrid-no-scrollable .dgrid-footer {
+.dgrid-not-scrollable .dgrid-footer {
   border-top: 0;
   border-left: 1px solid #ddd;
   border-bottom: 1px solid #ddd;

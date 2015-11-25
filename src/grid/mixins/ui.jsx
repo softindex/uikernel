@@ -258,7 +258,6 @@ var GridUIMixin = {
     var i;
     var className;
     var totalsRowHTML = '';
-    var totalsGrid;
     var header = this._formHeader();
 
     // If data for result line display exists, form it
@@ -289,21 +288,19 @@ var GridUIMixin = {
     }
 
     if (isScrollable) {
-      totalsGrid = (
+      return (
         <table cellSpacing="0" className="dgrid-totals">
           <colgroup>{header.colGroup}</colgroup>
           <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
         </table>
       );
-    } else {
-      totalsGrid = (
-        <tfoot className="dgrid-totals">
-          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
-        </tfoot>
-      );
     }
 
-    return totalsGrid;
+    return (
+      <tfoot className="dgrid-totals">
+        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
+      </tfoot>
+    );
   },
 
   _updateField: function (row, column) {

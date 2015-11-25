@@ -148,6 +148,7 @@ var GridComponent = React.createClass({
   },
   renderGrid: function (gridClassNames) {
     var header = this._formHeader();
+    gridClassNames = gridClassNames.concat('dgrid-not-scrollable');
     return (
       <div className={gridClassNames.join(' ')}>
         <div className="dgrid-loader" ref="loader"></div>
@@ -198,7 +199,6 @@ var GridComponent = React.createClass({
     }
 
     if (!this.props.height) {
-      gridClassNames.push('dgrid-no-scrollable');
       return this.renderGrid(gridClassNames);
     }
 
