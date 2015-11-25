@@ -5,8 +5,8 @@
 .data-grid {
   color: #000;
   display: table;
-  border-top: 1px solid #DDDDDD;
-  border-left: 1px solid #DDDDDD;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
   font-family: Arial Unicode MS, Arial, sans-serif;
   font-size: small;
 }
@@ -18,12 +18,13 @@
 
 .dgrid-body-wrapper {
   position: relative;
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #ddd;
 }
 
 .dgrid-scrollable {
   overflow-x: hidden;
   overflow-y: scroll;
+  border-bottom: 0;
 }
 
 .dgrid-body {
@@ -31,7 +32,7 @@
 }
 
 .dgrid-scrollable .dgrid-body {
-  width: calc(100% + 16px);
+  width: 100%;
 }
 
 .data-grid .dgrid-body tr {
@@ -39,8 +40,8 @@
 }
 
 .data-grid th {
-  border-bottom: 1px solid #DDDDDD;
-  border-right: 1px solid #DDDDDD;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
   padding: 3px 9px 3px 10px;
   text-align: center;
   background: transparent;
@@ -52,7 +53,7 @@
 .data-grid td {
   white-space: nowrap;
   padding: 1px 9px 1px 10px;
-  border-right: 1px solid #DDDDDD;
+  border-right: 1px solid #ddd;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -109,19 +110,19 @@
 }
 
 .dgrid-totals {
-  border-bottom: 1px solid #DDDDDD;
+  border-bottom: 1px solid #ddd;
   background-color: #FFF;
   font-weight: bold;
 }
 
 .dgrid-totals td:last-child {
-  border-right: 1px solid #DDDDDD;
+  border-right: 1px solid #ddd;
 }
 
 .data-grid .dgrid-footer {
   background: transparent;
-  border-bottom: 1px solid #DDDDDD;
-  border-right: 1px solid #DDDDDD;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
   padding: 5px 0;
 }
 
@@ -163,54 +164,54 @@
   margin: 0;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(odd) {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) {
   background: #fff;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(even) {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) {
   background: #f9f9f9;
 }
 
-.data-grid .dgrid-body-table tr.others:nth-child(odd) {
+.data-grid tbody.dgrid-body-table tr.others:nth-child(odd) {
   background: #FFFFE1;
 }
 
-.data-grid .dgrid-body-table tr.others:nth-child(even) {
+.data-grid tbody.dgrid-body-table tr.others:nth-child(even) {
   background: #FFFFFF;
 }
 
-.data-grid .dgrid-body-table tr.new:nth-child(odd) td {
+.data-grid tbody.dgrid-body-table tr.new:nth-child(odd) td {
   background-color: #A9E2FB;
 }
 
-.data-grid .dgrid-body-table tr.new:nth-child(even) td {
+.data-grid tbody.dgrid-body-table tr.new:nth-child(even) td {
   background-color: #B4E8FF;
 }
 
-.data-grid .dgrid-body-table tr.changed:nth-child(odd) td {
+.data-grid tbody.dgrid-body-table tr.changed:nth-child(odd) td {
   background-color: #FFFF00;
 }
-.data-grid .dgrid-body-table tr.changed:nth-child(even) td {
+.data-grid tbody.dgrid-body-table tr.changed:nth-child(even) td {
   background-color: #FFFF00;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
   background-color: #ffffcc;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(even) td.dgrid-changed {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-changed {
   background-color: #F0F09A;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(odd) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error {
   background-color: #FFBDC4;
 }
 
-.data-grid .dgrid-body-table tr:nth-child(even) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error {
   background-color: #ffcccc;
 }
 
-.data-grid .dgrid-body-table tr:hover {
+.data-grid tbody.dgrid-body-table tr:hover {
   background-color: #ffffd0;
 }
 
@@ -312,4 +313,45 @@
 .suggest-box .select-btn .arrow.up {
   border-color: transparent transparent #888 transparent;
   border-width: 0 4px 5px 4px;
+}
+
+/* Grid component (left layout) */
+.dgrid-no-scrollable {
+  position: relative;
+  width: 100%;
+  border: none;
+}
+.dgrid-no-scrollable .dgrid-body-table {
+  border: 1px solid #ddd;
+  table-layout: auto;
+}
+.dgrid-no-scrollable .dgrid-body-table {
+  border: 1px solid #ddd;
+  border-spacing: 0;
+}
+.dgrid-no-scrollable  td {
+  padding: 5px;
+  display: table-cell;
+}
+.dgrid-no-scrollable .dgrid-footer {
+  border-top: 0;
+  border-left: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+.wrapper-dgrid-header {
+  border-right: 1px solid #ddd;
+  overflow-y: scroll;
+}
+.dgrid-scrollable {
+  border-right: 1px solid #ddd;
+}
+.wrapper-totals {
+  overflow-y: scroll;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.wrapper-totals table {
+  border-top: 1px solid #ddd;
+  border-bottom: 0;
 }
