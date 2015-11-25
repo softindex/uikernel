@@ -90,36 +90,39 @@ var GridComponent = React.createClass({
       }
     });
   },
-  renderScrollableGrid: function (component, header, gridClassNames) {
+  renderScrollableGrid: function (gridClassNames) {
+    var header = this._formHeader();
     return (
       <div className={gridClassNames.join(' ')}>
-        <table cellSpacing="0" className="dgrid-header">
-          <colgroup>{header.colGroup}</colgroup>
-          {header.cols.map(function (row, colKey) {
-            return (
-              <tr key={colKey}>
-                {row.map(function (col, rowKey) {
-                  return (
-                    <th
-                      key={rowKey}
-                      className={col.className}
-                      onClick={
-                          col.sort ?
-                            component._sortCol.bind(component, col.field) :
-                            null
-                          }
-                      colSpan={col.cols}
-                      rowSpan={col.rows}
-                      dangerouslySetInnerHTML={{
-                          __html: col.name || ''
-                        }}
-                    />
-                  );
-                })}
-              </tr>
-            );
-          })}
-        </table>
+        <div className="wrapper-dgrid-header">
+          <table cellSpacing="0" className="dgrid-header">
+            <colgroup>{header.colGroup}</colgroup>
+            {header.cols.map(function (row, colKey) {
+              return (
+                <tr key={colKey}>
+                  {row.map(function (col, rowKey) {
+                    return (
+                      <th
+                        key={rowKey}
+                        className={col.className}
+                        onClick={
+                            col.sort ?
+                              this._sortCol.bind(this, col.field) :
+                              null
+                            }
+                        colSpan={col.cols}
+                        rowSpan={col.rows}
+                        dangerouslySetInnerHTML={{
+                            __html: col.name || ''
+                          }}
+                      />
+                    );
+                  }.bind(this))}
+                </tr>
+              );
+            }.bind(this))}
+          </table>
+        </div>
         <div
           style={{maxHeight: this.props.height}}
           className='dgrid-body-wrapper dgrid-scrollable'
@@ -136,12 +139,15 @@ var GridComponent = React.createClass({
             </table>
           </div>
         </div>
-        {this._renderTotals(this.props.height)}
+        <div className="wrapper-totals">
+          {this._renderTotals(this.props.height)}
+        </div>
         {this._renderPagination()}
       </div>
     );
   },
-  renderGrid: function (component, header, gridClassNames) {
+  renderGrid: function (gridClassNames) {
+    var header = this._formHeader();
     return (
       <div className={gridClassNames.join(' ')}>
         <div className="dgrid-loader" ref="loader"></div>
@@ -160,10 +166,9 @@ var GridComponent = React.createClass({
                       <th
                         key={rowKey}
                         className={col.className}
-
                         onClick={
                             col.sort ?
-                              component._sortCol.bind(component, col.field) :
+                              this._sortCol.bind(this, col.field) :
                               null
                             }
                         colSpan={col.cols}
@@ -173,10 +178,10 @@ var GridComponent = React.createClass({
                           }}
                       />
                     );
-                  })}
+                  }.bind(this))}
                 </tr>
               );
-            })}
+            }.bind(this))}
           </thead>
           <tbody className="dgrid-body-table" ref="tbody"/>
           {this._renderTotals(this.props.height)}
@@ -186,8 +191,6 @@ var GridComponent = React.createClass({
     );
   },
   render: function () {
-    var component = this;
-    var header = this._formHeader();
     var gridClassNames = ['data-grid'];
 
     if (this.props.className) {
@@ -195,11 +198,11 @@ var GridComponent = React.createClass({
     }
 
     if (!this.props.height) {
-      gridClassNames.push('data-grid-left');
-      return this.renderGrid(component, header, gridClassNames);
+      gridClassNames.push('dgrid-no-scrollable');
+      return this.renderGrid(gridClassNames);
     }
 
-    return this.renderScrollableGrid(component, header, gridClassNames);
+    return this.renderScrollableGrid(gridClassNames);
   }
 });
 

@@ -258,7 +258,8 @@ var GridUIMixin = {
     var i;
     var className;
     var totalsRowHTML = '';
-    var totalsGrid = null;
+    var totalsGrid;
+    var header = this._formHeader();
 
     // If data for result line display exists, form it
     if (this.state.totals) {
@@ -283,8 +284,11 @@ var GridUIMixin = {
       }
     }
 
+    if (!totalsDisplayed) {
+      return null;
+    }
+
     if (isScrollable) {
-      var header = this._formHeader();
       totalsGrid = (
         <table cellSpacing="0" className="dgrid-totals">
           <colgroup>{header.colGroup}</colgroup>
@@ -299,7 +303,7 @@ var GridUIMixin = {
       );
     }
 
-    return totalsDisplayed ? totalsGrid : null;
+    return totalsGrid;
   },
 
   _updateField: function (row, column) {
