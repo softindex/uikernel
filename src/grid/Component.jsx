@@ -28,6 +28,7 @@ var gridMixinSelect = require('./mixins/select');
 var RESET_MODEL = 1 << 0;
 var RESET_VIEW_COLUMNS = 1 << 1;
 var RESET_SORT = 1 << 2;
+var RESET_VIEW_COUNT = 1 << 3;
 
 var GridComponent = React.createClass({
   propTypes: {
@@ -67,13 +68,16 @@ var GridComponent = React.createClass({
     if (!utils.isEqual(this.props.sort, nextProps.sort)) {
       reset |= RESET_SORT;
     }
+    if (this.props.viewCount !== nextProps.viewCount) {
+      reset |= RESET_VIEW_COUNT;
+    }
 
     if (!reset) {
       return;
     }
 
     this.setState({}, function () {
-      if (reset & RESET_SORT || reset & RESET_MODEL) {
+      if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
         if (reset & RESET_MODEL) {
           this.state.data = null;
           if (oldProps.model) {
