@@ -13,7 +13,7 @@
 var del = require('del');
 
 function jsClear(done) {
-  del(['lib', 'dist'], done);
+  del(['lib', 'dist', '_site'], done);
 }
 
 module.exports = jsClear;

@@ -1,0 +1,18 @@
+highlighter: pygments
+markdown: kramdown
+uikernel_version: 0.16.1
+github: https://github.com/softindex/uikernel/tree/gh-pages/
+github_uikernel: https://github.com/softindex/uikernel
+exclude:
+  - Gemfile
+  - params.json
+  - gulpfile.js
+  - npm-*
+  - package.json
+  - guide/**/src
+defaults:
+  - scope:
+      path: docs
+      type: pages
+    values:
+      layout: docs

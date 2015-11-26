@@ -1,0 +1,14 @@
+.container {
+  padding-top: 10px;
+}
+
+.filters-form {
+  padding-bottom: 10px;
+}
+
+.edit-form .changed {
+    background-color: #ffff38;
+}
+.edit-form .error {
+    background-color: #ff8689;
+}

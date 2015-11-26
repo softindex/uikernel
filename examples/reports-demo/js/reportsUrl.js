@@ -8,12 +8,12 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+var reportsUrl = {
+  setUrl: function (drillDowns, filters) {
+    history.pushState(null, null, '/baz.')
+  },
 
-var del = require('del');
+  getStateFromUrl: function () {
 
-function docsClear(done) {
-  del('docs', done);
-}
-
-module.exports = docsClear;
+  }
+};

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel='stylesheet' href='/static/bootstrap/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='/static/font-awesome/css/font-awesome.min.css'/>
+  <link rel='stylesheet' href='/static/css/pygment_trac.css'/>
+  <link rel='stylesheet' href='/static/css/style.css'/>
+  <script type='text/javascript' src='/static/js/jquery-2.1.4.min.js'></script>
+  <script type='text/javascript' src='/static/bootstrap/js/bootstrap.min.js'></script>
+  <title>{{ page.title }} | UIKernel</title>
+</head>
+<body>
+  <div class="page-row">
+    <nav class="navbar-inverse home-menu">
+      <div class="container-fluid container">
+        <div class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li{% if page.nav-menu == 'home' %} class="active"{% endif %}><a href="/">Home</a></li>
+            <li{% if page.nav-menu == 'docs' %} class="active"{% endif %}><a href="/docs/getting-started.html">Docs</a></li>
+            <li{% if page.nav-menu == 'examples' %} class="active"{% endif %}><a href="/examples/">Examples</a></li>
+            <li{% if page.nav-menu == 'download' %} class="active"{% endif %}><a href="/download.html">Download</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="http://datakernel.io">DataKernel</a></li>
+            <li><a href="{{ site.github_uikernel }}" target="_blank">Github</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {% if page.nav-menu == 'home' %}
+    <div class="home-logo">
+      <center>
+        <img src='/static/images/logo.jpg' />
+        <div class="actions">
+          <a href="/docs/getting-started.html" class="btn btn-lg btn-primary">
+            Get Started
+          </a>
+          <a href="/download.html" class="btn btn-lg btn-success">
+            Download UIKernel v{{site.uikernel_version}}
+          </a>
+        </div>
+      </center>
+    </div>
+    <!--div class="home-features">
+      <div class="container">
+        <h2 class='text-center'>Our Modules</h2>
+
+        <div class="col-sm-4 criteria">
+          <i class="fa fa-table"></i>
+          <h3 class="text-center">GRIDS</h3>
+          Make sortable, scrollable and paginated grids.
+          Define cells as inplace editable.
+        </div>
+
+        <div class="col-sm-4 criteria">
+          <i class="fa fa-list-alt"></i>
+          <h3 class="text-center">FORMS</h3>
+          Use forms to filter grid data or edit records in a separate form.
+          Validate data and pass it to your grid.
+        </div>
+
+        <div class="col-sm-4 criteria">
+          <i class="fa fa-line-chart"></i>
+          <h3 class="text-center">REPORTS</h3>
+          Display data statistics at your convenience.
+        </div>
+      </div>
+    </div-->
+    {% endif %}
+  </div>
+  <div class="page-row page-row-expanded{% if page.nav-menu == 'home' %} home-content{% endif %}">
+    <div class="container content">
+      {{ content }}
+    </div>
+  </div>
+  <div class="page-row footer">
+    {% if page.nav-menu == 'home' %}
+    <div class="home-socials">
+    </div>
+    {% endif %}
+    <div class="home-copyright container">
+      <div class="row">
+        <div class="copyright col-sm-5">Copyright &copy; 2015 SoftIndex LLC. All Rights Reserved</div>
+        <div class="col-sm-7">
+          <div class="actions pull-right">
+            <a href="/">Home</a>
+            <a href="/docs/getting-started.html">Docs</a>
+            <a href="/examples/">Examples</a>
+            <a href="/download.html">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
