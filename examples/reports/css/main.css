@@ -1,17 +1,34 @@
-.edit-form .changed {
-    background-color: #ffff38;
-}
-.edit-form .error {
-    background-color: #ff8689;
+.container {
+  padding-top: 10px;
 }
 
-.filters-form {
-    padding-bottom: 10px;
+.drillDown {
+  margin: 0 auto;
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  background: url('../img/drillDown.png') no-repeat;
 }
-.filters-form input,
-.edit-form input,
-.filters-form select,
-.edit-form select {
-    margin: 0;
-    width: 100% !important;
+
+.drillDown:hover {
+  background-color: #ddd;
+}
+
+.drillDownMenu {
+  position: absolute;
+  margin: 0 0 0 -10px;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  background: #fff;
+}
+
+.drillDownMenuElement {
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.drillDownMenuElement:hover {
+  background: #ddd;
 }

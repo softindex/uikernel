@@ -41,7 +41,7 @@ var model = UIKernel.createReportsHttpModel({
 ### getData
 
 {% highlight javascript %}
- getData(string[] dimensions, string[] measures, Object filters, function callback(Error err, Object[] data))
+ getData(string[] dimensions, string[] measures, Object filters, function callback)
 {% endhighlight %}
 
 Get requested data from cube.
@@ -51,7 +51,7 @@ Get requested data from cube.
 ### getInfo
 
 {% highlight javascript %}
- getInfo(string[] dimensions, string[] measures, Object filters, function callback(Error err, Object info))
+ getInfo(string[] dimensions, string[] measures, Object filters, function callback)
 {% endhighlight %}
 
 Get requested information from cube.
@@ -72,7 +72,7 @@ getDimensions(
   string dimension,
   string[] measures,
   Object filters,
-  function callback(Error err, Object[] dimensions)
+  function callback
 )
 {% endhighlight %}
 

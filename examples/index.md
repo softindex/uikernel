@@ -2,8 +2,6 @@
 layout: examples-index
 title: Examples
 id: examples
-prev: tutorial.html
-next: editing-grid-data.html
 ---
 
 ### Basic
@@ -15,6 +13,8 @@ next: editing-grid-data.html
 5. Editing grid data - [Demo](/examples/editing-grid-data){:target='_blank'}, [Source](/docs/editing-grid-data.html)
 6. Removing record - [Demo](/examples/removing-records){:target='_blank'}, [Source](/docs/removing-records.html)
 7. Creating records - [Demo](/examples/creating-records){:target='_blank'}, [Source](/docs/creating-records.html)
+7. Select - [Demo](/examples/select){:target='_blank'}, [Source](/docs/select.html)
+7. DatePicker - [Demo](/examples/datepicker){:target='_blank'}, [Source](/docs/datepicker.html)
 
 ### Advanced
 

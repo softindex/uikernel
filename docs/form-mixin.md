@@ -2,7 +2,7 @@
 title: Form mixin
 id: form-mixin
 prev: express-grid-api.html
-next: form-model.html
+next: form-interface.html
 ---
 
 [Example](form-example.html)
@@ -10,7 +10,7 @@ next: form-model.html
 ### initForm
 
 {% highlight javascript %}
-initForm(object settings, function callback(Error err))
+initForm(object settings, [function callback])
 {% endhighlight %}
 
 Initialize form
@@ -19,8 +19,8 @@ Initialize form
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
-| string[] |     fields                       | Fields list, that are required to display
-| [FormModel](/docs/form-model.html) | model                        | Model of form
+| string[] |     **fields**                       | Fields list, that are required to display
+| [FormModel](/docs/form-model.html) | **model**   | Form model
 | Object |    data                       | Preset data
 | Object |    changes                     | Preset changes
 | boolean |      submitAll=false            | Send all form for validity check
@@ -63,7 +63,7 @@ Check if form field has validity errors
 ### clearError
 
 {% highlight javascript %}
-clearError(string field)
+clearError(string field, [function callback])
 {% endhighlight %}
 
 Clear field error mark
@@ -113,8 +113,8 @@ Get global error data, or **null** if it's absent
 ### updateField
 
 {% highlight javascript %}
-updateField(string fields, * values)
-updateField(string[] fields, * values)
+updateField(string fields, * values, [function callback])
+updateField(string[] fields, * values, [function callback])
 {% endhighlight %}
 
 Update form value. Is used as the Editors onSubmit handler.
@@ -125,8 +125,8 @@ Values param gets event or data.
 ### validateField
 
 {% highlight javascript %}
-validateField(string fields, * values)
-validateField(string[] fields, * values)
+validateField(string fields, * values, function callback)
+validateField(string[] fields, * values, function callback)
 {% endhighlight %}
 
 Update form value and validate form
@@ -136,7 +136,7 @@ Update form value and validate form
 ### validateForm
 
 {% highlight javascript %}
-validateForm(function callback(Error err))
+validateForm([function callback])
 {% endhighlight %}
 
 Validate form
@@ -146,7 +146,7 @@ Validate form
 ### set
 
 {% highlight javascript %}
-set(Object data)
+set(Object data, [function callback])
 {% endhighlight %}
 
 Set data in the form
@@ -156,7 +156,7 @@ Set data in the form
 ### submitData
 
 {% highlight javascript %}
-submitData(Object data, function callback(Error err, Object data))
+submitData(Object data, function callback)
 {% endhighlight %}
 
 Submit data
@@ -166,7 +166,7 @@ Submit data
 ### submit
 
 {% highlight javascript %}
-submit(function callback(Error err, Object data))
+submit([function callback])
 {% endhighlight %}
 
 Send form data to the model
@@ -176,7 +176,7 @@ Send form data to the model
 ### clearChanges
 
 {% highlight javascript %}
-clearChanges()
+clearChanges([function callback])
 {% endhighlight %}
 
 Clear form changes

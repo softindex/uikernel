@@ -20,12 +20,12 @@ It can schematically be displayed like this:
 
 ### model
 
-{% highlight javascript tabsize=2 %}
+{% highlight javascript %}
 model(Object gridModel)
 model(function(Object req, Object res))
 {% endhighlight %}
 
-Specify Grid model, which can be an instance or a constructor
+Specify a Grid model. It can be an instance or a constructor
 
 ----
 
@@ -35,20 +35,20 @@ Specify Grid model, which can be an instance or a constructor
 result(function func(Error err, Object data))
 {% endhighlight %}
 
-Specify send response function
+Specify a function to call when you have a response
 
 ----
 
-## Usage
+## Usage Example
 
-Pass model instance to Express API:
+Pass a model instance to Express API:
 
 {% highlight javascript %}
 var router = express.Router();
 Grid.listExpressAPI(router).model(advertisersList);
 {% endhighlight %}
 
-or use a constructor for that:
+Or use a constructor for that:
 
 {% highlight javascript %}
 var router = express.Router();

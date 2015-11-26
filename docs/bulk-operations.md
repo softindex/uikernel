@@ -7,7 +7,8 @@ next: form-example.html
 
 Lets do some actions for a few or many fields
 
-[Live demo](/examples/bulk-operations/){:target="_blank"} and [code example]({{site.github}}_site/examples/bulk-operations){:target="_blank"} are available here.
+* [Live demo](/examples/bulk-operations/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/bulk-operations){:target="_blank"}
 
 ### Create bulk operations 
 

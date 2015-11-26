@@ -7,6 +7,12 @@ next: form-mixin.html
 
 You can use Grid Express API to link the client UI and Grid server model.
 
+## Initialization
+
+{% highlight javascript %}
+UIKernel.gridExpressApi(Express router, string[]|function(req, res) availableMethods)
+{% endhighlight %}
+
 It can schematically be displayed like this:
 
 | Method   | URL   | Description |
@@ -28,7 +34,7 @@ model(Object gridModel)
 model(function(Object req, Object res))
 {% endhighlight %}
 
-Specify Grid model, which can be an instance or a constructor
+Specify a Grid model, which can be an instance or a constructor
 
 ----
 
@@ -38,20 +44,20 @@ Specify Grid model, which can be an instance or a constructor
 result(function(Error err, Object data))
 {% endhighlight %}
 
-Specify send response function
+Specify a function to call when the response is ready
 
 ----
 
 ## Usage
 
-Pass model instance to Express API:
+Pass a model instance to Express API:
 
 {% highlight javascript %}
 var router = express.Router();
 Grid.gridExpressApi(router).model(advertisers);
 {% endhighlight %}
 
-or use a constructor for that:
+Or use a constructor for that:
 
 {% highlight javascript %}
 var router = express.Router();

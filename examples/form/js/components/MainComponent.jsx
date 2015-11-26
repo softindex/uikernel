@@ -1,10 +1,17 @@
 /**
- * Copyright 2015, SoftIndex LLC.
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
  */
+
 var MainComponent = React.createClass({
   render: function () {
     return (
-      <div>
+      <div className="container">
         <div className="row">
           <div className="col-sm-12">
             <div className="panel panel-info">

@@ -1,6 +1,13 @@
 /**
- * Copyright 2015, SoftIndex LLC.
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
  */
+
 var FiltersForm = (function () {
   var defaultFilters = {
     search: '',
@@ -9,27 +16,24 @@ var FiltersForm = (function () {
   };
 
   return React.createClass({
-    mixins: [UIKernel.Mixins.Form],
-    componentWillMount: function () {
-      this.initForm({ // initialize filters form
-        fields: ['search', 'age', 'gender'],
-        model: new UIKernel.Models.Form(defaultFilters),
-        submitAll: true,
-        autoSubmit: true,
-        autoSubmitHandler: this.onSubmit
-      });
-    },
-    onSubmit: function (err, data) {
-      if (!err) {
-        this.props.onSubmit(data);
+    getInitialState: function () {
+      return {
+        filters: _.clone(defaultFilters)
       }
     },
-    onClear: function () { // onClear filters event
-      this.submitData(defaultFilters, this.onSubmit);
+    onClear: function () {
+      this.setState({filters: _.clone(defaultFilters)});
+      this.props.onSubmit(defaultFilters);
+    },
+    updateValue: function (field, value) {
+      if (value.target) {
+        value = value.target.value
+      }
+
+      this.state.filters[field] = value;
+      this.props.onSubmit(this.state.filters);
     },
     render() {
-      var data = this.getData();
-
       return (
         <form className="filters-form row">
           <div className="col-sm-7">
@@ -37,8 +41,8 @@ var FiltersForm = (function () {
             <input
               type="text" // text editor
               className="form-control"
-              onChange={this.updateField.bind(null, 'search')} // on data change event
-              value={data.search}
+              onChange={this.updateValue.bind(null, 'search')}
+              value={this.state.filters.search}
             />
           </div>
           <div className="col-sm-2">
@@ -46,21 +50,21 @@ var FiltersForm = (function () {
             <input
               type="number" // number editor
               className="form-control"
-              onChange={this.updateField.bind(null, 'age')}
-              value={data.age}
+              onChange={this.updateValue.bind(null, 'age')}
+              value={this.state.filters.age}
             />
           </div>
           <div className="col-sm-2">
             <label className="control-label">Gender</label>
             <UIKernel.Editors.Select // select editor
               className="form-control"
-              onChange={this.updateField.bind(null, 'gender')}
+              onChange={this.updateValue.bind(null, 'gender')}
               options={[
                 [0, ''],
                 [1, 'Male'],
                 [2, 'Female']
               ]}
-              value={data.gender}
+              value={this.state.filters.gender}
             />
           </div>
           <div className="col-sm-1">

@@ -34,13 +34,15 @@
   items:
   - id: grid-component
     title: Component
+  - id: grid-columns
+    title: Grid Columns
   - id: grid-interface
-    title: Grid Model
+    title: Grid Model Interface
     subitems:
     - id: grid-model-xhr
       title: Grid Xhr Model
     - id: grid-model-collection
-      title: Grid Model Collection
+      title: Grid Collection Model
   - id: validator
     title: Validator
   - id: filter-adapter
@@ -53,9 +55,11 @@
   items:
   - id: form-mixin
     title: Mixin
-  - id: form-model
+  - id: form-interface
     title: Model Interface
     subitems:
+    - id: form-model
+      title: Form Model
     - id: form-xhr-model
       title: XHR Model
 - title: Reports
@@ -74,6 +78,12 @@
     title: Bulk operations
   - id: form-example
     title: Form
+  - id: data-binding
+    title: Data Binding
+  - id: select
+    title: Select
+  - id: datepicker
+    title: DatePicker
   - id: suggest-box
     title: Suggest Box
   - id: reports-example

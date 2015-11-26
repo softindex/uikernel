@@ -5,84 +5,71 @@ prev: creating-records.html
 next: labels.html
 ---
 
-### A list of complex editors props.
+UIKernel provides the following editors:
 
 * [Select](#Select)
 * [DatePicker](#DatePicker)
 * [SuggestBox](#SuggestBox)
-* [Grid](#Grid)
-* [ListEditor](#ListEditor)
 
 ---
 
 ## <span id="Select">Select</span>
+Select is a simple component for ReactJS. It is used to create a drop-down list.
+
+[Example](select.html){:target="_blank"}
+
+### Select Properties
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
+| | **value** | Field value |
+| function | **onChange** | Selection change handler |
 | boolean | disabled=false | Disabled flag |
 | [ListModel](list-model.html) | model | Model object should have 'read' method |
-| function | onChange | Selection change handler |
 | function | onChangeLabel | Label change handler |
 | Array | options | Options in a [[id, option], ...] format |
-| | value | Field value |
 
 ---
-
+>If you pass Select the options prop, you don't need to pass it the model prop, and vice versa.
 
 ## <span id="DatePicker">DatePicker</span>
+DatePicker is a ReactJS component that allows the user to select a date.
+
+[Example](datepicker.html){:target="_blank"}
+
+### DatePicker Properties
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
-| string | className | Custom class names |
+|  | **value** | Field value |
+| function | **onChange** | Value change handler |
 | string | format | Inner field value format |
-| string | id | Input id |
 | Date | min | Minimum date value |
 | Date | max | Maximum date value |
 | function | onBlur | Element lost focus handler |
-| function | onChange | Value change handler |
 | function | onFocus | Element focus handler |
 | boolean | show | Show on init flag |
 | string | textFormat | Displayed field value format |
-|  | value | Field value |
+
 
 ---
 
 ## <span id="SuggestBox">SuggestBox</span>
-[Example](suggest-box.html)
+SuggestBox is a ReactJS component that can be used to quickly create a drop-down list with support for searching and scrolling.
+
+[Example](suggest-box.html){:target="_blank"}
+
+### SuggestBox Properties
 
 | Type     | Name   | Description |
 |----------|--------|--------------|
+|  | **value** | Field value |
+| function | **onChange** | Selection change handler |
 | number | debounce | Search timeout, ms |
 | boolean | disabled | Disabled flag |
-| [ListModel](list-model.html) | model | Model object should have 'read' mathod |
+| [ListModel](list-model.html) | model | Model object should have the 'read' method |
 | function | onBlur | Element lost focus value |
-| function | onChange | Selection change handler |
 | function | onChangeLabel | Label change handler |
 | boolean | select | Select button visibility flag |
-|  | value | Field value |
 
 ---
-
-## <span id="Grid">Grid</span>
-
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| Object | columns | Columns object |
-| string | labelField | Label field |
-| Function | labelGenerator | Function that generates ID for new records |
-| function | onChange | Value change handler |
-| function | onChangeLabel | Label change handler |
-|  | value | Field value |
-
----
-
-
-## <span id="ListEditor">ListEditor</span>
-
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| Object | columns | Columns object |
-| function | onChange | Value change handler |
-| function | onSelectedChange | Selection change handler |
-| Object | validation | Model validation rules |
-| | value | Field value |

@@ -1,6 +1,13 @@
 /**
- * Copyright 2015, SoftIndex LLC.
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
  */
+
 var MainComponent = React.createClass({
   getInitialState: function () {
     return {
@@ -27,7 +34,7 @@ var MainComponent = React.createClass({
   },
   render: function () {
     return (
-      <div>
+      <div className="container">
         <div className="row">
           <div className="col-sm-8">
             <div className="panel panel-primary">
@@ -60,14 +67,12 @@ var MainComponent = React.createClass({
               <div className="panel-heading">
                 <h3 className="panel-title">Records</h3>
               </div>
-              <div className="panel-body padding0">
-                <UIKernel.Grid
-                  ref="grid"
-                  model={this.state.model} // Grid model
-                  cols={columns} // columns configuration
-                  viewCount={20} // 20 records limit to display by default
-                />
-              </div>
+              <UIKernel.Grid
+                ref="grid"
+                model={this.state.model} // Grid model
+                cols={columns} // columns configuration
+                viewCount={20} // 20 records limit to display by default
+              />
               <div className="panel-footer">
                 <a className="btn btn-success" onClick={this.onClear}>Clear</a>
                 {' '}

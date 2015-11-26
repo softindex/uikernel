@@ -20,17 +20,17 @@ A model used by one-to-many editors like SuggestBox and Select.
 ### read
 
 {% highlight javascript %}
- read(string search, function callback(string error, Array records))
+ read(string search, function callback)
 {% endhighlight %}
 
-Get options for Select or SuggestBox editor.
+Get options for a Select or SuggestBox editor.
 
 ---
 
 ### getLabel
 
 {% highlight javascript %}
- getLabel(number id, function callback(string error, string record))
+ getLabel(number id, function callback)
 {% endhighlight %}
 
-Get option name using ID.
+Get an option name using ID. The callback function will return the result as a string.

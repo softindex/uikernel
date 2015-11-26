@@ -1,6 +1,13 @@
 /**
- * Copyright 2015, SoftIndex LLC.
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
  */
+
 var FiltersForm = (function () {
   var defaultFilters = {
     search: '',
@@ -10,7 +17,7 @@ var FiltersForm = (function () {
 
   return React.createClass({
     mixins: [UIKernel.Mixins.Form],
-    componentWillMount: function () {
+    componentDidMount: function () {
       this.initForm({ // initialize filters form
         fields: ['search', 'age', 'gender'],
         model: new UIKernel.Models.Form(defaultFilters),
@@ -28,6 +35,10 @@ var FiltersForm = (function () {
       this.submitData(defaultFilters, this.onSubmit);
     },
     render() {
+      if (!this.isLoaded()) {
+        return <span>Loading...</span>;
+      }
+
       var data = this.getData();
 
       return (

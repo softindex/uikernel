@@ -5,36 +5,11 @@ prev: tutorial.html
 next: sorting-and-pagination.html
 ---
 
-We'll create the first component named as Contact Book and display our test data.
+* [Live demo](/examples/first-grid-component/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/first-grid-component){:target="_blank"}
 
-[Live demo](/examples/first-grid-component/){:target="_blank"} and [code example]({{site.github}}_site/examples/first-grid-component){:target="_blank"} are available here.
 
-### Main component
-
-The main component takes several props, including the Grid model and columns.
-
-`MainComponent.jsx`:
-{% highlight javascript %}
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
-      model: model // let's store model in the state
-    };
-  },
-  render: function () {
-    return (
-      <UIKernel.Grid
-        model={this.state.model} // Grid model
-        cols={columns} // columns configuration
-      />
-    );
-  }
-});
-{% endhighlight %}
-
-### Grid Model
-
-Let's create a client model and pass it some fake data.
+First, let's create a client model for our grid and pass it some fake data.
 
 `model.js`:
 {% highlight javascript %}
@@ -48,7 +23,7 @@ var model = new UIKernel.Models.Grid.Collection({
 });
 {% endhighlight %}
 
-### Columns configuration
+Next, we'll configure columns.
 
 `columns.jsx`:
 {% highlight javascript %}
@@ -89,10 +64,43 @@ var columns = {
   }
 };
 {% endhighlight %}
+---
 
-### Main file
+Now we need to render our grid. Let's do it in the `render` method of another component named `MainComponent`.
 
-Render the main component.
+`MainComponent.jsx`:
+{% highlight javascript %}
+var MainComponent = React.createClass({
+  getInitialState: function () {
+    return {
+      model: model // let's store model in the state
+    };
+  },
+  render: function () {
+    return (
+      <div className="container">
+        <UIKernel.Grid
+          model={this.state.model} // Grid model
+          cols={columns} // columns configuration
+        />
+      </div>
+    );
+  }
+});
+{% endhighlight %}
+---
+
+We'll also set padding for our `div`.
+
+`main.css`:
+{% highlight javascript %}
+.container {
+  padding-top: 10px;
+}
+{% endhighlight %}
+---
+
+Finally, let's render `MainComponent` in a separate file.
 
 `main.jsx`:
 {% highlight javascript %}

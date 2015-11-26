@@ -5,7 +5,7 @@ prev: list-model.html
 next: list-express-api.html
 ---
 
-List Model XHR specifies the List model, which interacts with the server API.
+List XHR Model specifies the List model, which interacts with the server API.
 
 ## Constructor
 

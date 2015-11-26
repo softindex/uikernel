@@ -6,7 +6,8 @@ prev: suggest-box.html
 
 Simple reports usage example.
 
-[Live demo](/examples/reports/){:target="_blank"} and [code example]({{site.github}}_site/examples/reports){:target="_blank"} are available here.
+* [Live demo](/examples/reports/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/reports){:target="_blank"}
 
 ---
 

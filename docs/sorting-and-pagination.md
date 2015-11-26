@@ -4,34 +4,31 @@ id: sorting-and-pagination
 prev: first-grid-component.html
 next: applying-filters.html
 ---
+* [Live demo](/examples/sorting-and-pagination/){:target="_blank"}
+* [Code]({{site.github}}_site/examples/sorting-and-pagination){:target="_blank"}
 
-Let's teach our grid to sort column data and use pagination.
+We have the list of data displayed all nicely. Now let's add our grid some functionality, such as sorting and pagination.
 
-[Live demo](/examples/sorting-and-pagination/){:target="_blank"} and [code example]({{site.github}}_site/examples/sorting-and-pagination){:target="_blank"} are available here.
-
-### Main component
-
-We can modify our UIKernel.Grid props by adding pagination configuration. In this example, we're going to display 10 records as the default.
+To create pagination, we'll pass our `UIKernel.Grid` the `viewCount` property. In this example, we’re going to display 10 records per page.
 
 `MainComponent.jsx`:
 {% highlight javascript %}
 <UIKernel.Grid
   model={this.state.model}
   cols={columns}
-  viewCount={10}
+  viewCount={10} // display 10 records per page
 />
 {% endhighlight %}
+---
 
-### Columns configuration
-
-We can also specify sortCycle for a certain column.
+Next, we’ll be adding a way to sort our grid data. We just have to pass the `sortCycle` property to our columns.
 
 `columns.jsx`:
 {% highlight javascript %}
 var columns = {
   name: {
     name: 'First Name',
-    sortCycle: ['asc', 'desc', 'default'], // sort cycle
+    sortCycle: ['asc', 'desc', 'default'], // add sorting
     render: ['name', function (record) {
       return record.name;
     }]
@@ -40,3 +37,7 @@ var columns = {
   // ...
 };
 {% endhighlight %}
+---
+
+Now as you click your grid headers, you’ll see your grid sorted by ascending or descending.
+
