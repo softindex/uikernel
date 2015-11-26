@@ -1,7 +1,7 @@
 highlighter: pygments
 markdown: kramdown
 uikernel_version: 0.16.1
-github: https://github.com/softindex/uikernel/tree/gh-pages/
+github: https://github.com/softindex/uikernel/tree/master/
 github_uikernel: https://github.com/softindex/uikernel
 exclude:
   - Gemfile

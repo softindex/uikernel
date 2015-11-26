@@ -7,7 +7,7 @@ prev: suggest-box.html
 Simple reports usage example.
 
 * [Live demo](/examples/reports/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/reports){:target="_blank"}
+* [Code]({{ site.github }}/examples/reports){:target="_blank"}
 
 ---
 

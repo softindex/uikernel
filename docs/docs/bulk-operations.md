@@ -8,9 +8,9 @@ next: form-example.html
 Lets do some actions for a few or many fields
 
 * [Live demo](/examples/bulk-operations/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/bulk-operations){:target="_blank"}
+* [Code]({{ site.github }}/examples/bulk-operations){:target="_blank"}
 
-### Create bulk operations 
+### Create bulk operations
 
 `MainComponent.jsx`:
 {% highlight javascript %}
@@ -79,7 +79,7 @@ var MainComponent = React.createClass({
 });
 {% endhighlight %}
 
-### Add new column 
+### Add new column
 Lets add a new column and put checkbox with Event in it
 
 `columns.js`:

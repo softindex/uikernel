@@ -6,7 +6,7 @@ next: reports-example.html
 ---
 
 * [Live demo](/examples/suggest-box/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/suggest-box){:target="_blank"}
+* [Code]({{ site.github }}/examples/suggest-box){:target="_blank"}
 
 ### Create suggest box form
 
@@ -128,7 +128,7 @@ var FormComponent = React.createClass({
 });
 {% endhighlight %}
 
-Add name, country and button for show modal. 
+Add name, country and button for show modal.
 
 `columns.js`:
 {% highlight javascript %}

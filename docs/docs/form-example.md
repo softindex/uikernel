@@ -8,7 +8,7 @@ next: data-binding.html
 Example of simple form creating that edits 2nd table record.
 
 * [Live demo](/examples/form/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/form){:target="_blank"}
+* [Code]({{ site.github }}/examples/form){:target="_blank"}
 
 Let's describe fields we need
 
