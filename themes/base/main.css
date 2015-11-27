@@ -223,6 +223,14 @@
   position: relative;
 }
 
+.suggest-box > .search > input[type="text"] {
+  cursor: default;
+}
+
+.suggest-box > .search > input[type="text"]:focus {
+  cursor: auto;
+}
+
 #__suggestBoxPopUp {
   display: block;
   max-height: 300px;
@@ -283,7 +291,7 @@
   cursor: pointer;
 }
 
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable:hover {
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-focused {
   background-color: #eee;
 }
 
