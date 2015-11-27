@@ -215,106 +215,6 @@
   background-color: #ffffd0;
 }
 
-.suggest-box {
-  position: relative;
-}
-
-.suggest-box > .search {
-  position: relative;
-}
-
-#__suggestBoxPopUp {
-  display: block;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  position: absolute;
-  top: 0;
-  z-index: 10000;
-  background-color: #ffffff;
-}
-
-.__suggestBoxPopUpTable {
-  display: table;
-  width: 100%;
-}
-
-.__suggestBoxPopUp-option {
-  border-right: 1px solid #ccc;
-  border-top: 1px solid #ccc;
-  min-height: 30px;
-  display: table-row;
-}
-
-.__suggestBoxPopUp-option div:not(:last-child) {
-  white-space: nowrap;
-}
-
-.__suggestBoxPopUp-option div {
-  display: table-cell;
-  margin: 0 10px;
-  padding: 5px 10px;
-}
-
-.__suggestBoxPopUp-option:not(.__suggestBoxPopUp-option-selectable) {
-  color: #aaa;
-}
-
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-subitem div:first-child {
-  padding-left: 20px;
-}
-
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-group {
-  font-weight: 600;
-  color: inherit;
-}
-
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-header {
-  font-weight: 800;
-  background-color: #f9f9f9;
-  color: inherit;
-}
-
-.__suggestBoxPopUp-option {
-  cursor: default;
-}
-
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable {
-  cursor: pointer;
-}
-
-.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable:hover {
-  background-color: #eee;
-}
-
-.suggest-box.select input {
-  padding-right: 40px;
-}
-
-.suggest-box .select-btn {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 35px;
-  height: 100%;
-}
-
-.suggest-box .select-btn .arrow {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: -4px;
-  margin-top: -2px;
-  border-color: #888 transparent transparent transparent;
-  border-style: solid;
-  border-width: 5px 4px 0 4px;
-}
-
-.suggest-box .select-btn .arrow.up {
-  border-color: transparent transparent #888 transparent;
-  border-width: 0 4px 5px 4px;
-}
-
 /* Grid component (left layout) */
 .dgrid-not-scrollable {
   position: relative;
@@ -354,4 +254,99 @@
 .wrapper-totals table {
   border-top: 1px solid #ddd;
   border-bottom: 0;
+}
+
+/* Portal */
+.__portal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3000;
+}
+
+/* SuggestBox */
+.__suggestBox {
+  position: relative;
+}
+.__suggestBox input[type="text"] {
+  cursor: default;
+}
+.__suggestBox input[type="text"]:focus {
+  cursor: auto;
+}
+.__suggestBox.select input {
+  padding-right: 40px;
+}
+.__suggestBox .select-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 35px;
+  height: 100%;
+}
+.__suggestBox .select-btn .arrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -4px;
+  margin-top: -2px;
+  border-color: #888 transparent transparent transparent;
+  border-style: solid;
+  border-width: 5px 4px 0 4px;
+}
+.__suggestBox .select-btn .arrow.up {
+  border-color: transparent transparent #888 transparent;
+  border-width: 0 4px 5px 4px;
+}
+.__suggestBoxPopUp {
+  position: absolute;
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+  border: 1px solid #e5e6e7;
+  background-color: #fff;
+}
+.__suggestBoxPopUp ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: table;
+  width: 100%;
+}
+.__suggestBoxPopUp-option {
+  min-height: 30px;
+  display: table-row;
+}
+.__suggestBoxPopUp-option div:not(:last-child) {
+  white-space: nowrap;
+}
+.__suggestBoxPopUp-option div {
+  display: table-cell;
+  margin: 0 10px;
+  padding: 5px 10px;
+}
+.__suggestBoxPopUp-option:not(.__suggestBoxPopUp-option-selectable) {
+  color: #aaa;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-subitem div:first-child {
+  padding-left: 20px;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-group {
+  font-weight: 600;
+  color: inherit;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-header {
+  font-weight: 800;
+  background-color: #f9f9f9;
+  color: inherit;
+}
+.__suggestBoxPopUp-option {
+  cursor: default;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable {
+  cursor: pointer;
+}
+.__suggestBoxPopUp-option-selectable.__suggestBoxPopUp-option-focused {
+  background-color: #eee;
 }
