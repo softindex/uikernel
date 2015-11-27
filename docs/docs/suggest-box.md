@@ -1,5 +1,5 @@
 ---
-title: Suggest box
+title: Suggest Box
 id: suggest-box
 prev: datepicker.html
 next: reports-example.html
@@ -8,9 +8,7 @@ next: reports-example.html
 * [Live demo](/examples/suggest-box/){:target="_blank"}
 * [Code]({{ site.github }}/examples/suggest-box){:target="_blank"}
 
-### Create suggest box form
-
-Create list model for SuggestBox
+First, let's create a model for `SuggestBox`.
 
 `countryList.js`
 {% highlight javascript %}
@@ -37,25 +35,80 @@ var countries = (function () {
   };
 })();
 {% endhighlight %}
+---
 
-Create validator
+Next, let's configure columns for our grid.
 
-`validator.js`
+`columns.js`:
+{% highlight javascript %}
+var columns = {
+  tools: {
+    width: '40px',
+    render: [function () {
+      return '<button ref="edit" class="btn btn-outline btn-success btn-xs"><i class="fa fa-pencil"></i></button>';
+    }],
+    onClickRefs: {
+      edit: (function (e, recordId, record, grid) {
+        var editPopup = popup.open(FormComponent, {
+          model: UIKernel.Adapters.Grid.toFormUpdate(grid.getModel(), recordId),
+          changes: grid.getRecordChanges(recordId),
+          onSubmit: function onSubmit() {
+            editPopup.close();
+            grid.clearRecordChanges(recordId);
+          }
+        });
+      })
+    }
+  },
+  name: {
+    name: 'First name',
+    sortCycle: ['desc', 'asc', 'default'],
+    sortDefault: 'desc',
+    editor: function () {
+         return <input type="text" {...this.props}/>;
+    },
+    render: ['name', function (record) {
+      return _.escape(record.name);
+    }]
+  },
+  country: {
+    name: 'Country',
+    editor: function () {
+      return (
+        <UIKernel.Editors.SuggestBox
+          {...this.props}
+          onLabelChange={this.updateField.bind(null, 'countryName')}
+          model={countries}
+          select={true}
+        />
+      );
+    },
+    render: ['country', 'countryName', function (record) {
+      return record.countryName;
+    }]
+  }
+};
+{% endhighlight %}
+---
+
+We also need to define validation and a grid model.
+
+`validator.js`:
 {% highlight javascript %}
 var validation = UIKernel.createValidator()
   .field('country', UIKernel.Validators.notNull('Invalid country.'));
 {% endhighlight %}
 
-
-Create Grid model
-
-`model.js`
+`model.js`:
 {% highlight javascript %}
 var model = new UIKernel.Models.Grid.Collection({
   data: data,
   validation: validation
 });
 {% endhighlight %}
+---
+
+Now let’s create a modal using the Bootstrap Modal Plugin. The modal will contain `SuggestBox`.
 
 `FormComponent.jsx`:
 {% highlight javascript %}
@@ -127,61 +180,52 @@ var FormComponent = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
-Add name, country and button for show modal.
+We will activate our modal with JavaScript. Create `popup.js` with the following contents:
 
-`columns.js`:
 {% highlight javascript %}
-var columns = {
-  tools: {
-    width: '40px',
-    render: [function () {
-      return '<button ref="edit" class="btn btn-outline btn-success btn-xs"><i class="fa fa-pencil"></i></button>';
-    }],
-    onClickRefs: {
-      edit: (function (e, recordId, record, grid) {
-        var editPopup = popup.open(FormComponent, {
-          model: UIKernel.Adapters.Grid.toFormUpdate(grid.getModel(), recordId),
-          changes: grid.getRecordChanges(recordId),
-          onSubmit: function onSubmit() {
-            editPopup.close();
-            grid.clearRecordChanges(recordId);
-          }
-        });
-      })
-    }
-  },
-  name: {
-    name: 'First name',
-    sortCycle: ['desc', 'asc', 'default'],
-    sortDefault: 'desc',
-    editor: function () {
-         return <input type="text" {...this.props}/>;
-    },
-    render: ['name', function (record) {
-      return _.escape(record.name);
-    }]
-  },
-  country: {
-    name: 'Country',
-    editor: function () {
-      return (
-        <UIKernel.Editors.SuggestBox
-          {...this.props}
-          onLabelChange={this.updateField.bind(null, 'countryName')}
-          model={countries}
-          select={true}
-        />
-      );
-    },
-    render: ['country', 'countryName', function (record) {
-      return record.countryName;
-    }]
+var popup = {
+  open: function (Component, props, className) {
+    /*
+     open modal with parameters:
+     Component - React component that will be inside our modal
+     props - initial properties
+     className - the class name of a modal window when it is opened
+     */
+    var $el = $('#popup').addClass(className);// get modal dialog by id
+    var innerContent = $el.find('.popup-inner-content').get(0); // find inner element by using class name
+    $el.modal();
+
+    React.render(React.createElement(Component, props), innerContent, function () { // create react element
+      $(document).on('hide.bs.modal', function () {
+        React.unmountComponentAtNode(innerContent);
+        $el.removeClass(className); // remove class name
+      });
+    });
+
+    return {
+      close() {
+        $el.modal('hide'); // close our modal
+      }
+    };
   }
 };
 {% endhighlight %}
+---
 
-Add save and clear buttons
+Open your `index.html` file and paste in the <body> tag the following code:
+
+{% highlight javascript %}
+<div class="container" id="example"></div>
+
+<div class="modal fade" id="popup" tabIndex="-1" role="dialog" aria-hidden="true" style="display: none;">
+  <div class="popup-inner-content"></div>
+</div>
+{% endhighlight %}
+---
+
+Now let's create `MainComponent`.
 
 `MainComponent.js`:
 {% highlight javascript %}
@@ -220,5 +264,11 @@ var MainComponent = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
-Bootstrap needs jquery version higher 1.9.1
+The last thing we need to do here is to render `MainComponent`. We're going to do it in a separate file.
+
+`main.jsx`:
+{% highlight javascript %}
+React.render(<MainComponent/>, document.getElementById("example"));
+{% endhighlight %}
