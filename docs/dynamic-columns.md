@@ -5,14 +5,74 @@ prev: reports-filters.html
 next: bulk-operations.html
 ---
 
-Make the columns more dynamic.
+Let's make the columns more dynamic.
 
 * [Live demo](/examples/dynamic-columns/){:target="_blank"}
 * [Code]({{ site.github }}/examples/dynamic-columns){:target="_blank"}
 
-### Create dynamic form
+First of all, create the following `index.html`:
 
-Let's create a modal dialog with checkbox.
+{% highlight html %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Example</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" type="text/css"/>
+    <link href="css/uikernel/main.css" rel="stylesheet" type="text/css"/>
+    <link href="css/main.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div class="container" id="example"></div>
+
+<div class="modal fade" id="popup" tabIndex="-1" role="dialog" aria-hidden="true" style="display: none;">
+  <div class="popup-inner-content"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+<script src="js/libs/uikernel.js"></script>
+
+
+<!-- Popup -->
+<script src="js/libs/popup.js" type="text/jsx"></script>
+
+<!-- Our model -->
+<script src="js/model/model.js"></script>
+
+<!-- Our main component -->
+<script src="js/components/MainComponent.jsx" type="text/jsx"></script>
+
+<!-- Its columns -->
+<script src="js/columns.jsx" type="text/jsx"></script>
+
+<!-- Dynamic form component -->
+<script src="js/components/Form.jsx" type="text/jsx"></script>
+
+<!-- Main file to render -->
+<script src="js/main.jsx" type="text/jsx"></script>
+</body>
+</html>
+{% endhighlight %}
+---
+
+Next, create the `main.css` file:
+
+{% highlight html %}
+.container {
+  padding-top: 10px;
+}
+
+.data-grid {
+    margin: 10px 0;
+}
+{% endhighlight %}
+---
+
+Now let's create a modal with checkboxes using the Bootstrap Modal Plugin.
 
 `Form.jsx`:
 {% highlight javascript %}
@@ -93,9 +153,41 @@ var Form = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
+We will activate our modal with JavaScript. Create `popup.js` with the following contents:
 
-Add changes to our `MainComponent.jsx`
+{% highlight javascript %}
+var popup = {
+  open: function (Component, props, className) {
+    /*
+     open modal with parameters:
+     Component - React component that will be inside our modal
+     props - initial properties
+     className - the class name of a modal window when it is opened
+     */
+    var $el = $('#popup').addClass(className);// get modal dialog by id
+    var innerContent = $el.find('.popup-inner-content').get(0); // find inner element by using class name
+    $el.modal();
+
+    React.render(React.createElement(Component, props), innerContent, function () { // create react element
+      $(document).on('hide.bs.modal', function () {
+        React.unmountComponentAtNode(innerContent);
+        $el.removeClass(className); // remove class name
+      });
+    });
+
+    return {
+      close() {
+        $el.modal('hide'); // close our modal
+      }
+    };
+  }
+};
+{% endhighlight %}
+---
+
+Modify your `MainComponent.jsx` as below:
 
 {% highlight javascript %}
 var MainComponent = React.createClass({
@@ -113,10 +205,9 @@ var MainComponent = React.createClass({
       }
     };
   },
-
   openColumnsForm: function openColumnsForm() {
-    //open modal with our information (you can use your own modal)
-    var columnsWindow = popup.open(DynamicFormComponent, {
+    //open modal (you can use your own modal)
+    var columnsWindow = popup.open(Form, {
       cols: this.state.cols,
       onChange: function onChange(cols) {
         columnsWindow.close();
@@ -145,41 +236,9 @@ var MainComponent = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
-We will use bootstrap modal dialog.
-
-`popup.js`:
-
+Finally, let's render `MainComponent` in `main.jsx`:
 {% highlight javascript %}
-var popup = {
-  open: function (Component, props, className) {
-    /*
-     open modal with parameters:
-     Component - React component that will be inside our modal
-     props - initial properties
-     className - the class name of a modal window when it is open
-     */
-    var $el = $('#popup').addClass(className);// get modal dialog by id
-    var innerContent = $el.find('.popup-inner-content').get(0); // find inner element by using class name
-    $el.modal();
-
-    React.render(React.createElement(Component, props), innerContent, function () { // create react element
-      $(document).on('hide.bs.modal', function () {
-        React.unmountComponentAtNode(innerContent);
-        $el.removeClass(className); // remove class name
-      });
-    });
-
-    return {
-      close() {
-        $el.modal('hide'); // close our modal
-      }
-    };
-  }
-};
+React.render(<MainComponent/>, document.getElementById("example"));
 {% endhighlight %}
-
-
-Include Form, popup, bootstrap and jquery.
-
-Bootstrap needs jquery version higher than 1.9.1

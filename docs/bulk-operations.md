@@ -5,20 +5,19 @@ prev: dynamic-columns.html
 next: form-example.html
 ---
 
-Lets do some actions for a few or many fields
+Let's add the possibility to select records and perform some action on them.
 
 * [Live demo](/examples/bulk-operations/){:target="_blank"}
 * [Code]({{ site.github }}/examples/bulk-operations){:target="_blank"}
 
-### Create bulk operations
+Create the following `MainComponent.jsx` file:
 
-`MainComponent.jsx`:
 {% highlight javascript %}
 var MainComponent = React.createClass({
   getInitialState: function () {
     return {
       model: model,
-      blackMode: false, // state for toggle button (Select all / Clear all)
+      blackMode: false, // state of the toggle button (Select all / Clear all)
       selectedNum: 0 // selected items state
     };
   },
@@ -79,8 +78,7 @@ var MainComponent = React.createClass({
 });
 {% endhighlight %}
 
-### Add new column
-Lets add a new column and put checkbox with Event in it
+Add a new column with checkboxes that have click event handlers.
 
 `columns.js`:
 {% highlight javascript %}

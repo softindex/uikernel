@@ -319,6 +319,106 @@ Remove records status
 
 ---
 
+### setSelectedRecords
+
+{% highlight javascript %}
+setSelectedRecords(selectedIds)
+{% endhighlight %}
+
+Select only these records
+
+---
+
+### selectRecord
+
+{% highlight javascript %}
+selectRecord(recordId, ignoreBlackList)
+{% endhighlight %}
+
+Select a record
+
+---
+
+### unselectRecord
+
+{% highlight javascript %}
+unselectRecord(recordId, ignoreBlackList)
+{% endhighlight %}
+
+Unselect a record
+
+---
+
+### isSelected
+
+{% highlight javascript %}
+isSelected(recordId)
+{% endhighlight %}
+
+Check if a record is selected
+
+---
+
+### toggleSelected
+
+{% highlight javascript %}
+toggleSelected(recordId)
+{% endhighlight %}
+
+Switch "select"
+
+---
+
+### toggleSelectAll
+
+{% highlight javascript %}
+toggleSelectAll()
+{% endhighlight %}
+
+Switch records selection mode
+
+---
+
+### selectAll
+
+{% highlight javascript %}
+selectAll()
+{% endhighlight %}
+
+Select all records
+
+---
+
+### unselectAll
+
+{% highlight javascript %}
+unselectAll()
+{% endhighlight %}
+
+Unselect all records. Switches records selection mode to "whitelist"
+
+---
+
+### isSelectBlackMode
+
+{% highlight javascript %}
+isSelectBlackMode()
+{% endhighlight %}
+
+Get current records selection mode
+
+---
+
+### getAllSelected
+
+{% highlight javascript %}
+getAllSelected()
+{% endhighlight %}
+
+Get all selected records
+
+---
+
 ### updateTable
 
 {% highlight javascript %}
