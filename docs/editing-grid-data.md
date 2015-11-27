@@ -5,7 +5,7 @@ prev: applying-filters.html
 next: removing-records.html
 ---
 * [Live demo](/examples/editing-grid-data/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/editing-grid-data){:target="_blank"}
+* [Code]({{ site.github }}/examples/editing-grid-data){:target="_blank"}
 
 Our grid already has sorting, pagination, and filtering. Now it's time to make it editable.
 

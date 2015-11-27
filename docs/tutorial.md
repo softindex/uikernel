@@ -5,7 +5,7 @@ prev: getting-started.html
 next: first-grid-component.html
 ---
 * [Live demo](/examples/creating-records/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/creating-records){:target="_blank"}
+* [Code]({{ site.github }}/examples/creating-records){:target="_blank"}
 
 This tutorial demonstrates how to build forms and editable grids with UIKernel. The steps for this tutorial are as follows:
 

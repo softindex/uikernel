@@ -64,10 +64,8 @@ Add an asynchronous validator to a field.
 Validator asyncFields(string[] fields, function validator)
 {% endhighlight %}
 
-Add an asynchronous validator to fields. If any errors occur, the callback with the parameter being  an `ValidationErrors` object will be invoked.
-
-> `err` contains the error that occurred during the asynchronous function execution.
-The `errors` parameter contains validation errors.
+Add an asynchronous validator to fields. The callback has three parameters: a record object, the `ValidationErrors` object,
+and a callback. If any errors occur during the asynchronous function execution, the callback will return the `Error` object.
 
 ---
 
@@ -178,4 +176,17 @@ ValidationErrors|null isValidRecord(Object record, function callback)
 {% endhighlight %}
 
 Check record validity
+
+## Example
+{% highlight javascript %}
+validator.isValidRecord(record, function (errors) {
+  if (errors.isEmpty()) {
+    throw errors;
+  }
+
+  // if there are no errors, do something
+}
+{% endhighlight %}
+
+
 
