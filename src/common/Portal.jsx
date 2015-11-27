@@ -78,13 +78,13 @@ var Portal = React.createClass({
   },
 
   _onDocumentMouseDown: function (e) {
-    if (typeof this.props.onDocumentMouseDown === 'function') {
+    if (this.props.onDocumentMouseDown) {
       this.props.onDocumentMouseDown(e, this._isDocumentEventOwner(e.target));
     }
   },
 
   _onDocumentMouseScroll: function (e) {
-    if (typeof this.props.onDocumentMouseScroll === 'function') {
+    if (this.props.onDocumentMouseScroll) {
       this.props.onDocumentMouseScroll(e, this._isDocumentEventOwner(e.target));
     }
   },

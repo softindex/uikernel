@@ -19,11 +19,21 @@ var classes = {
   option: '__suggestBoxPopUp-option',
   optionFocused: '__suggestBoxPopUp-option-focused',
   optionSelectable: '__suggestBoxPopUp-option-selectable',
-  optionGroup: '__suggestBoxPopUp-option-group',
-  optionHeader: '__suggestBoxPopUp-option-header',
-  optionSubitem: '__suggestBoxPopUp-option-subitem',
-  searchBlock: '__suggestBox-search'
+  optionTypes: {
+    group: '__suggestBoxPopUp-option-group',
+    header: '__suggestBoxPopUp-option-header',
+    subitem: '__suggestBoxPopUp-option-subitem'
+  },
+  searchBlock: '__suggestBox-search',
+  selectBtn: '__suggestBox-select-btn',
+  arrow: '__suggestBox-arrow',
+  up: '__suggestBox-up'
 };
+var TAB_KEY = 9;
+var ENTER_KEY = 13;
+var ESCAPE_KEY = 27;
+var ARROW_UP_KEY = 38;
+var ARROW_DOWN_KEY = 40;
 
 var SuggestBoxEditor = React.createClass({
   propTypes: {
@@ -113,15 +123,15 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _loadData: utils.throttle(function (searchPattern, cb) {
-    this.props.model.read(searchPattern, cb);
+    this.props.model.read(searchPattern || '', cb);
   }),
 
   _openList: function (searchPattern, cb) {
     if (this.props.disabled || this.state.isOpened) {
       return;
     }
+
     this.setState({isOpened: true}, function () {
-      this.refs.input.getDOMNode().focus();
       this.refs.input.getDOMNode().select();
 
       var $input = $(this.refs.input.getDOMNode());
@@ -141,7 +151,7 @@ var SuggestBoxEditor = React.createClass({
           left: offsetLeft
         });
 
-      this._updateList(searchPattern || '', function () {
+      this._updateList(searchPattern, function () {
         var selectedOptionKey = utils.findIndex(this.state.options, function (option) {
           return utils.isEqual(option.id, this.props.value);
         }.bind(this));
@@ -155,8 +165,9 @@ var SuggestBoxEditor = React.createClass({
     });
   },
 
-  _openListAndSelectAll: function () {
+  _onInputFocus: function () {
     this._openList();
+    this.refs.input.getDOMNode().select();
   },
 
   _closeList: function (shouldBlur) {
@@ -299,26 +310,25 @@ var SuggestBoxEditor = React.createClass({
     }
 
     switch (e.keyCode) {
-      case 40: // down arrow
+      case ARROW_DOWN_KEY:
         e.preventDefault();
         if (!this.state.isOpened) {
           return this._openList();
         }
         this._focusNextOption();
         break;
-      case 38: // up arrow
+      case ARROW_UP_KEY:
         e.preventDefault();
         if (!this.state.isOpened) {
           return this._openList();
         }
         this._focusPrevOption();
         break;
-      case 9: // eslint-disable-line no-fallthrough
-        if (!this.state.isOpened) {
-          break;
+      case TAB_KEY:
+      case ENTER_KEY:
+        if (e.keyCode === ENTER_KEY) {
+          e.preventDefault();
         }
-      case 13: // enter
-        e.preventDefault();
         if (this.state.selectedOptionKey === null) {
           this._setLabelTo(this.state.lastValidLabel);
         } else {
@@ -326,7 +336,7 @@ var SuggestBoxEditor = React.createClass({
         }
         this._closeList();
         break;
-      case 27: // escape
+      case ESCAPE_KEY:
         e.preventDefault();
         this._setLabelTo(this.state.lastValidLabel);
         this._closeList();
@@ -335,10 +345,6 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _onInputValueChange: function (e) {
-    if (this.props.disabled) {
-      return;
-    }
-
     if (this.state.isOpened) {
       this._updateList(e.target.value);
     } else {
@@ -351,29 +357,25 @@ var SuggestBoxEditor = React.createClass({
   },
 
   render: function () {
+    var arrowClasses = [classes.arrow];
+    var options;
     var optionsPopup = null;
 
     if (this.state.isOpened) {
-      var options = this.state.options.map(function (option, key) {
-        var optionClassName = classes.option;
+      arrowClasses.push(classes.up);
+
+      options = this.state.options.map(function (option, key) {
+        var optionClassNames = [classes.option];
         if (key === this.state.selectedOptionKey) {
-          optionClassName += ' ' + classes.optionFocused;
+          optionClassNames.push(classes.optionFocused);
         }
 
         if (option.id) {
-          optionClassName += ' ' + classes.optionSelectable;
+          optionClassNames.push(classes.optionSelectable);
         }
 
-        switch (option.type) {
-          case 'group':
-            optionClassName += ' ' + classes.optionGroup;
-            break;
-          case 'header':
-            optionClassName += ' ' + classes.optionHeader;
-            break;
-          case 'subitem':
-            optionClassName += ' ' + classes.optionSubitem;
-            break;
+        if (option.type) {
+          optionClassNames.push(classes.optionTypes[option.type] || option.type);
         }
 
         return (
@@ -381,7 +383,7 @@ var SuggestBoxEditor = React.createClass({
             key={key}
             data-key={key}
             onMouseOver={this._focusOption.bind(null, key)}
-            className={optionClassName}
+            className={optionClassNames.join(' ')}
           >
             {
               Array.isArray(option.label) ? option.label.map(function (label, columnKey) {
@@ -411,13 +413,13 @@ var SuggestBoxEditor = React.createClass({
             {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange'])}
             ref='input'
             type='text'
-            onClick={this._openList}
-            onFocus={this._openListAndSelectAll}
+            onClick={this._openList.bind(null, '')}
+            onFocus={this._onInputFocus}
             onKeyDown={this._onInputKeyDown}
             onChange={this._onInputValueChange}
           />
-          <div onClick={this._toggleList} className="select-btn">
-            <div className={'arrow' + (this.state.isOpened ? ' up' : '')}></div>
+          <div onClick={this._toggleList} className={classes.selectBtn}>
+            <div className={arrowClasses.join(' ')}></div>
           </div>
         </div>
         {optionsPopup}

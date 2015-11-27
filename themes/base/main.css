@@ -277,14 +277,14 @@
 .__suggestBox.select input {
   padding-right: 40px;
 }
-.__suggestBox .select-btn {
+.__suggestBox .__suggestBox-select-btn {
   position: absolute;
   top: 0;
   right: 0;
   width: 35px;
   height: 100%;
 }
-.__suggestBox .select-btn .arrow {
+.__suggestBox .__suggestBox-select-btn .__suggestBox-arrow {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -294,7 +294,7 @@
   border-style: solid;
   border-width: 5px 4px 0 4px;
 }
-.__suggestBox .select-btn .arrow.up {
+.__suggestBox .__suggestBox-select-btn .__suggestBox-arrow.__suggestBox-up {
   border-color: transparent transparent #888 transparent;
   border-width: 0 4px 5px 4px;
 }
