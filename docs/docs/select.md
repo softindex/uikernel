@@ -6,7 +6,7 @@ next: datepicker.html
 ---
 
 * [Live demo](/examples/select/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/select){:target="_blank"}
+* [Code]({{ site.github }}/examples/select){:target="_blank"}
 
 Let's create `MainComponent`, which will contain `UIKernel.Editors.Select`.
 

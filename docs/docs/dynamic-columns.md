@@ -8,7 +8,7 @@ next: bulk-operations.html
 Make the columns more dynamic.
 
 * [Live demo](/examples/dynamic-columns/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/dynamic-columns){:target="_blank"}
+* [Code]({{ site.github }}/examples/dynamic-columns){:target="_blank"}
 
 ### Create dynamic form
 

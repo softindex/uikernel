@@ -8,7 +8,7 @@ next: select.html
 We'll be building two editable grids, which will share one model.
 
 * [Live demo](/examples/data-binding/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/data-binding){:target="_blank"}
+* [Code]({{ site.github }}/examples/data-binding){:target="_blank"}
 
 ### Columns configuration
 
@@ -37,7 +37,7 @@ var columns = {
   phone: {
     name: 'Phone',
     editor: function () {
-      return <input type="text" {...this.props}/>; 
+      return <input type="text" {...this.props}/>;
     },
     render: ['phone', function (record) {
       return _.escape(record.phone);
@@ -141,8 +141,8 @@ var MainComponent = React.createClass({
             ref="grid"
             model={this.state.model}
             cols={columns}
-            viewCount={10} 
-            realtime={true} 
+            viewCount={10}
+            realtime={true}
             />
         </div>
       </div>
