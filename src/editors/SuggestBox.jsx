@@ -114,7 +114,7 @@ var SuggestBoxEditor = React.createClass({
         options: options,
         selectedOptionKey: null
       }, function () {
-        this._scrollListTo('top');
+        this._scrollListTo();
         if (typeof cb === 'function') {
           cb();
         }
@@ -264,7 +264,7 @@ var SuggestBoxEditor = React.createClass({
   _scrollListTo: function (target) {
     var container = $('#' + popupId).get(0);
 
-    if (target === 'top') {
+    if (!target) {
       container.scrollTop = 0;
       return;
     }

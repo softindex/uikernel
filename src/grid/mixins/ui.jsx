@@ -318,6 +318,10 @@ var GridUIMixin = {
   },
 
   _updateRow: function (row, cb) {
+    if (!this.state.data) {
+      return;
+    }
+
     if (this.state.data[row]) {
       this._renderBody();
       if (cb) {
