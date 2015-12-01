@@ -73,9 +73,7 @@ GridToFormUpdate.prototype.submit = function (changes, cb) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.isValidRecord = function (record, cb) {
-  this._adapter.model.isValidRecord(utils.assign({}, record, {
-    id: this._adapter.id
-  }), cb);
+  this._adapter.model.isValidRecord(record, cb);
 };
 
 /**
