@@ -69,6 +69,16 @@ Get record changes object
 
 ---
 
+### getRecordErrors
+
+{% highlight javascript %}
+getRecordChanges(recordId)
+{% endhighlight %}
+
+Get record errors object
+
+---
+
 ### getErrors
 
 {% highlight javascript %}

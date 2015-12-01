@@ -34,7 +34,7 @@ Add synchronous field validation.
 Validator fields(string[] fields, function validatorFunction(Object record, ValidationErrors errors))
 {% endhighlight %}
 
-Specify multiple synchronous validators for a group of fields. If errors occur, function complements errors object.
+Specify multiple synchronous validators for a group of fields. If any errors occur, the function returns an error.
 
 ---
 
