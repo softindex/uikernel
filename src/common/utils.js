@@ -327,12 +327,18 @@ exports.reduce = function (obj, func, value) {
 
 exports.union = function () {
   var elements = {};
-  for (var i = 0; i < arguments.length; i++) {
+  var result = [];
+  var i;
+
+  for (i = 0; i < arguments.length; i++) {
     for (var j = 0; j < arguments[i].length; j++) {
-      elements[arguments[i][j]] = true;
+      elements[arguments[i][j]] = arguments[i][j];
     }
   }
-  return Object.keys(elements);
+  for (i in elements) {
+    result.push(elements[i]);
+  }
+  return result;
 };
 
 exports.at = function (obj, keys) {
