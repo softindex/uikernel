@@ -29,8 +29,6 @@ var columns = {
             gender: 1
           }),
           mode: 'create',
-          changes: grid.getRecordChanges(recordId),
-          errors: grid.getRecordErrors(recordId),
           onSubmit(recordId) {
             createPopup.close();
             grid.addRecordStatus(recordId, 'new');
@@ -41,6 +39,7 @@ var columns = {
         var editPopup = Popup.open(RecordForm, {
           model: UIKernel.Adapters.Grid.toFormUpdate(grid.getModel(), recordId),
           mode: 'edit',
+          changes: grid.getRecordChanges(recordId),
           onSubmit() {
             editPopup.close();
             grid.clearRecordChanges(recordId);
