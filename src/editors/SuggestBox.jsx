@@ -93,8 +93,8 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _getLabelFromModel: function (id) {
-    if (!id) {
-      return this._setLabelTo('');
+    if (id === null || id === undefined) {
+      return this._setLabelTo('', true);
     }
 
     this.props.model.getLabel(id, function (err, label) {
