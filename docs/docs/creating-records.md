@@ -6,7 +6,7 @@ next: editors.html
 ---
 
 * [Live demo](/examples/creating-records/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/creating-records)
+* [Code]({{ site.github }}/examples/creating-records){:target="_blank"}
 
 First, let's create a form for adding new records to our grid. Open your `CreateFormComponent.jsx` file and paste there the following code:
 

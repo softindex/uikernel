@@ -6,7 +6,7 @@ next: suggest-box.html
 ---
 
 * [Live demo](/examples/datepicker/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/datepicker){:target="_blank"}
+* [Code]({{ site.github }}/examples/datepicker){:target="_blank"}
 
 
 Create a `MainComponent.jsx` with the following contents:
@@ -42,8 +42,8 @@ var MainComponent = React.createClass({
 {% endhighlight %}
 
 Next, render `MainComponent`.
- 
+
 `main.jsx`:
 {% highlight javascript %}
 React.render(<MainComponent/>, document.body);
-{% endhighlight %} 
+{% endhighlight %}

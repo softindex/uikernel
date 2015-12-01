@@ -5,12 +5,12 @@ prev: bulk-operations.html
 next: data-binding.html
 ---
 
-Example of simple form creating that edits 2nd table record.
+In this example, we'll be building a simple form for editing the 2nd record in the grid.
 
 * [Live demo](/examples/form/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/form){:target="_blank"}
+* [Code]({{ site.github }}/examples/form){:target="_blank"}
 
-Let's describe fields we need
+Let's create the columns for our grid first.
 
 `columns.jsx`
 
@@ -43,7 +43,7 @@ var columns = {
 
 ---
 
-And add validation for these fields
+Next, we'll define validation.
 
 `validation.js`
 
@@ -55,7 +55,8 @@ var Validation = UIKernel.createValidator()
 
 ---
 
-Now pass data and validation to the model
+
+Now pass data and validation to the model.
 
 `model.js`
 
@@ -72,7 +73,7 @@ var model = new UIKernel.Models.Grid.Collection({
 
 ---
 
-Now we can create simple editing form
+Create a form.
 
 `FormComponent.jsx`
 
@@ -149,7 +150,7 @@ var FormComponent =  React.createClass({
 
 ---
 
-Create MainComponent and place FormComponent in it
+Add `FormComponent` within `MainComponent`.
 
 `MainComponent.jsx`
 
@@ -180,4 +181,11 @@ var MainComponent = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
+Finally, let's render `MainComponent`.
+
+`main.jsx`:
+{% highlight javascript %}
+React.render(<MainComponent/>, document.getElementById("example"));
+{% endhighlight %}

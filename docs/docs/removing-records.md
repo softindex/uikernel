@@ -6,7 +6,7 @@ next: creating-records.html
 ---
 
 * [Live demo](/examples/removing-records/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/removing-records){:target="_blank"}
+* [Code]({{ site.github }}/examples/removing-records){:target="_blank"}
 
 That's the simple part. First, let's add the delete method to our model.
 
