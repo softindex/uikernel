@@ -30,7 +30,7 @@ var GridUIMixin = {
       element = $target.parents('td.dgrid-cell').get(0);
     }
 
-    if (element) {
+    if (element && !$refParent.attr('disabled')) {
       this.handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
     }
   },
