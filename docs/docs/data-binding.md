@@ -107,7 +107,7 @@ var model = (function () {
 
 ### Main component
 
-After defining the model, we'll add two grids to `MainComponent` and pass them some props.
+After defining the model, let's add two grids to `MainComponent`. We'll pass the `realtime` prop to one of them so that all changes could be saved automatically.
 
 `MainComponent.jsx`:
 {% highlight javascript %}
@@ -124,26 +124,34 @@ var MainComponent = React.createClass({
       }
     });
   },
+  onClear: function () {
+    this.refs.grid.clearAllChanges();
+  },
   render: function () {
     return (
-      <div className="row">
-        <div className="col-sm-6">
-          <UIKernel.Grid
-            ref="grid"
-            model={this.state.model} // Grid model
-            cols={columns} // columns configuration
-            viewCount={10} // display 10 records
-            realtime={true} // enable Grid dynamic save flag
-          />
-        </div>
-        <div className="col-sm-6">
-          <UIKernel.Grid
-            ref="grid"
-            model={this.state.model}
-            cols={columns}
-            viewCount={10}
-            realtime={true}
-            />
+      <div className="container">
+        <div className="row">
+          <div className="col-sm-6">
+            <h3>Grid with auto-saving</h3>
+            <UIKernel.Grid
+              model={this.state.model} // Grid model
+              cols={columns} // columns configuration
+              viewCount={10}
+              realtime={true}// add auto-saving
+              />
+          </div>
+          <div className="col-sm-6">
+            <h3>Grid without autosaving</h3>
+            <UIKernel.Grid
+              ref="grid"
+              model={this.state.model}
+              cols={columns}
+              viewCount={10}
+              />
+            <a className="btn btn-success" onClick={this.onClear}>Clear</a>
+            {' '}
+            <a className="btn btn-primary" onClick={this.onSave}>Save</a>
+          </div>
         </div>
       </div>
     );
