@@ -10,6 +10,10 @@
 
 'use strict';
 
+var numberValidator = require('./validation/validators/number');
+
+var isInvalidNumber = numberValidator(null, null, true);
+
 /**
  * Check if two arrays intersection exists
  */
@@ -123,7 +127,13 @@ exports.throttle = function (func) {
 exports.parseValueFromEvent = function (event) {
   if (event && typeof event === 'object' && event.target && ['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) >= 0) {
     switch (event.target.type) {
-      case 'checkbox': return event.target.checked;
+      case 'checkbox':
+        return event.target.checked;
+      case 'number':
+        if (!isInvalidNumber(event.target.value)) {
+          return Number(event.target.value);
+        }
+        break;
     }
     return event.target.value;
   }
@@ -238,6 +248,10 @@ exports.isEmpty = function (obj) {
     return true;
   }
   return Object.keys(obj).length === 0;
+};
+
+exports.isDefined = function (value) {
+  return value !== null && value !== undefined;
 };
 
 exports.forEach = function (obj, func, ctx) {

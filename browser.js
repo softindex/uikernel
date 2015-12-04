@@ -55,7 +55,6 @@ var Module = {
     date: require('./lib/common/validation/validators/date'),
     enum: require('./lib/common/validation/validators/enum'),
     float: require('./lib/common/validation/validators/float'),
-    listElement: require('./lib/common/validation/validators/listElement'),
     regExp: require('./lib/common/validation/validators/regExp'),
     notNull: require('./lib/common/validation/validators/notNull'),
     number: require('./lib/common/validation/validators/number')

@@ -10,6 +10,21 @@
 
 'use strict';
 
+var utils = require('../../utils');
+
+function validator(notNull, variants, error, value) {
+  if (!utils.isDefined(value)) {
+    if (notNull) {
+      return error;
+    }
+    return;
+  }
+
+  if (variants.indexOf(value) < 0) {
+    return error;
+  }
+}
+
 /**
  * Create enum validator
  *
@@ -18,9 +33,9 @@
  * @returns {Function}
  */
 module.exports = function (variants, error) {
-  return function (value) {
-    if (variants.indexOf(value) < 0) {
-      return error;
-    }
-  };
+  return validator.bind(null, false, variants, error);
+};
+
+module.exports.notNull = function (variants, error) {
+  return validator.bind(null, true, variants, error);
 };
