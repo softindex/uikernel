@@ -272,20 +272,8 @@ var FormMixin = {
 
     utils.assign(this.state._formMixin.changes, data);
 
-    var dependent = utils.pick(
-      this.state._formMixin.data,
-      this.state._formMixin.model.getValidationDependency(
-        Object.keys(this.state._formMixin.changes)
-      )
-    );
-
-    utils.assign(this.state._formMixin.changes, dependent);
-
     for (var i in this.state._formMixin.changes) {
-      if (
-        utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i]) &&
-        !dependent.hasOwnProperty(i)
-      ) {
+      if (utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i])) {
         delete this.state._formMixin.changes[i];
       }
     }
@@ -313,11 +301,16 @@ var FormMixin = {
 
     var changes = this._getChanges();
 
+    var changesWithDep = utils.assign({}, changes, utils.pick(
+      this.state._formMixin.data,
+      this.state._formMixin.model.getValidationDependency(Object.keys(changes))
+    ));
+
     this.state._formMixin.globalError = null;
     this.state._formMixin.partialErrorChecking = false;
 
     // Send changes to model
-    this.state._formMixin.model.submit(changes, function (err, data) {
+    this.state._formMixin.model.submit(changesWithDep, function (err, data) {
       if (!this.isMounted()) {
         return;
       }
