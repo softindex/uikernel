@@ -11,6 +11,7 @@
 'use strict';
 
 require('./lib/fix_generators');
+var variables = require('./lib/common/variables');
 
 var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
@@ -58,7 +59,9 @@ var Module = {
     regExp: require('./lib/common/validation/validators/regExp'),
     notNull: require('./lib/common/validation/validators/notNull'),
     number: require('./lib/common/validation/validators/number')
-  }
+  },
+  _get: variables.get,
+  _set: variables.set
 };
 
 global.UIKernel = module.exports = Module;
