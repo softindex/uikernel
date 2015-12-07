@@ -42,7 +42,7 @@ var GridPaginationMixin = {
    * @param {Event} event
    */
   handleChangeViewCount: function (event) {
-    var count = event.target.value;
+    var count = this.props.viewVariants[event.target.value];
     if (this._isViewCountPropsMode()) {
       this.props.onChangeViewCount(count);
       return;
@@ -164,10 +164,12 @@ var GridPaginationMixin = {
         {this.props.viewVariants ? [
           <div key="0">Page Size</div>,
           <div key="1">
-            <select value={viewCount}
-              onChange={this.handleChangeViewCount}>
+            <select
+              value={this.props.viewVariants.indexOf(viewCount)}
+              onChange={this.handleChangeViewCount}
+            >
                 {this.props.viewVariants.map(function (option, key) {
-                  return <option key={key} value={option}>{option}</option>;
+                  return <option key={key} value={key}>{option}</option>;
                 }, this)}
             </select>
           </div>
