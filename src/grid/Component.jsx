@@ -86,7 +86,7 @@ var GridComponent = React.createClass({
           if (this.props.model) {
             this.props.model.on('update', this._setData);
           }
-          this._reset();
+          this._setPage(0);
         }
         this.updateTable();
       } else if (reset & RESET_VIEW_COLUMNS) {
