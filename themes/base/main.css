@@ -267,6 +267,8 @@
 /* SuggestBox */
 .__suggestBox {
   position: relative;
+  display: block;
+  overflow: hidden;
 }
 .__suggestBox input[type="text"] {
   cursor: default;
@@ -283,6 +285,7 @@
   right: 0;
   width: 35px;
   height: 100%;
+  z-index: 1000;
 }
 .__suggestBox .__suggestBox-select-btn .__suggestBox-arrow {
   position: absolute;
