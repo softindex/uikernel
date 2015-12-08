@@ -19,6 +19,9 @@ var utils = require('../../common/utils');
  * @param {Object}            filters     Filter values
  */
 function applyGridFilters(model, filters) {
+  if (model instanceof utils.Decorator) {
+    model = Object.getPrototypeOf(model);
+  }
   return utils.decorate(model, {
     read: function (options, cb) {
       options.filters = filters;
