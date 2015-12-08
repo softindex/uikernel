@@ -11,6 +11,7 @@
 'use strict';
 
 var xhr = require('xhr');
+var variables = require('./variables');
 
 var defaultXhr = function (settings, cb) {
   xhr(settings, function (err, response, body) {
@@ -22,6 +23,14 @@ var defaultXhr = function (settings, cb) {
         err.message = body;
       }
     }
+
+    if (err) {
+      var defaultXhrErrorHandler = variables.get('defaultXhrErrorHandler');
+      if (defaultXhrErrorHandler) {
+        defaultXhrErrorHandler(err);
+      }
+    }
+
     cb(err, response, body);
   });
 };
