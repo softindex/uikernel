@@ -73,7 +73,7 @@ var GridColumnsMixin = {
 
       addInfo.className = classNames.join(' ');
 
-      if (this.props.cols[columnId].hasOwnProperty('parent')) {
+      if (this.props.cols[columnId].parent) {
         if (this.props.cols[columnId].parent !== lastParent.name) {
           lastParent = rows[0][rows[0].push({
             name: this.props.cols[columnId].parent,
