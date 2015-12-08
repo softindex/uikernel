@@ -251,7 +251,7 @@ exports.isEmpty = function (obj) {
 };
 
 exports.isDefined = function (value) {
-  return value !== null && value !== undefined;
+  return value !== null && value !== undefined && value !== '';
 };
 
 exports.forEach = function (obj, func, ctx) {
