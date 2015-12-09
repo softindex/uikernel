@@ -72,9 +72,11 @@ var GridUIMixin = {
       return;
     }
 
+    var viewCount = this.getViewCount();
+
     this._loadData({
-      limit: this.state.viewCount,
-      offset: this.state.page * this.state.viewCount,
+      limit: viewCount,
+      offset: this.state.page * viewCount,
       sort: this._sortingToArray(),
       fields: this._getFieldsToRender(),
       extra: this._getAdditionalIds()
@@ -96,7 +98,7 @@ var GridUIMixin = {
 
       // If required page is not included in the range of existing pages,
       // request existing in a moment page
-      page = this._checkPage(this.state.page, this.state.viewCount, obj.count);
+      page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
       if (page !== this.state.page) {
         this.state.page = page;
         this.updateTable(cb);
