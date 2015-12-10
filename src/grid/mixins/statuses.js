@@ -113,7 +113,7 @@ var GridStatusesMixin = {
    * @param   {number}  status      Record status
    * @returns {boolean} Record has status flag
    */
-  isStatus: function (recordId, status) {
+  hasRecordStatus: function (recordId, status) {
     var row = utils.hash(recordId);
     if (this.state.statuses[row]) {
       return this.state.statuses[row].sum & this._getStatusBit(status) > 0;

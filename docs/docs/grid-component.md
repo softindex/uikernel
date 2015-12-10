@@ -289,10 +289,10 @@ Remove record status
 
 ---
 
-### isStatus
+### hasRecordStatus
 
 {% highlight javascript %}
-isStatus(recordId, string status)
+hasRecordStatus(recordId, string status)
 {% endhighlight %}
 
 Check record status presence
