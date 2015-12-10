@@ -98,6 +98,9 @@ var SuggestBoxEditor = React.createClass({
     }
 
     this.props.model.getLabel(id, function (err, label) {
+      if (!this.isMounted()) {
+        return;
+      }
       if (err) {
         throw err;
       }
