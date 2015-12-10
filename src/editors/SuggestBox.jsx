@@ -101,7 +101,9 @@ var SuggestBoxEditor = React.createClass({
       if (err) {
         throw err;
       }
-      this._setLabelTo(label, true);
+      if (this.isMounted()) {
+        this._setLabelTo(label, true);
+      }
     }.bind(this));
   },
 
