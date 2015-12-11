@@ -35,4 +35,6 @@ var defaultXhr = function (settings, cb) {
   });
 };
 
+variables.set('defaultXhr', defaultXhr);
+
 module.exports = defaultXhr;
