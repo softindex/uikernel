@@ -322,7 +322,7 @@ Remove records status
 ### setSelectedRecords
 
 {% highlight javascript %}
-setSelectedRecords(selectedIds)
+setSelectedRecords(Array selectedIds, [boolean blackListMode])
 {% endhighlight %}
 
 Select only these records
