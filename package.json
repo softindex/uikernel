@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "express": "^4.13.3",
+    "promise": "^7.0.4",
     "react": "~0.13.3",
     "regenerator": "~0.8.36",
     "suspend": "~0.6.1",
