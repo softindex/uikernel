@@ -37,6 +37,15 @@ GridCollectionModel.prototype = new AbstractGridModel();
 GridCollectionModel.prototype.constructor = AbstractGridModel;
 
 /**
+ * Get data array from model
+ *
+ * @returns {Array}  data array
+ */
+GridCollectionModel.prototype.getData = function () {
+  return this.data;
+};
+
+/**
  * Set data array in model
  *
  * @param {Object[]} data
@@ -221,6 +230,20 @@ GridCollectionModel.prototype.update = function (changes, cb) {
       }
     }.bind(this));
   }.bind(this));
+};
+
+/**
+ * Remove field by record id from data
+ *
+ * @param   {Number}  recordId   record id for remove
+ * @returns {Number}  recordId   return id of deleted record
+ */
+GridCollectionModel.prototype.delete = function (recordId, cb) {
+  this.data = this.data.filter(function (record) {
+    return record[0] !== recordId;
+  });
+  this.trigger('delete', recordId);
+  cb(null, recordId);
 };
 
 /**
