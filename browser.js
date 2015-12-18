@@ -45,7 +45,8 @@ var Module = {
     Select: require('./lib/editors/Select'),
     SuggestBox: require('./lib/editors/SuggestBox'),
     DatePicker: require('./lib/editors/DatePicker'),
-    Checkbox: require('./lib/editors/Checkbox')
+    Checkbox: require('./lib/editors/Checkbox'),
+    Number: require('./lib/editors/Number')
   },
   ArgumentsError: require('./lib/common/ArgumentsError'),
   Mixins: {

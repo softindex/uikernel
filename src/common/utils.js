@@ -166,7 +166,7 @@ exports.isEqual = function (a, b) {
   ) {
     return a === b;
   }
-  if (a === b || a.valueOf() === b.valueOf()) {
+  if (a === b || a.valueOf() === b.valueOf() || a !== a && b !== b) {
     return true;
   }
   if (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length) || !(typeof a === 'object')) {
