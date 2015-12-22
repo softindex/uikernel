@@ -116,7 +116,7 @@ var GridStatusesMixin = {
   hasRecordStatus: function (recordId, status) {
     var row = utils.hash(recordId);
     if (this.state.statuses[row]) {
-      return this.state.statuses[row].sum & this._getStatusBit(status) > 0;
+      return (this.state.statuses[row].sum & this._getStatusBit(status)) > 0;
     }
     return false;
   },
