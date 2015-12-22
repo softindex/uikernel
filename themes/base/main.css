@@ -45,7 +45,6 @@
   padding: 3px 9px 3px 10px;
   text-align: center;
   background: transparent;
-  overflow: hidden;
   font-weight: bold;
   color: #2B2A2A;
 }
@@ -54,7 +53,6 @@
   white-space: nowrap;
   padding: 1px 9px 1px 10px;
   border-right: 1px solid #ddd;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
