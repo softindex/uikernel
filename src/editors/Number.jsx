@@ -28,7 +28,7 @@ var NumberEditor = React.createClass({
   },
   componentWillReceiveProps: function (nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
-      this.refs.input.value = this.state.value = nextProps.value;
+      this.refs.input.getDOMNode().value = this.state.value = nextProps.value;
     }
   },
   _onChangeHandler: function (e) {
