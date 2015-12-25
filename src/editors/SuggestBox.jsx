@@ -44,7 +44,8 @@ var SuggestBoxEditor = React.createClass({
     }),
     onChange: React.PropTypes.func.isRequired,
     onLabelChange: React.PropTypes.func,
-    value: React.PropTypes.any
+    value: React.PropTypes.any,
+    defaultLabel: React.PropTypes.string
   },
 
   getDefaultProps: function () {
@@ -64,6 +65,9 @@ var SuggestBoxEditor = React.createClass({
   },
 
   componentDidMount: function () {
+    if (this.props.defaultLabel) {
+      return this._setLabelTo(this.props.defaultLabel, true);
+    }
     this._getLabelFromModel(this.props.value);
   },
 
