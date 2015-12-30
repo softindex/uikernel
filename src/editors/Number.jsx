@@ -34,7 +34,7 @@ var NumberEditor = React.createClass({
   _onChangeHandler: function (e) {
     var target = e.target;
     if (target.validity.valid || !invalidFloat(target.valueAsNumber)) {
-      this.state.value = target.valueAsNumber || null;
+      this.state.value = target.valueAsNumber === 0 ? 0 : target.valueAsNumber || null;
     } else {
       this.state.value = NaN;
     }
