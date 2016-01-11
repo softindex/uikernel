@@ -116,7 +116,7 @@ var DatePickerEditor = React.createClass({
   render: function () {
     return (
       <input
-        {...utils.omit(this.props, 'value')}
+        {...utils.omit(this.props, ['value', 'onBlur'])}
         ref="input"
         type="text"
         onChange={this.setDate}
