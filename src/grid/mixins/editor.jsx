@@ -52,11 +52,12 @@ var GridEditorMixin = {
       }.bind(this),
       onBlur: function () {
         // Remove Editor
-        React.unmountComponentAtNode(element);
-        delete this.state.editor[row + '_' + column];
-        $element.removeClass('dgrid-input-wrapper');
-
-        this._onBlurEditor(row, column);
+        if ($element.hasClass('dgrid-input-wrapper')) {
+          React.unmountComponentAtNode(element);
+          delete this.state.editor[row + '_' + column];
+          $element.removeClass('dgrid-input-wrapper');
+          this._onBlurEditor(row, column);
+        }
       }.bind(this),
       value: value
     };
@@ -77,14 +78,15 @@ var GridEditorMixin = {
       return;
     }
 
-    $element.addClass('dgrid-input-wrapper');
-
-    var EditorComponent = this.state.editor[row + '_' + column] = React.render(Component, element);
-    if (typeof EditorComponent.focus === 'function') {
-      EditorComponent.focus();
-    } else {
-      EditorComponent.getDOMNode().focus();
-    }
+    this.state.editor[row + '_' + column] = React.render(Component, element, function () {
+      // Focus and AddClass order is important in Firefox
+      if (typeof this.focus === 'function') {
+        this.focus();
+      } else {
+        this.getDOMNode().focus();
+      }
+      $element.addClass('dgrid-input-wrapper');
+    });
   },
 
   _onChangeEditor: function (row, column, values) {
