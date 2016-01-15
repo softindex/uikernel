@@ -33,6 +33,7 @@ var GridEditorMixin = {
     var record = this._getRecord(row);
     var $element = $(element);
     var value = utils.at(record, binds);
+    var focusDone = false;
 
     if (!Array.isArray(binds)) {
       value = value[0];
@@ -52,7 +53,7 @@ var GridEditorMixin = {
       }.bind(this),
       onBlur: function () {
         // Remove Editor
-        if ($element.hasClass('dgrid-input-wrapper')) {
+        if (focusDone) {
           React.unmountComponentAtNode(element);
           delete this.state.editor[row + '_' + column];
           $element.removeClass('dgrid-input-wrapper');
@@ -79,13 +80,14 @@ var GridEditorMixin = {
     }
 
     this.state.editor[row + '_' + column] = React.render(Component, element, function () {
-      // Focus and AddClass order is important in Firefox
+      $element.addClass('dgrid-input-wrapper');
+
       if (typeof this.focus === 'function') {
         this.focus();
       } else {
         this.getDOMNode().focus();
       }
-      $element.addClass('dgrid-input-wrapper');
+      focusDone = true;
     });
   },
 
