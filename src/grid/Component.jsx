@@ -112,12 +112,12 @@ var GridComponent = React.createClass({
                         onClick={
                             col.sort ?
                               this._sortCol.bind(this, col.field) :
-                              null
+                              this._handleHeaderCellClick.bind(this, col)
                             }
                         colSpan={col.cols}
                         rowSpan={col.rows}
                         dangerouslySetInnerHTML={{
-                            __html: col.name || ''
+                            __html: this._getHeaderCellHTML(col.name)
                           }}
                       />
                     );
@@ -136,7 +136,7 @@ var GridComponent = React.createClass({
             <table
               cellSpacing="0"
               ref="body"
-              onClick={this.handleBodyClick}
+              onClick={this._handleBodyClick}
             >
               <colgroup>{header.colGroup}</colgroup>
               <tbody className="dgrid-body-table" ref="tbody"/>
@@ -160,7 +160,7 @@ var GridComponent = React.createClass({
           cellSpacing="0"
           className="dgrid-body-table"
           ref="body"
-          onClick={this.handleBodyClick}
+          onClick={this._handleBodyClick}
         >
           <thead>
             {header.cols.map(function (row, colKey) {
@@ -174,12 +174,12 @@ var GridComponent = React.createClass({
                         onClick={
                             col.sort ?
                               this._sortCol.bind(this, col.field) :
-                              null
+                              this._handleHeaderCellClick.bind(this, col)
                             }
                         colSpan={col.cols}
                         rowSpan={col.rows}
                         dangerouslySetInnerHTML={{
-                            __html: col.name || ''
+                            __html: this._getHeaderCellHTML(col.name)
                           }}
                       />
                     );

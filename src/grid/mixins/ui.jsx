@@ -19,7 +19,7 @@ var GridUIMixin = {
    *
    * @param {Event} event
    */
-  handleBodyClick: function (event) {
+  _handleBodyClick: function (event) {
     var $target = $(event.target);
     var $refParent = $target.parents('[ref]');
     var element;
@@ -31,7 +31,7 @@ var GridUIMixin = {
     }
 
     if (element && !$refParent.attr('disabled')) {
-      this.handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
+      this._handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
     }
   },
 
@@ -42,7 +42,7 @@ var GridUIMixin = {
    * @param {HTMLElement}     element     Cell DOM element
    * @param {string}          ref         Click handler name in the table configuration
    */
-  handleCellClick: function (event, element, ref) {
+  _handleCellClick: function (event, element, ref) {
     var colId = $(element).attr('key');
     var row = $(element).parent().attr('key');
     var columnConfig = this.props.cols[colId];
@@ -59,6 +59,24 @@ var GridUIMixin = {
     // Open cell editor
     if (this.props.cols[colId].editor) {
       this._renderEditor(element, row, colId);
+    }
+  },
+
+  _handleHeaderCellClick: function (col, event) {
+    var $target = $(event.target);
+    var $refParent = $target.parents('[ref]');
+    var ref = $refParent.attr('ref') || event.target.getAttribute('ref');
+    var handler;
+
+    if (ref && col.onClickRefs) {
+      handler = col.onClickRefs[ref];
+      if (handler) {
+        return handler(event, this);
+      }
+    }
+
+    if (col.onClick) {
+      col.onClick(event, this);
     }
   },
 
@@ -136,6 +154,14 @@ var GridUIMixin = {
     } else {
       $(this.refs.loader.getDOMNode()).removeClass('dgrid-loader');
     }
+  },
+
+  _getHeaderCellHTML: function (columnName) {
+    var cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
+    if (cellHtml === undefined) {
+      return '';
+    }
+    return cellHtml;
   },
 
   /**

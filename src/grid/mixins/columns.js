@@ -60,6 +60,8 @@ var GridColumnsMixin = {
       classNames = [this._getColumnClass(columnId)];
       addInfo = {
         name: this.props.cols[columnId].name,
+        onClick: this.props.cols[columnId].onClick,
+        onClickRefs: this.props.cols[columnId].onClickRefs,
         cols: 1,
         rows: 1
       };
