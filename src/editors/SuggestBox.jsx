@@ -270,6 +270,9 @@ var SuggestBoxEditor = React.createClass({
 
   _scrollListTo: function (target) {
     var container = $('#' + popupId).get(0);
+    if (!container) {
+      return;
+    }
 
     if (!target) {
       container.scrollTop = 0;
@@ -281,6 +284,16 @@ var SuggestBoxEditor = React.createClass({
     } else if (target.offsetTop - container.scrollTop < 0) {
       container.scrollTop = target.offsetTop;
     }
+  },
+
+  _isParentOf: function (child) {
+    while (child) {
+      child = $(child).parent().get(0);
+      if (child === this.getDOMNode()) {
+        return true;
+      }
+    }
+    return false;
   },
 
   _onDocumentMouseDown: function (e, isOwner) {
@@ -296,9 +309,13 @@ var SuggestBoxEditor = React.createClass({
         this._selectOption(this.state.options[$target.attr('data-key')]);
         this._closeList(true);
       }
-    } else if (!$target.parents('.' + classes.searchBlock).length) {
-      this._setLabelTo(this.state.lastValidLabel);
-      this._closeList(true);
+    } else {
+      if (!$target.parents('.' + classes.searchBlock).length) {
+        this._setLabelTo(this.state.lastValidLabel);
+      }
+      if (!this._isParentOf(e.target)) {
+        this._closeList(true);
+      }
     }
   },
 

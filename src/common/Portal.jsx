@@ -46,8 +46,7 @@ var Portal = React.createClass({
   },
 
   componentDidMount: function () {
-    $('body').on('mousedown', this._onDocumentMouseDown);
-    // jQuery events not support "useCapture"
+    document.addEventListener('mousedown', this._onDocumentMouseDown, false);
     document.addEventListener('scroll', this._onDocumentMouseScroll, true);
 
     var portal = document.createElement('div');
@@ -61,8 +60,7 @@ var Portal = React.createClass({
   },
 
   componentWillUnmount: function () {
-    $('body').off('mousedown', this._onDocumentMouseDown);
-    // jQuery events not support "useCapture"
+    document.removeEventListener('mousedown', this._onDocumentMouseDown, false);
     document.removeEventListener('scroll', this._onDocumentMouseScroll, true);
 
     React.unmountComponentAtNode(this.state.portal);
