@@ -201,9 +201,7 @@ var GridPaginationMixin = {
         }).call(this) : null}
         <a href="#" className="btn-next-page" onClick={this.handleNextPage}></a>
         <a href="#" className="btn-last-page" onClick={this.handleLastPage}></a>
-        <a href="#" onClick={this.handleRefreshTable}>
-          <i className="fa fa-refresh"/>
-        </a>
+        <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}></a>
       </div>
     ) : null;
   }

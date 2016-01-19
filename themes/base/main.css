@@ -132,10 +132,7 @@
   margin: 0 5px;
 }
 
-.data-grid .dgrid-footer > .btn-first-page,
-.data-grid .dgrid-footer > .btn-last-page,
-.data-grid .dgrid-footer > .btn-prev-page,
-.data-grid .dgrid-footer > .btn-next-page {
+.data-grid .dgrid-footer > a {
   width: 15px;
   height: 15px;
   cursor: pointer;
@@ -157,6 +154,10 @@
 
 .data-grid .dgrid-footer > .btn-last-page {
   background-position: -52px;
+}
+
+.data-grid .dgrid-footer > .btn-refresh-page {
+  background-position: -69px;
 }
 
 .data-grid .dgrid-footer input,
