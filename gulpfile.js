@@ -33,5 +33,5 @@ gulp.task('license', ['detectErrors'], addLicense);
 gulp.task('detectErrors', ['clear'], jsDetectErrors);
 gulp.task('clear', jsClear);
 gulp.task('deploySite', ['buildSite'], deploySite);
-gulp.task('buildSite', ['bundle', 'archive'], buildSite);
-gulp.task('archive', archive);
+gulp.task('buildSite', ['archive'], buildSite);
+gulp.task('archive', ['bundle'], archive);
