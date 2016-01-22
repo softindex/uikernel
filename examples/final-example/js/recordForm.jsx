@@ -18,7 +18,8 @@ var RecordForm = React.createClass({
   componentDidMount: function () {
     var formProperties = {
       fields: ["name", "surname", "phone", "age", "gender"],
-      model: this.props.model
+      model: this.props.model,
+      changes: this.props.changes
     };
 
     if (this.props.mode === "create") {
@@ -43,8 +44,8 @@ var RecordForm = React.createClass({
       return <span>Loading...</span>;
     }
 
-    const data = this.getData();
-    const globalError = this.getGlobalError();
+    var data = this.getData();
+    var globalError = this.getGlobalError();
 
     return (
       <div className="modal-dialog modal-lg">
