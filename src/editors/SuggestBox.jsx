@@ -22,7 +22,8 @@ var classes = {
   optionTypes: {
     group: '__suggestBoxPopUp-option-group',
     header: '__suggestBoxPopUp-option-header',
-    subitem: '__suggestBoxPopUp-option-subitem'
+    subitem: '__suggestBoxPopUp-option-subitem',
+    empty: '__suggestBoxPopUp-option-empty'
   },
   searchBlock: '__suggestBox-search',
   selectBtn: '__suggestBox-select-btn',
@@ -73,6 +74,7 @@ var SuggestBoxEditor = React.createClass({
 
   shouldComponentUpdate: function (nextProps, nextState) {
     return !utils.isEqual(this.state.value, nextProps.value)
+      || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
       || this.state.options.length !== nextState.options.length;
@@ -119,7 +121,8 @@ var SuggestBoxEditor = React.createClass({
       }
       this.setState({
         options: options,
-        selectedOptionKey: null
+        selectedOptionKey: null,
+        loading: false
       }, function () {
         this._scrollListTo();
         if (typeof cb === 'function') {
@@ -138,7 +141,7 @@ var SuggestBoxEditor = React.createClass({
       return;
     }
 
-    this.setState({isOpened: true}, function () {
+    this.setState({isOpened: true, loading: true}, function () {
       this.refs.input.getDOMNode().select();
 
       var $input = $(this.refs.input.getDOMNode());
@@ -417,6 +420,17 @@ var SuggestBoxEditor = React.createClass({
           </li>
         );
       }.bind(this));
+
+      if (!options.length) {
+        options.push(
+          <li
+            key={0}
+            className={[classes.option, classes.optionTypes.empty].join(' ')}
+          >
+            <div>{this.state.loading ? 'Loading..' : 'Nothing found'}</div>
+          </li>
+        );
+      }
 
       optionsPopup = (
         <Portal

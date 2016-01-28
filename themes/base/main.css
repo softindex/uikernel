@@ -343,6 +343,10 @@
   background-color: #f9f9f9;
   color: inherit;
 }
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-empty {
+  color: #888;
+  text-align: center;
+}
 .__suggestBoxPopUp-option {
   cursor: default;
 }
