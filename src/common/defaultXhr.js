@@ -24,17 +24,10 @@ var defaultXhr = function (settings, cb) {
       }
     }
 
-    if (err) {
-      var defaultXhrErrorHandler = variables.get('defaultXhrErrorHandler');
-      if (defaultXhrErrorHandler) {
-        defaultXhrErrorHandler(err);
-      }
-    }
-
     cb(err, response, body);
   });
 };
 
-variables.set('defaultXhr', defaultXhr);
-
-module.exports = defaultXhr;
+module.exports = function (settings, cb) {
+  (variables.get('xhr') || defaultXhr)(settings, cb);
+};
