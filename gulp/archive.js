@@ -12,11 +12,18 @@
 
 var gulp = require('gulp');
 var archiver = require('gulp-archiver');
+var merge = require('merge-stream');
 
 function archive() {
-  return gulp.src('themes/base/**/*')
+  var archiveStatic = gulp.src('themes/base/**/*')
     .pipe(archiver('static.zip'))
     .pipe(gulp.dest('./dist'));
+
+  var archiveExamples = gulp.src(['examples/**/*'])
+    .pipe(archiver('starter-kit.zip'))
+    .pipe(gulp.dest('./dist'));
+
+  return merge(archiveStatic, archiveExamples);
 }
 
 module.exports = archive;
