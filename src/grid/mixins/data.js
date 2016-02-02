@@ -338,12 +338,12 @@ var GridDataMixin = {
     if (!this.state.changes[row]) {
       this.state.changes[row] = {};
     }
-    utils.assign(this.state.changes[row], changes, utils.pick(
+    utils.assign(this.state.changes[row], utils.pick(
       this.state.data[row],
       this.props.model.getValidationDependency(
         Object.keys(this.state.changes[row])
       )
-    ));
+    ), changes);
     if (!this.state.changes[row]) {
       delete this.state.changes[row];
     }
