@@ -331,26 +331,32 @@ var GridDataMixin = {
    * This method marks changed fields
    *
    * @param {string}      row         Row ID
-   * @param {Object}      changes     Changed data
+   * @param {Object}      data        Changed data
    * @private
    */
-  _setRowChanges: function (row, changes) {
-    if (!this.state.changes[row]) {
-      this.state.changes[row] = {};
-    }
-    utils.assign(this.state.changes[row], changes, utils.pick(
-      this.state.data[row],
-      this.props.model.getValidationDependency(
-        Object.keys(this.state.changes[row])
-      )
-    ));
-    if (!this.state.changes[row]) {
-      delete this.state.changes[row];
+  _setRowChanges: function (row, data) {
+    var changes = this.state.changes;
+
+    if (!changes[row]) {
+      changes[row] = {};
     }
 
-    utils.forEach(changes, function (value, field) {
-      this._renderBinds(row, field);
-    }, this);
+    utils.assign(changes[row], data);
+
+    // Mark dependent fields as changed
+    utils.assign(changes[row], utils.pick(
+      this.state.data[row],
+      this.props.model.getValidationDependency(Object.keys(changes[row]))
+    ));
+
+    if (utils.isEmpty(changes[row])) {
+      delete changes[row];
+    } else {
+      // Redraw the changes in the row
+      utils.forEach(changes[row], function (value, field) {
+        this._renderBinds(row, field);
+      }, this);
+    }
   },
 
   /**
