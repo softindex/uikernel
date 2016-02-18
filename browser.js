@@ -56,6 +56,7 @@ var Module = {
     boolean: require('./lib/common/validation/validators/boolean'),
     date: require('./lib/common/validation/validators/date'),
     enum: require('./lib/common/validation/validators/enum'),
+    set: require('./lib/common/validation/validators/set'),
     float: require('./lib/common/validation/validators/float'),
     regExp: require('./lib/common/validation/validators/regExp'),
     notNull: require('./lib/common/validation/validators/notNull'),
