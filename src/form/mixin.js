@@ -275,7 +275,7 @@ var FormMixin = {
     utils.assign(state.changes, data);
 
     for (var i in state.changes) {
-      if (utils.isEqual(state.data[i], state.changes[i]) ) {
+      if (utils.isEqual(state.data[i], state.changes[i])) {
         delete state.changes[i];
       }
     }
@@ -438,7 +438,7 @@ var FormMixin = {
       }
 
       this.setState(this.state, function () {
-        if (!validErrors.isEmpty()) {
+        if (!err && !validErrors.isEmpty()) {
           return cb(validErrors);
         }
         cb(err);
