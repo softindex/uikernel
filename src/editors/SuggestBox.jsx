@@ -46,12 +46,16 @@ var SuggestBoxEditor = React.createClass({
     onChange: React.PropTypes.func.isRequired,
     onLabelChange: React.PropTypes.func,
     value: React.PropTypes.any,
-    defaultLabel: React.PropTypes.string
+    defaultLabel: React.PropTypes.string,
+    notFoundElement: React.PropTypes.element,
+    loadingElement: React.PropTypes.element
   },
 
   getDefaultProps: function () {
     return {
-      disabled: false
+      disabled: false,
+      notFoundElement: <div>Nothing found</div>,
+      loadingElement: <div>Loading...</div>
     };
   },
 
@@ -391,45 +395,50 @@ var SuggestBoxEditor = React.createClass({
     if (this.state.isOpened) {
       arrowClasses.push(classes.up);
 
-      options = this.state.options.map(function (option, key) {
-        var optionClassNames = [classes.option];
-        if (key === this.state.selectedOptionKey) {
-          optionClassNames.push(classes.optionFocused);
-        }
-
-        if (option.id) {
-          optionClassNames.push(classes.optionSelectable);
-        }
-
-        if (option.type) {
-          optionClassNames.push(classes.optionTypes[option.type] || option.type);
-        }
-
-        return (
-          <li
-            key={key}
-            data-key={key}
-            onMouseOver={this._focusOption.bind(null, key)}
-            className={optionClassNames.join(' ')}
-          >
-            {
-              Array.isArray(option.label) ? option.label.map(function (label, columnKey) {
-                return <div key={columnKey}>{label}</div>;
-              }) : <div>{option.label}</div>
+      if (this.state.loading) {
+        options = (
+          <li className={[classes.option, classes.optionTypes.empty].join(' ')}>
+            {this.props.loadingElement}
+          </li>
+        );
+      } else {
+        if (!this.state.options.length) {
+          options = (
+            <li className={[classes.option, classes.optionTypes.empty].join(' ')}>
+              {this.props.notFoundElement}
+            </li>
+          );
+        } else {
+          options = this.state.options.map(function (option, key) {
+            var optionClassNames = [classes.option];
+            if (key === this.state.selectedOptionKey) {
+              optionClassNames.push(classes.optionFocused);
             }
-          </li>
-        );
-      }.bind(this));
 
-      if (!options.length) {
-        options.push(
-          <li
-            key={0}
-            className={[classes.option, classes.optionTypes.empty].join(' ')}
-          >
-            <div>{this.state.loading ? 'Loading..' : 'Nothing found'}</div>
-          </li>
-        );
+            if (option.id) {
+              optionClassNames.push(classes.optionSelectable);
+            }
+
+            if (option.type) {
+              optionClassNames.push(classes.optionTypes[option.type] || option.type);
+            }
+
+            return (
+              <li
+                key={key}
+                data-key={key}
+                onMouseOver={this._focusOption.bind(null, key)}
+                className={optionClassNames.join(' ')}
+              >
+                {
+                  Array.isArray(option.label) ? option.label.map(function (label, columnKey) {
+                    return <div key={columnKey}>{label}</div>;
+                  }) : <div>{option.label}</div>
+                }
+              </li>
+            );
+          }.bind(this));
+        }
       }
 
       optionsPopup = (
