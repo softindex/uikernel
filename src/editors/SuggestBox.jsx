@@ -181,7 +181,7 @@ var SuggestBoxEditor = React.createClass({
     if (shouldBlur) {
       this.refs.input.getDOMNode().blur();
     }
-    if (!this.state.isOpened) {
+    if ((shouldBlur && !this.isMounted()) || !this.state.isOpened) {
       return;
     }
     this.setState({
