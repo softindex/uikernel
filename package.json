@@ -35,7 +35,7 @@
     "gulp-browserify": "^0.5.1",
     "gulp-eslint": "^0.15.0",
     "gulp-gh-pages": "^0.5.4",
-    "gulp-jsdoc": "^0.1.4",
+    "gulp-jsdoc3": "^0.2.0",
     "gulp-jsxcs": "^0.1.9",
     "gulp-licenser": "^1.0.0",
     "gulp-plumber": "~0.6.6",
