@@ -47,6 +47,7 @@ var SuggestBoxEditor = React.createClass({
     onLabelChange: React.PropTypes.func,
     value: React.PropTypes.any,
     defaultLabel: React.PropTypes.string,
+    label: React.PropTypes.string,
     notFoundElement: React.PropTypes.element,
     loadingElement: React.PropTypes.element
   },
@@ -55,7 +56,8 @@ var SuggestBoxEditor = React.createClass({
     return {
       disabled: false,
       notFoundElement: <div>Nothing found</div>,
-      loadingElement: <div>Loading...</div>
+      loadingElement: <div>Loading...</div>,
+      value: null
     };
   },
 
@@ -64,20 +66,22 @@ var SuggestBoxEditor = React.createClass({
       isOpened: false,
       options: [],
       selectedOptionKey: null,
-      lastValidLabel: '',
-      value: null
+      lastValidLabel: ''
     };
   },
 
   componentDidMount: function () {
     if (this.props.defaultLabel) {
-      return this._setLabelTo(this.props.defaultLabel, true);
+      this._setLabelTo(this.props.defaultLabel, true);
+    } else if (this.props.hasOwnProperty('label')) {
+      this._setLabelTo(this.props.label, true);
+    } else {
+      this._getLabelFromModel(this.props.value);
     }
-    this._getLabelFromModel(this.props.value);
   },
 
   shouldComponentUpdate: function (nextProps, nextState) {
-    return !utils.isEqual(this.state.value, nextProps.value)
+    return !utils.isEqual(this.props.value, nextProps.value)
       || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
@@ -85,9 +89,13 @@ var SuggestBoxEditor = React.createClass({
   },
 
   componentWillReceiveProps: function (nextProps) {
-    if (!utils.isEqual(this.state.value, nextProps.value)) {
-      this.state.value = nextProps.value;
-      this._getLabelFromModel(nextProps.value);
+    if (!utils.isEqual(this.props.value, nextProps.value)) {
+      if (!this.props.hasOwnProperty('label')) {
+        this._getLabelFromModel(nextProps.value);
+      }
+    }
+    if (this.props.label !== nextProps.label) {
+      this._setLabelTo(nextProps.label, true);
     }
   },
 
@@ -96,6 +104,9 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _setLabelTo: function (label, markAsValid) {
+    if (label === null || label === undefined) {
+      label = '';
+    }
     this.refs.input.getDOMNode().value = label;
     if (markAsValid) {
       this.state.lastValidLabel = label;
@@ -207,12 +218,10 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _selectOption: function (option) {
-    this.state.value = option.id;
     this.props.onChange(option.id);
     if (typeof this.props.onLabelChange === 'function') {
       this.props.onLabelChange(option.label);
     }
-    this._setLabelTo(this._getOptionLabel(option), true);
     this.refs.input.getDOMNode().select();
   },
 
