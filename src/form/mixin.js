@@ -74,6 +74,7 @@ var FormMixin = {
             }
             throw err;
           });
+          return;
         }
         ctx.state._formMixin.data = data;
         done();
