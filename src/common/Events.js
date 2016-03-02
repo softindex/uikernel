@@ -25,10 +25,6 @@ function EventsModel() {
  * @param {Function}    cb      CallBack function
  */
 EventsModel.prototype.on = function (event, cb) {
-  if (!this._subscribers) {
-    return;
-  }
-
   if (typeof this._subscribers[event] !== 'object') {
     this._subscribers[event] = [];
   }
@@ -42,10 +38,13 @@ EventsModel.prototype.on = function (event, cb) {
  * @param {Function}    cb      CallBack function
  */
 EventsModel.prototype.off = function (event, cb) {
-  if (!this._subscribers) {
+  if (!cb.key) {
     return;
   }
-  delete this._subscribers[event][cb.key];
+
+  if (this._subscribers[event] && this._subscribers[event][cb.key]) {
+    delete this._subscribers[event][cb.key];
+  }
 };
 
 /**
@@ -55,10 +54,6 @@ EventsModel.prototype.off = function (event, cb) {
  */
 EventsModel.prototype.trigger = function (event) {
   var i;
-
-  if (!this._subscribers) {
-    return;
-  }
 
   if (!this._subscribers[event] || !this._subscribers[event].length) {
     return;
