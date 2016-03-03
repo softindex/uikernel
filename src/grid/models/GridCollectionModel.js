@@ -34,7 +34,7 @@ var GridCollectionModel = function (options) {
   this._requiredFields = options.requiredFields || [];
 };
 GridCollectionModel.prototype = new AbstractGridModel();
-GridCollectionModel.prototype.constructor = AbstractGridModel;
+GridCollectionModel.prototype.constructor = GridCollectionModel;
 
 /**
  * Set data array in model
