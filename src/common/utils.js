@@ -367,3 +367,19 @@ exports.pairs = function (obj) {
   }
   return result;
 };
+
+exports.toDate = function (value) {
+  var date;
+
+  if (typeof value === 'number') {
+    return new Date(value);
+  }
+
+  if (typeof value === 'string') {
+    date = new Date(value);
+    date.setTime(date.getTime() + (date.getTimezoneOffset() * 60 * 1000)); // Convert UTC to local time
+    return date;
+  }
+
+  return new Date(value);
+};

@@ -20,11 +20,11 @@ function validator(notNull, min, max, error, value) {
     return;
   }
 
-  value = new Date(value);
-  if (min && new Date(min) > value) {
+  value = utils.toDate(value);
+  if (min && utils.toDate(min) > value) {
     return error;
   }
-  if (max && new Date(max) < value) {
+  if (max && utils.toDate(max) < value) {
     return error;
   }
 }
