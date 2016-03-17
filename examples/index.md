@@ -18,6 +18,7 @@ id: examples
 1. Getting started - [Demo](/examples/getting-started){:target='_blank'}, [Source](/docs/getting-started.html)
 2. Select - [Demo](/examples/select){:target='_blank'}, [Source](/docs/select.html)
 3. DatePicker - [Demo](/examples/datepicker){:target='_blank'}, [Source](/docs/datepicker.html)
+4. Data Binding - [Demo](/examples/data-binding){:target='_blank'}, [Source](/docs/data-binding.html)
 
 ### Advanced
 
