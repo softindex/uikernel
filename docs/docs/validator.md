@@ -100,6 +100,10 @@ UIKernel.Validators.number.notNull(number min, number max, string errorMessage)
 // Check if value matches regular expression
 UIKernel.Validators.regExp(RegExp regExp, string errorMessage)
 UIKernel.Validators.regExp.notNull(RegExp regExp, string errorMessage)
+
+// Check if value belongs to set
+UIKernel.Validators.set(Array set, string errorMessage)
+UIKernel.Validators.set.notNull(Array set, string errorMessage)
 {% endhighlight %}
 [Sources]({{ site.github }})
 
@@ -142,6 +146,8 @@ var validator = UIKernel.createValidator()
   .field('credit', Validators.float(30.5, null,
     'You can not take the credit is less than 30.5'
   ))
+   // Check if interests were in the set
+   .field('interests', Validators.set.notNull(['ART', 'SPORT', 'ANIMALS', 'GAMES'], 'An incorrect interest'))
   // Check if user agrees with terms of use
   .field( 'agree', Validators.boolean.notNull(true, 'Select that you agree with the rules'))
   // Check if a number is odd
@@ -149,7 +155,7 @@ var validator = UIKernel.createValidator()
     if (value % 2 === 0) {
       return 'Numbers can be odd only';
     }
-   })
+   });
 
 {% endhighlight %}
 
