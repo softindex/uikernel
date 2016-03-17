@@ -146,7 +146,7 @@ In the `model` property, we call `UIKernel.Adapters.Grid.toFormCreate` to create
 We pass it our grid model and an object of default field values as arguments.
 `submitAll: true` means that all form will be sent for validation, `partialErrorChecking: true` - that the form fields will be validated in response to user input.
 
-Note that the form uses validation rules we've specified before. You can also mark the fields as changed or invalid.
+Note that the form uses validation rules we've specified before.
 
 In the `save` method, we call `submit`, which sends data to our model.
 If `submit` is successful, the  callback from  `MainComponent` will be invoked.

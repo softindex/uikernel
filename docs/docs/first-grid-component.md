@@ -23,6 +23,8 @@ var model = new UIKernel.Models.Grid.Collection({
 });
 {% endhighlight %}
 
+Here, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html) and pass it a settings object as an argument.
+
 Next, we'll configure columns.
 
 `columns.jsx`:
@@ -65,6 +67,10 @@ var columns = {
 };
 {% endhighlight %}
 ---
+
+We define an object with string IDs as properties and configuration objects as their values.
+We pass our configuration objects only two props: `name` and `render`. There are also other props.
+You can read about them [here](/docs/grid-columns.html).
 
 Now we need to render our grid. Let's do it in the `render` method of another component named `MainComponent`.
 
