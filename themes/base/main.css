@@ -284,7 +284,6 @@
   right: 1px;
   width: 35px;
   height: calc(100% - 2px);
-  z-index: 1000;
   background-color: inherit;
 }
 .__suggestBox .__suggestBox-select-btn .__suggestBox-arrow {
