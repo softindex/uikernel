@@ -10,12 +10,12 @@ redirect_from: "docs/index.html"
 Download the starter kit to get started.
 
 <center>
-  <a href="/download.html" class="btn btn-lg btn-success download-uikernel-button">
-    Download UIKernel v{{ site.uikernel_version }}
+  <a href="/dist/starter-kit.zip" class="btn btn-lg btn-success download-uikernel-button">
+    Download Starter Kit {{ site.uikernel_version }}
   </a>
 </center>
 
-In the root directory of the starter kit, create `index.html` with the following contents:
+Open up `getting-started/index.html`. It has the following contents:
 
 {% highlight html %}
 <!DOCTYPE html>
@@ -23,31 +23,32 @@ In the root directory of the starter kit, create `index.html` with the following
 <head>
     <meta charset="utf-8"/>
     <title>First grid component</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="css/uikernel/main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    <script src="js/libs/jquery.min.js"></script>
-    <script src="js/libs/lodash.min.js"></script>
-    <script src="js/libs/react.0.13.3.min.js"></script>
-    <script src="js/libs/JSXTransformer-0.13.3.js"></script>
-    <script src="js/libs/uikernel.js"></script>
+    <div class="container" id="example"></div>
 
-    <!-- Main file to render -->
-    <script src="js/main.jsx" type="text/jsx"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script src="../libs/js/uikernel.min.js"></script>
+
+    <!-- Our first model -->
+    <script src="js/model.js"></script>
 
     <!-- Its columns -->
     <script src="js/columns.jsx" type="text/jsx"></script>
 
-    <!-- Our first model -->
-    <script src="js/model.js"></script>
+    <!-- Main file to render -->
+    <script src="js/main.jsx" type="text/jsx"></script>
 </body>
 </html>
 {% endhighlight %}
 
-Here, we've included the required libraries - React, JQuery and UIKernel, and some other helpful libs.
+Here, we've included the required libraries - React, JQuery and UIKernel.
 
-The file named `main.jsx` is going to be the main React entry point, where we'd like to render our first `UIKernel.Grid`.
+The file `getting-started/js/main.jsx` is the main React entry point, where we render our first `UIKernel.Grid`.
 
 `main.jsx`:
 {% highlight html %}
@@ -56,14 +57,13 @@ React.render(
     cols={columns}
     model={model}
   />
-, document.body);
+, document.getElementById('example'));
 {% endhighlight %}
 
-As you can see, the `UIKernel.Grid` component has two props: `cols` and `model`. We need to define the values of these props.
+As you can see, the `UIKernel.Grid` component has two props: `cols` and `model`. It's a good practice to separate logic,
+so we've defined these props in the `getting-started/js/columns.js` and `getting-started/js/model.js` files.
 
-It's a good practice to separate logic, so we'll create the `columns.js` and `model.js` files.
-
-List columns data as an object.
+Columns data is listed as an object.
 
 `columns.js`:
 {% highlight javascript %}
@@ -89,7 +89,7 @@ var columns = {
 };
 {% endhighlight %}
 
-Use `UIKernel.Models.Grid.Collection` to create your first model.
+To create a model for our grid, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
 `model.js`:
 {% highlight javascript %}
@@ -114,7 +114,7 @@ var model = new UIKernel.Models.Grid.Collection({
 });
 {% endhighlight %}
 
-And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}_site/examples/getting-started){:target="_blank"}.
+And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}/examples/getting-started){:target="_blank"}.
 
 ## Want CommonJS?
 
