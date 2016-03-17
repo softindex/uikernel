@@ -495,6 +495,16 @@ var GridDataMixin = {
     }.bind(this));
   }),
 
+  _getAllChangesIds: function () {
+    return Object.keys(this.state.changes).reduce(function (ids, key) {
+      var record = this.state.recordsInfo[key];
+      if (record) {
+        ids.push(record.id);
+      }
+      return ids;
+    }.bind(this), []);
+  },
+
   /**
    * Find record IDs that need to be displayed additionally
    *
@@ -502,12 +512,15 @@ var GridDataMixin = {
    * @private
    */
   _getAdditionalIds: function () {
-    var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllSelected());
-    var id;
+    var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllChangesIds());
+    var record;
     for (var row in this.state.changes) {
-      id = this.state.recordsInfo[row].id;
-      if (additionalIds.indexOf(id) >= 0) {
-        additionalIds.push(id);
+      record = this.state.recordsInfo[row];
+      if (!record) {
+        continue;
+      }
+      if (additionalIds.indexOf(record.id) >= 0) {
+        additionalIds.push(record.id);
       }
     }
     return additionalIds;
