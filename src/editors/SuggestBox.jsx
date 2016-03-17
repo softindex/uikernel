@@ -11,6 +11,7 @@
 'use strict';
 
 var React = require('react');
+var suspend = require('suspend');
 var Portal = require('../common/Portal');
 var utils = require('../common/utils');
 
@@ -152,17 +153,28 @@ var SuggestBoxEditor = React.createClass({
   }),
 
   _openList: function (searchPattern, cb) {
-    if (this.props.disabled || this.state.isOpened) {
-      return;
-    }
-
-    this.setState({isOpened: true, loading: true}, function () {
-      this.refs.input.getDOMNode().select();
+    suspend.run(function * () {
+      if (this.props.disabled || this.state.isOpened) {
+        return;
+      }
 
       var $input = $(this.refs.input.getDOMNode());
+      var inputOffset = $input.offset();
+
+      if (document.body.clientWidth <= 760) {
+        yield $('html, body')
+          .animate({
+            scrollTop: inputOffset.top
+          }, 800)
+          .promise();
+      }
+
+      yield this.setState({isOpened: true, loading: true}, suspend.resume());
+
+      this.refs.input.getDOMNode().select();
+
       var $popup = $('#' + popupId);
 
-      var inputOffset = $input.offset();
       var inputWidth = $input.css('width');
       var inputHeight = $input.css('height');
 
@@ -171,23 +183,27 @@ var SuggestBoxEditor = React.createClass({
 
       $popup
         .css('minWidth', inputWidth)
-        .offset({
-          top: offsetTop,
-          left: offsetLeft
-        });
+        .css('top', offsetTop)
+        .css('left', offsetLeft);
 
-      this._updateList(searchPattern, function () {
-        var selectedOptionKey = utils.findIndex(this.state.options, function (option) {
-          return utils.isEqual(option.id, this.props.value);
-        }.bind(this));
-        if (selectedOptionKey) {
-          this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
-        }
-        if (typeof cb === 'function') {
-          cb();
-        }
+      yield this._updateList(searchPattern, suspend.resume());
+
+      var bodyHeight = $('body').height();
+      var popupHeight = $popup.height();
+      var minHeight = bodyHeight - offsetTop;
+
+      if (popupHeight > minHeight) {
+        popupHeight = bodyHeight - inputHeight;
+        $popup.height(popupHeight);
+      }
+
+      var selectedOptionKey = utils.findIndex(this.state.options, function (option) {
+        return utils.isEqual(option.id, this.props.value);
       }.bind(this));
-    });
+      if (selectedOptionKey) {
+        this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
+      }
+    }.bind(this), typeof cb === 'function' ? cb : null);
   },
 
   _onInputFocus: function () {
