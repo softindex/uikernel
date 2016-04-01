@@ -13,15 +13,26 @@
 var suspend = require('suspend');
 var formatData = require('./formatData');
 
-module.exports = suspend.async(function * (gridModel, columns, exporter, settings) {
+/**
+ * @param {{}}                    gridModel
+ * @param {string[]}              fields
+ * @param {{}}                    columns
+ * @param {Function}              exporter
+ * @param {{}}                    settings
+ * @param {[string, string][]}      settings.sort
+ * @param {number}                  settings.limit
+ * @param {number}                  settings.offset
+ * @param {string[]}                settings.viewColumns
+ */
+module.exports = suspend.async(function * (gridModel, fields, columns, viewColumns, exporter, settings) {
   var result = yield gridModel.read({
-    fields: settings.fields,
+    fields: fields,
     sort: settings.sort,
     limit: settings.limit,
     offset: settings.offset
   }, suspend.resume());
 
-  var data = formatData(columns, result.records, result.totals);
+  var data = formatData(result.records, result.totals, columns, viewColumns);
 
   return yield exporter(data, suspend.resume());
 });

@@ -10,41 +10,42 @@
 
 'use strict';
 
-var _ = require('lodash');
+var utils = require('../utils');
+
+function formatColumns(columns, viewColumns) {
+  var formattedColumns = {};
+
+  for (var i = 0; i < viewColumns.length; i++) {
+    var column = viewColumns[i];
+    var columnName = columns[column].name;
+
+    formattedColumns[column] = columnName;
+  }
+
+  return formattedColumns;
+}
 
 function formatRecord(record, columns) {
-  var formattedRecord = _.mapValues(record, function (value, key) {
-    columns.map(function (column) {
-      if (key === column.render[0]) {
-        value = _.last(column.render)(record);
-      }
-    });
+  var formattedRecord = utils.clone(record);
 
-    return value;
+  utils.values(columns).map(function (column) {
+    for (var key in record) {
+      if (key === column.render[0]) {
+        formattedRecord[key] = column.render[column.render.length - 1](record);
+      }
+    }
   });
 
   return formattedRecord;
 }
 
-function formatData(columns, records, totals) {
-  var columnsNames = [];
-  var formattedColumns = columns.map(function (column) {
-    var formattedName = column.name.replace(/<(.|\n)*?>/g, '').trim();
-    column.name = formattedName;
-
-    columnsNames.push(column.render[0]);
-
-    return _.pick(column, ['name', 'render']);
-  });
-
+function formatData(records, totals, columns, viewColumns) {
   return {
-    columns: formattedColumns.map(function (column) {
-      return column.name;
-    }),
+    columns: formatColumns(columns, viewColumns),
     records: records.map(function (record) {
-      return _.pick(formatRecord(record[1], formattedColumns), columnsNames);
+      return utils.pick(formatRecord(record[1], columns), viewColumns);
     }),
-    totals: _.pick(formatRecord(totals, formattedColumns), columnsNames)
+    totals: utils.pick(formatRecord(totals, columns), viewColumns, '')
   };
 }
 

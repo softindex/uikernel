@@ -10,24 +10,17 @@
 
 'use strict';
 
-var _ = require('lodash');
 var suspend = require('suspend');
 var csv = require('csv-stringify');
 
 var toCSV = suspend.async(function * (data) {
-  var formattedTotals = _.values(data.totals);
-  formattedTotals.unshift('');
-
-  var result = [data.columns].concat(
-    data.records.map(function (record) {
-      return _.values(record);
-    }),
-    [formattedTotals]
-  );
-
   return {
     mime: 'text/csv',
-    data: yield csv(result, suspend.resume())
+    data: yield csv(
+      data.records.concat([data.totals]),
+      {header: true, columns: data.columns},
+      suspend.resume()
+    )
   };
 });
 
