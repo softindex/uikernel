@@ -24,8 +24,18 @@ var GridDataMixin = {
       onError: React.PropTypes.func,
       onPageLoad: React.PropTypes.func
     }),
-    saveFullRecord: React.PropTypes.bool
+    saveFullRecord: React.PropTypes.bool,
+    watchOnCreate: React.PropTypes.bool,
+    partialErrorChecking: React.PropTypes.bool
   },
+
+  getDefaultProps: function () {
+    return {
+      watchOnCreate: true,
+      partialErrorChecking: false
+    };
+  },
+
   getInitialState: function () {
     return {
       data: null,
@@ -33,7 +43,8 @@ var GridDataMixin = {
       errors: {},
       totals: {},
       recordsInfo: {},
-      mainIds: []
+      mainIds: [],
+      partialErrorChecking: this.props.partialErrorChecking
     };
   },
 
@@ -150,6 +161,8 @@ var GridDataMixin = {
         return cb(err);
       }
 
+      this.state.partialErrorChecking = false;
+
       data.forEach(function (record) {
         var row = this._getRowID(record[0]);
 
@@ -161,10 +174,6 @@ var GridDataMixin = {
         // Process validation errors
         if (record[1] instanceof ValidationErrors) {
           this.state.errors[row] = record[1];
-          // Redraw error fields
-          record[1].getFailedFields().forEach(function (field) {
-            this._renderBinds(row, field);
-          }, this);
           return;
         }
 
@@ -172,7 +181,6 @@ var GridDataMixin = {
         utils.forEach(changes[row], function (value, field) {
           if (utils.isEqual(value, this.state.changes[row][field])) {
             delete this.state.changes[row][field];
-            this._renderBinds(row, field);
           }
         }, this);
 
@@ -184,6 +192,8 @@ var GridDataMixin = {
           }
         }
       }.bind(this));
+
+      this._renderBody();
 
       if (typeof cb === 'function') {
         cb(null, data);
@@ -219,6 +229,7 @@ var GridDataMixin = {
     this.state.changes = {};
     this.state.statuses = {};
     this.state.errors = {};
+    this.state.partialErrorChecking = this.props.partialErrorChecking;
 
     this._renderBody();
   },
@@ -271,6 +282,10 @@ var GridDataMixin = {
     var i;
 
     if (!this.state.errors[row]) {
+      return false;
+    }
+
+    if (this.state.partialErrorChecking && !this.state.changes.hasOwnProperty(row)) {
       return false;
     }
 
@@ -483,7 +498,7 @@ var GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: utils.throttle(function (settings, cb) {
+  _loadData: function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
       if (err && this.props.onError) {
         this.props.onError(err);
@@ -493,7 +508,7 @@ var GridDataMixin = {
       }
       cb(err, data);
     }.bind(this));
-  }),
+  },
 
   /**
    * Find record IDs that need to be displayed additionally
@@ -543,9 +558,22 @@ var GridDataMixin = {
           this._renderBinds(row, field);
         }, this);
       }
-      cb(err);
+
+      if (cb) {
+        cb(err);
+      }
     }.bind(this));
-  })
+  }),
+
+  _onRecordCreated: function (recordId) {
+    if (!this.props.watchOnCreate) {
+      return;
+    }
+
+    this.updateTable(function () {
+      this._validateRow(this._getRowID(recordId));
+    }.bind(this));
+  }
 };
 
 module.exports = GridDataMixin;

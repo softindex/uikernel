@@ -46,12 +46,14 @@ var GridComponent = React.createClass({
   ],
   componentDidMount: function () {
     if (this.props.model) {
+      this.props.model.on('create', this._onRecordCreated);
       this.props.model.on('update', this._setData);
     }
     this.updateTable();
   },
   componentWillUnmount: function () {
     if (this.props.model) {
+      this.props.model.off('create', this._onRecordCreated);
       this.props.model.off('update', this._setData);
     }
   },
@@ -81,9 +83,11 @@ var GridComponent = React.createClass({
         if (reset & RESET_MODEL) {
           this.state.data = null;
           if (oldProps.model) {
+            oldProps.model.off('create', this._onRecordCreated);
             oldProps.model.off('update', this._setData);
           }
           if (this.props.model) {
+            this.props.model.on('create', this._onRecordCreated);
             this.props.model.on('update', this._setData);
           }
           this._setPage(0);
