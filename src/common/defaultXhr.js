@@ -28,6 +28,10 @@ var defaultXhr = function (settings, cb) {
   });
 };
 
+if (!variables.get('xhr')) {
+  variables.set('xhr', defaultXhr);
+}
+
 module.exports = function (settings, cb) {
-  (variables.get('xhr') || defaultXhr)(settings, cb);
+  variables.get('xhr')(settings, cb);
 };
