@@ -10,6 +10,8 @@
 
 'use strict';
 
+var EVENT_ID_KEY = '__uikernelEventKey';
+
 /**
  * Events control model
  * @constructor
@@ -28,7 +30,7 @@ EventsModel.prototype.on = function (event, cb) {
   if (typeof this._subscribers[event] !== 'object') {
     this._subscribers[event] = [];
   }
-  cb.key = this._subscribers[event].push(cb) - 1;
+  cb[EVENT_ID_KEY] = this._subscribers[event].push(cb) - 1;
 };
 
 /**
@@ -38,19 +40,19 @@ EventsModel.prototype.on = function (event, cb) {
  * @param {Function}    cb      CallBack function
  */
 EventsModel.prototype.off = function (event, cb) {
-  if (!cb.key) {
+  if (!cb.hasOwnProperty(EVENT_ID_KEY)) {
     return;
   }
 
-  if (this._subscribers[event] && this._subscribers[event][cb.key]) {
-    delete this._subscribers[event][cb.key];
+  if (this._subscribers[event] && this._subscribers[event][cb[EVENT_ID_KEY]]) {
+    delete this._subscribers[event][cb[EVENT_ID_KEY]];
   }
 };
 
 /**
  * Trigger inner model event
  *
- * @param {number} Event ID
+ * @param {number} event Event ID
  */
 EventsModel.prototype.trigger = function (event) {
   var i;
