@@ -30,6 +30,9 @@ var Validator = function () {
     asyncValidators: {},
     asyncGroupValidators: []
   };
+
+  this.isValidRecord = this.isValidRecord.bind(this);
+  this.getValidationDependency = this.getValidationDependency.bind(this);
 };
 
 /**
