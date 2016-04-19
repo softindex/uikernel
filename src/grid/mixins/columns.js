@@ -22,10 +22,15 @@ var GridColumnsMixin = {
    * @private
    */
   _isViewColumn: function (id) {
-    if (this.props.viewColumns) {
-      return this.props.viewColumns[id];
+    if (!this.props.viewColumns) {
+      return true;
     }
-    return true;
+
+    if (Array.isArray(this.props.viewColumns)) {
+      return this.props.viewColumns.indexOf(id) > -1;
+    }
+
+    return this.props.viewColumns[id];
   },
 
   /**
