@@ -506,7 +506,7 @@ var GridDataMixin = {
     var id;
     for (var row in this.state.changes) {
       id = this.state.recordsInfo[row].id;
-      if (additionalIds.indexOf(id) >= 0) {
+      if (additionalIds.indexOf(id) < 0) {
         additionalIds.push(id);
       }
     }
