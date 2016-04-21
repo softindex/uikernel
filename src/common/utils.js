@@ -383,3 +383,13 @@ exports.toDate = function (value) {
 
   return new Date(value);
 };
+
+exports.without = function (arr, el) {
+  var result = [];
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] !== el) {
+      result.push(arr[i]);
+    }
+  }
+  return result;
+};

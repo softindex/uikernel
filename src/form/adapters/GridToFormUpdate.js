@@ -11,6 +11,7 @@
 'use strict';
 
 var utils = require('../../common/utils');
+var Events = require('../../common/Events');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 /**
@@ -25,11 +26,18 @@ function GridToFormUpdate(model, id) {
     return new GridToFormUpdate(model, id);
   }
 
+  Events.call(this);
+
   this._adapter = {
     model: model,
     id: id
   };
+
+  this._onUpdateHandlers = [];
 }
+
+GridToFormUpdate.prototype = Object.create(Events.prototype);
+GridToFormUpdate.prototype.constructor = GridToFormUpdate;
 
 /**
  * Get data
@@ -95,8 +103,12 @@ GridToFormUpdate.prototype.getValidationDependency = function (fields) {
 GridToFormUpdate.prototype.on = function (event, cb) {
   var ctx = this;
 
-  // onChange filters out table events,
-  // that do not regard to our record
+  if (event !== 'update') {
+    Events.prototype.on.call(this, event, cb);
+    return;
+  }
+
+  // onChange filters out table events, that do not regard to our record
   function onChange(changes) {
     for (var i = 0; i < changes.length; i++) {
       if (utils.isEqual(changes[i][0], ctx._adapter.id)) {
@@ -106,20 +118,38 @@ GridToFormUpdate.prototype.on = function (event, cb) {
     }
   }
 
-  this._adapter.model.on(event, onChange);
+  this._onUpdateHandlers.push({
+    originalCallback: cb,
+    wrappedCallback: onChange
+  });
 
-  // Set identical keys to let functions to be considered as identical
-  cb.key = onChange.key;
+  this._adapter.model.on('update', onChange);
 };
 
 /**
  * Unsubscribe from inner model event
  *
- * @param {number}      event   Event ID
+ * @param {string}      event   Event ID
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.off = function (event, cb) {
-  this._adapter.model.off(event, cb);
+  var ctx = this;
+  var newOnUpdateHandlers = [];
+
+  if (event !== 'update') {
+    Events.prototype.off.call(this, event, cb);
+    return;
+  }
+
+  this._onUpdateHandlers.forEach(function (handler) {
+    if (handler.originalCallback === cb) {
+      ctx._adapter.model.off(handler.wrappedCallback);
+    } else {
+      newOnUpdateHandlers.push(handler);
+    }
+  });
+
+  this._onUpdateHandlers = newOnUpdateHandlers;
 };
 
 module.exports = GridToFormUpdate;

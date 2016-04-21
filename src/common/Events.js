@@ -10,7 +10,7 @@
 
 'use strict';
 
-var EVENT_ID_KEY = '__uikernelEventKey';
+var utils = require('./utils');
 
 /**
  * Events control model
@@ -30,7 +30,7 @@ EventsModel.prototype.on = function (event, cb) {
   if (typeof this._subscribers[event] !== 'object') {
     this._subscribers[event] = [];
   }
-  cb[EVENT_ID_KEY] = this._subscribers[event].push(cb) - 1;
+  this._subscribers[event].push(cb);
 };
 
 /**
@@ -40,12 +40,8 @@ EventsModel.prototype.on = function (event, cb) {
  * @param {Function}    cb      CallBack function
  */
 EventsModel.prototype.off = function (event, cb) {
-  if (!cb.hasOwnProperty(EVENT_ID_KEY)) {
-    return;
-  }
-
-  if (this._subscribers[event] && this._subscribers[event][cb[EVENT_ID_KEY]]) {
-    delete this._subscribers[event][cb[EVENT_ID_KEY]];
+  if (this._subscribers[event]) {
+    this._subscribers[event] = utils.without(this._subscribers[event], cb);
   }
 };
 
