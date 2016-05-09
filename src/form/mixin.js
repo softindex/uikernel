@@ -19,6 +19,7 @@ var ValidationErrors = require('../common/validation/ValidationErrors');
  */
 var FormMixin = {
   getInitialState: function () {
+    this._validateForm = utils.throttle(this._validateForm);
     return {
       _formMixin: null
     };
@@ -411,7 +412,7 @@ var FormMixin = {
     return !this.state || !this.state._formMixin;
   },
 
-  _validateForm: utils.throttle(function (cb, stop) {
+  _validateForm: function (cb, stop) {
     if (this._isNotInitialized()) {
       return stop();
     }
@@ -445,7 +446,7 @@ var FormMixin = {
         cb(err);
       });
     }.bind(this));
-  }),
+  },
 
   _getData: function () {
     if (!this.state._formMixin.data) {

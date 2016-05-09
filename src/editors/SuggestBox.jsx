@@ -62,6 +62,7 @@ var SuggestBoxEditor = React.createClass({
   },
 
   getInitialState: function () {
+    this._loadData = utils.throttle(this._loadData);
     return {
       isOpened: false,
       options: [],
@@ -147,9 +148,9 @@ var SuggestBoxEditor = React.createClass({
     }.bind(this));
   },
 
-  _loadData: utils.throttle(function (searchPattern, cb) {
+  _loadData: function (searchPattern, cb) {
     this.props.model.read(searchPattern || '', cb);
-  }),
+  },
 
   _openList: function (searchPattern, cb) {
     if (this.props.disabled || this.state.isOpened) {

@@ -27,6 +27,8 @@ var GridDataMixin = {
     saveFullRecord: React.PropTypes.bool
   },
   getInitialState: function () {
+    this._loadData = utils.throttle(this._loadData);
+    this._validateRow = utils.throttle(this._validateRow);
     return {
       data: null,
       changes: {},
@@ -483,7 +485,7 @@ var GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: utils.throttle(function (settings, cb) {
+  _loadData: function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
       if (err && this.props.onError) {
         this.props.onError(err);
@@ -493,7 +495,7 @@ var GridDataMixin = {
       }
       cb(err, data);
     }.bind(this));
-  }),
+  },
 
   /**
    * Find record IDs that need to be displayed additionally
@@ -529,7 +531,7 @@ var GridDataMixin = {
     }, cb ? cb.bind(this) : null);
   },
 
-  _validateRow: utils.throttle(function (row, cb) {
+  _validateRow: function (row, cb) {
     var record = this._getRecord(row);
 
     this.props.model.isValidRecord(record, function (err, validErrors) {
@@ -545,7 +547,7 @@ var GridDataMixin = {
       }
       cb(err);
     }.bind(this));
-  })
+  }
 };
 
 module.exports = GridDataMixin;
