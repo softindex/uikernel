@@ -12,8 +12,8 @@
 
 var del = require('del');
 
-function jsDocsClear(done) {
-  del('jsdoc', done);
+function jsDocsClear() {
+  return del('jsdoc');
 }
 
 module.exports = jsDocsClear;
