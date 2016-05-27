@@ -10,7 +10,7 @@
 
 'use strict';
 
-require('./lib/fix_generators');
+require('regenerator-runtime/runtime');
 var variables = require('./lib/common/variables');
 
 var Module = {

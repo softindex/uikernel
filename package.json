@@ -19,7 +19,7 @@
   "dependencies": {
     "express": "^4.13.4",
     "react": "~0.13.3",
-    "regenerator": "^0.8.46",
+    "regenerator-runtime": "^0.9.5",
     "suspend": "^0.7.0",
     "xhr": "^2.2.0"
   },
