@@ -41,8 +41,12 @@ var NumberEditor = React.createClass({
 
   _onChangeHandler: function (e) {
     let target = e.target;
+    /**
+     * Firefox <v46.0.1 not supported dotted float value in number input
+     * https://www.w3.org/TR/html-markup/input.number.html
+     */
     if (target.validity.valid || !invalidFloat(target.valueAsNumber)) {
-      this.state.value = isNaN(target.valueAsNumber) /* Empty input */ ? null : target.valueAsNumber;
+      this.state.value = Number.isNaN(target.valueAsNumber) /* Empty input */ ? null : target.valueAsNumber;
       this.props.onChange(this.state.value);
     }
 
