@@ -21,29 +21,34 @@ var NumberEditor = React.createClass({
     onChange: React.PropTypes.func.isRequired,
     value: React.PropTypes.any
   },
+
   getInitialState: function () {
     return {
       value: this.props.value
     };
   },
+
   componentWillReceiveProps: function (nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
-      this.refs.input.getDOMNode().value = this.state.value = nextProps.value;
+      this.state.value = nextProps.value;
+      this._setValue(this.state.value);
     }
   },
+
+  _setValue: function(value){
+    this.refs.input.getDOMNode().value = value;
+  },
+
   _onChangeHandler: function (e) {
-    var target = e.target;
+    let target = e.target;
     if (target.validity.valid || !invalidFloat(target.valueAsNumber)) {
-      if (isNaN(target.valueAsNumber)) { // Empty input
-        this.state.value = null;
-      } else {
-        this.state.value = target.valueAsNumber;
-      }
-    } else {
-      this.state.value = NaN;
+      this.state.value = isNaN(target.valueAsNumber) /* Empty input */ ? null : target.valueAsNumber;
+      this.props.onChange(this.state.value);
     }
-    this.props.onChange(this.state.value);
+
+    this._setValue(this.state.value);
   },
+
   render: function () {
     return (
       <input
@@ -52,7 +57,7 @@ var NumberEditor = React.createClass({
         type="number"
         ref="input"
         onChange={this._onChangeHandler}
-        defaultValue={this.props.value}
+        defaultValue={this.state.value}
       />
     );
   }
