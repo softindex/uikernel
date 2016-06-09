@@ -127,7 +127,7 @@ var GridEditorMixin = {
   _onBlurEditor: function (row, column) {
     this._updateField(row, column);
 
-    if (this.props.realtime) {
+    if (this.props.autoSubmit) {
       this.save(this.props.onRealtimeSubmit);
     } else {
       this._validateRow(row);
