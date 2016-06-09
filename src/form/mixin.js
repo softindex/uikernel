@@ -381,7 +381,9 @@ var FormMixin = {
    */
   _handleModelChange: function (changes) {
     utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
-    this.setState(this.state);
+    if (this.isMounted()) {
+      this.setState(this.state);
+    }
   },
 
   _initState: function (settings) {
