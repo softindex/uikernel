@@ -15,9 +15,7 @@ var React = require('react');
 
 var SelectEditor = React.createClass({
   propTypes: {
-    options: React.PropTypes.arrayOf(
-      React.PropTypes.array
-    ),
+    options: React.PropTypes.array,
     model: React.PropTypes.shape({
       read: React.PropTypes.func
     }),
@@ -67,7 +65,7 @@ var SelectEditor = React.createClass({
 
   render: function () {
     var valueIndex = utils.findIndex(this.state.options, function (option) {
-      return String((option instanceof Array ? option[0] : option)) === String(this.props.value);
+      return (option instanceof Array ? option[0] : option) === this.props.value;
     }.bind(this));
     return (
       <select
