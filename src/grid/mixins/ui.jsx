@@ -174,11 +174,9 @@ var GridUIMixin = {
    * @private
    */
   _getCellHTML: function (column, record, selected) {
-    var cellHtml = this.props.cols[column].render[this.props.cols[column].render.length - 1](record, selected);
-    if (cellHtml === undefined) {
-      return '';
-    }
-    return cellHtml;
+    var render = utils.last(this.props.cols[column].render);
+    var cellHtml = render(record, selected);
+    return utils.isDefined(cellHtml) ? cellHtml : '';
   },
 
   /**

@@ -393,3 +393,7 @@ exports.without = function (arr, el) {
   }
   return result;
 };
+
+exports.last = function (arr) {
+  return arr[arr.length - 1];
+};
