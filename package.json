@@ -17,7 +17,7 @@
     "prepublish": "gulp bundle"
   },
   "dependencies": {
-    "express": "^4.13.4",
+    "express": "^4.14.0",
     "react": "~0.13.3",
     "regenerator-runtime": "^0.9.5",
     "suspend": "^0.7.0",
@@ -28,7 +28,7 @@
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
     "del": "^2.2.0",
-    "eslint": "^2.10.2",
+    "eslint": "^2.12.0",
     "eslint-plugin-react": "^5.1.1",
     "gulp": "^3.9.1",
     "gulp-archiver": "^1.0.0",
