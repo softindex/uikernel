@@ -309,6 +309,13 @@ var FormMixin = {
       return;
     }
 
+    if(this.isSubmitting()){
+      return;
+    }
+
+    this.state._formMixin.isSubmitting = true;
+    this.setState(this.state);
+
     var changes = this._getChanges();
 
     this.state._formMixin.globalError = null;
@@ -319,6 +326,8 @@ var FormMixin = {
       if (!this.isMounted()) {
         return;
       }
+
+      this.state._formMixin.isSubmitting = false;
 
       var newChanges = this._getChanges();
       var actualChanges = utils.isEqual(changes, newChanges);
@@ -373,6 +382,10 @@ var FormMixin = {
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
+  isSubmitting: function () {
+    return this.state && this.state._formMixin && this.state._formMixin.isSubmitting;
+  },
+
   /**
    * Model records changes handler
    *
@@ -390,6 +403,8 @@ var FormMixin = {
     }
 
     this.state._formMixin = {
+      isSubmitting: false,
+
       data: settings.data,
       changes: settings.changes || {},
       errors: new ValidationErrors(),
