@@ -106,11 +106,11 @@ var FormMixin = {
       return false;
     }
 
-    if (field) {
-      return this.state._formMixin.changes.hasOwnProperty(field);
+    if (field === undefined) {
+      return !utils.isEmpty(this.state._formMixin.changes);
     }
 
-    return !utils.isEmpty(this.state._formMixin.changes);
+    return this.state._formMixin.changes.hasOwnProperty(field);
   },
 
   /**

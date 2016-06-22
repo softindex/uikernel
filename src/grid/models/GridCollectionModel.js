@@ -52,7 +52,7 @@ GridCollectionModel.prototype.setData = function (data) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridCollectionModel.prototype.create = function (record, cb, silent) {
+GridCollectionModel.prototype.create = function (record, cb) {
   var i;
   var field;
   var clonedRecord = utils.clone(record);
@@ -74,20 +74,17 @@ GridCollectionModel.prototype.create = function (record, cb, silent) {
         return cb(validationErrors);
       }
 
-      this._create(clonedRecord, cb, silent);
+      this._create(clonedRecord, cb);
     }.bind(this));
   } else {
-    this._create(clonedRecord, cb, silent);
+    this._create(clonedRecord, cb);
   }
 };
 
-GridCollectionModel.prototype._create = function (record, cb, silent) {
+GridCollectionModel.prototype._create = function (record, cb) {
   var id = this._getID();
-
   this.data.push([id, record]);
-  if (!silent) {
-    this.trigger('create', id);
-  }
+  this.trigger('create', id);
   cb(null, id);
 };
 
