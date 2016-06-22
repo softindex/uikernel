@@ -314,7 +314,6 @@ var FormMixin = {
     }
 
     this.state._formMixin.isSubmitting = true;
-    this.setState(this.state);
 
     var changes = this._getChanges();
 
