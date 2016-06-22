@@ -24,12 +24,12 @@
     "xhr": "^2.2.0"
   },
   "devDependencies": {
-    "babel-eslint": "^6.0.4",
+    "babel-eslint": "^6.0.5",
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
-    "del": "^2.2.0",
-    "eslint": "^2.12.0",
-    "eslint-plugin-react": "^5.1.1",
+    "del": "^2.2.1",
+    "eslint": "^2.13.1",
+    "eslint-plugin-react": "^5.2.2",
     "gulp": "^3.9.1",
     "gulp-archiver": "^1.0.0",
     "gulp-browserify": "^0.5.1",
