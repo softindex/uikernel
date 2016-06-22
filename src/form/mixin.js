@@ -106,7 +106,11 @@ var FormMixin = {
       return false;
     }
 
-    return this.state._formMixin.changes.hasOwnProperty(field);
+    if (field) {
+      return this.state._formMixin.changes.hasOwnProperty(field);
+    }
+
+    return !utils.isEmpty(this.state._formMixin.changes);
   },
 
   /**
@@ -397,7 +401,9 @@ var FormMixin = {
    */
   _handleModelChange: function (changes) {
     utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
-    this.setState(this.state);
+    if (this.isMounted()) {
+      this.setState(this.state);
+    }
   },
 
   _initState: function (settings) {

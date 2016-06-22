@@ -505,11 +505,15 @@ var GridDataMixin = {
    */
   _getAdditionalIds: function () {
     var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllSelected());
-    var id;
+    var record;
     for (var row in this.state.changes) {
-      id = this.state.recordsInfo[row].id;
-      if (additionalIds.indexOf(id) < 0) {
-        additionalIds.push(id);
+      record = this.state.recordsInfo[row];
+      if (!record) {
+        delete this.state.changes[row];
+        continue;
+      }
+      if (additionalIds.indexOf(record.id) >= 0) {
+        additionalIds.push(record.id);
       }
     }
     return additionalIds;

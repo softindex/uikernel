@@ -64,7 +64,7 @@ var SelectEditor = React.createClass({
 
   render: function () {
     var valueIndex = utils.findIndex(this.state.options, function (option) {
-      return option[0] === this.props.value;
+      return utils.isEqual(option[0], this.props.value);
     }.bind(this));
 
     return (
