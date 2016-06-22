@@ -309,11 +309,11 @@ var FormMixin = {
       return;
     }
 
-    if(this.isSubmitting()){
+    if(!this.state._formMixin.autoSubmit && this.isSubmitting()){
       return;
     }
 
-    this.state._formMixin.isSubmitting = true;
+    this.state._formMixin.submitting = true;
 
     var changes = this._getChanges();
 
@@ -326,7 +326,7 @@ var FormMixin = {
         return;
       }
 
-      this.state._formMixin.isSubmitting = false;
+      this.state._formMixin.submitting = false;
 
       var newChanges = this._getChanges();
       var actualChanges = utils.isEqual(changes, newChanges);
@@ -382,7 +382,11 @@ var FormMixin = {
   },
 
   isSubmitting: function () {
-    return this.state && this.state._formMixin && this.state._formMixin.isSubmitting;
+    if (this._isNotInitialized()) {
+      return false;
+    }
+
+    return this.state._formMixin.submitting;
   },
 
   /**
@@ -402,7 +406,6 @@ var FormMixin = {
     }
 
     this.state._formMixin = {
-      isSubmitting: false,
 
       data: settings.data,
       changes: settings.changes || {},
@@ -410,6 +413,7 @@ var FormMixin = {
       globalError: null,
       validating: false,
       pendingClearErrors: [],
+      submitting: false,
 
       partialErrorChecking: settings.partialErrorChecking, // Current mode
       partialErrorCheckingDefault: settings.partialErrorChecking, // Default mode
