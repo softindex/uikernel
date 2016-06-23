@@ -108,9 +108,16 @@ var GridDataMixin = {
   getErrors: function () {
     var result = [];
     var i;
+    var record;
     for (i in this.state.errors) {
+      record = this.state.recordsInfo[i];
+      if (!record) {
+        delete this.state.recordsInfo[i];
+        continue;
+      }
+
       result.push([
-        this.state.recordsInfo[i].id,
+        record.id,
         this.state.errors[i]
       ]);
     }
