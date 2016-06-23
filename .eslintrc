@@ -15,7 +15,7 @@ rules:
   quotes: [2, "single"]
   strict: [0, "global"]
   no-cond-assign: 0
-  no-console: 1
+  no-console: [1, {allow: ["warn", "error"]}]
   no-underscore-dangle: 0
   consistent-return: 0
   react/jsx-uses-react: 1

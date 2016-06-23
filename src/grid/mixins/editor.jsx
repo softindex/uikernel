@@ -127,7 +127,11 @@ var GridEditorMixin = {
   _onBlurEditor: function (row, column) {
     this._updateField(row, column);
 
-    if (this.props.autoSubmit) {
+    // TODO Deprecated prop realtime in v0.17
+    if (this.props.autoSubmit || this.props.realtime) {
+      if (this.props.realtime) {
+        console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
+      }
       this.save(this.props.onRealtimeSubmit);
     } else {
       this._validateRow(row);
