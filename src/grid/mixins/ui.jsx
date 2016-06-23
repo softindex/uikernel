@@ -102,6 +102,7 @@ var GridUIMixin = {
       var data;
       var extra;
       var page;
+      var recordIds;
 
       if (!this.isMounted()) {
         return;
@@ -124,14 +125,18 @@ var GridUIMixin = {
       }
 
       data = this._dataArrayToObject(obj.records);
-      extra = obj.extraRecords ? this._dataArrayToObject(obj.extraRecords) : [];
+      extra = this._dataArrayToObject(obj.extraRecords || []);
+      recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
 
       this.setState({
         data: utils.assign({}, data.records, extra.records),
         mainIds: Object.keys(data.records),
         count: obj.count,
         totals: obj.totals,
-        recordsInfo: utils.assign({}, extra.info, data.info)
+        recordsInfo: utils.assign({}, extra.info, data.info),
+        errors: utils.pick(this.state.errors, recordIds),
+        changes: utils.pick(this.state.changes, recordIds),
+        statuses: utils.pick(this.state.statuses, recordIds)
       }, function () {
         this._renderBody();
         this._showLoader(false);

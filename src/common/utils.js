@@ -321,7 +321,9 @@ exports.zipObject = function (keys, values) {
 
 exports.pick = function (obj, keys) {
   return keys.reduce(function (result, key) {
-    result[key] = obj[key];
+    if (obj[key]) {
+      result[key] = obj[key];
+    }
     return result;
   }, {});
 };
