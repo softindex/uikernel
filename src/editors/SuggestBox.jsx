@@ -220,6 +220,7 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _selectOption: function (option) {
+    option = option || {};
     this.props.onChange(option.id, option);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option.label);
@@ -374,8 +375,9 @@ var SuggestBoxEditor = React.createClass({
         if (e.keyCode === ENTER_KEY) {
           e.preventDefault();
         }
+
         if (this.state.selectedOptionKey === null) {
-          this._setLabelTo(this.state.lastValidLabel);
+          this._selectOption(null);
         } else {
           this._selectOption(this.state.options[this.state.selectedOptionKey]);
         }
