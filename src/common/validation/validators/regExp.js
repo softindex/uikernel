@@ -13,6 +13,7 @@
 var utils = require('../../utils');
 
 function validator(notNull, regExp, error, value) {
+  error = error || 'Not valid';
   if (!utils.isDefined(value) || value === '') {
     if (notNull) {
       return error;
