@@ -13,6 +13,7 @@
 var utils = require('../../utils');
 
 function validator(notNull, min, max, error, value) {
+  error = error || 'Invalid date';
   if (!utils.isDefined(value)) {
     if (notNull) {
       return error;

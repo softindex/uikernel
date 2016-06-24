@@ -13,6 +13,7 @@
 var utils = require('../../utils');
 
 function validator(notNull, variants, error, values) {
+  error = error || 'Not in variants';
   if (!utils.isDefined(values) || !values.length) {
     if (notNull) {
       return error;
