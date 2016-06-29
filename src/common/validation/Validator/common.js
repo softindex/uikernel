@@ -186,6 +186,10 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
       if (groupValidator.fn) {
         groupValidator.fn(record, errors);
       }
+    } else {
+      throw new Error(
+        'Not enough fields for validator [' + groupValidator.fields.join(', ') + ']'
+      );
     }
   }
 
@@ -194,6 +198,10 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
     if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
       yieldStack.push(null);
       asyncGroupValidator.fn(record, errors, suspend.fork());
+    } else {
+      throw new Error(
+        'Not enough fields for validator [' + groupValidator.fields.join(', ') + ']'
+      );
     }
   }
 

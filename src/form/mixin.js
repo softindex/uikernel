@@ -333,6 +333,8 @@ var FormMixin = {
     this.state._formMixin.globalError = null;
     this.state._formMixin.partialErrorChecking = false;
 
+    this.setState(this.state);
+
     // Send changes to model
     this.state._formMixin.model.submit(changes, function (err, data) {
       if (!this.isMounted()) {
