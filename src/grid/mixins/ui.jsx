@@ -199,7 +199,7 @@ var GridUIMixin = {
     var html = '<tr key="' + row + '" class="' +
       (className || '') +
       ' ' + this._getRowStatusNames(row).join(' ') +
-      ' ' + (selected ? 'selected' : '') +
+      ' ' + (selected ? 'dgrid__row_selected' : '') +
       '">';
     for (colId in this.props.cols) {
       if (this._isViewColumn(colId)) {
