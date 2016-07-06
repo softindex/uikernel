@@ -14,6 +14,17 @@ var React = require('react');
 var utils = require('../common/utils');
 
 var DatePickerEditor = React.createClass({
+  propTypes: {
+    format: React.PropTypes.string,
+    textFormat: React.PropTypes.string,
+    min: React.PropTypes.any,
+    max: React.PropTypes.any,
+    value: React.PropTypes.any,
+    show: React.PropTypes.bool,
+    onBlur: React.PropTypes.func,
+    onChange: React.PropTypes.func.isRequired
+  },
+
   getDefaultProps: function () {
     return {
       textFormat: 'yyyy-mm-dd'

@@ -32,7 +32,25 @@ var RESET_VIEW_COUNT = 1 << 3;
 
 var GridComponent = React.createClass({
   propTypes: {
-    className: React.PropTypes.string
+    className: React.PropTypes.string,
+    model: React.PropTypes.shape({
+      read: React.PropTypes.func.isRequired,
+      update: React.PropTypes.func,
+      isValidRecord: React.PropTypes.func,
+      getValidationDependency: React.PropTypes.func,
+      onError: React.PropTypes.func,
+      onPageLoad: React.PropTypes.func,
+      on: React.PropTypes.func.isRequired,
+      off: React.PropTypes.func.isRequired
+    }),
+    viewColumns: React.PropTypes.arrayOf(React.PropTypes.string),
+    sort: React.PropTypes.object,
+    page: React.PropTypes.number,
+    defaultViewCount: React.PropTypes.number,
+    viewCount: React.PropTypes.number,
+    viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
+    onChangeViewCount: React.PropTypes.func,
+    height: React.PropTypes.number
   },
   mixins: [
     gridMixinColumns,       // Columns control function

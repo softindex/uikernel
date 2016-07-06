@@ -8,11 +8,17 @@
  * @providesModule UIKernel
  */
 
+/*eslint no-unused-vars: [0, { "varsIgnorePattern": "ChildrenWrapper"}]*/
+
 'use strict';
 
 var React = require('react');
 
 var ChildrenWrapper = React.createClass({
+  propTypes: {
+    children: React.PropTypes.node
+  },
+
   getInitialState: function () {
     return {
       children: this.props.children
@@ -34,6 +40,7 @@ var portalClass = '__portal';
 
 var Portal = React.createClass({
   propTypes: {
+    children: React.PropTypes.node,
     id: React.PropTypes.string,
     onDocumentMouseDown: React.PropTypes.func,
     onDocumentMouseScroll: React.PropTypes.func

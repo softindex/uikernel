@@ -13,6 +13,10 @@
 var React = require('react');
 
 var Checkbox = React.createClass({
+  propTypes: {
+    indeterminate: React.PropTypes.bool
+  },
+
   componentDidMount: function () {
     this._setIndeterminate(this.props.indeterminate);
   },

@@ -13,14 +13,6 @@
 var React = require('react');
 
 var GridPaginationMixin = {
-  propTypes: {
-    page: React.PropTypes.number,
-    defaultViewCount: React.PropTypes.number,
-    viewCount: React.PropTypes.number,
-    viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
-    onChangeViewCount: React.PropTypes.func
-  },
-
   getDefaultProps: function () {
     return {
       page: 0,
@@ -166,7 +158,7 @@ var GridPaginationMixin = {
     return this.props.hasOwnProperty('viewCount');
   },
 
-  _renderPagination: function () {
+  _renderPagination: function _renderPagination() {
     var viewCount = this.getViewCount();
     return viewCount ? (
       <div className="dgrid-footer">
@@ -183,25 +175,23 @@ var GridPaginationMixin = {
             </select>
           </div>
         ] : null}
-        <a href="#" className="btn-first-page" onClick={this.handleFirstPage}></a>
-        <a href="#" className="btn-prev-page" onClick={this.handlePrevPage}></a>
-        {this.state.count ? (function () {
-          return (
-            <div>
-              {(this.state.page * viewCount) + 1}
-              {' - '}
-              {Math.min(
-                (this.state.page + 1) * viewCount,
-                this.state.count
-              )}
-              {' of '}
-              {this.state.count}
-            </div>
-          );
-        }).call(this) : null}
-        <a href="#" className="btn-next-page" onClick={this.handleNextPage}></a>
-        <a href="#" className="btn-last-page" onClick={this.handleLastPage}></a>
-        <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}></a>
+        <a href="#" className="btn-first-page" onClick={this.handleFirstPage}/>
+        <a href="#" className="btn-prev-page" onClick={this.handlePrevPage}/>
+        {this.state.count ? (
+          <div>
+            {(this.state.page * viewCount) + 1}
+            {' - '}
+            {Math.min(
+              (this.state.page + 1) * viewCount,
+              this.state.count
+            )}
+            {' of '}
+            {this.state.count}
+          </div>
+        ) : null}
+        <a href="#" className="btn-next-page" onClick={this.handleNextPage}/>
+        <a href="#" className="btn-last-page" onClick={this.handleLastPage}/>
+        <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}/>
       </div>
     ) : null;
   }

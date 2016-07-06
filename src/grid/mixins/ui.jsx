@@ -285,7 +285,7 @@ var GridUIMixin = {
       .remove();
   },
 
-  _renderTotals: function (isScrollable) {
+  _renderTotals: function _renderTotals(isScrollable) {
     var totalsDisplayed = false;
     var i;
     var className;

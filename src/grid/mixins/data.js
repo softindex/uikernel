@@ -16,14 +16,6 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 var GridDataMixin = {
   propTypes: {
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func,
-      update: React.PropTypes.func,
-      isValidRecord: React.PropTypes.func,
-      getValidationDependency: React.PropTypes.func,
-      onError: React.PropTypes.func,
-      onPageLoad: React.PropTypes.func
-    }),
     saveFullRecord: React.PropTypes.bool,
     watchOnCreate: React.PropTypes.bool,
     partialErrorChecking: React.PropTypes.bool
