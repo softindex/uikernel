@@ -96,7 +96,16 @@ var FormMixin = {
   },
 
   /**
-   * Check if form field is changed
+   * Get form changes
+   *
+   * @return {object}
+   */
+  getChanges: function () {
+    return utils.clone(this.state._formMixin.changes);
+  },
+
+  /**
+   * Check if form field (or entire form) is changed
    *
    * @param  {string}   field  Field name
    * @return {boolean}
