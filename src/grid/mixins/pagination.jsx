@@ -135,7 +135,8 @@ var GridPaginationMixin = {
    * @return {number}
    */
   getPagesCount: function () {
-    return Math.ceil(this.state.count / this.state.viewCount);
+    var viewCount = this.getViewCount();
+    return viewCount ? Math.ceil(this.state.count / viewCount) : 1;
   },
 
   getViewCount: function () {
@@ -150,8 +151,10 @@ var GridPaginationMixin = {
   },
 
   _checkPage: function (page, view, count) {
-    page = page * view >= count ? Math.ceil(count / view) - 1 : page;
-    return page < 0 || !page ? 0 : page;
+    if (page * view >= count) {
+      page = view ? Math.ceil(count / view) - 1 : 0;
+    }
+    return Math.max(0, page);
   },
 
   _isViewCountPropsMode: function () {
