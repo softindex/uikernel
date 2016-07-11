@@ -98,10 +98,10 @@ var FormMixin = {
   /**
    * Get form changes
    *
-   * @return {object}
+   * @return {{}}
    */
   getChanges: function () {
-    return utils.clone(this.state._formMixin.changes);
+    return this.state._formMixin.changes;
   },
 
   /**
