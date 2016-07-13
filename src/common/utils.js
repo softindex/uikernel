@@ -10,6 +10,31 @@
 
 'use strict';
 
+function baseClone(obj, isDeep) {
+  var i;
+  var cloned;
+  var es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
+
+  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    cloned = [];
+    for (i = 0; i < obj.length; i++) {
+      cloned.push(isDeep ? baseClone(obj[i], true) : obj[i]);
+    }
+  } else if (es6types.indexOf(obj.toString()) >= 0) {
+    cloned = new obj.constructor(obj);
+  } else {
+    cloned = {};
+    for (i in obj) {
+      cloned[i] = isDeep ? baseClone(obj[i], true) : obj[i];
+    }
+  }
+  return cloned;
+}
+
 /**
  * Check if two arrays intersection exists
  */
@@ -200,41 +225,11 @@ exports.assign = function (result) {
  * @returns {*}
  */
 exports.clone = function (obj) {
-  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.slice(0);
-  }
-
-  var cloned = {};
-  for (var i in obj) {
-    cloned[i] = obj[i];
-  }
-  return cloned;
+  return baseClone(obj, false);
 };
 
 exports.cloneDeep = function (obj) {
-  var i;
-  var cloned;
-
-  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    cloned = [];
-    for (i = 0; i < obj.length; i++) {
-      cloned.push(this.cloneDeep(obj[i]));
-    }
-  } else {
-    cloned = {};
-    for (i in obj) {
-      cloned[i] = this.cloneDeep(obj[i]);
-    }
-  }
-  return cloned;
+  return baseClone(obj, true);
 };
 
 exports.isEmpty = function (obj) {
