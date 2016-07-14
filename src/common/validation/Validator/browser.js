@@ -33,7 +33,7 @@ var ClientValidator = function (serverValidationUrl, xhr) {
   this._settings.xhr = xhr || defaultXhr;
 };
 
-ClientValidator.prototype = new Validator();
+ClientValidator.prototype = Object.create(Validator.prototype);
 ClientValidator.prototype.constructor = ClientValidator;
 
 ClientValidator.prototype.isValidRecord = function (record, cb) {
