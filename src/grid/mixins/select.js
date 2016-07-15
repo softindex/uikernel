@@ -54,11 +54,14 @@ var GridSelectMixin = {
 
     if (utils.indexOf(this.state.selected, recordId) < 0) {
       this.state.selected.push(recordId);
+
       if (this.state.selected.length === this.state.count) {
         if (this.state.selectBlackListMode) {
-          return this.unselectAll();
+          this.unselectAll();
+        } else {
+          this.selectAll();
         }
-        return this.selectAll();
+        return;
       }
     }
 
