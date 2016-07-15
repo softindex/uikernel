@@ -10,8 +10,11 @@
 
 'use strict';
 
-var React = require('react');
+var React = require('react'); // eslint-disable-line no-unused-vars
+var ReactDOM = require('react-dom');
 var utils = require('../../common/utils');
+
+var findDOMNode = ReactDOM.findDOMNode;
 
 var GridEditorMixin = {
   getInitialState: function () {
@@ -44,9 +47,17 @@ var GridEditorMixin = {
       return;
     }
 
+    var editorContext = {
+      updateField: function (field, nextValue, cb) {
+        var data = {};
+        data[field] = nextValue;
+        this._setRowChanges(row, data, cb);
+      }.bind(this)
+    };
+
     var props = {
       onChange: function (values) {
-        this._onChangeEditor(row, column, values);
+        this._onChangeEditor(row, column, values, editorContext, element);
       }.bind(this),
       onFocus: function () {
         this._onFocusEditor(row, column);
@@ -54,7 +65,7 @@ var GridEditorMixin = {
       onBlur: function () {
         // Remove Editor
         if (focusDone) {
-          React.unmountComponentAtNode(element);
+          ReactDOM.unmountComponentAtNode(element);
           delete this.state.editor[row + '_' + column];
           $element.removeClass('dgrid-input-wrapper');
           this._onBlurEditor(row, column);
@@ -63,14 +74,7 @@ var GridEditorMixin = {
       value: value
     };
 
-    var editorContext = {
-      props: props,
-      updateField: function (field, nextValue, cb) {
-        var data = {};
-        data[field] = nextValue;
-        this._setRowChanges(row, data, cb);
-      }.bind(this)
-    };
+    editorContext.props = props;
 
     // Display Editor
     var Component = this.props.cols[column].editor.call(editorContext, record);
@@ -79,24 +83,28 @@ var GridEditorMixin = {
       return;
     }
 
-    this.state.editor[row + '_' + column] = React.render(Component, element, function () {
+    this.state.editor[row + '_' + column] = ReactDOM.render(Component, element, function () {
       $element.addClass('dgrid-input-wrapper');
 
       if (typeof this.focus === 'function') {
         this.focus();
       } else {
-        this.getDOMNode().focus();
+        findDOMNode(this).focus();
       }
       focusDone = true;
     });
   },
 
-  _onChangeEditor: function (row, column, values) {
+  _onChangeEditor: function (row, column, values, editorContext, element) {
     var binds = this._getBindParam(column);
 
     values = utils.cloneDeep(utils.parseValueFromEvent(values));
 
-    this.state.editor[row + '_' + column].setProps({value: values});
+    var record = this._getRecord(row);
+    var context = utils.cloneDeep(editorContext);
+    context.props.value = values;
+    var Component = this.props.cols[column].editor.call(context, record);
+    this.state.editor[row + '_' + column] = ReactDOM.render(Component, element);
 
     if (!Array.isArray(binds)) {
       binds = [binds];

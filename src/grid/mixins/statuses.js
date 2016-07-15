@@ -10,6 +10,7 @@
 
 'use strict';
 
+var findDOMNode = require('react-dom').findDOMNode;
 var utils = require('../../common/utils');
 
 /**
@@ -101,7 +102,7 @@ var GridStatusesMixin = {
     }
 
     // Remove element's class
-    $(this.refs.body.getDOMNode())
+    $(findDOMNode(this.refs.body))
       .find('tr[key=' + row + ']')
       .removeClass(status);
   },
@@ -160,7 +161,7 @@ var GridStatusesMixin = {
         delete this.state.statuses[i];
       }
     }
-    $(this.refs.body.getDOMNode())
+    $(findDOMNode(this.refs.body))
       .find('.dgrid-body tr.' + status)
       .removeClass(status);
   },

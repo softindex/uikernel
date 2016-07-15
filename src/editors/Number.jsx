@@ -11,6 +11,7 @@
 'use strict';
 
 var React = require('react');
+var findDOMNode = require('react-dom').findDOMNode;
 var utils = require('../common/utils');
 var floatValidator = require('../common/validation/validators/float');
 
@@ -28,7 +29,7 @@ var NumberEditor = React.createClass({
   },
   componentWillReceiveProps: function (nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
-      this.refs.input.getDOMNode().value = this.state.value = nextProps.value;
+      findDOMNode(this.refs.input).value = this.state.value = nextProps.value;
     }
   },
   _onChangeHandler: function (e) {
