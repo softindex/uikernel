@@ -11,6 +11,7 @@
 'use strict';
 
 var React = require('react');
+var findDOMNode = require('react-dom').findDOMNode;
 
 var Checkbox = React.createClass({
   propTypes: {
@@ -24,7 +25,7 @@ var Checkbox = React.createClass({
     this._setIndeterminate(props.indeterminate);
   },
   _setIndeterminate: function (value) {
-    this.refs.checkbox.getDOMNode().indeterminate = value;
+    findDOMNode(this.refs.checkbox).indeterminate = value;
   },
   render: function () {
     return (

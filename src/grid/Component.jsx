@@ -66,6 +66,7 @@ var GridComponent = React.createClass({
     gridMixinSelect         // Rows selection control function (Select)
   ],
   componentDidMount: function () {
+    this._isMounted = true;
     if (this.props.model) {
       this.props.model.on('create', this._onRecordCreated);
       this.props.model.on('update', this._setData);
@@ -73,6 +74,7 @@ var GridComponent = React.createClass({
     this.updateTable();
   },
   componentWillUnmount: function () {
+    this._isMounted = false;
     if (this.props.model) {
       this.props.model.off('create', this._onRecordCreated);
       this.props.model.off('update', this._setData);

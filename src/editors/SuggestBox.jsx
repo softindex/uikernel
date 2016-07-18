@@ -11,6 +11,7 @@
 'use strict';
 
 var React = require('react');
+var findDOMNode = require('react-dom').findDOMNode;
 var Portal = require('../common/Portal');
 var utils = require('../common/utils');
 
@@ -73,6 +74,7 @@ var SuggestBoxEditor = React.createClass({
   },
 
   componentDidMount: function () {
+    this._isMounted = true;
     if (this.props.defaultLabel) {
       this._setLabelTo(this.props.defaultLabel, true);
     } else if (this.props.hasOwnProperty('label')) {
@@ -80,6 +82,10 @@ var SuggestBoxEditor = React.createClass({
     } else {
       this._getLabelFromModel(this.props.value);
     }
+  },
+
+  componentWillUnmount: function () {
+    this._isMounted = false;
   },
 
   shouldComponentUpdate: function (nextProps, nextState) {
@@ -109,7 +115,7 @@ var SuggestBoxEditor = React.createClass({
     if (label === null || label === undefined) {
       label = '';
     }
-    this.refs.input.getDOMNode().value = label;
+    findDOMNode(this.refs.input).value = label;
     if (markAsValid) {
       this.state.lastValidLabel = label;
     }
@@ -121,7 +127,7 @@ var SuggestBoxEditor = React.createClass({
     }
 
     this.props.model.getLabel(id, function (err, label) {
-      if (!this.isMounted()) {
+      if (!this._isMounted) {
         return;
       }
       if (err) {
@@ -159,9 +165,9 @@ var SuggestBoxEditor = React.createClass({
     }
 
     this.setState({isOpened: true, loading: true}, function () {
-      this.refs.input.getDOMNode().select();
+      findDOMNode(this.refs.input).select();
 
-      var $input = $(this.refs.input.getDOMNode());
+      var $input = $(findDOMNode(this.refs.input));
       var $popup = $('#' + popupId);
 
       var inputOffset = $input.offset();
@@ -194,12 +200,12 @@ var SuggestBoxEditor = React.createClass({
 
   _onInputFocus: function () {
     this._openList();
-    this.refs.input.getDOMNode().select();
+    findDOMNode(this.refs.input).select();
   },
 
   _closeList: function (shouldBlur) {
     if (shouldBlur) {
-      this.refs.input.getDOMNode().blur();
+      findDOMNode(this.refs.input).blur();
     }
     if (!this.state.isOpened) {
       return;
@@ -227,7 +233,7 @@ var SuggestBoxEditor = React.createClass({
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
-    this.refs.input.getDOMNode().select();
+    findDOMNode(this.refs.input).select();
   },
 
   _focusOption: function (key, shouldSelectOption) {
@@ -310,7 +316,7 @@ var SuggestBoxEditor = React.createClass({
   _isParentOf: function (child) {
     while (child) {
       child = $(child).parent().get(0);
-      if (child === this.getDOMNode()) {
+      if (child === findDOMNode(this)) {
         return true;
       }
     }
@@ -398,7 +404,7 @@ var SuggestBoxEditor = React.createClass({
   },
 
   focus: function () {
-    this.refs.input.getDOMNode().focus();
+    findDOMNode(this.refs.input).focus();
   },
 
   render: function () {

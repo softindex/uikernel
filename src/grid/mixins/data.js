@@ -147,7 +147,7 @@ var GridDataMixin = {
 
     // Pass changes to table model processing
     this.props.model.update(this._dataObjectToArray(changes), function (err, data) {
-      if (!this.isMounted()) {
+      if (!this._isMounted) {
         return;
       }
 

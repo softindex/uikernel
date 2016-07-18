@@ -11,6 +11,7 @@
 'use strict';
 
 var React = require('react');
+var findDOMNode = require('react-dom').findDOMNode;
 var utils = require('../common/utils');
 
 var DatePickerEditor = React.createClass({
@@ -37,7 +38,7 @@ var DatePickerEditor = React.createClass({
     };
   },
   componentDidMount: function () {
-    var $element = $(this.refs.input.getDOMNode())
+    var $element = $(findDOMNode(this.refs.input))
       .datepicker({
         minDate: this.props.min ? utils.toDate(this.props.min) : null,
         maxDate: this.props.max ? utils.toDate(this.props.max) : null,
@@ -58,7 +59,7 @@ var DatePickerEditor = React.createClass({
     }
   },
   componentWillReceiveProps: function (props) {
-    var $datePicker = $(this.refs.input.getDOMNode());
+    var $datePicker = $(findDOMNode(this.refs.input));
     if (props.min !== this.props.min) {
       $datePicker.datepicker('option', 'minDate', props.min ? utils.toDate(props.min) : null);
     }
@@ -74,7 +75,7 @@ var DatePickerEditor = React.createClass({
       if (props.value) {
         text = $.datepicker.formatDate(this.state.textFormat, utils.toDate(props.value));
       }
-      this.refs.input.getDOMNode().value = text;
+      findDOMNode(this.refs.input).value = text;
     }
   },
 
@@ -82,7 +83,7 @@ var DatePickerEditor = React.createClass({
    * Save date changes
    */
   setDate: function () {
-    var inputElement = this.refs.input.getDOMNode();
+    var inputElement = findDOMNode(this.refs.input);
     var value = inputElement.value;
     var date;
 
@@ -111,7 +112,7 @@ var DatePickerEditor = React.createClass({
   },
 
   focus: function () {
-    this.refs.input.getDOMNode().focus();
+    findDOMNode(this.refs.input).focus();
   },
 
   /**
