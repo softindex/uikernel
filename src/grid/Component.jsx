@@ -43,7 +43,10 @@ var GridComponent = React.createClass({
       on: React.PropTypes.func.isRequired,
       off: React.PropTypes.func.isRequired
     }),
-    viewColumns: React.PropTypes.arrayOf(React.PropTypes.string),
+    viewColumns: React.PropTypes.oneOfType([
+      React.PropTypes.arrayOf(React.PropTypes.string),
+      React.PropTypes.object
+    ]),
     sort: React.PropTypes.object,
     page: React.PropTypes.number,
     defaultViewCount: React.PropTypes.number,
