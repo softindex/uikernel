@@ -55,6 +55,23 @@ exports.isIntersection = function (a, b) {
 };
 
 /**
+ * Check if array includes all elements from another
+ */
+exports.includes = function (whereToLook, whatToLook) {
+  if(whatToLook.length > whereToLook.length){
+    return false;
+  }
+
+  for (var i = 0; i < whatToLook.length; i++) {
+    if (whereToLook.indexOf(whatToLook[i]) < 0) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+/**
  * Define object size
  *
  * @param   {Object}    obj     Object
