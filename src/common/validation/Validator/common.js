@@ -182,26 +182,22 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
   // Add sync and async group validators
   for (i = 0; i < this._settings.groupValidators.length; i++) {
     groupValidator = this._settings.groupValidators[i];
-    if (utils.isIntersection(groupValidator.fields, fields)) {
+    if (utils.includes(fields, groupValidator.fields)) {
       if (groupValidator.fn) {
         groupValidator.fn(record, errors);
       }
     } else {
-      throw new Error(
-        'Not enough fields for validator [' + groupValidator.fields.join(', ') + ']'
-      );
+      throw new Error('Not enough fields for validator [' + groupValidator.fields.join(', ') + ']');
     }
   }
 
   for (i = 0; i < this._settings.asyncGroupValidators.length; i++) {
     asyncGroupValidator = this._settings.asyncGroupValidators[i];
-    if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
+    if (utils.includes(fields, asyncGroupValidator.fields)) {
       yieldStack.push(null);
       asyncGroupValidator.fn(record, errors, suspend.fork());
     } else {
-      throw new Error(
-        'Not enough fields for validator [' + groupValidator.fields.join(', ') + ']'
-      );
+      throw new Error('Not enough fields for validator [' + asyncGroupValidator.fields.join(', ') + ']');
     }
   }
 
