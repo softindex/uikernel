@@ -291,19 +291,22 @@ var FormMixin = {
     }
 
     var state = this.state._formMixin;
+    var changes = utils.clone(state.changes);
 
-    utils.assign(state.changes, data);
+    utils.assign(changes, data);
 
-    for (var i in state.changes) {
-      if (utils.isEqual(state.data[i], state.changes[i])) {
-        delete state.changes[i];
+    for (var i in changes) {
+      if (utils.isEqual(state.data[i], changes[i])) {
+        delete changes[i];
       }
     }
 
-    utils.assign(state.changes, utils.pick(
+    utils.assign(changes, utils.pick(
       state.data,
-      state.model.getValidationDependency(Object.keys(state.changes))
+      state.model.getValidationDependency(Object.keys(changes))
     ));
+
+    state.changes = changes;
 
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
