@@ -333,7 +333,12 @@ var SuggestBoxEditor = React.createClass({
       }
     } else {
       if (!$target.parents('.' + classes.searchBlock).length) {
-        this._setLabelTo(this.state.lastValidLabel);
+        if(this.state.selectedOptionKey === null || this.state.selectedOptionKey < 0){
+          this._setLabelTo(null);
+          this._selectOption(null);
+        } else {
+          this._setLabelTo(this.state.lastValidLabel);
+        }
       }
       if (!this._isParentOf(e.target)) {
         this._closeList(true);
@@ -375,7 +380,6 @@ var SuggestBoxEditor = React.createClass({
         if (e.keyCode === ENTER_KEY) {
           e.preventDefault();
         }
-
         if (this.state.selectedOptionKey === null) {
           this._selectOption(null);
         } else {
