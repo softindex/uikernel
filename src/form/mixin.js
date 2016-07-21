@@ -46,6 +46,7 @@ var FormMixin = {
    * @param {Object}            [settings.changes                       Preset changes
    * @param {bool}              [settings.submitAll=false]              Send all form for validity check
    * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
+   * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
    * @param {bool}              [settings.autoSubmit]                   Automatic submit before updateField
    * @param {Function}          [settings.autoSubmitHandler]            Automatic submit handler
    * @param {Function}          [cb]                                    CallBack function
@@ -106,7 +107,13 @@ var FormMixin = {
    * @return {{}}
    */
   getChanges: function () {
-    return this.state._formMixin.changes;
+    var changes = {};
+    for (var field in this.state._formMixin.changes) {
+      if (!this._isDependentField(field)) {
+        changes[field] = this.state._formMixin.changes[field];
+      }
+    }
+    return changes;
   },
 
   /**
@@ -120,11 +127,17 @@ var FormMixin = {
       return false;
     }
 
+    var state = this.state._formMixin;
+
     if (field === undefined) {
-      return !utils.isEmpty(this.state._formMixin.changes);
+      return !utils.isEmpty(state.changes);
     }
 
-    return this.state._formMixin.changes.hasOwnProperty(field);
+    if (!state.showDependentFields && this._isDependentField(field)) {
+      return false;
+    }
+
+    return state.changes.hasOwnProperty(field);
   },
 
   /**
@@ -429,7 +442,6 @@ var FormMixin = {
     }
 
     this.state._formMixin = {
-
       data: settings.data,
       changes: settings.changes || {},
       errors: new ValidationErrors(),
@@ -437,6 +449,7 @@ var FormMixin = {
       validating: false,
       pendingClearErrors: [],
       submitting: false,
+      showDependentFields: settings.showDependentFields || false,
 
       partialErrorChecking: settings.partialErrorChecking, // Current mode
       partialErrorCheckingDefault: settings.partialErrorChecking, // Default mode
@@ -502,6 +515,11 @@ var FormMixin = {
       return this._getData();
     }
     return utils.clone(this.state._formMixin.changes);
+  },
+
+  _isDependentField: function (field) {
+    var state = this.state._formMixin;
+    return state.changes.hasOwnProperty(field) && utils.isEqual(state.changes[field], state.data[field]);
   }
 };
 
