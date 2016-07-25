@@ -511,7 +511,7 @@ var GridDataMixin = {
    * @private
    */
   _getAdditionalIds: function () {
-    var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllSelected());
+    var additionalIds = this._getRecordsWithStatus();
     var id;
     for (var row in this.state.changes) {
       id = this.state.recordsInfo[row].id;
