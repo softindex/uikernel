@@ -10,6 +10,7 @@
 
 'use strict';
 
+require('./lib/common/setImmediate');
 require('regenerator-runtime/runtime');
 var variables = require('./lib/common/variables');
 
