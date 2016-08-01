@@ -14,6 +14,8 @@ var utils = require('../../common/utils');
 var React = require('react');
 
 var GridUIMixin = {
+  _colsWithEscapeErrors: {},
+
   /**
    * Table content click event handler
    *
@@ -179,8 +181,27 @@ var GridUIMixin = {
    * @private
    */
   _getCellHTML: function (column, record, selected) {
+    let newRecord;
+    if(typeof this.props.cols[column].escape === 'undefined' || this.props.cols[column].escape === true){
+      newRecord = {};
+      for(let i in record){
+        if(typeof record[i] === 'string'){
+          newRecord[i] = utils.escape(record[i]);
+        } else {
+          newRecord[i] = record[i];
+        }
+
+        if(typeof record[i] === 'object' && record[i] !== null && !this._colsWithEscapeErrors[column]){
+          this._colsWithEscapeErrors[column] = true;
+          console.error(
+            'uiKernel.Grid warning: You send record with fields of Object type in escaped column "' +
+            column + '", to use set column config "escape" to false'
+          );
+        }
+      }
+    }
     var render = utils.last(this.props.cols[column].render);
-    var cellHtml = render(record, selected);
+    var cellHtml = render(newRecord || record, selected);
     return utils.isDefined(cellHtml) ? cellHtml : '';
   },
 
