@@ -194,8 +194,9 @@ var GridUIMixin = {
         if(typeof record[i] === 'object' && record[i] !== null && !this._colsWithEscapeErrors[column]){
           this._colsWithEscapeErrors[column] = true;
           console.error(
-            'uiKernel.Grid warning: You send record with fields of Object type in escaped column "' +
-            column + '", to use set column config "escape" to false'
+            'uiKernel.Grid warning: \nYou send record with fields of Object type in escaped column "' +
+            column + '". \nTo use Objects, set column config "escape" to false,' +
+            ' \nand escape "' + column + '" field in render function by yourself'
           );
         }
       }
