@@ -187,6 +187,7 @@ var GridComponent = React.createClass({
           ref="body"
           onClick={this._handleBodyClick}
         >
+          <colgroup>{header.colGroup}</colgroup>
           <thead>
             {header.cols.map(function (row, colKey) {
               return (
