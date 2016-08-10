@@ -8,10 +8,15 @@
  * @providesModule UIKernel
  */
 
-var del = require('del');
+'use strict';
 
-function jsClear() {
-  return del(['lib', 'dist', '_site']);
-}
+var variables = {};
 
-module.exports = jsClear;
+module.exports = {
+  get: function (key) {
+    return variables[key];
+  },
+  set: function (key, value) {
+    variables[key] = value;
+  }
+};

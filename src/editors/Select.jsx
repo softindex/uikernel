@@ -15,9 +15,7 @@ var React = require('react');
 
 var SelectEditor = React.createClass({
   propTypes: {
-    options: React.PropTypes.arrayOf(
-      React.PropTypes.array
-    ),
+    options: React.PropTypes.array,
     model: React.PropTypes.shape({
       read: React.PropTypes.func
     }),
@@ -56,6 +54,9 @@ var SelectEditor = React.createClass({
 
   handleChange: function (e) {
     var option = this.state.options[e.target.value];
+    if (!(option instanceof Array)){
+      option = [option, option];
+    }
     this.props.onChange(option[0]);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option[1]);
@@ -64,7 +65,7 @@ var SelectEditor = React.createClass({
 
   render: function () {
     var valueIndex = utils.findIndex(this.state.options, function (option) {
-      return option[0] === this.props.value;
+      return utils.isEqual(option instanceof Array ? option[0] : option, this.props.value);
     }.bind(this));
 
     return (
@@ -77,7 +78,7 @@ var SelectEditor = React.createClass({
       {this.state.options.map(function (item, index) {
         return (
           <option key={index} value={index}>
-            {item[1]}
+            {item instanceof Array ? item[1] : item}
           </option>
         );
       }, this)}

@@ -16,23 +16,29 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 var GridDataMixin = {
   propTypes: {
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func,
-      update: React.PropTypes.func,
-      isValidRecord: React.PropTypes.func,
-      getValidationDependency: React.PropTypes.func,
-      errorHandler: React.PropTypes.func
-    }),
-    saveFullRecord: React.PropTypes.bool
+    saveFullRecord: React.PropTypes.bool,
+    watchOnCreate: React.PropTypes.bool,
+    partialErrorChecking: React.PropTypes.bool
   },
+
+  getDefaultProps: function () {
+    return {
+      watchOnCreate: true,
+      partialErrorChecking: false
+    };
+  },
+
   getInitialState: function () {
+    this._loadData = utils.throttle(this._loadData);
+    this._validateRow = utils.throttle(this._validateRow);
     return {
       data: null,
       changes: {},
       errors: {},
       totals: {},
       recordsInfo: {},
-      mainIds: []
+      mainIds: [],
+      partialErrorChecking: this.props.partialErrorChecking
     };
   },
 
@@ -149,6 +155,8 @@ var GridDataMixin = {
         return cb(err);
       }
 
+      this.state.partialErrorChecking = false;
+
       data.forEach(function (record) {
         var row = this._getRowID(record[0]);
 
@@ -160,10 +168,6 @@ var GridDataMixin = {
         // Process validation errors
         if (record[1] instanceof ValidationErrors) {
           this.state.errors[row] = record[1];
-          // Redraw error fields
-          record[1].getFailedFields().forEach(function (field) {
-            this._renderBinds(row, field);
-          }, this);
           return;
         }
 
@@ -171,7 +175,6 @@ var GridDataMixin = {
         utils.forEach(changes[row], function (value, field) {
           if (utils.isEqual(value, this.state.changes[row][field])) {
             delete this.state.changes[row][field];
-            this._renderBinds(row, field);
           }
         }, this);
 
@@ -183,6 +186,8 @@ var GridDataMixin = {
           }
         }
       }.bind(this));
+
+      this._renderBody();
 
       if (typeof cb === 'function') {
         cb(null, data);
@@ -218,6 +223,7 @@ var GridDataMixin = {
     this.state.changes = {};
     this.state.statuses = {};
     this.state.errors = {};
+    this.state.partialErrorChecking = this.props.partialErrorChecking;
 
     this._renderBody();
   },
@@ -226,19 +232,11 @@ var GridDataMixin = {
    * Reset to initial table state
    */
   reset: function () {
-    this._reset();
-    this.updateTable();
-  },
-
-  /**
-   * Reset to initial table state
-   * @private
-   */
-  _reset: function () {
+    this._setPage(0);
     if (!this._isSortingPropsMode()) {
       this._resetSorting();
     }
-    this._setPage(0);
+    this.updateTable();
   },
 
   /**
@@ -278,6 +276,10 @@ var GridDataMixin = {
     var i;
 
     if (!this.state.errors[row]) {
+      return false;
+    }
+
+    if (this.state.partialErrorChecking && !this.state.changes.hasOwnProperty(row)) {
       return false;
     }
 
@@ -338,26 +340,32 @@ var GridDataMixin = {
    * This method marks changed fields
    *
    * @param {string}      row         Row ID
-   * @param {Object}      changes     Changed data
+   * @param {Object}      data        Changed data
    * @private
    */
-  _setRowChanges: function (row, changes) {
-    if (!this.state.changes[row]) {
-      this.state.changes[row] = {};
-    }
-    utils.assign(this.state.changes[row], changes, utils.pick(
-      this.state.data[row],
-      this.props.model.getValidationDependency(
-        Object.keys(this.state.changes[row])
-      )
-    ));
-    if (!this.state.changes[row]) {
-      delete this.state.changes[row];
+  _setRowChanges: function (row, data) {
+    var changes = this.state.changes;
+
+    if (!changes[row]) {
+      changes[row] = {};
     }
 
-    utils.forEach(changes, function (value, field) {
-      this._renderBinds(row, field);
-    }, this);
+    utils.assign(changes[row], data);
+
+    // Mark dependent fields as changed
+    utils.assign(changes[row], utils.pick(
+      this.state.data[row],
+      this.props.model.getValidationDependency(Object.keys(changes[row]))
+    ));
+
+    if (utils.isEmpty(changes[row])) {
+      delete changes[row];
+    } else {
+      // Redraw the changes in the row
+      utils.forEach(changes[row], function (value, field) {
+        this._renderBinds(row, field);
+      }, this);
+    }
   },
 
   /**
@@ -484,14 +492,17 @@ var GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: utils.throttle(function (settings, cb) {
+  _loadData: function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
-      if (err && this.props.errorHandler) {
-        this.props.errorHandler(err);
+      if (err && this.props.onError) {
+        this.props.onError(err);
+      }
+      if (this.props.onPageLoad) {
+        this.props.onPageLoad(data);
       }
       cb(err, data);
     }.bind(this));
-  }),
+  },
 
   /**
    * Find record IDs that need to be displayed additionally
@@ -504,7 +515,7 @@ var GridDataMixin = {
     var id;
     for (var row in this.state.changes) {
       id = this.state.recordsInfo[row].id;
-      if (additionalIds.indexOf(id) >= 0) {
+      if (additionalIds.indexOf(id) < 0) {
         additionalIds.push(id);
       }
     }
@@ -527,7 +538,7 @@ var GridDataMixin = {
     }, cb ? cb.bind(this) : null);
   },
 
-  _validateRow: utils.throttle(function (row, cb) {
+  _validateRow: function (row, cb) {
     var record = this._getRecord(row);
 
     this.props.model.isValidRecord(record, function (err, validErrors) {
@@ -541,9 +552,22 @@ var GridDataMixin = {
           this._renderBinds(row, field);
         }, this);
       }
-      cb(err);
+
+      if (cb) {
+        cb(err);
+      }
     }.bind(this));
-  })
+  },
+
+  _onRecordCreated: function (recordId) {
+    if (!this.props.watchOnCreate) {
+      return;
+    }
+
+    this.updateTable(function () {
+      this._validateRow(this._getRowID(recordId));
+    }.bind(this));
+  }
 };
 
 module.exports = GridDataMixin;

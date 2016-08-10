@@ -10,10 +10,16 @@
 
 'use strict';
 
-var del = require('del');
+var suspend = require('suspend');
 
-function jsDocsClear() {
-  return del('jsdoc');
-}
+var toJSON = suspend.async(function * (data) {
+  return {
+    mime: 'application/json',
+    data: {
+      records: data.records,
+      totals: data.totals
+    }
+  };
+});
 
-module.exports = jsDocsClear;
+module.exports = toJSON;

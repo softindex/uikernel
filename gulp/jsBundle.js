@@ -40,6 +40,7 @@ function jsBundle() {
     }))
     .pipe(rename(packageInfo.name + '.js'))
     .pipe(gulp.dest('dist'))
+    .pipe(gulp.dest('examples/libs/js'))
     .pipe(uglify())
     .pipe(licenser(LICENSE_TEMPLATE))
     .pipe(rename(packageInfo.name + '.min.js'))

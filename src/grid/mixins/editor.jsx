@@ -33,6 +33,7 @@ var GridEditorMixin = {
     var record = this._getRecord(row);
     var $element = $(element);
     var value = utils.at(record, binds);
+    var focusDone = false;
 
     if (!Array.isArray(binds)) {
       value = value[0];
@@ -52,11 +53,12 @@ var GridEditorMixin = {
       }.bind(this),
       onBlur: function () {
         // Remove Editor
-        React.unmountComponentAtNode(element);
-        delete this.state.editor[row + '_' + column];
-        $element.removeClass('dgrid-input-wrapper');
-
-        this._onBlurEditor(row, column);
+        if (focusDone) {
+          React.unmountComponentAtNode(element);
+          delete this.state.editor[row + '_' + column];
+          $element.removeClass('dgrid-input-wrapper');
+          this._onBlurEditor(row, column);
+        }
       }.bind(this),
       value: value
     };
@@ -77,14 +79,16 @@ var GridEditorMixin = {
       return;
     }
 
-    $element.addClass('dgrid-input-wrapper');
+    this.state.editor[row + '_' + column] = React.render(Component, element, function () {
+      $element.addClass('dgrid-input-wrapper');
 
-    var EditorComponent = this.state.editor[row + '_' + column] = React.render(Component, element);
-    if (typeof EditorComponent.focus === 'function') {
-      EditorComponent.focus();
-    } else {
-      EditorComponent.getDOMNode().focus();
-    }
+      if (typeof this.focus === 'function') {
+        this.focus();
+      } else {
+        this.getDOMNode().focus();
+      }
+      focusDone = true;
+    });
   },
 
   _onChangeEditor: function (row, column, values) {
@@ -123,7 +127,11 @@ var GridEditorMixin = {
   _onBlurEditor: function (row, column) {
     this._updateField(row, column);
 
-    if (this.props.realtime) {
+    // TODO Deprecated prop realtime in v0.17
+    if (this.props.autoSubmit || this.props.realtime) {
+      if (this.props.realtime) {
+        console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
+      }
       this.save(this.props.onRealtimeSubmit);
     } else {
       this._validateRow(row);

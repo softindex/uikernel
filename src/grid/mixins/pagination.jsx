@@ -13,10 +13,17 @@
 var React = require('react');
 
 var GridPaginationMixin = {
+  getDefaultProps: function () {
+    return {
+      page: 0,
+      defaultViewCount: 0
+    };
+  },
+
   getInitialState: function () {
     return {
-      page: this.props.page || 0,
-      viewCount: this.props.viewCount || 0,
+      page: this.props.page,
+      viewCount: this.props.defaultViewCount,
       count: 0
     };
   },
@@ -27,7 +34,12 @@ var GridPaginationMixin = {
    * @param {Event} event
    */
   handleChangeViewCount: function (event) {
-    this.setViewCount(event.target.value);
+    var count = this.props.viewVariants[event.target.value];
+    if (this._isViewCountPropsMode()) {
+      this.props.onChangeViewCount(count);
+      return;
+    }
+    this.setViewCount(count);
   },
 
   /**
@@ -71,6 +83,15 @@ var GridPaginationMixin = {
   },
 
   /**
+   * Refresh table handler
+   *
+   */
+  handleRefreshTable: function (event) {
+    event.preventDefault();
+    this.updateTable();
+  },
+
+  /**
    * Get current page index number
    *
    * @return {number}
@@ -99,6 +120,10 @@ var GridPaginationMixin = {
    * @param {number} viewCount
    */
   setViewCount: function (viewCount) {
+    if (this._isViewCountPropsMode()) {
+      throw Error('You can not use function "setViewCount" when set prop "viewCount"');
+    }
+
     this.state.viewCount = viewCount;
     this.state.page = this._checkPage(this.state.page, viewCount, this.state.count);
     this.updateTable();
@@ -110,7 +135,15 @@ var GridPaginationMixin = {
    * @return {number}
    */
   getPagesCount: function () {
-    return Math.ceil(this.state.count / this.state.viewCount);
+    var viewCount = this.getViewCount();
+    return viewCount ? Math.ceil(this.state.count / viewCount) : 1;
+  },
+
+  getViewCount: function () {
+    if (this._isViewCountPropsMode()) {
+      return this.props.viewCount;
+    }
+    return this.state.viewCount;
   },
 
   _setPage: function (page) {
@@ -118,42 +151,50 @@ var GridPaginationMixin = {
   },
 
   _checkPage: function (page, view, count) {
-    page = page * view >= count ? Math.ceil(count / view) - 1 : page;
-    return page < 0 || !page ? 0 : page;
+    if (page * view >= count) {
+      page = view ? Math.ceil(count / view) - 1 : 0;
+    }
+    return Math.max(0, page);
   },
 
-  _renderPagination: function () {
-    return this.props.viewCount ? (
+  _isViewCountPropsMode: function () {
+    return this.props.hasOwnProperty('viewCount');
+  },
+
+  _renderPagination: function _renderPagination() {
+    var viewCount = this.getViewCount();
+    return viewCount ? (
       <div className="dgrid-footer">
         {this.props.viewVariants ? [
           <div key="0">Page Size</div>,
           <div key="1">
-            <select value={this.state.viewCount}
-              onChange={this.handleChangeViewCount}>
+            <select
+              value={this.props.viewVariants.indexOf(viewCount)}
+              onChange={this.handleChangeViewCount}
+            >
                 {this.props.viewVariants.map(function (option, key) {
-                  return <option key={key} value={option}>{option}</option>;
+                  return <option key={key} value={key}>{option}</option>;
                 }, this)}
             </select>
           </div>
         ] : null}
-        <a href="#" className="btn-first-page" onClick={this.handleFirstPage}></a>
-        <a href="#" className="btn-prev-page" onClick={this.handlePrevPage}></a>
-        {this.state.count ? (function () {
-          return (
-            <div>
-              {(this.state.page * this.state.viewCount) + 1}
-              {' - '}
-              {Math.min(
-                (this.state.page + 1) * this.state.viewCount,
-                this.state.count
-              )}
-              {' of '}
-              {this.state.count}
-            </div>
-          );
-        }).call(this) : null}
-        <a href="#" className="btn-next-page" onClick={this.handleNextPage}></a>
-        <a href="#" className="btn-last-page" onClick={this.handleLastPage}></a>
+        <a href="#" className="btn-first-page" onClick={this.handleFirstPage}/>
+        <a href="#" className="btn-prev-page" onClick={this.handlePrevPage}/>
+        {this.state.count ? (
+          <div>
+            {(this.state.page * viewCount) + 1}
+            {' - '}
+            {Math.min(
+              (this.state.page + 1) * viewCount,
+              this.state.count
+            )}
+            {' of '}
+            {this.state.count}
+          </div>
+        ) : null}
+        <a href="#" className="btn-next-page" onClick={this.handleNextPage}/>
+        <a href="#" className="btn-last-page" onClick={this.handleLastPage}/>
+        <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}/>
       </div>
     ) : null;
   }

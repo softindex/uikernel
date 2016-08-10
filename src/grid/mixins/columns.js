@@ -22,10 +22,15 @@ var GridColumnsMixin = {
    * @private
    */
   _isViewColumn: function (id) {
-    if (this.props.viewColumns) {
-      return this.props.viewColumns[id];
+    if (!this.props.viewColumns) {
+      return true;
     }
-    return true;
+
+    if (Array.isArray(this.props.viewColumns)) {
+      return this.props.viewColumns.indexOf(id) > -1;
+    }
+
+    return this.props.viewColumns[id];
   },
 
   /**
@@ -60,6 +65,8 @@ var GridColumnsMixin = {
       classNames = [this._getColumnClass(columnId)];
       addInfo = {
         name: this.props.cols[columnId].name,
+        onClick: this.props.cols[columnId].onClick,
+        onClickRefs: this.props.cols[columnId].onClickRefs,
         cols: 1,
         rows: 1
       };
@@ -73,7 +80,7 @@ var GridColumnsMixin = {
 
       addInfo.className = classNames.join(' ');
 
-      if (this.props.cols[columnId].hasOwnProperty('parent')) {
+      if (this.props.cols[columnId].parent) {
         if (this.props.cols[columnId].parent !== lastParent.name) {
           lastParent = rows[0][rows[0].push({
             name: this.props.cols[columnId].parent,

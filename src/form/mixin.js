@@ -19,6 +19,7 @@ var ValidationErrors = require('../common/validation/ValidationErrors');
  */
 var FormMixin = {
   getInitialState: function () {
+    this._validateForm = utils.throttle(this._validateForm);
     return {
       _formMixin: null
     };
@@ -40,6 +41,7 @@ var FormMixin = {
    * @param {Object}            [settings.changes                       Preset changes
    * @param {bool}              [settings.submitAll=false]              Send all form for validity check
    * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
+   * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
    * @param {bool}              [settings.autoSubmit]                   Automatic submit before updateField
    * @param {Function}          [settings.autoSubmitHandler]            Automatic submit handler
    * @param {Function}          [cb]                                    CallBack function
@@ -74,6 +76,7 @@ var FormMixin = {
             }
             throw err;
           });
+          return;
         }
         ctx.state._formMixin.data = data;
         done();
@@ -94,7 +97,22 @@ var FormMixin = {
   },
 
   /**
-   * Check if form field is changed
+   * Get form changes
+   *
+   * @return {{}}
+   */
+  getChanges: function () {
+    var changes = {};
+    for (var field in this.state._formMixin.changes) {
+      if (!this._isDependentField(field)) {
+        changes[field] = this.state._formMixin.changes[field];
+      }
+    }
+    return changes;
+  },
+
+  /**
+   * Check if form field (or entire form) is changed
    *
    * @param  {string}   field  Field name
    * @return {boolean}
@@ -104,7 +122,17 @@ var FormMixin = {
       return false;
     }
 
-    return this.state._formMixin.changes.hasOwnProperty(field);
+    var state = this.state._formMixin;
+
+    if (field === undefined) {
+      return !utils.isEmpty(state.changes);
+    }
+
+    if (!state.showDependentFields && this._isDependentField(field)) {
+      return false;
+    }
+
+    return state.changes.hasOwnProperty(field);
   },
 
   /**
@@ -270,25 +298,24 @@ var FormMixin = {
       return;
     }
 
-    utils.assign(this.state._formMixin.changes, data);
+    var state = this.state._formMixin;
+    var changes = utils.clone(state.changes);
 
-    var dependent = utils.pick(
-      this.state._formMixin.data,
-      this.state._formMixin.model.getValidationDependency(
-        Object.keys(this.state._formMixin.changes)
-      )
-    );
+    utils.assign(changes, data);
 
-    utils.assign(this.state._formMixin.changes, dependent);
-
-    for (var i in this.state._formMixin.changes) {
-      if (
-        utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i]) &&
-        !dependent.hasOwnProperty(i)
-      ) {
-        delete this.state._formMixin.changes[i];
+    for (var i in changes) {
+      if (utils.isEqual(state.data[i], changes[i])) {
+        delete changes[i];
       }
     }
+
+    utils.assign(changes, utils.pick(
+      state.data,
+      state.model.getValidationDependency(Object.keys(changes))
+    ));
+
+    state.changes = changes;
+
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
@@ -311,6 +338,12 @@ var FormMixin = {
       return;
     }
 
+    if(!this.state._formMixin.autoSubmit && this.isSubmitting()){
+      return;
+    }
+
+    this.state._formMixin.submitting = true;
+
     var changes = this._getChanges();
 
     this.state._formMixin.globalError = null;
@@ -321,6 +354,8 @@ var FormMixin = {
       if (!this.isMounted()) {
         return;
       }
+
+      this.state._formMixin.submitting = false;
 
       var newChanges = this._getChanges();
       var actualChanges = utils.isEqual(changes, newChanges);
@@ -375,6 +410,14 @@ var FormMixin = {
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
+  isSubmitting: function () {
+    if (this._isNotInitialized()) {
+      return false;
+    }
+
+    return this.state._formMixin.submitting;
+  },
+
   /**
    * Model records changes handler
    *
@@ -383,7 +426,9 @@ var FormMixin = {
    */
   _handleModelChange: function (changes) {
     utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
-    this.setState(this.state);
+    if (this.isMounted()) {
+      this.setState(this.state);
+    }
   },
 
   _initState: function (settings) {
@@ -398,6 +443,8 @@ var FormMixin = {
       globalError: null,
       validating: false,
       pendingClearErrors: [],
+      submitting: false,
+      showDependentFields: settings.showDependentFields || false,
 
       partialErrorChecking: settings.partialErrorChecking, // Current mode
       partialErrorCheckingDefault: settings.partialErrorChecking, // Default mode
@@ -414,7 +461,7 @@ var FormMixin = {
     return !this.state || !this.state._formMixin;
   },
 
-  _validateForm: utils.throttle(function (cb, stop) {
+  _validateForm: function (cb, stop) {
     if (this._isNotInitialized()) {
       return stop();
     }
@@ -442,13 +489,13 @@ var FormMixin = {
       }
 
       this.setState(this.state, function () {
-        if (!validErrors.isEmpty()) {
+        if (!err && !validErrors.isEmpty()) {
           return cb(validErrors);
         }
         cb(err);
       });
     }.bind(this));
-  }),
+  },
 
   _getData: function () {
     if (!this.state._formMixin.data) {
@@ -463,6 +510,11 @@ var FormMixin = {
       return this._getData();
     }
     return utils.clone(this.state._formMixin.changes);
+  },
+
+  _isDependentField: function (field) {
+    var state = this.state._formMixin;
+    return state.changes.hasOwnProperty(field) && utils.isEqual(state.changes[field], state.data[field]);
   }
 };
 

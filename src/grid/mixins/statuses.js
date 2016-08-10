@@ -102,7 +102,7 @@ var GridStatusesMixin = {
 
     // Remove element's class
     $(this.refs.body.getDOMNode())
-      .find('tr[key=' + recordId + ']')
+      .find('tr[key=' + row + ']')
       .removeClass(status);
   },
 
@@ -113,10 +113,10 @@ var GridStatusesMixin = {
    * @param   {number}  status      Record status
    * @returns {boolean} Record has status flag
    */
-  isStatus: function (recordId, status) {
+  hasRecordStatus: function (recordId, status) {
     var row = utils.hash(recordId);
     if (this.state.statuses[row]) {
-      return this.state.statuses[row].sum & this._getStatusBit(status) > 0;
+      return (this.state.statuses[row].sum & this._getStatusBit(status)) > 0;
     }
     return false;
   },

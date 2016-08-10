@@ -10,6 +10,7 @@ UIKernel provides the following editors:
 * [Select](#Select)
 * [DatePicker](#DatePicker)
 * [SuggestBox](#SuggestBox)
+* [Number](#Number)
 
 ---
 
@@ -61,15 +62,29 @@ SuggestBox is a ReactJS component that can be used to quickly create a drop-down
 
 ### SuggestBox Properties
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-|  | **value** | Field value |
-| function | **onChange** | Selection change handler |
-| number | debounce | Search timeout, ms |
-| boolean | disabled | Disabled flag |
-| [ListModel](list-model.html) | model | Model object should have the 'read' method |
-| function | onBlur | Element lost focus value |
-| function | onChangeLabel | Label change handler |
-| boolean | select | Select button visibility flag |
+| Type                         | Name          | Description                                |
+|------------------------------|---------------|--------------------------------------------|
+|                              | **value**     | Field value                                |
+| function                     | **onChange**  | Selection change handler                   |
+| number                       | debounce      | Search timeout, ms                         |
+| boolean                      | disabled      | Disabled flag                              |
+| [ListModel](list-model.html) | model         | Model object should have the 'read' method |
+| function                     | onBlur        | Element lost focus value                   |
+| function                     | onChangeLabel | Label change handler                       |
+| boolean                      | select        | Select button visibility flag              |
+| string                       | defaultLabel  | Default text label                         |
+
+---
+
+## <span id="Number">Number</span>
+Number unlike `<input type =" number "/>` returns a numeric value instead of a string. Usage of this editor will allow
+you to avoid problems with the validation of numbers. That's why we advise to use it for work with numbers.
+
+### Number Properties
+
+| Type     | Name         | Description          |
+|----------|--------------|----------------------|
+|          | **value**    | Field value          |
+| function | **onChange** | Value change handler |
 
 ---

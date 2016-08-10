@@ -11,19 +11,34 @@
 'use strict';
 
 var xhr = require('xhr');
+var variables = require('./variables');
 
 var defaultXhr = function (settings, cb) {
   xhr(settings, function (err, response, body) {
-    if (err && body) {
-      try {
-        var parsedBody = JSON.parse(body);
-        err.message = parsedBody.message || body;
-      } catch (e) {
-        err.message = body;
+    if (response.statusCode !== 200) {
+      if (!err) {
+        err = new Error();
+        err.statusCode = response.statusCode;
+        err.message = 'Status Code: ' + err.statusCode;
+      }
+      if (body) {
+        try {
+          var parsedBody = JSON.parse(body);
+          err.message = parsedBody.message || body;
+        } catch (e) {
+          err.message = body;
+        }
       }
     }
+
     cb(err, response, body);
   });
 };
 
-module.exports = defaultXhr;
+if (!variables.get('xhr')) {
+  variables.set('xhr', defaultXhr);
+}
+
+module.exports = function (settings, cb) {
+  variables.get('xhr')(settings, cb);
+};

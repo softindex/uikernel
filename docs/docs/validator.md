@@ -74,32 +74,36 @@ and a callback. If any errors occur during the asynchronous function execution, 
 A set of basic validation rules is provided:
 
 {% highlight javascript %}
-// Check if value is boolean
-UIKernel.Validators.boolean(string errorMessage)
-
-// Check if date matches min-to-max range
-UIKernel.Validators.date(Date min, Date max, string errorMessage)
-
-// Check if variants contain the value
-UIKernel.Validators.enum(Array variants, string errorMessage)
-
-// Check if value is float
-UIKernel.Validators.float(number min, number max, string errorMessage)
-
-// Check if value matches [id, string label] form
-UIKernel.Validators.listElement(string errorMessage)
-
-// Check if value matches [id, string label] form and id is not null
-UIKernel.Validators.listElement.isRequired(string errorMessage)
-
 // Check if value is not empty
 UIKernel.Validators.notNull(string errorMessage)
 
+// Check if value is boolean
+UIKernel.Validators.boolean(string errorMessage)
+UIKernel.Validators.boolean.notNull(string errorMessage)
+
+// Check if date matches min-to-max range
+UIKernel.Validators.date(Date min, Date max, string errorMessage)
+UIKernel.Validators.date.notNull(Date min, Date max, string errorMessage)
+
+// Check if variants contain the value
+UIKernel.Validators.enum(Array variants, string errorMessage)
+UIKernel.Validators.enum.notNull(Array variants, string errorMessage)
+
+// Check if value is float
+UIKernel.Validators.float(number min, number max, string errorMessage)
+UIKernel.Validators.float.notNull(number min, number max, string errorMessage)
+
 // Check if value is integer
 UIKernel.Validators.number(number min, number max, string errorMessage)
+UIKernel.Validators.number.notNull(number min, number max, string errorMessage)
 
 // Check if value matches regular expression
 UIKernel.Validators.regExp(RegExp regExp, string errorMessage)
+UIKernel.Validators.regExp.notNull(RegExp regExp, string errorMessage)
+
+// Check if value belongs to set
+UIKernel.Validators.set(Array set, string errorMessage)
+UIKernel.Validators.set.notNull(Array set, string errorMessage)
 {% endhighlight %}
 [Sources]({{ site.github }})
 
@@ -125,33 +129,33 @@ var validator = UIKernel.createValidator()
   // Check if country's present
   .field('country', Validators.notNull('Invalid country.'))
   // Check if email is valid using regular expressin
-  .field('email', Validators.regExp(
+  .field('email', Validators.regExp.notNull(
     /^.*@.*$/,
     'Your email is invalid'
   ))
   // Check data isn't less than '2014-10-01'
-  .field('timestamp', Validators.date(
+  .field('timestamp', Validators.date.notNull(
     '2014-10-01', null,
     'Timestamp must exceed 2014-10-01'
   ))
   // Check if the age matches 15-90 range
-  .field('age', Validators.number(15, 90,
+  .field('age', Validators.number.notNull(15, 90,
     'You do not have the right age'
   ))
   // Check if credit isn't less than 30.5
   .field('credit', Validators.float(30.5, null,
     'You can not take the credit is less than 30.5'
   ))
+   // Check if interests were in the set
+   .field('interests', Validators.set.notNull(['ART', 'SPORT', 'ANIMALS', 'GAMES'], 'An incorrect interest'))
   // Check if user agrees with terms of use
-  .field('agree', Validators.boolean(true,
-    'Select that you agree with the rules.'
-  ))
+  .field( 'agree', Validators.boolean.notNull(true, 'Select that you agree with the rules'))
   // Check if a number is odd
   .field('someField', function (value) {
     if (value % 2 === 0) {
       return 'Numbers can be odd only';
     }
-   })
+   });
 
 {% endhighlight %}
 

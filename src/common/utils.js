@@ -10,6 +10,31 @@
 
 'use strict';
 
+function baseClone(obj, isDeep) {
+  var i;
+  var cloned;
+  var es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
+
+  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    cloned = [];
+    for (i = 0; i < obj.length; i++) {
+      cloned.push(isDeep ? baseClone(obj[i], true) : obj[i]);
+    }
+  } else if (es6types.indexOf(obj.toString()) >= 0) {
+    cloned = new obj.constructor(obj);
+  } else {
+    cloned = {};
+    for (i in obj) {
+      cloned[i] = isDeep ? baseClone(obj[i], true) : obj[i];
+    }
+  }
+  return cloned;
+}
+
 /**
  * Check if two arrays intersection exists
  */
@@ -121,9 +146,13 @@ exports.throttle = function (func) {
 };
 
 exports.parseValueFromEvent = function (event) {
-  if (event && typeof event === 'object' && event.target && ['INPUT', 'TEXTAREA'].indexOf(event.target.tagName) >= 0) {
+  if (
+    event && typeof event === 'object' &&
+    event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
+  ) {
     switch (event.target.type) {
-      case 'checkbox': return event.target.checked;
+      case 'checkbox':
+        return event.target.checked;
     }
     return event.target.value;
   }
@@ -165,7 +194,7 @@ exports.isEqual = function (a, b) {
   ) {
     return a === b;
   }
-  if (a === b || a.valueOf() === b.valueOf()) {
+  if (a === b || a.valueOf() === b.valueOf() || a !== a && b !== b) {
     return true;
   }
   if (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length) || !(typeof a === 'object')) {
@@ -196,41 +225,11 @@ exports.assign = function (result) {
  * @returns {*}
  */
 exports.clone = function (obj) {
-  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.slice(0);
-  }
-
-  var cloned = {};
-  for (var i in obj) {
-    cloned[i] = obj[i];
-  }
-  return cloned;
+  return baseClone(obj, false);
 };
 
 exports.cloneDeep = function (obj) {
-  var i;
-  var cloned;
-
-  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    cloned = [];
-    for (i = 0; i < obj.length; i++) {
-      cloned.push(this.cloneDeep(obj[i]));
-    }
-  } else {
-    cloned = {};
-    for (i in obj) {
-      cloned[i] = this.cloneDeep(obj[i]);
-    }
-  }
-  return cloned;
+  return baseClone(obj, true);
 };
 
 exports.isEmpty = function (obj) {
@@ -238,6 +237,10 @@ exports.isEmpty = function (obj) {
     return true;
   }
   return Object.keys(obj).length === 0;
+};
+
+exports.isDefined = function (value) {
+  return value !== null && value !== undefined && value !== '';
 };
 
 exports.forEach = function (obj, func, ctx) {
@@ -311,9 +314,13 @@ exports.zipObject = function (keys, values) {
   return result;
 };
 
-exports.pick = function (obj, keys) {
+exports.pick = function (obj, keys, defaultValue) {
   return keys.reduce(function (result, key) {
-    result[key] = obj[key];
+    if (obj.hasOwnProperty(key)) {
+      result[key] = obj[key];
+    } else if (defaultValue !== undefined) {
+      result[key] = defaultValue;
+    }
     return result;
   }, {});
 };
@@ -327,12 +334,18 @@ exports.reduce = function (obj, func, value) {
 
 exports.union = function () {
   var elements = {};
-  for (var i = 0; i < arguments.length; i++) {
+  var result = [];
+  var i;
+
+  for (i = 0; i < arguments.length; i++) {
     for (var j = 0; j < arguments[i].length; j++) {
-      elements[arguments[i][j]] = true;
+      elements[arguments[i][j]] = arguments[i][j];
     }
   }
-  return Object.keys(elements);
+  for (i in elements) {
+    result.push(elements[i]);
+  }
+  return result;
 };
 
 exports.at = function (obj, keys) {
@@ -352,4 +365,42 @@ exports.pairs = function (obj) {
     result.push([i, obj[i]]);
   }
   return result;
+};
+
+exports.toDate = function (value) {
+  var date;
+
+  if (typeof value === 'number') {
+    return new Date(value);
+  }
+
+  if (typeof value === 'string') {
+    date = new Date(value);
+    date.setTime(date.getTime() + (date.getTimezoneOffset() * 60 * 1000)); // Convert UTC to local time
+    return date;
+  }
+
+  return new Date(value);
+};
+
+exports.without = function (arr, el) {
+  var result = [];
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] !== el) {
+      result.push(arr[i]);
+    }
+  }
+  return result;
+};
+
+exports.last = function (arr) {
+  return arr[arr.length - 1];
+};
+
+exports.values = function (obj) {
+  var values = [];
+  for (var i in obj) {
+    values.push(obj[i]);
+  }
+  return values;
 };

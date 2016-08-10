@@ -10,6 +10,21 @@
 
 'use strict';
 
+var utils = require('../../utils');
+
+function validator(notNull, error, value) {
+  if (!utils.isDefined(value)) {
+    if (notNull) {
+      return error;
+    }
+    return;
+  }
+
+  if (typeof value !== 'boolean') {
+    return error;
+  }
+}
+
 /**
  * Create boolean validator
  *
@@ -17,9 +32,9 @@
  * @returns {Function} Validator
  */
 module.exports = function (error) {
-  return function (value) {
-    if (typeof value !== 'boolean') {
-      return error;
-    }
-  };
+  return validator.bind(null, false, error);
+};
+
+module.exports.notNull = function (error) {
+  return validator.bind(null, this, error);
 };

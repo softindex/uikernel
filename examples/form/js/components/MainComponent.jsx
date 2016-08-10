@@ -23,6 +23,7 @@ var MainComponent = React.createClass({
                   ref="grid"
                   model={model}
                   cols={columns}
+                  realtime={true}
                 />
                 <Form />
               </div>

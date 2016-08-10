@@ -11,11 +11,15 @@
 'use strict';
 
 var gulp = require('gulp');
-var jsdoc = require('gulp-jsdoc');
+var jsdoc = require('gulp-jsdoc3');
 
-function generateJSDoc() {
-  return gulp.src(['main.js', 'lib/**/*.js'])
-    .pipe(jsdoc('./jsdoc'));
+function generateJSDoc(cb) {
+  gulp.src(['README.md', 'main.js', 'src/**/*.js'], {read: false})
+    .pipe(jsdoc({
+      opts: {
+        destination: './jsdoc'
+      }
+    }, cb));
 }
 
 module.exports = generateJSDoc;

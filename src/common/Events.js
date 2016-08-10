@@ -10,6 +10,8 @@
 
 'use strict';
 
+var utils = require('./utils');
+
 /**
  * Events control model
  * @constructor
@@ -25,14 +27,10 @@ function EventsModel() {
  * @param {Function}    cb      CallBack function
  */
 EventsModel.prototype.on = function (event, cb) {
-  if (!this._subscribers) {
-    return;
-  }
-
   if (typeof this._subscribers[event] !== 'object') {
     this._subscribers[event] = [];
   }
-  cb.key = this._subscribers[event].push(cb) - 1;
+  this._subscribers[event].push(cb);
 };
 
 /**
@@ -42,23 +40,18 @@ EventsModel.prototype.on = function (event, cb) {
  * @param {Function}    cb      CallBack function
  */
 EventsModel.prototype.off = function (event, cb) {
-  if (!this._subscribers) {
-    return;
+  if (this._subscribers[event]) {
+    this._subscribers[event] = utils.without(this._subscribers[event], cb);
   }
-  delete this._subscribers[event][cb.key];
 };
 
 /**
  * Trigger inner model event
  *
- * @param {number} Event ID
+ * @param {number} event Event ID
  */
 EventsModel.prototype.trigger = function (event) {
   var i;
-
-  if (!this._subscribers) {
-    return;
-  }
 
   if (!this._subscribers[event] || !this._subscribers[event].length) {
     return;

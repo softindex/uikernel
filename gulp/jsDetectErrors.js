@@ -11,12 +11,10 @@
 'use strict';
 
 var gulp = require('gulp');
-var jsxcs = require('gulp-jsxcs');
 var eslint = require('gulp-eslint');
 
 function jsDetectErrors() {
   return gulp.src(['gulpfile.js', 'main.js', 'browser.js', 'src/**/*.js', 'src/**/*.jsx', 'gulp/**/*.js'])
-    .pipe(jsxcs())
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failOnError());

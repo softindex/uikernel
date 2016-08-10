@@ -28,13 +28,14 @@ var GridCollectionModel = function (options) {
   AbstractGridModel.call(this);
 
   this.data = options.data || [];
-  this._id = 0;
+  this._id = 1;
   this._filtersHandler = options.filtersHandler;
   this._validation = options.validation || new Validator();
   this._requiredFields = options.requiredFields || [];
+  this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
 };
 GridCollectionModel.prototype = new AbstractGridModel();
-GridCollectionModel.prototype.constructor = AbstractGridModel;
+GridCollectionModel.prototype.constructor = GridCollectionModel;
 
 /**
  * Set data array in model
@@ -54,28 +55,37 @@ GridCollectionModel.prototype.setData = function (data) {
 GridCollectionModel.prototype.create = function (record, cb) {
   var i;
   var field;
-  var validateRecord = utils.clone(record);
+  var clonedRecord = utils.clone(record);
 
   for (i in this._requiredFields) {
     field = this._requiredFields[i];
-    validateRecord[field] = record[field] || null;
+    if (!clonedRecord.hasOwnProperty(field)) {
+      clonedRecord[field] = record[field];
+    }
   }
 
-  this.isValidRecord(validateRecord, function (err, validationErrors) {
-    if (err) {
-      return cb(err);
-    }
+  if (this._validateOnCreate) {
+    this.isValidRecord(clonedRecord, function (err, validationErrors) {
+      if (err) {
+        return cb(err);
+      }
 
-    if (!validationErrors.isEmpty()) {
-      return cb(validationErrors);
-    }
+      if (!validationErrors.isEmpty()) {
+        return cb(validationErrors);
+      }
 
-    var id = this._getID();
+      this._create(clonedRecord, cb);
+    }.bind(this));
+  } else {
+    this._create(clonedRecord, cb);
+  }
+};
 
-    this.data.push([id, record]);
-    this.trigger('create', record[0]);
-    cb(null, id);
-  }.bind(this));
+GridCollectionModel.prototype._create = function (record, cb) {
+  var id = this._getID();
+  this.data.push([id, record]);
+  this.trigger('create', id);
+  cb(null, id);
 };
 
 /**
@@ -193,8 +203,12 @@ GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
 GridCollectionModel.prototype.update = function (changes, cb) {
   var completed = 0;
   var result = [];
-  var applayChanges = [];
+  var appliedChanges = [];
   var finish = false;
+
+  if (!changes.length) {
+    return cb(null, []);
+  }
 
   utils.forEach(changes, function (change) {
     this.isValidRecord(change[1], function (err, validErrors) {
@@ -210,13 +224,13 @@ GridCollectionModel.prototype.update = function (changes, cb) {
       if (validErrors.isEmpty()) {
         utils.assign(this._getRecordByID(change[0])[1], change[1]);
         result.push(change);
-        applayChanges.push(change);
+        appliedChanges.push(change);
       } else {
         result.push([change[0], validErrors]);
       }
 
       if (++completed === changes.length) {
-        this.trigger('update', applayChanges);
+        this.trigger('update', appliedChanges);
         return cb(null, result);
       }
     }.bind(this));

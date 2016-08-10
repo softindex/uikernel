@@ -12,21 +12,23 @@
 
 var utils = require('../../utils');
 
-function validator(notNull, variants, error, value) {
-  if (!utils.isDefined(value)) {
+function validator(notNull, variants, error, values) {
+  if (!utils.isDefined(values) || !values.length) {
     if (notNull) {
       return error;
     }
     return;
   }
 
-  if (variants.indexOf(value) < 0) {
-    return error;
+  for (var i = 0; i < values.length; i++) {
+    if (variants.indexOf(values[i]) < 0) {
+      return error;
+    }
   }
 }
 
 /**
- * Create enum validator
+ * Create set validator
  *
  * @param variants
  * @param {string} error Error message
