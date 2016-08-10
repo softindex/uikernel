@@ -10,16 +10,14 @@
 
 'use strict';
 
-var suspend = require('suspend');
-
-var toJSON = suspend.async(function * (data) {
-  return {
+function toJSON(data, cb) {
+  cb(null, {
     mime: 'application/json',
     data: {
       records: data.records,
       totals: data.totals
     }
-  };
-});
+  });
+}
 
 module.exports = toJSON;

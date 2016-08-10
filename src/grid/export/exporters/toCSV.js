@@ -13,12 +13,15 @@
 var suspend = require('suspend');
 var csv = require('csv-stringify');
 
-var toCSV = suspend.async(function * (data) {
+var toCSV = suspend.callback(function * (data) {
   return {
     mime: 'text/csv',
     data: yield csv(
       data.records.concat([data.totals]),
-      {header: true, columns: data.columns},
+      {
+        header: true,
+        columns: data.columns
+      },
       suspend.resume()
     )
   };

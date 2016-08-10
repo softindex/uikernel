@@ -18,6 +18,9 @@ var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
   createValidator: require('./lib/common/validation/Validator/browser'),
+  exportGridData: require('./lib/grid/export/exportGridData'),
+  toJSON: require('./lib/grid/export/exporters/toJSON'),
+  toCSV: require('./lib/grid/export/exporters/toCSV'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),

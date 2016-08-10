@@ -396,11 +396,3 @@ exports.without = function (arr, el) {
 exports.last = function (arr) {
   return arr[arr.length - 1];
 };
-
-exports.values = function (obj) {
-  var values = [];
-  for (var i in obj) {
-    values.push(obj[i]);
-  }
-  return values;
-};
