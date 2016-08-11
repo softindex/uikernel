@@ -20,6 +20,9 @@ var Module = {
   gridExpressApi: require('./lib/grid/models/gridExpressApi'),
   listExpressApi: require('./lib/list/ListExpressApi'),
   formExpressApi: require('./lib/form/FormExpressApi'),
+  exportGridData: require('./lib/grid/export/exportGridData'),
+  toJSON: require('./lib/grid/export/exporters/toJSON'),
+  toCSV: require('./lib/grid/export/exporters/toCSV'),
   Models: {
     Events: require('./lib/common/Events'),
     Form: require('./lib/form/FormModel'),

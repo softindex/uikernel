@@ -314,10 +314,12 @@ exports.zipObject = function (keys, values) {
   return result;
 };
 
-exports.pick = function (obj, keys) {
+exports.pick = function (obj, keys, defaultValue) {
   return keys.reduce(function (result, key) {
-    if (obj[key]) {
+    if (obj.hasOwnProperty(key)) {
       result[key] = obj[key];
+    } else if (defaultValue !== undefined) {
+      result[key] = defaultValue;
     }
     return result;
   }, {});

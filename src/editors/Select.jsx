@@ -52,8 +52,12 @@ var SelectEditor = React.createClass({
     }
   },
 
+  getOptions: function () {
+    return this.props.model ? this.state.options : this.props.options;
+  },
+
   handleChange: function (e) {
-    var option = this.state.options[e.target.value];
+    var option = this.getOptions()[e.target.value];
     if (!(option instanceof Array)){
       option = [option, option];
     }
@@ -64,7 +68,8 @@ var SelectEditor = React.createClass({
   },
 
   render: function () {
-    var valueIndex = utils.findIndex(this.state.options, function (option) {
+    var options = this.getOptions();
+    var valueIndex = utils.findIndex(options, function (option) {
       return utils.isEqual(option instanceof Array ? option[0] : option, this.props.value);
     }.bind(this));
 
@@ -75,7 +80,7 @@ var SelectEditor = React.createClass({
         onChange={this.handleChange}
         disabled={this.props.disabled || this.state.loading}
       >
-      {this.state.options.map(function (item, index) {
+      {options.map(function (item, index) {
         return (
           <option key={index} value={index}>
             {item instanceof Array ? item[1] : item}

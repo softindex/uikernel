@@ -17,6 +17,7 @@
     "prepublish": "gulp bundle"
   },
   "dependencies": {
+    "csv-stringify": "^1.0.4",
     "express": "^4.14.0",
     "react": "~0.14.8",
     "react-dom": "~0.14.8",
