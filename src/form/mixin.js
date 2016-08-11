@@ -290,12 +290,18 @@ var FormMixin = {
   /**
    * Set data in the form
    *
-   * @param {Object}    data  Data
-   * @param {Function}  [cb]    CallBack
+   * @param {Object}    data              Data
+   * @param {bool}      [validate=false]  Validate form
+   * @param {Function}  [cb]              CallBack
    */
-  set: function (data, cb) {
+  set: function (data, validate, cb) {
     if (this._isNotInitialized()) {
       return;
+    }
+
+    if (typeof validate === 'function' && !cb) {
+      cb = validate;
+      validate = false;
     }
 
     var state = this.state._formMixin;
@@ -315,6 +321,11 @@ var FormMixin = {
     ));
 
     state.changes = changes;
+
+    if (validate) {
+      this.validateForm(cb);
+      return;
+    }
 
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
