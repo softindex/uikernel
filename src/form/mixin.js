@@ -404,6 +404,16 @@ var FormMixin = {
     }.bind(this));
   },
 
+  clearFieldChanges(field, cb) {
+    if (this._isNotInitialized()) {
+      return;
+    }
+
+    this.state._formMixin.errors.clearField(field);
+    delete this.state._formMixin.changes[field];
+    this.setState(this.state, typeof cb === 'function' ? cb : null);
+  },
+
   clearChanges: function (cb) {
     if (this._isNotInitialized()) {
       return;
