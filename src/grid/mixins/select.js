@@ -35,8 +35,7 @@ var GridSelectMixin = {
       this.state.selectBlackListMode = blackListMode;
     }
 
-    // TODO You can do without a full page reload
-    this.updateTable();
+    this.forceUpdate();
   },
 
   /**
