@@ -26,14 +26,18 @@ function formatColumns(columns, viewColumns) {
   return formattedColumns;
 }
 
-function formatRecord(record, columns) {
+function formatRecord(record, columns, isTotals) {
   var columnId;
   var column;
   var formattedRecord = utils.clone(record);
 
   for (columnId in columns) {
-    column = columns[columnId];
-    formattedRecord[columnId] = column.render[column.render.length - 1](record);
+    if(!isTotals || record.hasOwnProperty(columnId)){
+      column = columns[columnId];
+      formattedRecord[columnId] = column.render[column.render.length - 1](record);
+    } else {
+      formattedRecord[columnId] = '';
+    }
   }
 
   return formattedRecord;
@@ -45,7 +49,7 @@ function formatData(records, totals, columns, viewColumns) {
     records: records.map(function (record) {
       return utils.pick(formatRecord(record[1], columns), viewColumns);
     }),
-    totals: utils.pick(formatRecord(totals, columns), viewColumns, '')
+    totals: utils.pick(formatRecord(totals, columns, true), viewColumns, '')
   };
 }
 
