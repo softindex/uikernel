@@ -25,7 +25,12 @@ var FormMixin = {
     };
   },
 
+  componentDidMount: function () {
+    this._isMounted = true;
+  },
+
   componentWillUnmount: function () {
+    this._isMounted = false;
     if (!this._isNotInitialized()) {
       this.state._formMixin.model.off('update', this._handleModelChange);
     }
@@ -65,7 +70,7 @@ var FormMixin = {
 
     if (!ctx.state._formMixin.data) {
       settings.model.getData(settings.fields, function (err, data) {
-        if (!ctx.isMounted()) {
+        if (!ctx._isMounted) {
           return;
         }
         if (err) {
@@ -364,7 +369,7 @@ var FormMixin = {
 
     // Send changes to model
     this.state._formMixin.model.submit(changes, function (err, data) {
-      if (!this.isMounted()) {
+      if (!this._isMounted) {
         return;
       }
 
@@ -449,7 +454,7 @@ var FormMixin = {
    */
   _handleModelChange: function (changes) {
     utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
-    if (this.isMounted()) {
+    if (this._isMounted) {
       this.setState(this.state);
     }
   },
@@ -498,7 +503,7 @@ var FormMixin = {
 
       this.state._formMixin.validating = false;
 
-      if (!this.isMounted() || !utils.isEqual(data, this._getData())) {
+      if (!this._isMounted || !utils.isEqual(data, this._getData())) {
         return stop();
       }
 

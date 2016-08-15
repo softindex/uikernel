@@ -13,6 +13,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 var ChildrenWrapper = React.createClass({
   propTypes: {
@@ -61,7 +62,7 @@ var Portal = React.createClass({
 
     portal.className = portalClass;
     this.state.portal = portal;
-    this.state.wrapper = React.render(
+    this.state.wrapper = ReactDOM.render(
       <ChildrenWrapper {...this.props}>{this.props.children}</ChildrenWrapper>
     , this.state.portal);
   },
@@ -70,7 +71,7 @@ var Portal = React.createClass({
     document.removeEventListener('mousedown', this._onDocumentMouseDown, false);
     document.removeEventListener('scroll', this._onDocumentMouseScroll, true);
 
-    React.unmountComponentAtNode(this.state.portal);
+    ReactDOM.unmountComponentAtNode(this.state.portal);
     document.body.removeChild(this.state.portal);
   },
 

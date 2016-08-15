@@ -10,8 +10,9 @@
 
 'use strict';
 
-var utils = require('../../common/utils');
 var React = require('react');
+var findDOMNode = require('react-dom').findDOMNode;
+var utils = require('../../common/utils');
 
 var GridUIMixin = {
   /**
@@ -104,7 +105,7 @@ var GridUIMixin = {
       var page;
       var recordIds;
 
-      if (!this.isMounted()) {
+      if (!this._isMounted) {
         return;
       }
 
@@ -155,9 +156,9 @@ var GridUIMixin = {
    */
   _showLoader: function (show) {
     if (show) {
-      $(this.refs.loader.getDOMNode()).addClass('dgrid-loader');
+      $(findDOMNode(this.refs.loader)).addClass('dgrid-loader');
     } else {
-      $(this.refs.loader.getDOMNode()).removeClass('dgrid-loader');
+      $(findDOMNode(this.refs.loader)).removeClass('dgrid-loader');
     }
   },
 
@@ -242,7 +243,7 @@ var GridUIMixin = {
       }
     }
 
-    this.refs.tbody.getDOMNode().innerHTML = htmlExtra + htmlBody;
+    findDOMNode(this.refs.tbody).innerHTML = htmlExtra + htmlBody;
   },
 
   /**
@@ -274,13 +275,13 @@ var GridUIMixin = {
    * @private
    */
   _getCellElement: function (recordId, colId) {
-    return this.refs.body.getDOMNode()
+    return findDOMNode(this.refs.body)
       .find('tr[key=' + recordId + ']')
       .find('td[key=' + colId + ']');
   },
 
   _removeTR: function (recordId) {
-    $(this.refs.body.getDOMNode())
+    $(findDOMNode(this.refs.body))
       .find('tr[key=' + recordId + ']')
       .remove();
   },
@@ -336,7 +337,7 @@ var GridUIMixin = {
   },
 
   _updateField: function (row, column) {
-    $(this.refs.body.getDOMNode())
+    $(findDOMNode(this.refs.body))
       .find('tr[key=' + row + ']')
       .find('td[key=' + column + ']')
       .html(this._getCellHTML(column, this._getRecord(row)))
