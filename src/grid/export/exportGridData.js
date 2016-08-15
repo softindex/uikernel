@@ -49,9 +49,24 @@ function formatData(records, totals, columns, viewColumns) {
   };
 }
 
+function getFields(columns, viewColumns) {
+  var fields = {};
+  var i;
+  var j;
+  var columnId;
+
+  for (i = 0; i < viewColumns.length; i++) {
+    columnId = viewColumns[i];
+    for (j = 0; j < columns[columnId].render.length - 1; j++) {
+      fields[columns[columnId].render[j]] = true;
+    }
+  }
+
+  return Object.keys(fields);
+}
+
 /**
  * @param {{}}                    gridModel
- * @param {string[]}              fields
  * @param {{}}                    columns
  * @param {string[]}              viewColumns
  * @param {Function}              exporter
@@ -62,9 +77,9 @@ function formatData(records, totals, columns, viewColumns) {
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-module.exports = suspend.callback(function * (gridModel, fields, columns, viewColumns, exporter, settings) {
+module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
   var result = yield gridModel.read({
-    fields: fields,
+    fields: getFields(columns, viewColumns),
     sort: settings.sort,
     limit: settings.limit,
     offset: settings.offset
