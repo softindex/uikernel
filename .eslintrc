@@ -26,4 +26,4 @@ rules:
   consistent-return: 0
   react/no-is-mounted: 0
   react/no-direct-mutation-state: 0
-  react/no-danger: 0
+  react/no-find-dom-node: 0
