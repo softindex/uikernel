@@ -80,7 +80,7 @@ function getFields(columns, viewColumns) {
 module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
   var result = yield gridModel.read({
     fields: getFields(columns, viewColumns),
-    sort: settings.sort,
+    sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
     limit: settings.limit,
     offset: settings.offset
   }, suspend.resume());
