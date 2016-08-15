@@ -15,7 +15,11 @@ var findDOMNode = require('react-dom').findDOMNode;
 var utils = require('../../common/utils');
 
 var GridUIMixin = {
-  _colsWithEscapeErrors: {},
+  getInitialState: function () {
+    return {
+      colsWithEscapeErrors: {}
+    };
+  },
 
   /**
    * Table content click event handler
@@ -172,38 +176,53 @@ var GridUIMixin = {
     return cellHtml;
   },
 
+  _escapeRecord: function (columnId, record) {
+    var field;
+    var type;
+    var i;
+    var escapedRecord = {};
+    var column = this.props.cols[columnId];
+    var needEscaping = !column.hasOwnProperty('escape') || column.escape;
+    var fields = column.render.slice(0, -1);
+
+    for (i = 0; i < fields.length; i++) {
+      field = fields[i];
+      type = typeof record[field];
+
+      if (needEscaping) {
+        if (type === 'string') {
+          escapedRecord[field] = utils.escape(record[field]);
+          continue;
+        }
+
+        if (type === 'object' && record[field] && !this.state.colsWithEscapeErrors[columnId]) {
+          this.state.colsWithEscapeErrors[columnId] = true;
+          console.error(
+            'UIKernel.Grid warning: \nYou send record with fields of Object type in escaped column "' +
+            columnId + '". \nTo use Objects, set column config "escape" to false,' +
+            ' \nand escape "' + columnId + '" field in render function by yourself'
+          );
+        }
+      }
+
+      escapedRecord[field] = record[field];
+    }
+
+    return escapedRecord;
+  },
+
   /**
    * Get table cell HTML
    *
-   * @param   {number}    column    Column ID
+   * @param   {number}    columnId  Column ID
    * @param   {Object}    record    Table record
    * @param   {bool}      selected  "Selected" row status
    * @returns {string}    Table cell HTML
    * @private
    */
-  _getCellHTML: function (column, record, selected) {
-    let newRecord;
-    if(typeof this.props.cols[column].escape === 'undefined' || this.props.cols[column].escape === true){
-      newRecord = {};
-      for(let i in record){
-        if(typeof record[i] === 'string'){
-          newRecord[i] = utils.escape(record[i]);
-        } else {
-          newRecord[i] = record[i];
-        }
-
-        if(typeof record[i] === 'object' && record[i] !== null && !this._colsWithEscapeErrors[column]){
-          this._colsWithEscapeErrors[column] = true;
-          console.error(
-            'uiKernel.Grid warning: \nYou send record with fields of Object type in escaped column "' +
-            column + '". \nTo use Objects, set column config "escape" to false,' +
-            ' \nand escape "' + column + '" field in render function by yourself'
-          );
-        }
-      }
-    }
-    var render = utils.last(this.props.cols[column].render);
-    var cellHtml = render(newRecord || record, selected);
+  _getCellHTML: function (columnId, record, selected) {
+    var render = utils.last(this.props.cols[columnId].render);
+    var cellHtml = render(this._escapeRecord(columnId, record), selected);
     return utils.isDefined(cellHtml) ? cellHtml : '';
   },
 
