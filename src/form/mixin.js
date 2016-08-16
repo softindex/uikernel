@@ -411,7 +411,7 @@ var FormMixin = {
     }.bind(this));
   },
 
-  clearFieldChanges(field, cb) {
+  clearFieldChanges: function (field, cb) {
     if (this._isNotInitialized()) {
       return;
     }
