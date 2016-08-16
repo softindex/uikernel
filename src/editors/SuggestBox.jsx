@@ -80,7 +80,7 @@ var SuggestBoxEditor = React.createClass({
     } else if (this.props.hasOwnProperty('label')) {
       this._setLabelTo(this.props.label, true);
     } else {
-      this._getLabelFromModel(this.props.value);
+      this._getLabelFromModel(this.props.model, this.props.value);
     }
   },
 
@@ -99,7 +99,7 @@ var SuggestBoxEditor = React.createClass({
   componentWillReceiveProps: function (nextProps) {
     if (!utils.isEqual(this.props.value, nextProps.value)) {
       if (!this.props.hasOwnProperty('label')) {
-        this._getLabelFromModel(nextProps.value);
+        this._getLabelFromModel(nextProps.model, nextProps.value);
       }
     }
     if (this.props.label !== nextProps.label) {
@@ -121,12 +121,12 @@ var SuggestBoxEditor = React.createClass({
     }
   },
 
-  _getLabelFromModel: function (id) {
+  _getLabelFromModel: function (model, id) {
     if (id === null || id === undefined) {
       return this._setLabelTo('', true);
     }
 
-    this.props.model.getLabel(id, function (err, label) {
+    model.getLabel(id, function (err, label) {
       if (!this._isMounted) {
         return;
       }
