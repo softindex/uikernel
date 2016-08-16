@@ -151,10 +151,14 @@ var FormMixin = {
       return false;
     }
 
+    var state = this.state._formMixin;
+
     // If partial check is on and field is changed,
     // do not display an error
-    if (this.state._formMixin.partialErrorChecking && !this.state._formMixin.changes.hasOwnProperty(field)) {
-      return false;
+    if (state.partialErrorChecking) {
+      if (!state.changes.hasOwnProperty(field) || utils.isEqual(state.changes[field], state.data[field])) {
+        return false;
+      }
     }
 
     return this.state._formMixin.errors.hasError(field);
@@ -354,7 +358,7 @@ var FormMixin = {
       return;
     }
 
-    if(!this.state._formMixin.autoSubmit && this.isSubmitting()){
+    if (!this.state._formMixin.autoSubmit && this.isSubmitting()) {
       return;
     }
 
