@@ -11,7 +11,7 @@ Let's add our grid some functionality, such as sorting and pagination.
 
 To create pagination, we'll pass our `UIKernel.Grid` the `viewCount` property. In this example, we’re going to display 10 records per page.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 <UIKernel.Grid
   model={this.state.model}
@@ -23,7 +23,7 @@ To create pagination, we'll pass our `UIKernel.Grid` the `viewCount` property. I
 
 Next, we’ll be adding a way to sort our grid data. We just have to pass the `sortCycle` property to our columns.
 
-`columns.jsx`:
+`columns.js`:
 {% highlight javascript %}
 var columns = {
   name: {

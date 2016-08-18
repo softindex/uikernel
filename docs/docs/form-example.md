@@ -5,86 +5,20 @@ prev: bulk-operations.html
 next: data-binding.html
 ---
 
-In this example, we'll be building a simple form for editing the 2nd record in the grid.
+In this example, we use `UIKernel.Mixins.Form` to create a simple form for editing grid records.
 
 * [Live demo](/examples/form/){:target="_blank"}
 * [Code]({{ site.github }}/examples/form){:target="_blank"}
 
-Let's create the columns for our grid first.
+To initialize a form, we use `initForm` function and pass it a settings object with `fields` and `model` props as an argument.
+A settings object can also have [other props](form-mixin.html).
+To update field values, you can use either `updateField` or `validateField`.
+`validateField` not only updates a field, but also validates it.
+`getValidationError` returns validation errors for a specific field.
+`getData` returns form data.
+`submit` is used to submit a form.
 
-`columns.jsx`
-
-{% highlight javascript %}
-var columns = {
-  id: {
-    name : 'ID',
-    width: '40',
-    sortCycle: ['asc', 'desc'],
-    editor: function () {
-      return <input type="text" {...this.props}/>;
-    },
-    render: ['id', function (record) {
-      return record.id;
-    }]
-  },
-  name: {
-    name: 'Name', // columns title
-    sortCycle: ['asc', 'desc', 'default'], // sort cycle
-    editor: function () {
-      return <input type="text" {...this.props}/>;
-    },
-    render: ['name', function (record) { // method to render a cell
-      return record.name;
-    }]
-  },
-  age: {
-    name: 'Age',
-    sortCycle: ['asc', 'desc', 'default'],
-    editor: function () {
-      return <input type="text" {...this.props}/>;
-    },
-    render: ['age', function (record) {
-      return record.age;
-    }]
-  }
-};
-{% endhighlight %}
-
----
-
-Next, we'll define validation.
-
-`validation.js`
-
-{% highlight javascript %}
-var Validation = UIKernel.createValidator()
-  .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
-  .field('age', UIKernel.Validators.number.notNull(15, 90, 'Age must be between 15 and 90'));
-{% endhighlight %}
-
----
-
-
-Now pass data and validation to the model.
-
-`model.js`
-
-{% highlight javascript %}
-var model = new UIKernel.Models.Grid.Collection({
-  data: [
-          [1, {'id': 1, 'name': 'Stacey', 'age': 22}],
-          [2, {'id': 2, 'name': 'Adam',   'age': 43}],
-          [3, {'id': 3, 'name': 'Deanna', 'age': 21}]
-        ],
-  validation: Validation
-});
-{% endhighlight %}
-
----
-
-Create a form.
-
-`FormComponent.jsx`
+`FormComponent.js`
 
 {% highlight javascript %}
 var FormComponent =  React.createClass({
@@ -159,9 +93,75 @@ var FormComponent =  React.createClass({
 
 ---
 
-Add `FormComponent` within `MainComponent`.
+We use `UIKernel.createValidator` to create a validator instance and call `field` function to define validation rules for our form.
 
-`MainComponent.jsx`
+`validation.js`
+
+{% highlight javascript %}
+var Validation = UIKernel.createValidator()
+  .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
+  .field('age', UIKernel.Validators.number.notNull(15, 90, 'Age must be between 15 and 90'));
+{% endhighlight %}
+
+---
+
+We pass validation to the grid model.
+
+`model.js`
+{% highlight javascript %}
+var model = new UIKernel.Models.Grid.Collection({
+  data: [
+          [1, {'id': 1, 'name': 'Stacey', 'age': 22}],
+          [2, {'id': 2, 'name': 'Adam',   'age': 43}],
+          [3, {'id': 3, 'name': 'Deanna', 'age': 21}]
+        ],
+  validation: Validation
+});
+{% endhighlight %}
+
+---
+
+`columns.js`
+
+{% highlight javascript %}
+var columns = {
+  id: {
+    name : 'ID',
+    width: '40',
+    sortCycle: ['asc', 'desc'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
+    render: ['id', function (record) {
+      return record.id;
+    }]
+  },
+  name: {
+    name: 'Name', // columns title
+    sortCycle: ['asc', 'desc', 'default'], // sort cycle
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
+    render: ['name', function (record) { // method to render a cell
+      return record.name;
+    }]
+  },
+  age: {
+    name: 'Age',
+    sortCycle: ['asc', 'desc', 'default'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
+    render: ['age', function (record) {
+      return record.age;
+    }]
+  }
+};
+{% endhighlight %}
+
+---
+
+`MainComponent.js`
 
 {% highlight javascript %}
 var MainComponent = React.createClass({
@@ -193,9 +193,7 @@ var MainComponent = React.createClass({
 {% endhighlight %}
 ---
 
-Finally, let's render `MainComponent`.
-
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
 React.render(<MainComponent/>, document.getElementById("example"));
 {% endhighlight %}

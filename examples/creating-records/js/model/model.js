@@ -41,11 +41,14 @@ var model = (function ( ) {
 
         if (filters.search) {
           var found = (
-            data.name.indexOf(filters.search) >= 0 ||
-            data.surname.indexOf(filters.search) >= 0 ||
+            data.name.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
+            data.surname.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
             data.phone.indexOf(filters.search) >= 0
           );
-          if (!found) return false;
+
+          if (!found) {
+            return false;
+          }
         }
 
         if (filters.gender && data.gender !== filters.gender) {

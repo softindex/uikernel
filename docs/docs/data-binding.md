@@ -5,16 +5,16 @@ prev: form-example.html
 next: select.html
 ---
 
-We'll be building two editable grids, which will share one model.
+The grids in this example share one model.
+When we modify records in one of the grids, another grid updates too.
 
 * [Live demo](/examples/data-binding/){:target="_blank"}
 * [Code]({{ site.github }}/examples/data-binding){:target="_blank"}
 
 ### Columns configuration
 
-First, create the following `columns.jsx`:
-
 {% highlight javascript %}
+`columns.js`
 var columns = {
   name: {
     name: 'First Name', // columns title
@@ -76,8 +76,6 @@ var columns = {
 
 ### Validation configuration
 
-Now that we've configured columns, we'll define validation rules.
-
 `validation.js`:
 {% highlight javascript %}
 var Validation = UIKernel.createValidator()
@@ -89,8 +87,6 @@ var Validation = UIKernel.createValidator()
 {% endhighlight %}
 
 ### Grid Model
-
-Next, we'll define a model.
 
 `model.js`:
 {% highlight javascript %}
@@ -107,9 +103,9 @@ var model = (function () {
 
 ### Main component
 
-After defining the model, let's add two grids to `MainComponent`. We'll pass the `realtime` prop to one of them so that all changes could be saved automatically.
+We pass the `realtime` prop to one of grids so that its changes could be saved automatically.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 var MainComponent = React.createClass({
   getInitialState: function () {
@@ -159,9 +155,7 @@ var MainComponent = React.createClass({
 });
 {% endhighlight %}
 
-Finally, let's render `MainComponent`.
-
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
-React.render(<MainComponent/>, document.body);
+ReactDOM.render(<MainComponent/>, document.body);
 {% endhighlight %}

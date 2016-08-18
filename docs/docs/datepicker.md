@@ -8,9 +8,16 @@ next: suggest-box.html
 * [Live demo](/examples/datepicker/){:target="_blank"}
 * [Code]({{ site.github }}/examples/datepicker){:target="_blank"}
 
+In this example, we use `UIKernel.Editors.DatePicker` to create a date picker.
+`value` and `onChange` props are required, other props are optional.
+To define a value format, we pass `format` prop.
+To define a displayed value format, we pass `textFormat` prop.
+`min` prop is used to define the minimum date.
+`max` prop is used to define the maximum date.
 
-Create a `MainComponent.jsx` with the following contents:
+You can also use [other props](editors.html#DatePicker).
 
+`MainComponent.js`
 {% highlight javascript %}
 var MainComponent = React.createClass({
   getInitialState: function () {
@@ -41,9 +48,7 @@ var MainComponent = React.createClass({
 });
 {% endhighlight %}
 
-Next, render `MainComponent`.
-
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
 React.render(<MainComponent/>, document.body);
 {% endhighlight %}

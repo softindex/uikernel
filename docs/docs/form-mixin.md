@@ -1,7 +1,7 @@
 ---
 title: Form mixin
 id: form-mixin
-prev: express-grid-api.html
+prev: grid-express-api.html
 next: form-interface.html
 ---
 
@@ -17,16 +17,17 @@ Initialize form
 
 **Settings object**
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| string[] |     **fields**                       | Fields list, that are required to display
+| Type     | Name                       | Description                                           |
+|----------|----------------------------|-------------------------------------------------------|
+| string[] |     **fields**             | Fields list, that are required to display
 | [FormModel](/docs/form-model.html) | **model**   | Form model
-| Object |    data                       | Preset data
-| Object |    changes                     | Preset changes
-| boolean |      submitAll=false            | Send all form for validity check
-| boolean |      partialErrorChecking=false | Activate partial gradual form validation
-| boolean |      autoSubmit                 | Automatic submit before updateField
-| Function |  autoSubmitHandler          | Automatic submit handler
+| Object   | data                       | Preset data
+| Object   | changes                    | Preset changes
+| boolean  | submitAll=false            | Send all form for validity check
+| boolean  | partialErrorChecking=false | Activate partial gradual form validation
+| boolean  | showDependentFields=false  | Mark the fields which are involved in group validation
+| boolean  | autoSubmit                 | Automatic submit before updateField
+| Function | autoSubmitHandler          | Automatic submit handler
 
 ----
 
@@ -37,6 +38,16 @@ boolean isLoaded()
 {% endhighlight %}
 
 Check if data loaded
+
+----
+
+### getChanges
+
+{% highlight javascript %}
+Object getChanges()
+{% endhighlight %}
+
+Get form changes
 
 ----
 
@@ -67,6 +78,16 @@ clearError(string field, [function callback])
 {% endhighlight %}
 
 Clear field error mark
+
+----
+
+### getOriginalData
+
+{% highlight javascript %}
+Object getOriginalData()
+{% endhighlight %}
+
+Get form data without changes
 
 ----
 
@@ -146,7 +167,7 @@ Validate form
 ### set
 
 {% highlight javascript %}
-set(Object data, [function callback])
+set(Object data, [boolean validate], [function callback])
 {% endhighlight %}
 
 Set data in the form
@@ -170,6 +191,25 @@ submit([function callback])
 {% endhighlight %}
 
 Send form data to the model
+
+----
+
+### isSubmitting
+{% highlight javascript %}
+boolean isSubmitting()
+{% endhighlight %}
+
+Check if form is being submitted
+
+----
+
+### clearFieldChanges
+
+{% highlight javascript %}
+clearFieldChanges(string field, [function callback])
+{% endhighlight %}
+
+Clear form field changes
 
 ----
 

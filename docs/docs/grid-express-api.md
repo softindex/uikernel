@@ -1,7 +1,7 @@
 ---
 title: Express Grid API
-id: express-grid-api
-prev: grid-adapters.html
+id: grid-express-api
+prev: grid-export.html
 next: form-mixin.html
 ---
 
@@ -10,7 +10,7 @@ You can use Grid Express API to link the client UI and Grid server model.
 ## Initialization
 
 {% highlight javascript %}
-UIKernel.gridExpressApi(Express router, string[]|function(req, res) availableMethods)
+UIKernel.gridExpressApi()
 {% endhighlight %}
 
 It can schematically be displayed like this:
@@ -48,22 +48,34 @@ Specify a function to call when the response is ready
 
 ----
 
+### getRouter
+
+{% highlight javascript %}
+getRouter()
+{% endhighlight %}
+
+Creates a router object
+
+----
+
 ## Usage
 
 Pass a model instance to Express API:
 
 {% highlight javascript %}
-var router = express.Router();
-Grid.gridExpressApi(router).model(advertisers);
+UIKernel.gridExpressApi()
+  .model(advertisers)
+  .getRouter();
 {% endhighlight %}
 
 Or use a constructor for that:
 
 {% highlight javascript %}
-var router = express.Router();
-Grid.gridExpressApi(router).model(function (req, res) {
-  return new Advertisers(req.params.param1, res.locals.param2)
-});
+UIKernel.gridExpressApi()
+  .model(function (req, res) {
+    return new Advertisers(req.params.param1, res.locals.param2)
+  })
+  .getRouter();
 {% endhighlight %}
 
 > You can also customize your API with some additional methods,

@@ -8,7 +8,8 @@ next: datepicker.html
 * [Live demo](/examples/select/){:target="_blank"}
 * [Code]({{ site.github }}/examples/select){:target="_blank"}
 
-Let's create `MainComponent`, which will contain `UIKernel.Editors.Select`.
+In this example, we use `UIKernel.Editors.Select` and pass it `value`, `onChange`, `options`, and `onLabelChange` props.
+You can also use [other props](editors.html#Select).
 
 `MainComponent.jsx`:
 {% highlight javascript %}
@@ -46,11 +47,9 @@ var MainComponent = React.createClass({
 });
 {% endhighlight %}
 
-Next, let's render `MainComponent`.
-
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
-React.render(<MainComponent/>, document.body);
+ReactDOM.render(<MainComponent/>, document.body);
 {% endhighlight %}
 
 

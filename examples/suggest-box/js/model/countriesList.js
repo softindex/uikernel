@@ -19,6 +19,11 @@ var countries = (function () {
       search = search.toLowerCase();
       cb(null, records.filter(function (record) {
         return record[1].toLowerCase().indexOf(search) >= 0;
+      }).map(function (record) {
+        return {
+          id: record[0],
+          label: record[1]
+        }
       }));
     },
 

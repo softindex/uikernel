@@ -30,29 +30,30 @@ Open up `getting-started/index.html`. It has the following contents:
     <div class="container" id="example"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-dom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
     <script src="../libs/js/uikernel.min.js"></script>
 
-    <!-- Our first model -->
+    <!-- Grid model -->
     <script src="js/model.js"></script>
 
-    <!-- Its columns -->
-    <script src="js/columns.jsx" type="text/jsx"></script>
+    <!-- Grid columns -->
+    <script src="js/columns.js"></script>
 
     <!-- Main file to render -->
-    <script src="js/main.jsx" type="text/jsx"></script>
+    <script src="js/main.js" type="text/babel"></script>
 </body>
 </html>
 {% endhighlight %}
 
 Here, we've included the required libraries - React, JQuery and UIKernel.
 
-The file `getting-started/js/main.jsx` is the main React entry point, where we render our first `UIKernel.Grid`.
+The file `getting-started/js/main.js` is the main React entry point, where we render our first `UIKernel.Grid`.
 
-`main.jsx`:
+`main.js`:
 {% highlight html %}
-React.render(
+ReactDOM.render(
   <UIKernel.Grid
     cols={columns}
     model={model}
@@ -89,7 +90,7 @@ var columns = {
 };
 {% endhighlight %}
 
-To create a model for our grid, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
+To create a grid model, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
 `model.js`:
 {% highlight javascript %}

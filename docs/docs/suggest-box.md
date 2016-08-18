@@ -110,7 +110,7 @@ var model = new UIKernel.Models.Grid.Collection({
 
 Now let’s create a modal using the Bootstrap Modal Plugin. The modal will contain `SuggestBox`.
 
-`FormComponent.jsx`:
+`FormComponent.js`:
 {% highlight javascript %}
 var FormComponent = React.createClass({
   mixins: [UIKernel.Mixins.Form],
@@ -268,7 +268,7 @@ var MainComponent = React.createClass({
 
 The last thing we need to do here is to render `MainComponent`. We're going to do it in a separate file.
 
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
 React.render(<MainComponent/>, document.getElementById("example"));
 {% endhighlight %}

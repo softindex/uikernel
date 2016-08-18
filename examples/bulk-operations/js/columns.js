@@ -11,6 +11,7 @@
 var columns = {
   bulk: {
     width: '40px',
+    className: 'text-center',
     render: [function (record, selected) {
       return '<input ref="checkbox" type="checkbox"' + (selected ? ' checked' : '') + '/>';
     }],

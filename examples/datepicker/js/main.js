@@ -8,4 +8,4 @@
  * @providesModule UIKernel
  */
 
-React.render(<MainComponent/>, document.body);
+ReactDOM.render(<MainComponent/>, document.body);

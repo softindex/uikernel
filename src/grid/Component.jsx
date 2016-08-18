@@ -38,8 +38,6 @@ var GridComponent = React.createClass({
       update: React.PropTypes.func,
       isValidRecord: React.PropTypes.func,
       getValidationDependency: React.PropTypes.func,
-      onError: React.PropTypes.func,
-      onPageLoad: React.PropTypes.func,
       on: React.PropTypes.func.isRequired,
       off: React.PropTypes.func.isRequired
     }),
@@ -53,6 +51,8 @@ var GridComponent = React.createClass({
     viewCount: React.PropTypes.number,
     viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
     onChangeViewCount: React.PropTypes.func,
+    onError: React.PropTypes.func,
+    onPageLoad: React.PropTypes.func,
     height: React.PropTypes.number
   },
   mixins: [

@@ -21,10 +21,12 @@ var FiltersForm = (function () {
         filters: _.clone(defaultFilters)
       }
     },
+
     onClear: function () {
       this.setState({filters: _.clone(defaultFilters)});
       this.props.onSubmit(defaultFilters);
     },
+
     updateValue: function (field, value) {
       if (value.target) {
         value = value.target.value
@@ -33,6 +35,7 @@ var FiltersForm = (function () {
       this.state.filters[field] = value;
       this.props.onSubmit(this.state.filters);
     },
+
     render() {
       return (
         <form className="filters-form row">

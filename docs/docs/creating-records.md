@@ -8,11 +8,12 @@ next: editors.html
 * [Live demo](/examples/creating-records/){:target="_blank"}
 * [Code]({{ site.github }}/examples/creating-records){:target="_blank"}
 
-First, let's create a form for adding new records to our grid. Open your `CreateFormComponent.jsx` file and paste there the following code:
+First, let's create a form for adding new records to our grid. Open your `CreateFormComponent.js` file and paste there the following code:
 
 {% highlight javascript %}
 var CreateFormComponent = React.createClass({
   mixins: [UIKernel.Mixins.Form],
+
   componentDidMount() {
     this.initForm({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
@@ -27,6 +28,7 @@ var CreateFormComponent = React.createClass({
       partialErrorChecking: true
     });
   },
+
   save: function (e) {
     e.preventDefault();
     this.submit(function (err, recordId) {
@@ -35,6 +37,7 @@ var CreateFormComponent = React.createClass({
       }
     }.bind(this));
   },
+
   render: function () {
     if (!this.isLoaded()) {
       return <span>Loading...</span>;
@@ -170,7 +173,7 @@ The ternary operator allows us to specify two different classes, one if a functi
 
 ---
 
-Now let's open our `main.css` and add there the following code:
+Now let's open the `main.css` file and add there the following code:
 {% highlight javascript %}
 .edit-form .changed {
     background-color: #ffff38;
@@ -183,7 +186,7 @@ Now let's open our `main.css` and add there the following code:
 
 Next up, let's modify `MainComponent` by adding it a new method named `addRecord`. It will be invoked as soon as the form is submitted.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 addRecord: function (recordId) {
   this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new

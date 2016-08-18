@@ -9,8 +9,7 @@ next: removing-records.html
 
 Our grid already has sorting, pagination, and filtering. Now it's time to make it editable.
 
-First, let's modify our columns by adding `editor`to them, which will simply return inputs.
-In the gender column, it will return `UIKernel.Editors.Select`.
+First, let's modify the grid columns by adding each of them the `editor` property.
 
 `columns.js`:
 {% highlight javascript %}
@@ -96,9 +95,9 @@ var model = new UIKernel.Models.Grid.Collection({
 {% endhighlight %}
 ---
 
-The last task is to make it possible to discard and save our edited data. So let's create the `onSave` and `onClear` methods in our `MainComponent`.
+The last task is to make it possible to discard and save the edited data. So let's create the `onSave` and `onClear` methods in our `MainComponent`.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 onSave: function () {
   this.refs.grid.save(function (err) {
@@ -116,7 +115,7 @@ onClear: function () {
 Here, we're using the `save` and `clearAllChanges` methods of `UIKernel.Grid`. To make it all work, we also need to add a `ref` attribute to our grid
 and two buttons for calling the methods we've just created.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 // ...
 <UIKernel.Grid

@@ -5,7 +5,7 @@ prev: list-xhr-model.html
 next: grid-component.html
 ---
 
-You can use List Express API to link the Client UI and List sever model.
+You can use List Express API to link the client UI and List sever model.
 
 It can schematically be displayed like this:
 
@@ -25,7 +25,7 @@ model(Object gridModel)
 model(function(Object req, Object res))
 {% endhighlight %}
 
-Specify a Grid model. It can be an instance or a constructor
+Specify a list model. It can be an instance or a constructor
 
 ----
 
@@ -39,22 +39,34 @@ Specify a function to call when you have a response
 
 ----
 
+### getRouter
+
+{% highlight javascript %}
+getRouter()
+{% endhighlight %}
+
+Creates a router object
+
+----
+
 ## Usage Example
 
 Pass a model instance to Express API:
 
 {% highlight javascript %}
-var router = express.Router();
-Grid.listExpressAPI(router).model(advertisersList);
+UIKernel.listExpressApi()
+  .model(citiesList)
+  .getRouter();
 {% endhighlight %}
 
 Or use a constructor for that:
 
 {% highlight javascript %}
-var router = express.Router();
-Grid.listExpressAPI(router).model(function (req, res) {
-  return new CitiesList(req.params.countryId);
-});
+UIKernel.listExpressApi()
+  .model(function (req, res) {
+    return new CitiesList(req.params.countryId);
+  })
+  .getRouter();
 {% endhighlight %}
 
 > You can also customize your API with some additional methods,

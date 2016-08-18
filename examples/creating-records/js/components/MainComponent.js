@@ -14,14 +14,17 @@ var MainComponent = React.createClass({
       model: model // let's store model in the state
     };
   },
+
   addRecord: function (recordId) {
     this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   },
+
   applyFilters: function (filters) {
     this.setState({
       model: UIKernel.applyGridFilters(model, filters)
     });
   },
+
   onSave: function () {
     this.refs.grid.save(function (err) {
       if (err) {
@@ -29,12 +32,14 @@ var MainComponent = React.createClass({
       }
     });
   },
+
   onClear: function () {
     this.refs.grid.clearAllChanges();
   },
+
   render: function () {
     return (
-      <div className="container">
+      <div>
         <div className="row">
           <div className="col-sm-8">
             <div className="panel panel-primary">

@@ -17,6 +17,7 @@ var FiltersForm= (function () {
 
   return React.createClass({
     mixins: [UIKernel.Mixins.Form],
+
     componentDidMount: function () {
       this.initForm({ // initialize filters form
         fields: ['search', 'age', 'gender'],
@@ -26,14 +27,17 @@ var FiltersForm= (function () {
         autoSubmitHandler: this.onSubmit
       });
     },
+
     onSubmit: function (err, data) {
       if (!err) {
         this.props.onSubmit(data);
       }
     },
+
     onClear: function () { // onClear filters event
       this.submitData(defaultFilters, this.onSubmit);
     },
+
     render() {
       if (!this.isLoaded()) {
         return <span>Loading...</span>;

@@ -35,6 +35,10 @@ function jsBundle() {
         react: {
           path: 'node_modules/react/dist/react.min.js',
           exports: 'React'
+        },
+        'react-dom': {
+          path: 'node_modules/react-dom/dist/react-dom.min.js',
+          exports: 'ReactDOM'
         }
       }
     }))

@@ -7,12 +7,11 @@ next: editing-grid-data.html
 * [Live demo](/examples/applying-filters/){:target="_blank"}
 * [Code]({{ site.github }}/examples/applying-filters){:target="_blank"}
 
-Sometimes you may wish to add filtering to your grid.
-There are only a few things we need to do here: create a form, teach our model to work with filters, and render the form.
+There are only a few things we need to do here: create a form, teach the grid model to work with filters, and render the form.
 
-Let’s create the form first. Here's the code for that:
+Let’s create a form first. Here's the code for that:
 
-`FiltersForm.jsx`:
+`FiltersForm.js`:
 {% highlight javascript %}
 var FiltersForm = (function () {
   var defaultFilters = {
@@ -27,10 +26,12 @@ var FiltersForm = (function () {
         filters: _.clone(defaultFilters)
       }
     },
+
     onClear: function () {
       this.setState({filters: _.clone(defaultFilters)});
       this.props.onSubmit(defaultFilters);
     },
+
     updateValue: function (field, value) {
       if (value.target) {
         value = value.target.value
@@ -39,6 +40,7 @@ var FiltersForm = (function () {
       this.state.filters[field] = value;
       this.props.onSubmit(this.state.filters);
     },
+
     render() {
       return (
         <form className="filters-form row">
@@ -111,11 +113,14 @@ var model = new UIKernel.Models.Grid.Collection({
 
           if (filters.search) {
             var found = (
-              data.name.indexOf(filters.search) >= 0 ||
-              data.surname.indexOf(filters.search) >= 0 ||
+              data.name.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
+              data.surname.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
               data.phone.indexOf(filters.search) >= 0
             );
-            if (!found) return false;
+
+            if (!found) {
+              return false;
+            }
           }
 
           if (filters.gender && data.gender !== filters.gender) {
@@ -133,7 +138,7 @@ var model = new UIKernel.Models.Grid.Collection({
 {% endhighlight %}
 ---
 
-Finally, let's add the `onChangeFiltersHandler` method to our `MainComponent` and render our form. Open your `MainComponent.jsx` file and modify it as bellow:
+Finally, let's add the `onChangeFiltersHandler` method to our `MainComponent` and render the form. Open your `MainComponent.js` file and modify it as bellow:
 
 {% highlight html %}
 // ...
@@ -142,9 +147,10 @@ onChangeFiltersHandler: function (filters) {
     model: UIKernel.applyGridFilters(model, filters)
   });
 },
+
 render: function () {
   return (
-    <div className="container">
+    <div>
       <div className="panel panel-primary">
         <div className="panel-heading">
           <h3 className="panel-title">Filters</h3>
@@ -171,8 +177,8 @@ render: function () {
 {% endhighlight %}
 ---
 
-Here, we've added some Bootstrap markup to display our form and grid beautifully.
-We also need to set padding for our form. So let's open our `main.css` file and type the following:
+Here, we've added some Bootstrap markup to display the form and grid beautifully.
+We also need to set padding for our form. So let's open the `main.css` file and type the following:
 
 {% highlight html %}
 .filters-form {
@@ -181,4 +187,4 @@ We also need to set padding for our form. So let's open our `main.css` file and 
 {% endhighlight %}
 ---
 
-Now go ahead and type into the fields and see the grid data change.
+Now go ahead and type into the form fields and see the grid data change.

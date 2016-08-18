@@ -10,6 +10,7 @@
 
 var CreateForm = React.createClass({
   mixins: [UIKernel.Mixins.Form],
+
   componentDidMount() {
     this.initForm({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
@@ -24,6 +25,7 @@ var CreateForm = React.createClass({
       partialErrorChecking: true
     });
   },
+
   save: function (e) { // save record handler
     e.preventDefault();
     this.submit(function (err, recordId) {
@@ -32,6 +34,7 @@ var CreateForm = React.createClass({
       }
     }.bind(this));
   },
+
   render: function () {
     if (!this.isLoaded()) {
       return <span>Loading...</span>;
