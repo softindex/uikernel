@@ -58,7 +58,8 @@ function GridExpressApi() {
     }],
     getRecord: [function (req, res, next) {
       var cols = req.query.cols ? JSON.parse(req.query.cols) : null;
-      builderContext._getModel(req, res).getRecord(req.params.recordId, cols, function (err, response) {
+      var recordId = req.params.recordId ? JSON.parse(req.params.recordId) : null;
+      builderContext._getModel(req, res).getRecord(recordId, cols, function (err, response) {
         builderContext._result(err, response, req, res, next);
       });
     }],
