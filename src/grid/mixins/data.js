@@ -247,15 +247,13 @@ var GridDataMixin = {
    * @private
    */
   _setRecordData: function (recordId, data) {
-    // TODO done through _dataArrayToObject
-    var field;
-    var row;
-
-    try {
-      row = this._getRowID(recordId);
-    } catch (e) {
+    if (!this._isRecordLoaded(recordId)) {
       return;
     }
+
+    // TODO done through _dataArrayToObject
+    var field;
+    var row = this._getRowID(recordId);
 
     // Apply and redraw all record changes
     for (field in data) {
@@ -468,6 +466,12 @@ var GridDataMixin = {
     return this.state.mainIds.indexOf(row) >= 0;
   },
 
+  _isRecordLoaded: function (recordId) {
+    // TODO Can be optimized
+    var row = utils.hash(recordId);
+    return this.state.data.hasOwnProperty(row);
+  },
+
   /**
    * Get table row ID having record ID
    *
@@ -565,7 +569,9 @@ var GridDataMixin = {
     }
 
     this.updateTable(function () {
-      this._validateRow(this._getRowID(recordId));
+      if (this._isRecordLoaded(recordId)) {
+        this._validateRow(this._getRowID(recordId));
+      }
     }.bind(this));
   }
 };
