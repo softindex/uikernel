@@ -10,6 +10,8 @@
 
 'use strict';
 
+var objectHash = require('object-hash');
+
 function baseClone(obj, isDeep) {
   var i;
   var cloned;
@@ -70,20 +72,7 @@ exports.size = function (obj) {
  * @param   {string} str Initial string
  * @return  {string} hash
  */
-exports.hash = function (str) {
-  // TODO Add hashing of objects
-  var hash = 5381;
-  var len;
-
-  str = str.toString();
-  len = str.length;
-
-  while (len) {
-    hash = (hash * 33) ^ str.charCodeAt(--len);
-  }
-
-  return (hash >>> 0).toString();
-};
+exports.hash = objectHash;
 
 /**
  * Element position (isEqual checking)

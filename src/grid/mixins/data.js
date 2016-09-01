@@ -420,7 +420,7 @@ var GridDataMixin = {
     var row;
 
     for (i = 0; i < arr.length; i++) {
-      row = utils.hash(arr[i][0].toString());
+      row = utils.hash(arr[i][0]);
       records[row] = arr[i][1];
       info[row] = {
         id: arr[i][0],
