@@ -16,11 +16,16 @@ var utils = require('../../common/utils');
 function formatColumns(columns, viewColumns) {
   var formattedColumns = {};
   var columnId;
+  var columnName;
+  var columnParentName;
   var i;
 
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
-    formattedColumns[columnId] = columns[columnId].name;
+    columnName = columns[columnId].name;
+    columnParentName = columns[columnId].parent;
+
+    formattedColumns[columnId] = columnParentName ? columnParentName + ' ' + columnName : columnName;
   }
 
   return formattedColumns;
@@ -43,9 +48,9 @@ function formatData(records, totals, columns, viewColumns) {
   return {
     columns: formatColumns(columns, viewColumns),
     records: records.map(function (record) {
-      return utils.pick(formatRecord(record[1], columns), viewColumns);
+      return formatRecord(record[1], utils.pick(columns, viewColumns));
     }),
-    totals: utils.pick(formatRecord(totals, columns), viewColumns, '')
+    totals
   };
 }
 
