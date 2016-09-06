@@ -79,7 +79,17 @@ ListXMLHttpRequestModel.prototype.getLabel = function (id, cb) {
     },
     uri: url.format(parsedUrl)
   }, function (err, resp, body) {
-    cb(err, body);
+    if (err) {
+      return cb(err);
+    }
+
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      return cb(e);
+    }
+
+    cb(null, body);
   });
 };
 
