@@ -226,6 +226,7 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _selectOption: function (option) {
+    option = option || {};
     this.props.onChange(option.id, option);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option.label);
@@ -338,7 +339,12 @@ var SuggestBoxEditor = React.createClass({
       }
     } else {
       if (!$target.parents('.' + classes.searchBlock).length) {
-        this._setLabelTo(this.state.lastValidLabel);
+        if(this.state.selectedOptionKey === null || this.state.selectedOptionKey < 0){
+          this._setLabelTo(null);
+          this._selectOption(null);
+        } else {
+          this._setLabelTo(this.state.lastValidLabel);
+        }
       }
       if (!this._isParentOf(e.target)) {
         this._closeList(true);
@@ -381,7 +387,7 @@ var SuggestBoxEditor = React.createClass({
           e.preventDefault();
         }
         if (this.state.selectedOptionKey === null) {
-          this._setLabelTo(this.state.lastValidLabel);
+          this._selectOption(null);
         } else {
           this._selectOption(this.state.options[this.state.selectedOptionKey]);
         }
