@@ -102,7 +102,7 @@ ListExpressApi.prototype._result = function (err, data, req, res, next) {
     if (typeof data === 'number') {
       data = data.toString();
     }
-    res.send(data);
+    res.json(data);
   }
 };
 
