@@ -185,6 +185,18 @@ var FormMixin = {
   },
 
   /**
+   * Get form data without changes
+   *
+   * @return {Object|null}
+   */
+  getOriginalData: function () {
+    if (this._isNotInitialized()) {
+      return {};
+    }
+    return this.state._formMixin.data || null;
+  },
+
+  /**
    * Get form data
    *
    * @return {Object|null}
