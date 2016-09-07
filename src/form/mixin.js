@@ -185,15 +185,15 @@ var FormMixin = {
   },
 
   /**
-   * Get form initial data
+   * Get form data without changes
    *
    * @return {Object|null}
    */
-  getInitialData: function () {
+  getOriginalData: function () {
     if (this._isNotInitialized()) {
       return {};
     }
-    return utils.cloneDeep(this._getInitialData());
+    return this.state._formMixin.data || null;
   },
 
   /**
@@ -537,10 +537,6 @@ var FormMixin = {
         cb(err);
       });
     }.bind(this));
-  },
-
-  _getInitialData: function () {
-    return this.state._formMixin.data || null;
   },
 
   _getData: function () {
