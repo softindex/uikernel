@@ -10,6 +10,22 @@
 
 'use strict';
 
+var utils = require('../../utils');
+
+function validator(notNull, regExp, error, value) {
+  if (!utils.isDefined(value) || value === '') {
+    if (notNull) {
+      return error;
+    }
+    return;
+  }
+
+  var type = typeof value;
+  if ((type !== 'string' && type !== 'number') || !regExp.test(value)) {
+    return error;
+  }
+}
+
 /**
  * Create RegEx validator
  *
@@ -18,10 +34,9 @@
  * @returns {Function}
  */
 module.exports = function (regExp, error) {
-  return function (value) {
-    var type = typeof value;
-    if ((type !== 'string' && type !== 'number') || !regExp.test(value)) {
-      return error;
-    }
-  };
+  return validator.bind(null, false, regExp, error);
+};
+
+module.exports.notNull = function (regExp, error) {
+  return validator.bind(null, true, regExp, error);
 };

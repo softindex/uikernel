@@ -6,3 +6,4 @@ lib
 _site
 .publish
 npm-debug.log
+examples/libs/js/uikernel.js

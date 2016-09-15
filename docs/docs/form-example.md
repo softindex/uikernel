@@ -20,6 +20,9 @@ var columns = {
     name : 'ID',
     width: '40',
     sortCycle: ['asc', 'desc'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['id', function (record) {
       return record.id;
     }]
@@ -27,6 +30,9 @@ var columns = {
   name: {
     name: 'Name', // columns title
     sortCycle: ['asc', 'desc', 'default'], // sort cycle
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['name', function (record) { // method to render a cell
       return record.name;
     }]
@@ -34,6 +40,9 @@ var columns = {
   age: {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['age', function (record) {
       return record.age;
     }]
@@ -49,8 +58,8 @@ Next, we'll define validation.
 
 {% highlight javascript %}
 var Validation = UIKernel.createValidator()
-  .field('name', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid first name.'))
-  .field('age', UIKernel.Validators.number(15, 90, 'Age must be between 15 and 90'));
+  .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
+  .field('age', UIKernel.Validators.number.notNull(15, 90, 'Age must be between 15 and 90'));
 {% endhighlight %}
 
 ---
@@ -170,6 +179,7 @@ var MainComponent = React.createClass({
                   ref="grid"
                   model={model}
                   cols={columns}
+                  realtime={true}
                 />
                 <FormComponent />
               </div>

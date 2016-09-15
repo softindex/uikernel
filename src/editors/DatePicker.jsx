@@ -11,9 +11,21 @@
 'use strict';
 
 var React = require('react');
+var findDOMNode = require('react-dom').findDOMNode;
 var utils = require('../common/utils');
 
 var DatePickerEditor = React.createClass({
+  propTypes: {
+    format: React.PropTypes.string,
+    textFormat: React.PropTypes.string,
+    min: React.PropTypes.any,
+    max: React.PropTypes.any,
+    value: React.PropTypes.any,
+    show: React.PropTypes.bool,
+    onBlur: React.PropTypes.func,
+    onChange: React.PropTypes.func.isRequired
+  },
+
   getDefaultProps: function () {
     return {
       textFormat: 'yyyy-mm-dd'
@@ -26,10 +38,10 @@ var DatePickerEditor = React.createClass({
     };
   },
   componentDidMount: function () {
-    var $element = $(this.refs.input.getDOMNode())
+    var $element = $(findDOMNode(this.refs.input))
       .datepicker({
-        minDate: this.props.min ? new Date(this.props.min) : null,
-        maxDate: this.props.max ? new Date(this.props.max) : null,
+        minDate: this.props.min ? utils.toDate(this.props.min) : null,
+        maxDate: this.props.max ? utils.toDate(this.props.max) : null,
         dateFormat: this.state.textFormat,
         onSelect: this.setDate,
         onClose: this.props.onBlur
@@ -39,7 +51,7 @@ var DatePickerEditor = React.createClass({
     $.datepicker._doKeyDown = function () { };
 
     if (this.props.value) {
-      $element.val($.datepicker.formatDate(this.state.textFormat, new Date(this.props.value)));
+      $element.val($.datepicker.formatDate(this.state.textFormat, utils.toDate(this.props.value)));
     }
 
     if (this.props.show) {
@@ -47,12 +59,12 @@ var DatePickerEditor = React.createClass({
     }
   },
   componentWillReceiveProps: function (props) {
-    var $datePicker = $(this.refs.input.getDOMNode());
+    var $datePicker = $(findDOMNode(this.refs.input));
     if (props.min !== this.props.min) {
-      $datePicker.datepicker('option', 'minDate', props.min ? new Date(props.min) : null);
+      $datePicker.datepicker('option', 'minDate', props.min ? utils.toDate(props.min) : null);
     }
     if (props.max !== this.props.max) {
-      $datePicker.datepicker('option', 'maxDate', props.max ? new Date(props.max) : null);
+      $datePicker.datepicker('option', 'maxDate', props.max ? utils.toDate(props.max) : null);
     }
     if (props.textFormat !== this.props.textFormat) {
       this.state.textFormat = props.textFormat;
@@ -61,9 +73,9 @@ var DatePickerEditor = React.createClass({
     if (props.value !== this.props.value) {
       var text = '';
       if (props.value) {
-        text = $.datepicker.formatDate(this.state.textFormat, new Date(props.value));
+        text = $.datepicker.formatDate(this.state.textFormat, utils.toDate(props.value));
       }
-      this.refs.input.getDOMNode().value = text;
+      findDOMNode(this.refs.input).value = text;
     }
   },
 
@@ -71,7 +83,7 @@ var DatePickerEditor = React.createClass({
    * Save date changes
    */
   setDate: function () {
-    var inputElement = this.refs.input.getDOMNode();
+    var inputElement = findDOMNode(this.refs.input);
     var value = inputElement.value;
     var date;
 
@@ -100,7 +112,7 @@ var DatePickerEditor = React.createClass({
   },
 
   focus: function () {
-    this.refs.input.getDOMNode().focus();
+    findDOMNode(this.refs.input).focus();
   },
 
   /**
@@ -116,7 +128,7 @@ var DatePickerEditor = React.createClass({
   render: function () {
     return (
       <input
-        {...utils.omit(this.props, 'value')}
+        {...utils.omit(this.props, ['value', 'onBlur'])}
         ref="input"
         type="text"
         onChange={this.setDate}

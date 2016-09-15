@@ -10,12 +10,17 @@
 
 'use strict';
 
-require('./lib/fix_generators');
+require('./lib/common/setImmediate');
+require('regenerator-runtime/runtime');
+var variables = require('./lib/common/variables');
 
 var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
   createValidator: require('./lib/common/validation/Validator/browser'),
+  exportGridData: require('./lib/grid/export/exportGridData'),
+  toJSON: require('./lib/grid/export/exporters/toJSON'),
+  toCSV: require('./lib/grid/export/exporters/toCSV'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
@@ -44,7 +49,8 @@ var Module = {
     Select: require('./lib/editors/Select'),
     SuggestBox: require('./lib/editors/SuggestBox'),
     DatePicker: require('./lib/editors/DatePicker'),
-    Checkbox: require('./lib/editors/Checkbox')
+    Checkbox: require('./lib/editors/Checkbox'),
+    Number: require('./lib/editors/Number')
   },
   ArgumentsError: require('./lib/common/ArgumentsError'),
   Mixins: {
@@ -54,12 +60,14 @@ var Module = {
     boolean: require('./lib/common/validation/validators/boolean'),
     date: require('./lib/common/validation/validators/date'),
     enum: require('./lib/common/validation/validators/enum'),
+    set: require('./lib/common/validation/validators/set'),
     float: require('./lib/common/validation/validators/float'),
-    listElement: require('./lib/common/validation/validators/listElement'),
     regExp: require('./lib/common/validation/validators/regExp'),
     notNull: require('./lib/common/validation/validators/notNull'),
     number: require('./lib/common/validation/validators/number')
-  }
+  },
+  _get: variables.get,
+  _set: variables.set
 };
 
 global.UIKernel = module.exports = Module;

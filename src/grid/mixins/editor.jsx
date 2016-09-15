@@ -10,8 +10,11 @@
 
 'use strict';
 
-var React = require('react');
+var React = require('react'); // eslint-disable-line no-unused-vars
+var ReactDOM = require('react-dom');
 var utils = require('../../common/utils');
+
+var findDOMNode = ReactDOM.findDOMNode;
 
 var GridEditorMixin = {
   getInitialState: function () {
@@ -33,6 +36,7 @@ var GridEditorMixin = {
     var record = this._getRecord(row);
     var $element = $(element);
     var value = utils.at(record, binds);
+    var focusDone = false;
 
     if (!Array.isArray(binds)) {
       value = value[0];
@@ -43,32 +47,34 @@ var GridEditorMixin = {
       return;
     }
 
-    var props = {
-      onChange: function (values) {
-        this._onChangeEditor(row, column, values);
-      }.bind(this),
-      onFocus: function () {
-        this._onFocusEditor(row, column);
-      }.bind(this),
-      onBlur: function () {
-        // Remove Editor
-        React.unmountComponentAtNode(element);
-        delete this.state.editor[row + '_' + column];
-        $element.removeClass('dgrid-input-wrapper');
-
-        this._onBlurEditor(row, column);
-      }.bind(this),
-      value: value
-    };
-
     var editorContext = {
-      props: props,
       updateField: function (field, nextValue, cb) {
         var data = {};
         data[field] = nextValue;
         this._setRowChanges(row, data, cb);
       }.bind(this)
     };
+
+    var props = {
+      onChange: function (values) {
+        this._onChangeEditor(row, column, values, editorContext, element);
+      }.bind(this),
+      onFocus: function () {
+        this._onFocusEditor(row, column);
+      }.bind(this),
+      onBlur: function () {
+        // Remove Editor
+        if (focusDone) {
+          ReactDOM.unmountComponentAtNode(element);
+          delete this.state.editor[row + '_' + column];
+          $element.removeClass('dgrid-input-wrapper');
+          this._onBlurEditor(row, column);
+        }
+      }.bind(this),
+      value: value
+    };
+
+    editorContext.props = props;
 
     // Display Editor
     var Component = this.props.cols[column].editor.call(editorContext, record);
@@ -77,22 +83,28 @@ var GridEditorMixin = {
       return;
     }
 
-    $element.addClass('dgrid-input-wrapper');
+    this.state.editor[row + '_' + column] = ReactDOM.render(Component, element, function () {
+      $element.addClass('dgrid-input-wrapper');
 
-    var EditorComponent = this.state.editor[row + '_' + column] = React.render(Component, element);
-    if (typeof EditorComponent.focus === 'function') {
-      EditorComponent.focus();
-    } else {
-      EditorComponent.getDOMNode().focus();
-    }
+      if (typeof this.focus === 'function') {
+        this.focus();
+      } else {
+        findDOMNode(this).focus();
+      }
+      focusDone = true;
+    });
   },
 
-  _onChangeEditor: function (row, column, values) {
+  _onChangeEditor: function (row, column, values, editorContext, element) {
     var binds = this._getBindParam(column);
 
     values = utils.cloneDeep(utils.parseValueFromEvent(values));
 
-    this.state.editor[row + '_' + column].setProps({value: values});
+    var record = this._getRecord(row);
+    var context = utils.cloneDeep(editorContext);
+    context.props.value = values;
+    var Component = this.props.cols[column].editor.call(context, record);
+    this.state.editor[row + '_' + column] = ReactDOM.render(Component, element);
 
     if (!Array.isArray(binds)) {
       binds = [binds];
@@ -123,7 +135,11 @@ var GridEditorMixin = {
   _onBlurEditor: function (row, column) {
     this._updateField(row, column);
 
-    if (this.props.realtime) {
+    // TODO Deprecated prop realtime in v0.17
+    if (this.props.autoSubmit || this.props.realtime) {
+      if (this.props.realtime) {
+        console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
+      }
       this.save(this.props.onRealtimeSubmit);
     } else {
       this._validateRow(row);

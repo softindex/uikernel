@@ -18,22 +18,22 @@ Grid is a simple component for managing:
 
 ## Properties
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| string | **model** | Model name |
-| Object | **cols** | Columns list |
-| string[] | viewColumns | Visible columns list |
-| string | height | Table height if you need grid to be scrollable |
-| boolean | saveFullRecord | Pass all record fields (not just changed) flag |
-| boolean | realtime | Grid dynamic save flag |
-| number | viewCount | One page records count |
-| number[] | viewVariants | One page records count choices |
-| Function | onSelectedChange | Custom records selection change handler |
-| boolean | multipleSorting | Multiple sorting flag |
-| string | className | Class name |
-| Object \| Object[] | defaultSort | Default sorting |
-| Object \| Object[] | sort | Sorting |
-| Function | onSorting | Sorting handler |
+| Type                | Name              | Description                                     |
+|---------------------|-------------------|-------------------------------------------------|
+| string | **model**  | Model name        |                                                 |
+| Object | **cols**   | Columns list      |                                                 |
+| string[] \| Object  | viewColumns       | Visible columns list                            |
+| string              | height            | Table height if you need grid to be scrollable  |
+| boolean             | saveFullRecord    | Pass all record fields (not just changed) flag  |
+| boolean             | realtime          | Grid dynamic save flag                          |
+| number              | viewCount         | One page records count                          |
+| number[]            | viewVariants      | One page records count choices                  |
+| Function            | onSelectedChange  | Custom records selection change handler         |
+| boolean             | multipleSorting   | Multiple sorting flag                           |
+| string              | className         | Class name                                      |
+| Object \| Object[]  | defaultSort       | Default sorting                                 |
+| Object \| Object[]  | sort              | Sorting                                         |
+| Function            | onSorting         | Sorting handler                                 |
 
 ---
 
@@ -299,10 +299,10 @@ Remove record status
 
 ---
 
-### isStatus
+### hasRecordStatus
 
 {% highlight javascript %}
-isStatus(recordId, string status)
+hasRecordStatus(recordId, string status)
 {% endhighlight %}
 
 Check record status presence
@@ -332,7 +332,7 @@ Remove records status
 ### setSelectedRecords
 
 {% highlight javascript %}
-setSelectedRecords(selectedIds)
+setSelectedRecords(Array selectedIds, [boolean blackListMode])
 {% endhighlight %}
 
 Select only these records

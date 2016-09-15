@@ -72,11 +72,11 @@ We'll also need to validate our edited data. So let's define some validation rul
 `validation.js`:
 {% highlight javascript %}
 var validation = UIKernel.createValidator()
-  .field('name', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid first name.'))
-  .field('surname', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid last name.'))
-  .field('phone', UIKernel.Validators.regExp(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
-  .field('age', UIKernel.Validators.regExp(/^[^0]\d{0,2}$/, 'Invalid age.'))
-  .field('gender', UIKernel.Validators.regExp(/^[12]$/, 'Invalid gender.'))
+  .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
+  .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
+  .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
+  .field('age', UIKernel.Validators.regExp.notNull(/^[^0]\d{0,2}$/, 'Invalid age.'))
+  .field('gender', UIKernel.Validators.regExp.notNull(/^[12]$/, 'Invalid gender.'))
 {% endhighlight %}
 ---
 We first create a validator instance by calling `UIKernel.createValidator`.

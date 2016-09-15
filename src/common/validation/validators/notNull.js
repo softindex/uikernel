@@ -10,6 +10,8 @@
 
 'use strict';
 
+var utils = require('../../utils');
+
 /**
  * Create NULL validator
  *
@@ -18,7 +20,7 @@
  */
 module.exports = function (error) {
   return function (value) {
-    if (value === null) {
+    if (!utils.isDefined(value)) {
       return error;
     }
   };

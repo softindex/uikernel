@@ -8,10 +8,16 @@
  * @providesModule UIKernel
  */
 
-var del = require('del');
+'use strict';
 
-function jsClear() {
-  return del(['lib', 'dist', '_site']);
+function toJSON(data, cb) {
+  cb(null, {
+    mime: 'application/json',
+    data: {
+      records: data.records,
+      totals: data.totals
+    }
+  });
 }
 
-module.exports = jsClear;
+module.exports = toJSON;
