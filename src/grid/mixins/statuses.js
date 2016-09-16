@@ -18,11 +18,36 @@ var utils = require('../../common/utils');
  */
 var GridStatusesMixin = {
   getInitialState: function () {
+    var statusMap = {
+      new: 1 << 0
+    };
+
+    var statuses = {};
+    var row;
+    var recordId;
+    var status;
+    var offset;
+
+    if (this.props.initialStatuses) {
+      for (recordId in this.props.initialStatuses) {
+        row = utils.hash(Number(recordId));
+        status = this.props.initialStatuses[recordId];
+        offset = utils.size(statusMap);
+
+        if (!statusMap.hasOwnProperty(status)) {
+          statusMap[status] = 1 << offset;
+        }
+
+        statuses[row] = {
+          id: recordId,
+          sum: statusMap[status]
+        };
+      }
+    }
+
     return {
-      statusMap: {
-        new: 1 << 0
-      },
-      statuses: {}
+      statusMap: statusMap,
+      statuses: statuses
     };
   },
 
