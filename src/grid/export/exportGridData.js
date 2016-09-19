@@ -20,7 +20,8 @@ function formatColumns(columns, viewColumns) {
 
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
-    formattedColumns[columnId] = columns[columnId].name;
+    formattedColumns[columnId] = (columns[columnId].parent ? columns[columnId].parent + ' ': '') +
+      columns[columnId].name;
   }
 
   return formattedColumns;
