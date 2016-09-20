@@ -36,6 +36,7 @@ var ENTER_KEY = 13;
 var ESCAPE_KEY = 27;
 var ARROW_UP_KEY = 38;
 var ARROW_DOWN_KEY = 40;
+var MIN_POPUP_HEIGHT = 100;
 
 var SuggestBoxEditor = React.createClass({
   propTypes: {
@@ -176,6 +177,20 @@ var SuggestBoxEditor = React.createClass({
 
       var offsetTop = inputOffset.top + parseInt(inputHeight);
       var offsetLeft = inputOffset.left;
+
+      if (typeof window !== 'undefined') {
+        var availableSpace = window.innerHeight - offsetTop;
+
+        if (availableSpace < MIN_POPUP_HEIGHT) {
+          offsetTop = inputOffset.top - 300;
+          $popup.css('height', 300);
+          $popup.find('.__suggestBoxPopUp-content')
+            .css('bottom', 0)
+            .css('position', 'absolute');
+        } else {
+          $popup.css('maxHeight', availableSpace);
+        }
+      }
 
       $popup
         .css('minWidth', inputWidth)
@@ -468,7 +483,9 @@ var SuggestBoxEditor = React.createClass({
           onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
         >
-          <ul>{options}</ul>
+          <div className="__suggestBoxPopUp-content">
+            <ul>{options}</ul>
+          </div>
         </Portal>
       );
     }

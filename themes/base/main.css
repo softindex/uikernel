@@ -302,13 +302,19 @@
 }
 .__suggestBoxPopUp {
   position: absolute;
-  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
   display: block;
-  border: 1px solid #e5e6e7;
-  background-color: #fff;
+  border-bottom: 1px solid #e5e6e7;
 }
+
+.__suggestBoxPopUp-content {
+  border: 1px solid #e5e6e7;
+  border-bottom: 0;
+  background-color: #fff;
+  width: 100%;
+}
+
 .__suggestBoxPopUp ul {
   list-style-type: none;
   padding: 0;
