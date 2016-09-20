@@ -316,7 +316,7 @@ var FormMixin = {
    * @param {Function}  [cb]              CallBack
    */
   set: function (data, validate, cb) {
-    if (this.isLoaded()) {
+    if (!this.isLoaded()) {
       return;
     }
 
