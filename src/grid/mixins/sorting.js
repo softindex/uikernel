@@ -191,9 +191,11 @@ var GridSortingMixin = {
       }
     }
 
-    if (this._isSortingPropsMode()) {
+    if(this.props.onSorting){
       this.props.onSorting(newSorts, column, newOrder);
-    } else {
+    }
+
+    if (!this._isSortingPropsMode()) {
       this.state.sort = newSorts;
       this.setPage(0);
     }
