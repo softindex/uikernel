@@ -41,13 +41,16 @@ function formatRecord(record, columns) {
 }
 
 function formatData(records, totals, columns, viewColumns) {
-  return {
+  const formatted = {
     columns: formatColumns(columns, viewColumns),
     records: records.map(function (record) {
       return utils.pick(formatRecord(record[1], columns), viewColumns);
-    }),
-    totals: utils.pick(formatRecord(totals, columns), viewColumns, '')
+    })
   };
+  if (totals) {
+    formatted.totals = utils.pick(formatRecord(totals, columns), viewColumns, '');
+  }
+  return formatted;
 }
 
 function getFields(columns, viewColumns) {
