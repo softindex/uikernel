@@ -12,6 +12,7 @@
 
 var suspend = require('suspend');
 var utils = require('../../common/utils');
+var ArgumentsError = require('../../common/ArgumentsError');
 
 function formatColumns(columns, viewColumns) {
   var formattedColumns = {};
@@ -58,15 +59,54 @@ function getFields(columns, viewColumns) {
   var i;
   var j;
   var columnId;
-
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
-    for (j = 0; j < columns[columnId].render.length - 1; j++) {
-      fields[columns[columnId].render[j]] = true;
+    if(columns[columnId] && typeof columns[columnId] === 'object'){
+      for (j = 0; j < columns[columnId].render.length - 1; j++) {
+        fields[columns[columnId].render[j]] = true;
+      }
     }
   }
 
   return Object.keys(fields);
+}
+
+/**
+ * @param {Object} columns
+ * @param {array} columns.render
+ * @param {[string]} viewColumns
+ */
+function validateParams(columns, viewColumns){
+  if(!viewColumns || !viewColumns.length){
+    throw new ArgumentsError('ViewColumns cant be empty');
+  }
+
+  var i;
+  var errorMessage = '';
+  var notExistColumns = [];
+  var renderErrors = [];
+  for (i = 0; i < viewColumns.length; i++) {
+    if (!columns[viewColumns[i]]) {
+      notExistColumns.push(JSON.stringify(viewColumns[i]))
+    } else if(
+      !columns[viewColumns[i]].render ||
+      typeof columns[viewColumns[i]].render !== 'object' ||
+      typeof columns[viewColumns[i]].render[columns[viewColumns[i]].render.length - 1] !== 'function'
+    ) {
+      renderErrors.push(JSON.stringify(viewColumns[i]));
+    }
+  }
+
+  if(notExistColumns.length){
+    errorMessage += 'You trying to get not exist columns: [' + notExistColumns.join(', ') + '];';
+  }
+  if(renderErrors.length){
+    errorMessage += 'Render function is incorrect for: [' + errorMessage.join(', ') + '];';
+  }
+
+  if(errorMessage){
+    throw new ArgumentsError(errorMessage);
+  }
 }
 
 /**
@@ -82,6 +122,7 @@ function getFields(columns, viewColumns) {
  * @param {Function}              cb
  */
 module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
+  validateParams(columns, viewColumns);
   var result = yield gridModel.read({
     fields: getFields(columns, viewColumns),
     sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
