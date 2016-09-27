@@ -21,6 +21,7 @@ var jsBundle = require('./gulp/jsBundle');
 var addLicense = require('./gulp/addLicense');
 var deploySite = require('./gulp/deploySite');
 var buildSite = require('./gulp/buildSite');
+var release = require('./gulp/release');
 
 gulp.task('default', ['precompile']);
 
@@ -35,3 +36,4 @@ gulp.task('clear', jsClear);
 gulp.task('deploySite', ['buildSite'], deploySite);
 gulp.task('buildSite', ['archive'], buildSite);
 gulp.task('archive', ['bundle'], archive);
+gulp.task('release', release);

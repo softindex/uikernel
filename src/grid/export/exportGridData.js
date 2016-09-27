@@ -12,6 +12,7 @@
 
 var suspend = require('suspend');
 var utils = require('../../common/utils');
+var ArgumentsError = require('../../common/ArgumentsError');
 
 function formatColumns(columns, viewColumns) {
   var formattedColumns = {};
@@ -58,7 +59,6 @@ function getFields(columns, viewColumns) {
   var i;
   var j;
   var columnId;
-
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
     for (j = 0; j < columns[columnId].render.length - 1; j++) {
@@ -67,6 +67,28 @@ function getFields(columns, viewColumns) {
   }
 
   return Object.keys(fields);
+}
+
+/**
+ * @param {{}} columns
+ * @param {string[]} viewColumns
+ */
+function assertValidViewColumns(columns, viewColumns){
+  if(!viewColumns || !viewColumns.length){
+    throw new ArgumentsError('"viewColumns" can`t be empty');
+  }
+
+  var i;
+  var notExistColumns = [];
+  for (i = 0; i < viewColumns.length; i++) {
+    if (!columns[viewColumns[i]]) {
+      notExistColumns.push(JSON.stringify(viewColumns[i]))
+    }
+  }
+
+  if(notExistColumns.length){
+    throw new ArgumentsError('You trying to get not exist columns: [' + notExistColumns.join(', ') + '];');
+  }
 }
 
 /**
@@ -82,6 +104,7 @@ function getFields(columns, viewColumns) {
  * @param {Function}              cb
  */
 module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
+  assertValidViewColumns(columns, viewColumns);
   var result = yield gridModel.read({
     fields: getFields(columns, viewColumns),
     sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
