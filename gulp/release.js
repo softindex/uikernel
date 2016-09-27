@@ -17,6 +17,7 @@ var argv = require('yargs').argv;
 var pkg = require('../package.json');
 
 var repo = argv.repo || 'origin';
+var tag = 'v' + pkg.version;
 
 function exec(cmd, params, cb) {
   spawn(cmd, params).on('exit', cb);
@@ -63,14 +64,14 @@ function filterIgnoreData(ignoreData) {
 
 function release(cb) {
   assertOutputIsEmpty('git', ['status', '-s'], 'Commit repo changes first', function () {
-    assertOutputIsEmpty('git', ['tag', '-l', pkg.version], 'Tag already exists', function () {
+    assertOutputIsEmpty('git', ['tag', '-l', tag], 'Tag already exists', function () {
       sequence('bundle')(function () {
         getIgnoreData(function (ignoreData) {
           var newIgnoreData = filterIgnoreData(ignoreData);
           setIgnoreData(newIgnoreData, function () {
             exec('git', ['add', '.'], function () { // stage all
-              exec('git', ['commit', '-m', pkg.version], function () { // commit
-                exec('git', ['tag', '-a', pkg.version, '-m', pkg.version], function () { // add tag
+              exec('git', ['commit', '-m', tag], function () { // commit
+                exec('git', ['tag', '-a', tag, '-m', tag], function () { // add tag
                   exec('git', ['push', '--tags', repo], function () { // push tags
                     exec('git', ['reset', '--hard', 'HEAD~1'], cb); // reset head
                   });
