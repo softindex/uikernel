@@ -17,8 +17,8 @@ var Validator = require('../../common/validation/Validator/common');
 /**
  * Specifies a grid model that will work with array data passed to it as a parameter.
  *
- * @param {Object}    options
- * @param {Object[]}  options.data              Data array
+ * @param {Object}    [options]
+ * @param {Object[]}  [options.data]              Data array
  * @param {Function}  [options.filtersHandler]
  * @param {Validator} [options.validator]
  * @param {string[]}  [options.requiredFields]
@@ -26,6 +26,8 @@ var Validator = require('../../common/validation/Validator/common');
  */
 var GridCollectionModel = function (options) {
   AbstractGridModel.call(this);
+
+  options = options || {};
 
   this.data = options.data || [];
   this._id = 1;
