@@ -16,6 +16,5 @@ browserModule.gridExpressApi = require('./lib/grid/models/gridExpressApi');
 browserModule.listExpressApi = require('./lib/list/ListExpressApi');
 browserModule.formExpressApi = require('./lib/form/FormExpressApi');
 browserModule.createValidator = require('./lib/common/validation/Validator/common');
-browserModule.ArgumentsError = require('./lib/common/ArgumentsError');
 
 module.exports = browserModule;

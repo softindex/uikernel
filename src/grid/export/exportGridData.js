@@ -61,10 +61,8 @@ function getFields(columns, viewColumns) {
   var columnId;
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
-    if(columns[columnId] && typeof columns[columnId] === 'object'){
-      for (j = 0; j < columns[columnId].render.length - 1; j++) {
-        fields[columns[columnId].render[j]] = true;
-      }
+    for (j = 0; j < columns[columnId].render.length - 1; j++) {
+      fields[columns[columnId].render[j]] = true;
     }
   }
 
@@ -72,40 +70,24 @@ function getFields(columns, viewColumns) {
 }
 
 /**
- * @param {Object} columns
- * @param {array} columns.render
- * @param {[string]} viewColumns
+ * @param {{}} columns
+ * @param {string[]} viewColumns
  */
-function validateParams(columns, viewColumns){
+function assertValidViewColumns(columns, viewColumns){
   if(!viewColumns || !viewColumns.length){
-    throw new ArgumentsError('ViewColumns cant be empty');
+    throw new ArgumentsError('"viewColumns" can`t be empty');
   }
 
   var i;
-  var errorMessage = '';
   var notExistColumns = [];
-  var renderErrors = [];
   for (i = 0; i < viewColumns.length; i++) {
     if (!columns[viewColumns[i]]) {
       notExistColumns.push(JSON.stringify(viewColumns[i]))
-    } else if(
-      !columns[viewColumns[i]].render ||
-      typeof columns[viewColumns[i]].render !== 'object' ||
-      typeof columns[viewColumns[i]].render[columns[viewColumns[i]].render.length - 1] !== 'function'
-    ) {
-      renderErrors.push(JSON.stringify(viewColumns[i]));
     }
   }
 
   if(notExistColumns.length){
-    errorMessage += 'You trying to get not exist columns: [' + notExistColumns.join(', ') + '];';
-  }
-  if(renderErrors.length){
-    errorMessage += 'Render function is incorrect for: [' + errorMessage.join(', ') + '];';
-  }
-
-  if(errorMessage){
-    throw new ArgumentsError(errorMessage);
+    throw new ArgumentsError('You trying to get not exist columns: [' + notExistColumns.join(', ') + '];');
   }
 }
 
@@ -122,7 +104,7 @@ function validateParams(columns, viewColumns){
  * @param {Function}              cb
  */
 module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
-  validateParams(columns, viewColumns);
+  assertValidViewColumns(columns, viewColumns);
   var result = yield gridModel.read({
     fields: getFields(columns, viewColumns),
     sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
