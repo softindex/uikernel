@@ -210,6 +210,14 @@
   background-color: #ffcccc;
 }
 
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
+  background-color: #FFBDC4;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-warning {
+  background-color: #ffcccc;
+}
+
 .data-grid tbody.dgrid-body-table tr:hover {
   background-color: #ffffd0;
 }

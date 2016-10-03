@@ -34,7 +34,6 @@ var GridCollectionModel = function (options) {
   this._filtersHandler = options.filtersHandler;
   this._validation = options.validation || new Validator();
   this._requiredFields = options.requiredFields || [];
-  this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
 };
 GridCollectionModel.prototype = new AbstractGridModel();
 GridCollectionModel.prototype.constructor = GridCollectionModel;
@@ -66,28 +65,20 @@ GridCollectionModel.prototype.create = function (record, cb) {
     }
   }
 
-  if (this._validateOnCreate) {
-    this.isValidRecord(clonedRecord, function (err, validationErrors) {
-      if (err) {
-        return cb(err);
-      }
+  this.isValidRecord(clonedRecord, function (err, validationErrors) {
+    if (err) {
+      return cb(err);
+    }
 
-      if (!validationErrors.isEmpty()) {
-        return cb(validationErrors);
-      }
+    if (!validationErrors.isEmpty()) {
+      return cb(validationErrors);
+    }
 
-      this._create(clonedRecord, cb);
-    }.bind(this));
-  } else {
-    this._create(clonedRecord, cb);
-  }
-};
-
-GridCollectionModel.prototype._create = function (record, cb) {
-  var id = this._getID();
-  this.data.push([id, record]);
-  this.trigger('create', id);
-  cb(null, id);
+    var id = this._getID();
+    this.data.push([id, clonedRecord]);
+    this.trigger('create', id);
+    cb(null, id);
+  }.bind(this));
 };
 
 /**

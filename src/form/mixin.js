@@ -326,22 +326,7 @@ var FormMixin = {
     }
 
     var state = this.state._formMixin;
-    var changes = utils.clone(state.changes);
-
-    utils.assign(changes, data);
-
-    for (var i in changes) {
-      if (utils.isEqual(state.data[i], changes[i])) {
-        delete changes[i];
-      }
-    }
-
-    utils.assign(changes, utils.pick(
-      state.data,
-      state.model.getValidationDependency(Object.keys(changes))
-    ));
-
-    state.changes = changes;
+    state.changes = utils.getRecordChanges(state.model, state.data, state.changes, data);
 
     if (validate) {
       this.validateForm(cb);
@@ -510,7 +495,8 @@ var FormMixin = {
       return stop();
     }
 
-    var data = this._getData();
+    var data = this._getChanges();
+    var fields = Object.keys(data);
 
     this.state._formMixin.validating = true;
 
@@ -519,14 +505,14 @@ var FormMixin = {
 
       this.state._formMixin.validating = false;
 
-      if (this._isUnmounted || !utils.isEqual(data, this._getData())) {
+      if (this._isUnmounted || !utils.isEqual(data, this._getChanges())) {
         return stop();
       }
 
       if (err) {
         this.state._formMixin.errors.clear();
       } else {
-        this.state._formMixin.errors = validErrors;
+        this.state._formMixin.errors.replace(fields, validErrors);
         while (field = this.state._formMixin.pendingClearErrors.pop()) {
           this.state._formMixin.errors.clearField(field);
         }

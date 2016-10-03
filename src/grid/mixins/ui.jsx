@@ -249,6 +249,7 @@ var GridUIMixin = {
         (this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : '') +
         (this._isChanged(row, this._getBindParam(colId)) ? ' dgrid-changed' : '') +
         (this._hasError(row, this._getBindParam(colId)) ? ' dgrid-error' : '') +
+        (this._hasWarning(row, this._getBindParam(colId)) ? ' dgrid-warning' : '') +
         '">' +
         this._getCellHTML(colId, record, selected) +
         '</td>';
@@ -382,13 +383,16 @@ var GridUIMixin = {
       .find('tr[key=' + row + ']')
       .find('td[key=' + column + ']')
       .html(this._getCellHTML(column, this._getRecord(row)))
-      .removeClass('dgrid-changed dgrid-error')
+      .removeClass('dgrid-changed dgrid-error dgrid-warning')
       .addClass(this._isChanged(
         row,
         this._getBindParam(column)) ? 'dgrid-changed' : '')
       .addClass(this._hasError(
         row,
-        this._getBindParam(column)) ? 'dgrid-error' : '');
+        this._getBindParam(column)) ? 'dgrid-error' : '')
+      .addClass(this._hasWarning(
+        row,
+        this._getBindParam(column)) ? 'dgrid-warning' : '');
   },
 
   _updateRow: function (row, cb) {
