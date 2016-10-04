@@ -366,14 +366,14 @@ var GridUIMixin = {
       return (
         <table cellSpacing="0" className="dgrid-totals">
           <colgroup>{header.colGroup}</colgroup>
-          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
+          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
         </table>
       );
     }
 
     return (
       <tfoot className="dgrid-totals">
-        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
+        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
       </tfoot>
     );
   },

@@ -496,7 +496,6 @@ var FormMixin = {
     }
 
     var data = this._getChanges();
-    var fields = Object.keys(data);
 
     this.state._formMixin.validating = true;
 
@@ -512,7 +511,7 @@ var FormMixin = {
       if (err) {
         this.state._formMixin.errors.clear();
       } else {
-        this.state._formMixin.errors.replace(fields, validErrors);
+        this.state._formMixin.errors = validErrors;
         while (field = this.state._formMixin.pendingClearErrors.pop()) {
           this.state._formMixin.errors.clearField(field);
         }

@@ -104,29 +104,6 @@ ValidationErrors.prototype.clearField = function (field) {
 };
 
 /**
- * Replace current object fields with specified object values
- *
- * @param   {Array}       fields      Field names, we need to replace
- * @param   {ValidationErrors}  validationErrors  Errors, we replace with
- * @returns {ValidationErrors}
- */
-ValidationErrors.prototype.replace = function (fields, validationErrors) {
-  var i;
-  var key;
-
-  for (i = 0; i < fields.length; i++) {
-    key = fields[i];
-    if (validationErrors._fields.hasOwnProperty(key)) {
-      this._fields[key] = validationErrors._fields[key];
-    } else {
-      delete this._fields[key];
-    }
-  }
-
-  return this;
-};
-
-/**
  * Clear errors list
  *
  * @return {ValidationErrors}

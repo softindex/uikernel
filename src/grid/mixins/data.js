@@ -12,14 +12,13 @@
 
 var React = require('react');
 var utils = require('../../common/utils');
-var Validator = require('../../common/validation/Validator/common');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 var GridDataMixin = {
   propTypes: {
     saveFullRecord: React.PropTypes.bool,
     partialErrorChecking: React.PropTypes.bool,
-    warningsValidation: React.PropTypes.shape({
+    warningsValidator: React.PropTypes.shape({
       isValidRecord: React.PropTypes.func,
       getValidationDependency: React.PropTypes.func
     })
@@ -27,14 +26,14 @@ var GridDataMixin = {
 
   getDefaultProps: function () {
     return {
-      partialErrorChecking: false,
-      warningsValidation: new Validator()
+      partialErrorChecking: false
     };
   },
 
   getInitialState: function () {
     this._loadData = utils.throttle(this._loadData);
     this._validateRow = utils.throttle(this._validateRow);
+    this._checkWarnings = utils.throttle(this._checkWarnings);
     return {
       data: null,
       changes: {},
@@ -91,7 +90,7 @@ var GridDataMixin = {
    */
   getRecordWarnings: function (recordId) {
     var row = this._getRowID(recordId);
-    return this._getRecordWarnings(row);
+    return this.state.warnings[row] || new ValidationErrors();
   },
 
   /**
@@ -317,26 +316,7 @@ var GridDataMixin = {
    * @private
    */
   _hasWarning: function (row, fields) {
-    var i;
-
-    if (!this.state.warnings[row]) {
-      return false;
-    }
-
-    if (this.state.partialErrorChecking && !this.state.changes.hasOwnProperty(row)) {
-      return false;
-    }
-
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-    }
-
-    for (i = 0; i < fields.length; i++) {
-      if (this.state.warnings[row].hasError(fields[i])) {
-        return true;
-      }
-    }
-    return false;
+    return this._checkFieldInValidation(row, fields, this.state.warnings);
   },
 
   /**
@@ -348,9 +328,22 @@ var GridDataMixin = {
    * @private
    */
   _hasError: function (row, fields) {
+    return this._checkFieldInValidation(row, fields, this.state.errors);
+  },
+
+  /**
+   * Table row has error in "validation" object
+   *
+   * @param   {string}        row
+   * @param   {Array|string}  fields
+   * @param   {Validation}    validation
+   * @returns {boolean}
+   * @private
+   */
+  _checkFieldInValidation: function (row, fields, validation) {
     var i;
 
-    if (!this.state.errors[row]) {
+    if (!validation[row]) {
       return false;
     }
 
@@ -363,7 +356,7 @@ var GridDataMixin = {
     }
 
     for (i = 0; i < fields.length; i++) {
-      if (this.state.errors[row].hasError(fields[i])) {
+      if (validation[row].hasError(fields[i])) {
         return true;
       }
     }
@@ -397,17 +390,6 @@ var GridDataMixin = {
     }
 
     return true;
-  },
-
-  /**
-   * Get table row warnings object
-   *
-   * @param   {string} row  Row ID
-   * @return  {ValidationErrors}
-   * @private
-   */
-  _getRecordWarnings: function (row) {
-    return this.state.warnings[row] || new ValidationErrors();
   },
 
   /**
@@ -626,38 +608,47 @@ var GridDataMixin = {
     }, cb ? cb.bind(this) : null);
   },
 
-  _validateGridRow: function (row) {
+  _checkWarnings: function (row, cb) {
+    if (!this.props.warningsValidator) {
+      if (cb) {
+        cb();
+      }
+      return;
+    }
+    this._checkFieldInValidation(row, this.props.warningsValidator, this.state.warnings, cb);
+  },
+
+  _validateRow: function (row, cb) {
+    this._checkFieldInValidation(row, this.props.model, this.state.errors, cb);
+  },
+
+  /**
+   * Check errors in "validator" object
+   *
+   * @param {string}        row         Row ID
+   * @param {Validator}     validator   Validator object
+   * @param {Validation[]}  result      Result object
+   * @param {Function}      cb          Callback
+   * @private
+   */
+  _checkValidatorErrors: function (row, validator, result, cb) {
     var record = this._getRecordChanges(row);
 
-    this.props.warningsValidation.isValidRecord(record, function (err, validWarnings) {
+    validator.isValidRecord(record, function (err, validErrors) {
       if (!err && utils.isEqual(record, this._getRecordChanges(row))) {
-        if (validWarnings.isEmpty()) {
-          delete this.state.warnings[row];
+        if (validErrors.isEmpty()) {
+          delete result[row];
         } else {
-          this.state.warnings[row] = validWarnings;
+          result[row] = validErrors;
         }
 
         Object.keys(record).forEach(function (field) {
           this._renderBinds(row, field);
         }, this);
       }
-    }.bind(this));
-  },
 
-  _validateRow: function (row) {
-    var record = this._getRecordChanges(row);
-
-    this.props.model.isValidRecord(record, function (err, validErrors) {
-      if (!err && utils.isEqual(record, this._getRecordChanges(row))) {
-        if (validErrors.isEmpty()) {
-          delete this.state.errors[row];
-        } else {
-          this.state.errors[row] = validErrors;
-        }
-
-        Object.keys(record).forEach(function (field) {
-          this._renderBinds(row, field);
-        }, this);
+      if (cb) {
+        cb(err);
       }
     }.bind(this));
   },
@@ -665,7 +656,7 @@ var GridDataMixin = {
   _onRecordCreated: function (recordId) {
     this.updateTable(function () {
       if (this._isRecordLoaded(recordId)) {
-        this._validateGridRow(this._getRowID(recordId));
+        this._checkWarnings(this._getRowID(recordId));
       }
     }.bind(this));
   }
