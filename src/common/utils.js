@@ -385,3 +385,20 @@ exports.without = function (arr, el) {
 exports.last = function (arr) {
   return arr[arr.length - 1];
 };
+
+exports.getRecordChanges = function (model, data, changes, newChanges) {
+  var result = exports.assign({}, changes, newChanges);
+
+  for (var i in result) {
+    if (exports.isEqual(data[i], result[i])) {
+      delete result[i];
+    }
+  }
+
+  exports.assign(result, exports.pick(
+    data,
+    model.getValidationDependency(Object.keys(result))
+  ));
+
+  return result;
+};

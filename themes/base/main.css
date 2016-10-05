@@ -202,11 +202,13 @@
   background-color: #F0F09A;
 }
 
-.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
   background-color: #FFBDC4;
 }
 
-.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-warning {
   background-color: #ffcccc;
 }
 

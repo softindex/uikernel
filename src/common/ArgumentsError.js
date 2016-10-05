@@ -11,15 +11,12 @@
 'use strict';
 
 function ArgumentsError(message) {
-  if (!(this instanceof ArgumentsError)) {
-    return new ArgumentsError(message);
-  }
-
   this.message = message;
+  this.status = this.statusCode = 422;
   Error.captureStackTrace(this, ArgumentsError);
 }
 
-ArgumentsError.prototype = Error();
+ArgumentsError.prototype = Object.create(Error.prototype);
 ArgumentsError.prototype.constructor = ArgumentsError;
 
 module.exports = ArgumentsError;

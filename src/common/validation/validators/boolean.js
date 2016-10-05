@@ -13,6 +13,7 @@
 var utils = require('../../utils');
 
 function validator(notNull, error, value) {
+  error = error || 'Not boolean';
   if (!utils.isDefined(value)) {
     if (notNull) {
       return error;

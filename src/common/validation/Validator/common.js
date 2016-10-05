@@ -12,6 +12,7 @@
 
 var suspend = require('suspend');
 var ValidationErrors = require('../ValidationErrors');
+var ArgumentsError = require('../../ArgumentsError');
 var utils = require('../../utils');
 
 /**
@@ -28,7 +29,8 @@ var Validator = function () {
     validators: {},
     groupValidators: [],
     asyncValidators: {},
-    asyncGroupValidators: []
+    asyncGroupValidators: [],
+    asyncDependenies: []
   };
 
   this.isValidRecord = this.isValidRecord.bind(this);
@@ -73,7 +75,8 @@ Validator.prototype.fields = function (fields, validatorFunction) {
  * @returns {Validator} validator
  */
 Validator.prototype.asyncDependence = function (fields) {
-  return this.fields(fields);
+  this._settings.asyncDependenies.push(fields);
+  return this;
 };
 
 /**
@@ -118,7 +121,7 @@ Validator.prototype.getValidationDependency = function (fields) {
   var groups = utils.pluck(
     this._settings.groupValidators.concat(this._settings.asyncGroupValidators),
     'fields'
-  );
+  ).concat(this._settings.asyncDependenies);
 
   while (length !== result.length) {
     length = result.length;
@@ -156,7 +159,13 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
   var validators;
   var asyncValidators;
   var groupValidator;
+  var dependentFields;
   var asyncGroupValidator;
+
+  dependentFields = this.getValidationDependency(fields);
+  if (dependentFields.length) {
+    throw new ArgumentsError('Not enough fields for validator: ' + dependentFields.join(', '));
+  }
 
   // Add sync and async validators
   for (i in record) {
@@ -183,9 +192,7 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
   for (i = 0; i < this._settings.groupValidators.length; i++) {
     groupValidator = this._settings.groupValidators[i];
     if (utils.isIntersection(groupValidator.fields, fields)) {
-      if (groupValidator.fn) {
-        groupValidator.fn(record, errors);
-      }
+      groupValidator.fn(record, errors);
     }
   }
 
