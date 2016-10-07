@@ -41,6 +41,7 @@ var MIN_POPUP_HEIGHT = 100;
 var SuggestBoxEditor = React.createClass({
   propTypes: {
     disabled: React.PropTypes.bool,
+    select: React.PropTypes.bool,
     model: React.PropTypes.shape({
       read: React.PropTypes.func,
       getLabel: React.PropTypes.func
@@ -58,6 +59,7 @@ var SuggestBoxEditor = React.createClass({
   getDefaultProps: function () {
     return {
       disabled: false,
+      select: true,
       notFoundElement: <div>Nothing found</div>,
       loadingElement: <div>Loading...</div>,
       value: null
@@ -70,7 +72,8 @@ var SuggestBoxEditor = React.createClass({
       isOpened: false,
       options: [],
       selectedOptionKey: null,
-      lastValidLabel: ''
+      lastValidLabel: '',
+      value: null
     };
   },
 
@@ -94,11 +97,12 @@ var SuggestBoxEditor = React.createClass({
       || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
-      || this.state.options.length !== nextState.options.length;
+      || this.state.options.length !== nextState.options.length
+      || this.props.disabled !== nextProps.disabled;
   },
 
   componentWillReceiveProps: function (nextProps) {
-    if (!utils.isEqual(this.props.value, nextProps.value)) {
+    if (!utils.isEqual(this.props.value, nextProps.value) || !utils.isEqual(this.state.value, nextProps.value)) {
       if (!this.props.hasOwnProperty('label')) {
         this._getLabelFromModel(nextProps.model, nextProps.value);
       }
@@ -139,6 +143,10 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _updateList: function (searchPattern, cb) {
+    if (!this.props.select) {
+      this.setState({loading: true});
+    }
+
     this._loadData(searchPattern, function (err, options) {
       if (err) {
         throw err;
@@ -161,12 +169,14 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _openList: function (searchPattern, cb) {
-    if (this.props.disabled || this.state.isOpened) {
+    if (this.props.disabled || this.state.isOpened || (!this.props.select && !findDOMNode(this.refs.input).value)) {
       return;
     }
 
     this.setState({isOpened: true, loading: true}, function () {
-      findDOMNode(this.refs.input).select();
+      if (this.props.select) {
+        findDOMNode(this.refs.input).select();
+      }
 
       var $input = $(findDOMNode(this.refs.input));
       var $popup = $('#' + popupId);
@@ -241,18 +251,20 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _selectOption: function (option) {
-    this.props.onChange(option.id, option);
-    if (this.props.onLabelChange) {
-      this.props.onLabelChange(option.label);
-    }
-    if (this.props.onMetadataChange) {
-      this.props.onMetadataChange(option.metadata);
-    }
-    findDOMNode(this.refs.input).select();
+    this.setState({value: option.id}, function() {
+      this.props.onChange(option.id, option);
+      if (this.props.onLabelChange) {
+        this.props.onLabelChange(option.label);
+      }
+      if (this.props.onMetadataChange) {
+        this.props.onMetadataChange(option.metadata);
+      }
+      findDOMNode(this.refs.input).select();
+    });
   },
 
   _focusOption: function (key, shouldSelectOption) {
-    if (shouldSelectOption === true) {
+    if (shouldSelectOption === true && this.props.select) {
       this._selectOption(this.state.options[key]);
     }
     if (this.state.isOpened) {
@@ -501,10 +513,13 @@ var SuggestBoxEditor = React.createClass({
             onFocus={this._onInputFocus}
             onKeyDown={this._onInputKeyDown}
             onChange={this._onInputValueChange}
+            disabled={this.props.disabled}
           />
-          <div onClick={this._toggleList} className={classes.selectBtn}>
-            <div className={arrowClasses.join(' ')}></div>
-          </div>
+          {this.props.select && (
+            <div onClick={this._toggleList} className={classes.selectBtn}>
+              <div className={arrowClasses.join(' ')}></div>
+            </div>
+          )}
         </div>
         {optionsPopup}
       </div>

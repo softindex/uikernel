@@ -175,6 +175,10 @@ var GridDataMixin = {
     // Cancel new record display
     this.removeRecordStatusAll('new');
 
+    if (utils.isEmpty(changes)) {
+      return cb();
+    }
+
     // Pass changes to table model processing
     this.props.model.update(this._dataObjectToArray(changes), function (err, data) {
       if (!this._isMounted) {
