@@ -20,6 +20,8 @@ var ValidationErrors = require('../common/validation/ValidationErrors');
 var FormMixin = {
   getInitialState: function () {
     this._validateForm = utils.throttle(this._validateForm);
+    this._handleModelChange = this._handleModelChange.bind(this);
+
     return {
       _formMixin: null
     };
