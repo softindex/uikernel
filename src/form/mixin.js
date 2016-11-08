@@ -20,7 +20,9 @@ var ValidationErrors = require('../common/validation/ValidationErrors');
 var FormMixin = {
   getInitialState: function () {
     this._validateForm = utils.throttle(this._validateForm);
-    this._handleModelChange = this._handleModelChange.bind(this);
+    if (this._handleModelChange.name.indexOf('bound ') !== 0) { // Support React.createClass and mixin-decorators
+      this._handleModelChange = this._handleModelChange.bind(this);
+    }
 
     return {
       _formMixin: null
