@@ -22,6 +22,7 @@ var Validator = require('../../common/validation/Validator/common');
  * @param {Function}  [options.filtersHandler]
  * @param {Validator} [options.validator]
  * @param {string[]}  [options.requiredFields]
+ * @param {bool}      [options.validateOnCreate]
  * @constructor
  */
 var GridCollectionModel = function (options) {
@@ -34,6 +35,12 @@ var GridCollectionModel = function (options) {
   this._filtersHandler = options.filtersHandler;
   this._validation = options.validation || new Validator();
   this._requiredFields = options.requiredFields || [];
+  this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
+
+  // TODO Deprecated. Will be deleted in v0.17.0
+  if (!this._validateOnCreate) {
+    console.warn('Deprecated option "validateOnCreate".');
+  }
 };
 GridCollectionModel.prototype = new AbstractGridModel();
 GridCollectionModel.prototype.constructor = GridCollectionModel;
@@ -65,20 +72,28 @@ GridCollectionModel.prototype.create = function (record, cb) {
     }
   }
 
-  this.isValidRecord(clonedRecord, function (err, validationErrors) {
-    if (err) {
-      return cb(err);
-    }
+  if (this._validateOnCreate) {
+    this.isValidRecord(clonedRecord, function (err, validationErrors) {
+      if (err) {
+        return cb(err);
+      }
 
-    if (!validationErrors.isEmpty()) {
-      return cb(validationErrors);
-    }
+      if (!validationErrors.isEmpty()) {
+        return cb(validationErrors);
+      }
 
-    var id = this._getID();
-    this.data.push([id, clonedRecord]);
-    this.trigger('create', id);
-    cb(null, id);
-  }.bind(this));
+      this._create(clonedRecord, cb);
+    }.bind(this));
+  } else {
+    this._create(clonedRecord, cb);
+  }
+};
+
+GridCollectionModel.prototype._create = function (record, cb) {
+  var id = this._getID();
+  this.data.push([id, record]);
+  this.trigger('create', id);
+  cb(null, id);
 };
 
 /**
