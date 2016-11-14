@@ -21,7 +21,9 @@ var utils = require('../../common/utils');
 function applyGridFilters(model, filters) {
   return utils.decorate(model, {
     read: function (options, cb) {
-      options.filters = filters;
+      if (!options.filters) {
+        options.filters = filters;
+      }
       model.read(options, cb);
     }
   });

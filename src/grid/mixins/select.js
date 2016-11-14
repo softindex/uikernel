@@ -35,7 +35,7 @@ var GridSelectMixin = {
       this.state.selectBlackListMode = blackListMode;
     }
 
-    this.forceUpdate();
+    this._renderBody();
   },
 
   /**
