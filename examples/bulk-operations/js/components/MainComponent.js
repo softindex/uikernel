@@ -13,13 +13,13 @@ var MainComponent = React.createClass({
     return {
       model: model,
       blackMode: false, // state for toggle button (Select all / Clear all)
-      records : {}
+      selectedNum : 0
     };
   },
 
   onSelectedChange: function (records) {
     this.setState({
-      records : records
+      selectedNum : records.length
     });
   },
 
@@ -31,32 +31,26 @@ var MainComponent = React.createClass({
   },
 
   someAction: function () { // this function can do anything what you need
-    var num = this.refs.grid.getAllSelected().length;
-    if (this.state.blackMode) {
-      if (num > 1) {
-        alert('You have selected all but ' + num + ' records');
-      } else if (num == 1) {
-        alert('You have selected all but ' + num + ' record');
-      } else {
-        alert('You have selected all records');
-      }
-    } else {
-      if (num) {
-        alert('You have selected ' + num + ' records');
-      } else {
-        alert('You have not selected any records');
-      }
-    }
+    var records = this.refs.grid.getAllSelected();
+    alert('Mode: ' + this.state.blackMode + ' Records: ' + records.join(', '));
   },
 
   render: function () {
+    var numText; // selected records
     var buttonText = this.state.blackMode ? 'Clear all' : 'Select all';
+
+    if (this.state.blackMode) {
+      numText = 'Selected all records.';
+    } else {
+      numText = 'Selected ' + this.state.selectedNum + ' records.';
+    }
 
     return (
       <div className="container">
         <div className="row">
           <div className="col-sm-12">
             <a className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>
+            {numText}
             <UIKernel.Grid
               ref="grid"
               cols={columns}

@@ -14,9 +14,10 @@ var MainComponent = React.createClass({
       model: model // let's store model in the state
     };
   },
+
   render: function () {
     return (
-      <div className="container">
+      <div>
         <UIKernel.Grid
           model={this.state.model} // Grid model
           cols={columns} // columns configuration

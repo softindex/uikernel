@@ -49,7 +49,9 @@
     title: Filters
   - id: grid-adapters
     title: Form Adapters
-  - id: express-grid-api
+  - id: grid-export
+    title: Export
+  - id: grid-express-api
     title: Express API
 - title: Form
   items:

@@ -27,7 +27,7 @@ model.delete = function (id) {
 
 Next, let's create a new column named `tools` and configure it. We'll set its width by defining the `width` property.
 The `render` method will return the remove button.
-In `onClickRefs`, we'll define the function for removing records from our grid.
+In `onClickRefs`, we'll define a function for removing grid records.
 
 `columns.js`:
 {% highlight javascript %}
@@ -49,4 +49,4 @@ var columns = {
 {% endhighlight %}
 ---
 
-That's all. Now we can remove our grid records.
+That's all. Now we can remove grid records.

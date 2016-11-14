@@ -5,12 +5,16 @@ prev: dynamic-columns.html
 next: form-example.html
 ---
 
-Let's add the possibility to select records and perform some action on them.
+This example demonstrates how to select grid records and perform on them some action.
+
+To select/unselect only one record, we use `toggleSelected` function.
+To select/unselect all records, we use `toggleSelectAll` function.
+To get all selected records, we use `getAllSelected` function.
 
 * [Live demo](/examples/bulk-operations/){:target="_blank"}
 * [Code]({{ site.github }}/examples/bulk-operations){:target="_blank"}
 
-Create the following `MainComponent.jsx` file:
+`MainComponent.js`:
 
 {% highlight javascript %}
 var MainComponent = React.createClass({
@@ -18,7 +22,7 @@ var MainComponent = React.createClass({
     return {
       model: model,
       blackMode: false, // state of the toggle button (Select all / Clear all)
-      selectedNum: 0 // selected items state
+      selectedNum: 0
     };
   },
 
@@ -28,16 +32,15 @@ var MainComponent = React.createClass({
     });
   },
 
-  toggleSelectMode: function() {
+  toggleSelectMode: function () {
     this.setState({
       blackMode: !this.state.blackMode
     });
-    this.refs.grid.toggleSelectAll();
+    this.refs.grid.toggleSelectAll(); // select/unselect all records
   },
 
-  someAction: function() { //this function can do anything what you need
-    var records = this.refs.grid.getAllSelected();
-    // For example it shows alert with selected Mode and Records
+  someAction: function () { // this function can do anything what you need
+    var records = this.refs.grid.getAllSelected(); // get all selected records
     alert('Mode: ' + this.state.blackMode + ' Records: ' + records.join(', '));
   },
 
@@ -46,29 +49,24 @@ var MainComponent = React.createClass({
     var buttonText = this.state.blackMode ? 'Clear all' : 'Select all';
 
     if (this.state.blackMode) {
-      numText = 'Selected all but ' + this.state.selectedNum + ' records.';
+      numText = 'Selected all records.';
     } else {
       numText = 'Selected ' + this.state.selectedNum + ' records.';
     }
 
     return (
-      <div>
-        <div className="row">
-          <div className="col-sm-12">
-            <h1>Bulk operations</h1>
-          </div>
-        </div>
+      <div className="container">
         <div className="row">
           <div className="col-sm-12">
             <a className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>
             {numText}
-            <UIKernel.Component
+            <UIKernel.Grid
               ref="grid"
               cols={columns}
               model={this.state.model}
-              viewCount={20}
+              viewCount={10}
               onSelectedChange={this.onSelectedChange}
-              />
+            />
             <a className="btn btn-success" onClick={this.someAction}>Some action</a>
           </div>
         </div>
@@ -77,8 +75,6 @@ var MainComponent = React.createClass({
   }
 });
 {% endhighlight %}
-
-Add a new column with checkboxes that have click event handlers.
 
 `columns.js`:
 {% highlight javascript %}
@@ -90,7 +86,7 @@ var columns = {
     }],
     onClickRefs: {
       checkbox: (function (event, recordId, record, grid) {
-        grid.toggleSelected(recordId); // toggle our record id
+        grid.toggleSelected(recordId); // select/unselect a specific record
       })
     }
   },

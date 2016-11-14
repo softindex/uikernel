@@ -8,4 +8,4 @@
  * @providesModule UIKernel
  */
 
-React.render(<MainComponent/>, document.getElementById("example"));
+ReactDOM.render(<MainComponent/>, document.getElementById('example'));

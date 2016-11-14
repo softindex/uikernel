@@ -27,7 +27,7 @@ Here, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html)
 
 Next, we'll configure columns.
 
-`columns.jsx`:
+`columns.js`:
 {% highlight javascript %}
 var columns = {
   name: {
@@ -74,7 +74,7 @@ You can read about them [here](/docs/grid-columns.html).
 
 Now we need to render our grid. Let's do it in the `render` method of another component named `MainComponent`.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 var MainComponent = React.createClass({
   getInitialState: function () {
@@ -82,9 +82,10 @@ var MainComponent = React.createClass({
       model: model // let's store model in the state
     };
   },
+
   render: function () {
     return (
-      <div className="container">
+      <div>
         <UIKernel.Grid
           model={this.state.model} // Grid model
           cols={columns} // columns configuration
@@ -96,19 +97,9 @@ var MainComponent = React.createClass({
 {% endhighlight %}
 ---
 
-We'll also set padding for our `div`.
-
-`main.css`:
-{% highlight javascript %}
-.container {
-  padding-top: 10px;
-}
-{% endhighlight %}
----
-
 Finally, let's render `MainComponent` in a separate file.
 
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
-React.render(<MainComponent/>, document.body);
+ReactDOM.render(<MainComponent/>, document.getElementById('example'));
 {% endhighlight %}

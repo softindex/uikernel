@@ -8,9 +8,4 @@
  * @providesModule UIKernel
  */
 
-React.render(
-  <UIKernel.Grid
-    model={model} // Grid model
-    cols={columns} // columns configuration
-  />
-, document.getElementById('example'));
+ReactDOM.render(<MainComponent/>, document.body);

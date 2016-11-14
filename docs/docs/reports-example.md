@@ -60,7 +60,7 @@ function columnsBuilder(dimensions, measures) {
 
 Now let's build `MainComponent`.
 
-`MainComponent.jsx`:
+`MainComponent.js`:
 {% highlight javascript %}
 var MainComponent = React.createClass({
   mixins: [UIKernelReports.mixin],
@@ -86,7 +86,7 @@ var MainComponent = React.createClass({
     }
 
     return (
-      <UIKernel.Component
+      <UIKernel.Grid
         cols={this.getReportsColumns()}
         model={this.getReportsGridModel()}
         viewCount={20}
@@ -97,9 +97,7 @@ var MainComponent = React.createClass({
 {% endhighlight %}
 ---
 
-Finally, let's render our `MainComponent`.
-
-`main.jsx`:
+`main.js`:
 {% highlight javascript %}
 React.render(<MainComponent/>, document.getElementById("example"));
 {% endhighlight %}

@@ -14,12 +14,13 @@ var MainComponent = React.createClass({
       model: model // let's store model in the state
     };
   },
+
   applyFilters: function (filters) {
-    console.log(UIKernel.applyGridFilters(model, filters));
     this.setState({
       model: UIKernel.applyGridFilters(model, filters)
     });
   },
+
   onSave: function () {
     this.refs.grid.save(function (err) {
       if (err) {
@@ -27,12 +28,14 @@ var MainComponent = React.createClass({
       }
     });
   },
+
   onClear: function () {
     this.refs.grid.clearAllChanges();
   },
+
   render: function () {
     return (
-      <div className="container">
+      <div>
         <div className="panel panel-primary">
           <div className="panel-heading">
             <h3 className="panel-title">Filters</h3>
@@ -54,13 +57,13 @@ var MainComponent = React.createClass({
             viewCount={10} // 10 records limit to display by default
           />
           <div className="panel-footer">
-            <button className="btn btn-success" onClick={this.onClear}>
+            <a className="btn btn-success" onClick={this.onClear}>
               Clear
-            </button>
+            </a>
             {' '}
-            <button className="btn btn-primary" onClick={this.onSave}>
+            <a className="btn btn-primary" onClick={this.onSave}>
               Save
-            </button>
+            </a>
           </div>
         </div>
       </div>

@@ -17,11 +17,12 @@ Grid Collection Model(Object settings)
 
 **Settings:**
 
-| Type      | Name                           | Description                 |
-|-----------|--------------------------------|-----------------------------|
-| Array[]   | **data**                   | Data array                  |
-| Object    | filtersHandler         | Filtration                  |
-| [Validator](/docs/validator.html) | validation            | Validation                  |
+| Type                              | Name                           | Description                          |
+|-----------------------------------|--------------------------------|--------------------------------------|
+| Array[]                           | **data**                       | Data array                           |
+| Object                            | filtersHandler                 | Filtration                           |
+| [Validator](/docs/validator.html) | validation                     | Validation                           |
+| boolean                           | validateOnCreate               | Validate grid on adding a new record |
 
 ---
 
