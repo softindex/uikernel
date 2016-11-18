@@ -17,6 +17,15 @@
       title: Removing records
     - id: creating-records
       title: Creating records
+  - id: server_side
+    title: Серверная часть
+    subitems:
+    - id: server_routes
+      title: Настройка роутов
+    - id: server_validation
+      title: Валидация данных
+    - id: server_model
+      title: Создание модели
 - title: Editors
   items:
   - id: editors

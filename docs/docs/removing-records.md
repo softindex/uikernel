@@ -23,7 +23,28 @@ model.delete = function (id) {
   return id;
 };
 {% endhighlight %}
----
+
+Для Xhr модели:
+
+{% highlight javascript %}
+var model = new UIKernel.Models.Grid.Collection({
+  // ...
+});
+
+model.delete = function (id, cb) {
+this._xhr({ // используем обёртку вокруг xhr для отпраки запросов, вы можете использовать любую удообную для вас библиотеку.
+        method: 'DELETE',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        uri: this._apiUrl + id
+    }, function (err, resp, body) {
+        if (err) return cb(err);
+        cb(null, body);
+    })
+};
+{% endhighlight %}
+---------------
 
 Next, let's create a new column named `tools` and configure it. We'll set its width by defining the `width` property.
 The `render` method will return the remove button.
@@ -46,6 +67,14 @@ var columns = {
   },
   // ...
 };
+{% endhighlight %}
+
+Если вы используете Xhr модель то `grid.updateTable()` необходимо поместить в колбек:
+{% highlight javascript %}
+del: function (event, recordId, record, grid) {
+        grid.getModel().delete(recordId, function (err) {
+          if (!err) grid.updateTable();
+        });
 {% endhighlight %}
 ---
 
