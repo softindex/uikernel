@@ -183,13 +183,13 @@ Check record validity
 
 ## Example
 {% highlight javascript %}
-validator.isValidRecord(record, function (errors) {
+validator.isValidRecord(record, function (err, errors) {
   if (errors.isEmpty()) {
     throw errors;
   }
 
   // if there are no errors, do something
-}
+})
 {% endhighlight %}
 
 

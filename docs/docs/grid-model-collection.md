@@ -9,10 +9,10 @@ Grid Collection Model is a model that works with an array of data passed to it a
 
 *Grid Collection Model extends [AbstractGridModel](/docs/grid-interface.html){:target="_blank"}*
 
-## Grid Collection Model
+## Constructor
 
 {% highlight javascript %}
-Grid Collection Model(Object settings)
+UIKernel.Models.Grid.Collection(Object settings)
 {% endhighlight %}
 
 **Settings:**
@@ -22,6 +22,7 @@ Grid Collection Model(Object settings)
 | Array[]                           | **data**                       | Data array                           |
 | Object                            | filtersHandler                 | Filtration                           |
 | [Validator](/docs/validator.html) | validation                     | Validation                           |
+| string[]                          | requiredFields                 | Required fields                      |
 | boolean                           | validateOnCreate               | Validate grid on adding a new record |
 
 ---

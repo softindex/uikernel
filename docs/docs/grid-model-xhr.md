@@ -9,10 +9,10 @@ Grid Model Xhr is a model that interacts with the server API.
 
 *Grid Xhr Model extends [AbstractGridModel](/docs/grid-interface.html){:target="_blank"}*
 
-## GridXhrModel
+## Constructor
 
 {% highlight javascript %}
-GridXhrModel(Object settings)
+UIKernel.Models.Grid.Xhr(Object settings)
 {% endhighlight %}
 
 **Settings:**

@@ -37,6 +37,7 @@ Reads records, filters, sorts and limits them.
 |----------|------------------|-------------------------------------|
 | string[] | settings.fields  | Fields                              |
 | number   | settings.limit   | Limit                               |
+| number   | settings.offset  | Offset                              |
 | Object   | settings.filters | Filter values object                |
 | Array    | settings.sort    | Sort parameters                     |
 | Array    | settings.extra     | Record IDs, we need to get for sure |
