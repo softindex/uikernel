@@ -53,7 +53,13 @@ var GridComponent = React.createClass({
     onChangeViewCount: React.PropTypes.func,
     onError: React.PropTypes.func,
     onPageLoad: React.PropTypes.func,
-    height: React.PropTypes.number
+    height: React.PropTypes.number,
+    saveFullRecord: React.PropTypes.bool,
+    partialErrorChecking: React.PropTypes.bool,
+    warningsValidator: React.PropTypes.shape({
+      isValidRecord: React.PropTypes.func,
+      getValidationDependency: React.PropTypes.func
+    })
   },
   mixins: [
     gridMixinColumns,       // Columns control function

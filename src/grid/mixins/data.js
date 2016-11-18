@@ -15,15 +15,6 @@ var utils = require('../../common/utils');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 
 var GridDataMixin = {
-  propTypes: {
-    saveFullRecord: React.PropTypes.bool,
-    partialErrorChecking: React.PropTypes.bool,
-    warningsValidator: React.PropTypes.shape({
-      isValidRecord: React.PropTypes.func,
-      getValidationDependency: React.PropTypes.func
-    })
-  },
-
   getDefaultProps: function () {
     return {
       partialErrorChecking: false
