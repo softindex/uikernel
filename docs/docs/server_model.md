@@ -37,12 +37,12 @@ read: function (settings, cb) {
             }
         }
 
-        MySQL.query(query)
+        mysql.query(query)
             .then(function (result) {
                 data.records = result.map(function (elem) {
                     return [elem.id, elem]; //формируем массив данных
                 });
-                return MySQL.query('SELECT FOUND_ROWS() as count')
+                return mysql.query('SELECT FOUND_ROWS() as count')
             })
             .then(function (result) {
                 data.count = result[0].count;
@@ -60,7 +60,7 @@ read: function (settings, cb) {
 data.records = result.map(function (elem) {
                     return [elem.id, elem];
                 });
-                return MySQL.query('SELECT FOUND_ROWS() as count')
+                return mysql.query('SELECT FOUND_ROWS() as count')
 {% endhighlight %}
 
 Данные которые мы отсылаем на клиент должны находится в свойстве `records`.
@@ -91,7 +91,7 @@ getRecord: function (id, cols, cb) {
             .from('getting_started')
             .where('id = ?', id);
 
-        return MySQL.query(query)
+        return mysql.query(query)
             .then(function (result) {
                 var record = result[0];
                 if (cb)
@@ -126,7 +126,7 @@ create: function (data, cb) {
         this.isValidRecordAsync(data)
             .then(function (validationErrors) {
                 if (validationErrors.isEmpty()) {// Если валидация успешна, записываем данные в базу
-                    return MySQL.query(query);
+                    return mysql.query(query);
                 }
                 else return Promise.reject(validationErrors);// если валидация не успешна, возвращаем объект валидации
             })
@@ -156,7 +156,7 @@ update: function (records, cb) {
             return self.isValidRecordAsync(values)
                 .then(function (validationErrors) {
                     if (validationErrors.isEmpty()) {// Если валидация успешна, обновляем данные в базе
-                        return MySQL.query(query)
+                        return mysql.query(query)
                             .then(function () {
                                 return self.getRecord(recordId);//возвращаем объекты которые были изменены
                             })
@@ -189,7 +189,7 @@ update: function (records, cb) {
         var query = squel.delete()
             .from("getting_started")
             .where('id = ?', id);
-        return MySQL.query(query)
+        return mysql.query(query)
     }
 {% endhighlight %}
 
