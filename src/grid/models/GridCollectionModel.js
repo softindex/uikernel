@@ -184,6 +184,7 @@ GridCollectionModel.prototype.read = function (settings, cb) {
  * @param {Function}        cb      CallBack function
  */
 GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
+  var cb = arguments[arguments.length - 1];
   var record = utils.cloneDeep(this._getRecordByID(id));
   if (!record) {
     return cb(Error('Record not found.'));
@@ -191,12 +192,14 @@ GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
 
   var returnRecord = record[1];
 
-  // Deleting unused fields
-  utils.forEach(returnRecord, function (value, key) {
-    if (fields.indexOf(key) === -1) {
-      delete returnRecord[key];
-    }
-  });
+  if (fields && typeof fields !== "function"){
+    // Deleting unused fields
+    utils.forEach(returnRecord, function (value, key) {
+      if (fields.indexOf(key) === -1) {
+        delete returnRecord[key];
+      }
+    });
+  }
 
   cb(null, returnRecord);
 };
