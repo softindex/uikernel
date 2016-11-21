@@ -619,7 +619,7 @@ var GridDataMixin = {
   },
 
   _validateRow: function (row, cb) {
-    this._checkFieldInValidation(row, this.props.model, this.state.errors, cb);
+    this._checkValidatorErrors(row, this.props.model, this.state.errors, cb);
   },
 
   /**
