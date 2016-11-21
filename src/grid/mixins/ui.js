@@ -122,6 +122,11 @@ var GridUIMixin = {
         throw err;
       }
 
+      if (this.getViewCount() && !obj.count) {
+        console.error('response.count not defined');
+        return;
+      }
+
       // If required page is not included in the range of existing pages,
       // request existing in a moment page
       page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
