@@ -12,6 +12,7 @@
 
 var utils = require('../common/utils');
 var ValidationErrors = require('../common/validation/ValidationErrors');
+var toPromise = require('../common/toPromise');
 
 /**
  * Grid form mixin
@@ -73,11 +74,15 @@ var FormMixin = {
     }
 
     if (!ctx.state._formMixin.data) {
-      settings.model.getData(settings.fields, function (err, data) {
-        if (ctx._isUnmounted) {
-          return;
-        }
-        if (err) {
+      toPromise(settings.model.getData.bind(settings.model))(settings.fields)
+        .then(function (data) {
+          if (ctx._isUnmounted) {
+            return;
+          }
+          ctx.state._formMixin.data = data;
+          done();
+        })
+        .catch(function (err) {
           ctx.state._formMixin.globalError = err;
           ctx.setState(ctx.state, function () {
             if (cb) {
@@ -85,11 +90,7 @@ var FormMixin = {
             }
             throw err;
           });
-          return;
-        }
-        ctx.state._formMixin.data = data;
-        done();
-      });
+        });
     } else {
       done();
     }
@@ -340,14 +341,14 @@ var FormMixin = {
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
-  submitData: function (data, cb) {
-    if (this._isNotInitialized()) {
-      return;
-    }
-
-    this.set(data);
-    this.submit(cb);
-  },
+  // submitData: callbackify(async function (data) {
+  //   if (this._isNotInitialized()) {
+  //     return;
+  //   }
+  //
+  //   this.set(data);
+  //   return await this.submit();
+  // }),
 
   /**
    * Send form data to the model

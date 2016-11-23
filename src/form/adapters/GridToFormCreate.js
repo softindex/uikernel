@@ -11,7 +11,7 @@
 'use strict';
 
 var Events = require('../../common/Events');
-
+var toPromise = require('../../common/toPromise');
 /**
  * Adapter allows to use Grid model as a model for new form record creation
  *
@@ -52,7 +52,14 @@ GridToFormCreate.prototype.getData = function (fields, cb) {
  * @param   {Function}    cb        CallBack function
  */
 GridToFormCreate.prototype.submit = function (data, cb) {
-  this._adapter.model.create(data, cb);
+  var model = this._adapter.model;
+  toPromise(model.create.bind(model))(data)
+    .then(function (data) {
+      cb(null, data);
+    })
+    .catch(function (err) {
+      cb(err);
+    });
 };
 
 /**
@@ -62,7 +69,14 @@ GridToFormCreate.prototype.submit = function (data, cb) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormCreate.prototype.isValidRecord = function (record, cb) {
-  this._adapter.model.isValidRecord(record, cb);
+  var model = this._adapter.model;
+  toPromise(model.isValidRecord.bind(model))(record)
+    .then(function (data) {
+      cb(null, data);
+    })
+    .catch(function (err) {
+      cb(err);
+    });
 };
 
 /**

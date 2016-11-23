@@ -12,7 +12,7 @@
 
 var gulp = require('gulp');
 var jsDetectErrors = require('./gulp/jsDetectErrors');
-var jsPrecompile = require('./gulp/jsPrecompile');
+var jsPrecompile = require('./gulp/jsPrecompileBabel');
 var jsClear = require('./gulp/jsClear');
 var jsDocsClear = require('./gulp/jsDocsClear');
 var generateJSDoc = require('./gulp/generateJSDoc');

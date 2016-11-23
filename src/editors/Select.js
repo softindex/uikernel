@@ -12,6 +12,7 @@
 
 var utils = require('../common/utils');
 var React = require('react');
+var toPromise = require('../common/toPromise');
 
 var SelectEditor = React.createClass({
   propTypes: {
@@ -37,18 +38,18 @@ var SelectEditor = React.createClass({
   },
   componentDidMount: function () {
     if (this.props.model) {
-      this.props.model.read('', function (err, data) {
-        if (err) {
-          throw err;
-        }
-
+      toPromise(this.props.model.read.bind(this.props.model))('')
+      .then(function(data){
         data.unshift([null, '']);
 
         this.setState({
           options: data,
           loading: false
         });
-      }.bind(this));
+      }.bind(this))
+      .catch(function(err){
+        throw err;
+      });
     }
   },
 

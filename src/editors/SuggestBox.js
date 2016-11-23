@@ -14,6 +14,7 @@ var React = require('react');
 var findDOMNode = require('react-dom').findDOMNode;
 var Portal = require('../common/Portal');
 var utils = require('../common/utils');
+var toPromise = require('../common/toPromise');
 
 var popupId = '__suggestBoxPopUp';
 var classes = {
@@ -127,15 +128,19 @@ var SuggestBoxEditor = React.createClass({
       return this._setLabelTo('', true);
     }
 
-    model.getLabel(id, function (err, label) {
-      if (!this._isMounted) {
-        return;
-      }
-      if (err) {
-        throw err;
-      }
-      this._setLabelTo(label, true);
-    }.bind(this));
+    toPromise(model.getLabel.bind(model))(id)
+      .then(function (label) {
+        if (!this._isMounted) {
+          return;
+        }
+        this._setLabelTo(label, true)
+      }.bind(this))
+      .catch(function (err) {
+        if (err) {
+          console.error(err);
+          throw err;
+        }
+      });
   },
 
   _updateList: function (searchPattern, cb) {
@@ -157,7 +162,13 @@ var SuggestBoxEditor = React.createClass({
   },
 
   _loadData: function (searchPattern, cb) {
-    this.props.model.read(searchPattern || '', cb);
+    toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '')
+      .then(function (data) {
+        cb(null, data);
+      })
+      .catch(function (err) {
+        cb(err);
+      });
   },
 
   _openList: function (searchPattern, cb) {

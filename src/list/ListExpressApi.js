@@ -11,6 +11,7 @@
 'use strict';
 
 var express = require('express');
+var toPromise = require('../common/toPromise');
 
 /**
  * Form Express API for List model interaction
@@ -90,10 +91,22 @@ ListExpressApi.prototype._getModel = function () {
   throw Error('Model is not defined.');
 };
 ListExpressApi.prototype._read = function (search, req, model, cb) {
-  model.read(search, cb);
+  toPromise(model.read.bind(model))(search)
+    .then(function (data) {
+      cb(null, data);
+    })
+    .catch(function (err) {
+      cb(err);
+    });
 };
 ListExpressApi.prototype._getLabel = function (id, req, model, cb) {
-  model.getLabel(id, cb);
+  toPromise(model.getLabel.bind(model))(id)
+    .then(function (data) {
+      cb(null, data);
+    })
+    .catch(function (err) {
+      cb(err);
+    });
 };
 ListExpressApi.prototype._result = function (err, data, req, res, next) {
   if (err) {

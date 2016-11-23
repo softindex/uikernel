@@ -13,6 +13,7 @@
 var utils = require('../../common/utils');
 var Events = require('../../common/Events');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
+var toPromise = require('../../common/toPromise');
 
 /**
  * Adapter that allows us to use Grid model record as a form model
@@ -46,12 +47,14 @@ GridToFormUpdate.prototype.constructor = GridToFormUpdate;
  * @param {Function}  cb         CallBack function
  */
 GridToFormUpdate.prototype.getData = function (fields, cb) {
-  this._adapter.model.getRecord(this._adapter.id, fields, function (err, data) {
-    if (err) {
-      return cb(err);
-    }
-    cb(null, data);
-  });
+  var model = this._adapter.model;
+  toPromise(model.getRecord.bind(model))(this._adapter.id)
+    .then(function (data) {
+      cb(null, data);
+    })
+    .catch(function (err) {
+      cb(err)
+    });
 };
 
 /**
@@ -62,16 +65,18 @@ GridToFormUpdate.prototype.getData = function (fields, cb) {
  */
 GridToFormUpdate.prototype.submit = function (changes, cb) {
   var record = utils.clone(changes);
-  this._adapter.model.update([[this._adapter.id, record]], function (err, data) {
-    if (err) {
-      return cb(err);
-    }
-    var result = data[0][1];
-    if (result instanceof ValidationErrors) {
-      return cb(result);
-    }
-    cb(null, result);
-  });
+  var model = this._adapter.model;
+  toPromise(model.update.bind(model))([[this._adapter.id, record]])
+    .then(function (data) {
+      var result = data[0][1];
+      if (result instanceof ValidationErrors) {
+        return cb(result);
+      }
+      cb(null, result);
+    })
+    .catch(function (err) {
+      cb(err)
+    });
 };
 
 /**
@@ -81,7 +86,14 @@ GridToFormUpdate.prototype.submit = function (changes, cb) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.isValidRecord = function (record, cb) {
-  this._adapter.model.isValidRecord(record, cb);
+  var model = this._adapter.model;
+  toPromise(model.isValidRecord.bind(model))(record)
+    .then(function (data) {
+      cb(null, data);
+    })
+    .catch(function (err) {
+      cb(err)
+    });
 };
 
 /**

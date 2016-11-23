@@ -13,6 +13,7 @@
 var React = require('react');
 var utils = require('../../common/utils');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
+var toPromise = require('../../common/toPromise');
 
 var GridDataMixin = {
   propTypes: {
@@ -176,53 +177,55 @@ var GridDataMixin = {
     this.removeRecordStatusAll('new');
 
     // Pass changes to table model processing
-    this.props.model.update(this._dataObjectToArray(changes), function (err, data) {
-      if (!this._isMounted) {
-        return;
-      }
-
-      if (err) {
-        return cb(err);
-      }
-
-      this.state.partialErrorChecking = false;
-
-      data.forEach(function (record) {
-        var row = this._getRowID(record[0]);
-
-        // Skip records that are user changed while data processing
-        if (!utils.isEqual(this.state.changes[row], changes[row])) {
+    toPromise(this.props.model.update.bind(this.props.model))(this._dataObjectToArray(changes))
+      .then((data) => {
+        if (!this._isMounted) {
           return;
         }
 
-        // Process validation errors
-        if (record[1] instanceof ValidationErrors) {
-          this.state.errors[row] = record[1];
-          return;
-        }
+        this.state.partialErrorChecking = false;
 
-        // Cancel changed data status of the parameters, that are changed
-        utils.forEach(changes[row], function (value, field) {
-          if (utils.isEqual(value, this.state.changes[row][field])) {
-            delete this.state.changes[row][field];
+        data.forEach(function (record) {
+          var row = this._getRowID(record[0]);
+
+          // Skip records that are user changed while data processing
+          if (!utils.isEqual(this.state.changes[row], changes[row])) {
+            return;
           }
-        }, this);
 
-        // Clear changed data row if it's empty
-        if (utils.isEmpty(this.state.changes[row])) {
-          delete this.state.changes[row];
-          if (!this._isMainRow(row)) {
-            this._removeRecord(row);
+          // Process validation errors
+          if (record[1] instanceof ValidationErrors) {
+            this.state.errors[row] = record[1];
+            return;
           }
+
+          // Cancel changed data status of the parameters, that are changed
+          utils.forEach(changes[row], function (value, field) {
+            if (utils.isEqual(value, this.state.changes[row][field])) {
+              delete this.state.changes[row][field];
+            }
+          }, this);
+
+          // Clear changed data row if it's empty
+          if (utils.isEmpty(this.state.changes[row])) {
+            delete this.state.changes[row];
+            if (!this._isMainRow(row)) {
+              this._removeRecord(row);
+            }
+          }
+        }.bind(this));
+
+        this._renderBody();
+
+        if (typeof cb === 'function') {
+          cb(null, data);
         }
-      }.bind(this));
-
-      this._renderBody();
-
-      if (typeof cb === 'function') {
-        cb(null, data);
-      }
-    }.bind(this));
+      })
+      .catch(function (err) {
+        if (err) {
+          return cb(err);
+        }
+      });
   },
 
   /**
@@ -561,15 +564,19 @@ var GridDataMixin = {
    * @private
    */
   _loadData: function (settings, cb) {
-    this.props.model.read(settings, function (err, data) {
-      if (err && this.props.onError) {
-        this.props.onError(err);
-      }
-      if (this.props.onPageLoad) {
-        this.props.onPageLoad(data);
-      }
-      cb(err, data);
-    }.bind(this));
+    toPromise(this.props.model.read.bind(this.props.model))(settings)
+      .then(function (data) {
+        if (this.props.onPageLoad) {
+          this.props.onPageLoad(data);
+        }
+        cb(null, data);
+      }.bind(this))
+      .catch(function (err) {
+        if (err && this.props.onError) {
+          this.props.onError(err);
+        }
+        cb(err);
+      }.bind(this));
   },
 
   /**

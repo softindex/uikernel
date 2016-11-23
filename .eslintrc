@@ -9,6 +9,7 @@ settings:
     version: "0.14"
 
 parserOptions:
+  ecmaVersion: 6
   ecmaFeatures:
     jsx: true
 
@@ -16,9 +17,10 @@ env:
   browser: true
   jquery: true
   node: true
+  es6: true
 
 rules:
-  quotes: [1, "single"]
+  quotes: [1, "single", {"allowTemplateLiterals":true}]
   strict: [0, "global"]
   no-cond-assign: 0
   no-console: [1, {allow: ["warn", "error"]}]
