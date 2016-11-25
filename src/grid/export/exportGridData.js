@@ -10,9 +10,10 @@
 
 'use strict';
 
-var suspend = require('suspend');
 var utils = require('../../common/utils');
 var ArgumentsError = require('../../common/ArgumentsError');
+var callbackify = require('../../common/callbackify');
+var toPromise = require('../../common/toPromise');
 
 function formatColumns(columns, viewColumns) {
   var formattedColumns = {};
@@ -103,16 +104,16 @@ function assertValidViewColumns(columns, viewColumns){
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
+module.exports = callbackify(async function (gridModel, columns, viewColumns, exporter, settings) {
   assertValidViewColumns(columns, viewColumns);
-  var result = yield gridModel.read({
+  var result = await toPromise(gridModel.read.bind(gridModel))({
     fields: getFields(columns, viewColumns),
     sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
     limit: settings.limit,
     offset: settings.offset
-  }, suspend.resume());
+  });
 
   var data = formatData(result.records, result.totals, columns, viewColumns);
 
-  return yield exporter(data, suspend.resume());
+  return await toPromise(exporter)(data);
 });

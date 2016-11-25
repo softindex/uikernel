@@ -48,10 +48,10 @@ var GridEditorMixin = {
     }
 
     var editorContext = {
-      updateField: function (field, nextValue, cb) {
+      updateField: function (field, nextValue) {
         var data = {};
         data[field] = nextValue;
-        this._setRowChanges(row, data, cb);
+        this._setRowChanges(row, data);
       }.bind(this)
     };
 

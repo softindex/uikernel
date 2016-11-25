@@ -8,21 +8,25 @@
  * @providesModule UIKernel
  */
 
-module.exports = function (fun) {
+module.exports = function (fun, multiplyArgs) {
   return function (...mainArguments) {
+    mainArguments = mainArguments.filter((elem) => elem);
     var lastArgumentIndex = mainArguments.length - 1;
     if (typeof mainArguments[lastArgumentIndex] === 'function') {
-      console.warn('You are using callback(');
-      fun.apply(null, mainArguments);
+      // console.warn('You are using callback(');
+      fun.apply(this, mainArguments);
     }
     else {
       return new Promise(function (resolve, reject) {
-        mainArguments.push(function (err, data) {
+        mainArguments.push(function (err, ...data) {
           if (err) return reject(err);
-          resolve(data);
+          if (multiplyArgs){
+            resolve(data);
+          }
+          else resolve(data[0]);
         });
-        fun.apply(null, mainArguments);
-      })
+        fun.apply(this, mainArguments);
+      }.bind(this));
     }
   };
 };

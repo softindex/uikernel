@@ -12,6 +12,7 @@
 
 var express = require('express');
 var ValidationErrors = require('../common/validation/ValidationErrors');
+var toPromise = require('../common/toPromise');
 
 function FormExpressApi() {
   if (!(this instanceof FormExpressApi)) {
@@ -23,23 +24,38 @@ function FormExpressApi() {
   ctx.middlewares = {
     getData: [function (req, res, next) {
       var fields = req.query.fields ? JSON.parse(req.query.fields) : null;
-      ctx._getModel(req, res).getData(fields, function (err, data) {
-        ctx._result(err, data, req, res, next);
-      });
+      var model = ctx._getModel(req, res);
+      toPromise(model.getData.bind(model))(fields)
+        .then(function (data) {
+          ctx._result(null, data, req, res, next);
+        })
+        .catch(function (err) {
+          ctx._result(err, null, req, res, next);
+        });
     }],
     submit: [function (req, res, next) {
-      ctx._getModel(req, res).submit(req.body, function (err, data) {
-        if (err && !(err instanceof ValidationErrors)) {
-          ctx._result(err, null, req, res, next);
-          return;
-        }
-        ctx._result(null, {data: data, error: err}, req, res, next);
-      });
+      var model = ctx._getModel(req, res);
+      toPromise(model.submit.bind(model))(req.body)
+        .then(function (data) {
+          ctx._result(null, {data: data, error: null}, req, res, next);
+        })
+        .catch(function (err) {
+          if (err && !(err instanceof ValidationErrors)) {
+            ctx._result(err, null, req, res, next);
+            return;
+          }
+          ctx._result(err, {data: null, error: err}, req, res, next);
+        });
     }],
     validate: [function (req, res, next) {
-      ctx._getModel(req, res).isValidRecord(req.body, function (err, data) {
-        ctx._result(err, data, req, res, next);
-      });
+      var model = ctx._getModel(req, res);
+      toPromise(model.isValidRecord.bind(model))(req.body)
+        .then(function (data) {
+          ctx._result(null, data, req, res, next);
+        })
+        .catch(function (err) {
+          ctx._result(err, null, req, res, next);
+        });
     }]
   };
 }

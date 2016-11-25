@@ -14,6 +14,7 @@ var utils = require('../../common/utils');
 var Events = require('../../common/Events');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 var toPromise = require('../../common/toPromise');
+var callbackify = require('../../common/callbackify');
 
 /**
  * Adapter that allows us to use Grid model record as a form model
@@ -46,16 +47,12 @@ GridToFormUpdate.prototype.constructor = GridToFormUpdate;
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormUpdate.prototype.getData = function (fields, cb) {
-  var model = this._adapter.model;
-  toPromise(model.getRecord.bind(model))(this._adapter.id)
-    .then(function (data) {
-      cb(null, data);
-    })
-    .catch(function (err) {
-      cb(err)
-    });
-};
+GridToFormUpdate.prototype.getData = callbackify(
+  async function (fields) {
+    var model = this._adapter.model;
+    return await toPromise(model.getRecord.bind(model))(this._adapter.id, fields)
+  }
+);
 
 /**
  * Apply changes
@@ -63,21 +60,18 @@ GridToFormUpdate.prototype.getData = function (fields, cb) {
  * @param   {Object}      changes     Form data
  * @param   {Function}    cb          CallBack function
  */
-GridToFormUpdate.prototype.submit = function (changes, cb) {
-  var record = utils.clone(changes);
-  var model = this._adapter.model;
-  toPromise(model.update.bind(model))([[this._adapter.id, record]])
-    .then(function (data) {
-      var result = data[0][1];
-      if (result instanceof ValidationErrors) {
-        return cb(result);
-      }
-      cb(null, result);
-    })
-    .catch(function (err) {
-      cb(err)
-    });
-};
+GridToFormUpdate.prototype.submit = callbackify(
+  async function (changes) {
+    var record = utils.clone(changes);
+    var model = this._adapter.model;
+    var result = await toPromise(model.update.bind(model))([[this._adapter.id, record]]);
+    result = result[0][1];
+    if (result instanceof ValidationErrors) {
+      throw result;
+    }
+    return result;
+  }
+);
 
 /**
  * Record validity check
@@ -85,16 +79,12 @@ GridToFormUpdate.prototype.submit = function (changes, cb) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridToFormUpdate.prototype.isValidRecord = function (record, cb) {
-  var model = this._adapter.model;
-  toPromise(model.isValidRecord.bind(model))(record)
-    .then(function (data) {
-      cb(null, data);
-    })
-    .catch(function (err) {
-      cb(err)
-    });
-};
+GridToFormUpdate.prototype.isValidRecord = callbackify(
+  async function (record) {
+    var model = this._adapter.model;
+    return await toPromise(model.isValidRecord.bind(model))(record)
+  }
+);
 
 /**
  * Get all dependent fields, that are required for validation

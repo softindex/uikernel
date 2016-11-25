@@ -12,6 +12,7 @@
 
 var EventsModel = require('../../common/Events');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
+var callbackify = require('../../common/callbackify');
 
 /**
  * Grid model abstraction
@@ -32,9 +33,9 @@ AbstractGridModel.prototype.constructor = AbstractGridModel;
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.create = function (record, cb) {
-  cb(null);
-};
+AbstractGridModel.prototype.create = callbackify(function (record) {
+  return Promise.resolve();
+});
 
 /**
  * Get records list
@@ -49,13 +50,13 @@ AbstractGridModel.prototype.create = function (record, cb) {
  * @param {Function}    cb                      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.read = function (settings, cb) {
-  cb(null, {
+AbstractGridModel.prototype.read = callbackify(function (settings) {
+  return Promise.resolve({
     records: [],   // Primary records
     ids: [],    // Extra records
     extraRecords: 0    // In all records count
   });
-};
+});
 
 /**
  * Get the particular record
@@ -65,9 +66,9 @@ AbstractGridModel.prototype.read = function (settings, cb) {
  * @param {Function}  cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.getRecord = function (id, fields, cb) {
-  cb(null);
-};
+AbstractGridModel.prototype.getRecord = callbackify(function (id, fields) {
+  return Promise.resolve();
+});
 
 /**
  * Apply record changes
@@ -76,9 +77,9 @@ AbstractGridModel.prototype.getRecord = function (id, fields, cb) {
  * @param {Function}    cb          CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.update = function (changes, cb) {
-  cb(null, []);
-};
+AbstractGridModel.prototype.update = callbackify(function (changes) {
+  return Promise.resolve([]);
+});
 
 /**
  * Get all dependent fields, that are required for validation
@@ -98,8 +99,8 @@ AbstractGridModel.prototype.getValidationDependency = function () {
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.isValidRecord = function (record, cb) {
-  cb(null, new ValidationErrors());
-};
+AbstractGridModel.prototype.isValidRecord = callbackify(function (record) {
+  return Promise.resolve(new ValidationErrors());
+});
 
 module.exports = AbstractGridModel;

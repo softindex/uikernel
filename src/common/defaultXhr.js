@@ -14,24 +14,29 @@ var xhr = require('xhr');
 var variables = require('./variables');
 
 var defaultXhr = function (settings, cb) {
-  xhr(settings, function (err, response, body) {
-    if (response.statusCode !== 200) {
-      if (!err) {
-        err = new Error();
-        err.statusCode = response.statusCode;
-        err.message = 'Status Code: ' + err.statusCode;
-      }
-      if (body) {
-        try {
-          var parsedBody = JSON.parse(body);
-          err.message = parsedBody.message || body;
-        } catch (e) {
-          err.message = body;
+  return new Promise(function (resolve, reject) {
+    xhr(settings, function (err, response, body) {
+      if (response.statusCode !== 200) {
+        if (!err) {
+          err = new Error();
+          err.statusCode = response.statusCode;
+          err.message = 'Status Code: ' + err.statusCode;
         }
+        if (body) {
+          try {
+            var parsedBody = JSON.parse(body);
+            err.message = parsedBody.message || body;
+          } catch (e) {
+            err.message = body;
+          }
+        }
+        reject(err);
       }
-    }
 
-    cb(err, response, body);
+      if (cb)
+        cb(err, response, body);
+      resolve(body);
+    });
   });
 };
 
@@ -40,5 +45,5 @@ if (!variables.get('xhr')) {
 }
 
 module.exports = function (settings, cb) {
-  variables.get('xhr')(settings, cb);
+  return variables.get('xhr')(settings, cb);
 };

@@ -13,6 +13,8 @@
 var utils = require('../../common/utils');
 var AbstractGridModel = require('./AbstractGridModel');
 var Validator = require('../../common/validation/Validator/common');
+var toPromise = require('../../common/toPromise');
+var callbackify = require('../../common/callbackify');
 
 /**
  * Specifies a grid model that will work with array data passed to it as a parameter.
@@ -60,9 +62,10 @@ GridCollectionModel.prototype.setData = function (data) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridCollectionModel.prototype.create = function (record, cb) {
+GridCollectionModel.prototype.create = callbackify(async function (record) {
   var i;
   var field;
+  var validationErrors;
   var clonedRecord = utils.clone(record);
 
   for (i in this._requiredFields) {
@@ -73,28 +76,23 @@ GridCollectionModel.prototype.create = function (record, cb) {
   }
 
   if (this._validateOnCreate) {
-    this.isValidRecord(clonedRecord, function (err, validationErrors) {
-      if (err) {
-        return cb(err);
-      }
+    validationErrors = await this.isValidRecord(clonedRecord);
+    if (!validationErrors.isEmpty()) {
+      return validationErrors;
+    }
 
-      if (!validationErrors.isEmpty()) {
-        return cb(validationErrors);
-      }
-
-      this._create(clonedRecord, cb);
-    }.bind(this));
+    return this._create(clonedRecord);
   } else {
-    this._create(clonedRecord, cb);
+    return this._create(clonedRecord);
   }
-};
+});
 
-GridCollectionModel.prototype._create = function (record, cb) {
+GridCollectionModel.prototype._create = callbackify(function (record) {
   var id = this._getID();
   this.data.push([id, record]);
   this.trigger('create', id);
-  cb(null, id);
-};
+  return id;
+});
 
 /**
  * Get records list
@@ -108,7 +106,7 @@ GridCollectionModel.prototype._create = function (record, cb) {
  * @param {Array}       [settings.ids]          Record IDs, we need to get for sure
  * @param {Function}    cb                      CallBack function
  */
-GridCollectionModel.prototype.read = function (settings, cb) {
+GridCollectionModel.prototype.read = callbackify(function (settings) {
   var data = utils.cloneDeep(this.data);
   var result = {};
 
@@ -173,8 +171,8 @@ GridCollectionModel.prototype.read = function (settings, cb) {
 
   result.records = data;
 
-  cb(null, result);
-};
+  return Promise.resolve(result);
+});
 
 /**
  * Get the particular record
@@ -183,10 +181,10 @@ GridCollectionModel.prototype.read = function (settings, cb) {
  * @param {Array}           fields  Required fields
  * @param {Function}        cb      CallBack function
  */
-GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
+GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
   var record = utils.cloneDeep(this._getRecordByID(id));
   if (!record) {
-    return cb(Error('Record not found.'));
+    return Promise.reject(Error('Record not found.'));
   }
 
   var returnRecord = record[1];
@@ -198,8 +196,8 @@ GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
     }
   });
 
-  cb(null, returnRecord);
-};
+  return Promise.resolve(returnRecord);
+});
 
 /**
  * Apply record changes
@@ -208,42 +206,47 @@ GridCollectionModel.prototype.getRecord = function (id, fields, cb) {
  * @param {Function}    cb          CallBack function
  * @abstract
  */
-GridCollectionModel.prototype.update = function (changes, cb) {
+GridCollectionModel.prototype.update = callbackify(async function (changes) {
   var completed = 0;
-  var result = [];
+  var result;
   var appliedChanges = [];
   var finish = false;
 
   if (!changes.length) {
-    return cb(null, []);
+    return [];
   }
 
-  utils.forEach(changes, function (change) {
-    this.isValidRecord(change[1], function (err, validErrors) {
-      if (finish) {
-        return;
-      }
+  var promises = changes.map(async function (change) {
+    if (finish) {
+      return;
+    }
 
-      if (err) {
-        finish = true;
-        return cb(err);
-      }
+    try{
+      var validErrors = await this.isValidRecord(change[1]);
+    } catch (err){
+      finish = true;
+      throw err;
+    }
 
-      if (validErrors.isEmpty()) {
-        utils.assign(this._getRecordByID(change[0])[1], change[1]);
-        result.push(change);
-        appliedChanges.push(change);
-      } else {
-        result.push([change[0], validErrors]);
-      }
+    ++completed;
 
-      if (++completed === changes.length) {
-        this.trigger('update', appliedChanges);
-        return cb(null, result);
-      }
-    }.bind(this));
+    if (validErrors.isEmpty()) {
+      utils.assign(this._getRecordByID(change[0])[1], change[1]);
+      appliedChanges.push(change);
+      return change;
+    } else {
+      return [change[0], validErrors];
+    }
   }.bind(this));
-};
+
+  result = await Promise.all(promises);
+
+  if (completed === changes.length) {
+    this.trigger('update', appliedChanges);
+  }
+
+  return result;
+});
 
 /**
  * Get all dependent fields, that are required for validation
@@ -261,9 +264,9 @@ GridCollectionModel.prototype.getValidationDependency = function (fields) {
  * @param {Object}      record
  * @param {Function}    cb      CallBack function
  */
-GridCollectionModel.prototype.isValidRecord = function (record, cb) {
-  this._validation.isValidRecord(record, cb);
-};
+GridCollectionModel.prototype.isValidRecord = callbackify(function (record) {
+  return toPromise(this._validation.isValidRecord.bind(this._validation))(record);
+});
 
 GridCollectionModel.prototype._getID = function () {
   while (this._getRecordByID(this._id)) {

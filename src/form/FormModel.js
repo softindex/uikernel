@@ -13,6 +13,7 @@
 var utils = require('../common/utils');
 var AbstractFormModel = require('./AbstractFormModel');
 var Validator = require('../common/validation/Validator/common');
+var callbackify = require('../common/callbackify');
 
 /**
  * Simple form model
@@ -35,7 +36,7 @@ FormModel.prototype.constructor = FormModel;
  * @param {Array}    fields     Required fields
  * @param {Function} cb         CallBack function
  */
-FormModel.prototype.getData = function (fields, cb) {
+FormModel.prototype.getData = callbackify(async function (fields) {
   var record = {};
   var i;
 
@@ -47,8 +48,8 @@ FormModel.prototype.getData = function (fields, cb) {
     record = utils.clone(this._data);
   }
 
-  cb(null, record);
-};
+  return record;
+});
 
 /**
  * Process form data
@@ -56,22 +57,15 @@ FormModel.prototype.getData = function (fields, cb) {
  * @param {Object}      changes     Form data
  * @param {Function}    cb          CallBack function
  */
-FormModel.prototype.submit = function (changes, cb) {
-  this.isValidRecord(changes, function (err, validErrors) {
-    if (err) {
-      return cb(err);
-    }
-
-    if (validErrors.isEmpty()) {
-      utils.assign(this._data, changes);
-      this.trigger('update', changes);
-    }
-
-    if (cb) {
-      cb(validErrors, changes);
-    }
-  }.bind(this));
-};
+FormModel.prototype.submit = callbackify(async function (changes) {
+  var validErrors = await this.isValidRecord(changes);
+  if (!validErrors.isEmpty()) {
+    throw validErrors;
+  }
+  utils.assign(this._data, changes);
+  this.trigger('update', changes);
+  return changes;
+});
 
 /**
  * Get all dependent fields, that are required for validation
@@ -89,8 +83,9 @@ FormModel.prototype.getValidationDependency = function (fields) {
  * @param {Object}      record
  * @param {Function}    cb      CallBack function
  */
-FormModel.prototype.isValidRecord = function (record, cb) {
-  this._validation.isValidRecord(record, cb);
-};
+FormModel.prototype.isValidRecord = callbackify(async function (record) {
+    return await this._validation.isValidRecord(record);
+  }
+);
 
 module.exports = FormModel;

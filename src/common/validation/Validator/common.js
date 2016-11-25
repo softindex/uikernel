@@ -10,10 +10,12 @@
 
 'use strict';
 
-var suspend = require('suspend');
+// var suspend = require('suspend');
 var ValidationErrors = require('../ValidationErrors');
 var ArgumentsError = require('../../ArgumentsError');
 var utils = require('../../utils');
+var toPromise = require('../../toPromise');
+var callbackify = require('../../callbackify');
 
 /**
  * Validation check model
@@ -148,10 +150,10 @@ Validator.prototype.getValidationDependency = function (fields) {
  * @param {Object}  record   Record
  * @returns {ValidationErrors|null} Record validity
  */
-Validator.prototype.isValidRecord = suspend.callback(function * (record) {
+Validator.prototype.isValidRecord = callbackify(async function (record) {
   var fields = Object.keys(record);
   var errors = new ValidationErrors();
-  var yieldStack = [];
+  var awaitStack = [];
   var i;
   var j;
   var error;
@@ -161,6 +163,7 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
   var groupValidator;
   var dependentFields;
   var asyncGroupValidator;
+  var promises = [];
 
   dependentFields = this.getValidationDependency(fields);
   if (dependentFields.length) {
@@ -182,8 +185,10 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
     asyncValidators = this._settings.asyncValidators[i];
     if (asyncValidators) {
       for (j = 0; j < asyncValidators.length; j++) {
-        yieldStack.push(i);
-        asyncValidators[j](record[i], suspend.fork());
+        awaitStack.push(i);
+        promises.push(
+          await toPromise(asyncValidators)(record[i])
+        );
       }
     }
   }
@@ -199,15 +204,17 @@ Validator.prototype.isValidRecord = suspend.callback(function * (record) {
   for (i = 0; i < this._settings.asyncGroupValidators.length; i++) {
     asyncGroupValidator = this._settings.asyncGroupValidators[i];
     if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
-      yieldStack.push(null);
-      asyncGroupValidator.fn(record, errors, suspend.fork());
+      awaitStack.push(null);
+      promises.push(
+        await toPromise(asyncGroupValidator.fn)(record, errors)
+      );
     }
   }
 
-  var asyncErrors = yield suspend.join();
+  var asyncErrors = await Promise.all(promises);
   while (asyncErrors.length) {
     error = asyncErrors.pop();
-    field = yieldStack.pop();
+    field = awaitStack.pop();
 
     if (error && field) {
       errors.add(field, error);

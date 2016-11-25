@@ -23,8 +23,8 @@ function AbstractListModel() {}
  * @param {Function}  cb      CallBack function
  * @abstract
  */
-AbstractListModel.read = function (search, cb) {
-  cb(null, []);
+AbstractListModel.read = function (search) {
+  return Promise.resolve([]);
 };
 
 /**
@@ -33,8 +33,8 @@ AbstractListModel.read = function (search, cb) {
  * @param {*}         id  Option ID
  * @param {Function}  cb  CallBack function
  */
-AbstractListModel.getLabel = function (id, cb) {
-  cb(null, '');
+AbstractListModel.getLabel = function (id) {
+  return Promise.resolve('');
 };
 
 module.exports = AbstractListModel;

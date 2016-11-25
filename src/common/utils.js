@@ -238,6 +238,12 @@ exports.forEach = function (obj, func, ctx) {
   }
 };
 
+exports.forEach = function (obj, func, ctx) {
+  for (var i in obj) {
+    func.call(ctx, obj[i], i);
+  }
+};
+
 exports.pluck = function (arr, field) {
   return arr.map(function (item) {
     return item[field];

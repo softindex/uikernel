@@ -12,6 +12,7 @@
 
 var Events = require('../../common/Events');
 var toPromise = require('../../common/toPromise');
+var callbackify = require('../../common/callbackify');
 /**
  * Adapter allows to use Grid model as a model for new form record creation
  *
@@ -41,9 +42,11 @@ GridToFormCreate.prototype.constructor = GridToFormCreate;
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormCreate.prototype.getData = function (fields, cb) {
-  cb(null, this._adapter.initialData);
-};
+GridToFormCreate.prototype.getData = callbackify(
+  async function () {
+    return await this._adapter.initialData
+  }
+);
 
 /**
  * Create new record
@@ -51,16 +54,12 @@ GridToFormCreate.prototype.getData = function (fields, cb) {
  * @param   {Object}      data      Record
  * @param   {Function}    cb        CallBack function
  */
-GridToFormCreate.prototype.submit = function (data, cb) {
-  var model = this._adapter.model;
-  toPromise(model.create.bind(model))(data)
-    .then(function (data) {
-      cb(null, data);
-    })
-    .catch(function (err) {
-      cb(err);
-    });
-};
+GridToFormCreate.prototype.submit = callbackify(
+  async function (data) {
+    var model = this._adapter.model;
+    return await toPromise(model.create.bind(model))(data)
+  }
+);
 
 /**
  * Validation checking
@@ -68,16 +67,12 @@ GridToFormCreate.prototype.submit = function (data, cb) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridToFormCreate.prototype.isValidRecord = function (record, cb) {
-  var model = this._adapter.model;
-  toPromise(model.isValidRecord.bind(model))(record)
-    .then(function (data) {
-      cb(null, data);
-    })
-    .catch(function (err) {
-      cb(err);
-    });
-};
+GridToFormCreate.prototype.isValidRecord = callbackify(
+  async function (record) {
+    var model = this._adapter.model;
+    return await toPromise(model.isValidRecord.bind(model))(record)
+  }
+);
 
 /**
  * Get all dependent fields, that are required for validation

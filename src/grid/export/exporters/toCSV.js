@@ -10,20 +10,32 @@
 
 'use strict';
 
-var suspend = require('suspend');
 var csv = require('csv-stringify');
+var callbackify = require('../../../common/callbackify');
 
-var toCSV = suspend.callback(function * (data) {
-  return {
-    mime: 'text/csv',
-    data: yield csv(
+var toCSV = callbackify(async function (data) {
+
+  var csvPromise = new Promise(function(resolve, reject){
+    csv(
       data.records.concat([data.totals]),
       {
         header: true,
         columns: data.columns
       },
-      suspend.resume()
-    )
+      function (err, data) {
+        if(err){
+          reject(err);
+        }
+        resolve(data);
+      }
+    );
+  });
+
+  var csvData = await csvPromise;
+
+  return {
+    mime: 'text/csv',
+    data: csvData
   };
 });
 

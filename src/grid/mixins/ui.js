@@ -13,6 +13,8 @@
 var React = require('react');
 var findDOMNode = require('react-dom').findDOMNode;
 var utils = require('../../common/utils');
+var toPromise = require('../../common/toPromise');
+var callbackify = require('../../common/callbackify');
 
 var GridUIMixin = {
   getInitialState: function () {
@@ -90,7 +92,7 @@ var GridUIMixin = {
   /**
    * Fetch server data
    */
-  updateTable: function (cb) {
+  updateTable: callbackify(async function () {
     this._showLoader(true);
 
     if (!this.props.model) {
@@ -99,60 +101,50 @@ var GridUIMixin = {
 
     var viewCount = this.getViewCount();
 
-    this._loadData({
+    var obj = await toPromise(this._loadData.bind(this))({
       limit: viewCount,
       offset: this.state.page * viewCount,
       sort: this._sortingToArray(),
       fields: this._getFieldsToRender(),
       extra: this._getAdditionalIds()
-    }, function (err, obj) {
-      var data;
-      var extra;
-      var page;
-      var recordIds;
+    });
 
-      if (!this._isMounted) {
-        return;
-      }
+    var data;
+    var extra;
+    var page;
+    var recordIds;
 
-      if (err) {
-        if (cb) {
-          return cb(err);
-        }
-        throw err;
-      }
+    if (!this._isMounted) {
+      return;
+    }
 
-      // If required page is not included in the range of existing pages,
-      // request existing in a moment page
-      page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
-      if (page !== this.state.page) {
-        this.state.page = page;
-        this.updateTable(cb);
-        return;
-      }
+    // If required page is not included in the range of existing pages,
+    // request existing in a moment page
+    page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
+    if (page !== this.state.page) {
+      this.state.page = page;
+      this.updateTable();
+      return;
+    }
 
-      data = this._dataArrayToObject(obj.records);
-      extra = this._dataArrayToObject(obj.extraRecords || []);
-      recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
+    data = this._dataArrayToObject(obj.records);
+    extra = this._dataArrayToObject(obj.extraRecords || []);
+    recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
 
-      this.setState({
-        data: utils.assign({}, data.records, extra.records),
-        mainIds: Object.keys(data.records),
-        count: obj.count,
-        totals: obj.totals,
-        recordsInfo: utils.assign({}, extra.info, data.info),
-        errors: utils.pick(this.state.errors, recordIds),
-        changes: utils.pick(this.state.changes, recordIds),
-        statuses: utils.pick(this.state.statuses, recordIds)
-      }, function () {
-        this._renderBody();
-        this._showLoader(false);
-        if (cb) {
-          cb();
-        }
-      });
-    }.bind(this));
-  },
+    await toPromise(this.setState.bind(this))({
+      data: utils.assign({}, data.records, extra.records),
+      mainIds: Object.keys(data.records),
+      count: obj.count,
+      totals: obj.totals,
+      recordsInfo: utils.assign({}, extra.info, data.info),
+      errors: utils.pick(this.state.errors, recordIds),
+      changes: utils.pick(this.state.changes, recordIds),
+      statuses: utils.pick(this.state.statuses, recordIds)
+    });
+
+    this._renderBody();
+    this._showLoader(false);
+  }),
 
   /**
    * Show/hide loading icon
