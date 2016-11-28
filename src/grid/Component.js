@@ -13,58 +13,132 @@
 /**
  * React table component
  */
+import React from 'react';
+import utils from '../common/utils';
 
-var React = require('react');
-var utils = require('../common/utils');
-var gridMixinColumns = require('./mixins/columns');
-var gridMixinPagination = require('./mixins/pagination');
-var gridMixinStatuses = require('./mixins/statuses');
-var gridMixinSorting = require('./mixins/sorting');
-var gridMixinData = require('./mixins/data');
-var gridMixinEditor = require('./mixins/editor');
-var gridMixinUI = require('./mixins/ui');
-var gridMixinSelect = require('./mixins/select');
+import GridColumnsMixin from './mixins/columns';
+import gridMixinPagination from './mixins/pagination';
+import gridMixinStatuses from './mixins/statuses';
+import gridMixinSorting from './mixins/sorting';
+import gridMixinData from './mixins/data';
+import gridMixinEditor from './mixins/editor';
+import gridMixinUI from './mixins/ui';
+import gridMixinSelect from './mixins/select';
 
-var RESET_MODEL = 1 << 0;
-var RESET_VIEW_COLUMNS = 1 << 1;
-var RESET_SORT = 1 << 2;
-var RESET_VIEW_COUNT = 1 << 3;
+const RESET_MODEL = 1 << 0;
+const RESET_VIEW_COLUMNS = 1 << 1;
+const RESET_SORT = 1 << 2;
+const RESET_VIEW_COUNT = 1 << 3;
 
-var GridComponent = React.createClass({
-  propTypes: {
-    className: React.PropTypes.string,
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func.isRequired,
-      update: React.PropTypes.func,
-      isValidRecord: React.PropTypes.func,
-      getValidationDependency: React.PropTypes.func,
-      on: React.PropTypes.func.isRequired,
-      off: React.PropTypes.func.isRequired
-    }),
-    viewColumns: React.PropTypes.oneOfType([
-      React.PropTypes.arrayOf(React.PropTypes.string),
-      React.PropTypes.object
-    ]),
-    sort: React.PropTypes.object,
-    page: React.PropTypes.number,
-    defaultViewCount: React.PropTypes.number,
-    viewCount: React.PropTypes.number,
-    viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
-    onChangeViewCount: React.PropTypes.func,
-    onError: React.PropTypes.func,
-    onPageLoad: React.PropTypes.func,
-    height: React.PropTypes.number
+export const GridComponent = React.createClass({
+
+  ...GridColumnsMixin,
+  ...gridMixinPagination,
+  ...gridMixinStatuses,
+  ...gridMixinSorting,
+  ...gridMixinData,
+  ...gridMixinEditor,
+  ...gridMixinUI,
+  ...gridMixinSelect,
+
+  propTypes: (() => {
+    const sortElementProp = React.PropTypes.shape({
+      column: React.PropTypes.string,
+      direction: React.PropTypes.string
+    });
+
+    const sortProp = React.PropTypes.oneOfType([
+      sortElementProp,
+      React.PropTypes.arrayOf(sortElementProp)
+    ]);
+    return {
+      className: React.PropTypes.string,
+      model: React.PropTypes.shape({
+        read: React.PropTypes.func.isRequired,
+        update: React.PropTypes.func,
+        isValidRecord: React.PropTypes.func,
+        getValidationDependency: React.PropTypes.func,
+        on: React.PropTypes.func.isRequired,
+        off: React.PropTypes.func.isRequired
+      }),
+      viewColumns: React.PropTypes.oneOfType([
+        React.PropTypes.arrayOf(React.PropTypes.string),
+        React.PropTypes.object
+      ]),
+      // sort: React.PropTypes.object,
+      page: React.PropTypes.number,
+      defaultViewCount: React.PropTypes.number,
+      viewCount: React.PropTypes.number,
+      viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
+      onChangeViewCount: React.PropTypes.func,
+      onError: React.PropTypes.func,
+      onPageLoad: React.PropTypes.func,
+      height: React.PropTypes.number,
+      onSorting: React.PropTypes.func,
+      defaultSort: (props, propName) => {
+        if (!props.defaultSort) {
+          return;
+        }
+        const validProp = sortProp(props, propName);
+        if (validProp) {
+          return validProp;
+        }
+        if (props.hasOwnProperty('sort')) {
+          return Error('You can not set "defaultSort" when specified "sort" prop');
+        }
+      },
+      sort: (props, propName) => {
+        if (!props.sort) {
+          return;
+        }
+        const validProp = sortProp(props, propName);
+        if (validProp) {
+          return validProp;
+        }
+        if (!props.onSorting) {
+          return Error('You need to define prop "onSorting" when set "sort"');
+        }
+      },
+      saveFullRecord: React.PropTypes.bool,
+      partialErrorChecking: React.PropTypes.bool,
+      warningsValidator: React.PropTypes.shape({
+        isValidRecord: React.PropTypes.func,
+        getValidationDependency: React.PropTypes.func
+      })
+    }
+  })(),
+  getDefaultProps: () => ({
+    page: 0,
+    defaultViewCount: 0,
+    partialErrorChecking: false
+  }),
+  getInitialState: function () {
+    this._loadData = utils.throttle(this._loadData);
+    this._validateRow = utils.throttle(this._validateRow);
+    this._checkWarnings = utils.throttle(this._checkWarnings);
+    return {
+      page: this.props.page,
+      viewCount: this.props.defaultViewCount,
+      count: 0,
+      statusMap: {
+        new: 1 << 0
+      },
+      statuses: {},
+      sort: this._getDefaultSort(),
+      data: null,
+      changes: {},
+      warnings: {},
+      errors: {},
+      totals: {},
+      recordsInfo: {},
+      mainIds: [],
+      partialErrorChecking: this.props.partialErrorChecking,
+      editor: {},
+      colsWithEscapeErrors: {},
+      selectBlackListMode: false,
+      selected: []
+    };
   },
-  mixins: [
-    gridMixinColumns,       // Columns control function
-    gridMixinPagination,    // Pagination control function
-    gridMixinStatuses,      // Record statuses control function
-    gridMixinSorting,       // Sort control function
-    gridMixinData,          // Data control function
-    gridMixinEditor,        // Cell editors control function
-    gridMixinUI,            // User interfaces control function
-    gridMixinSelect         // Rows selection control function (Select)
-  ],
   componentDidMount: function () {
     this._isMounted = true;
     if (this.props.model) {
@@ -81,8 +155,8 @@ var GridComponent = React.createClass({
     }
   },
   componentWillReceiveProps: function (nextProps) {
-    var oldProps = this.props;
-    var reset = 0;
+    const oldProps = this.props;
+    let reset = 0;
 
     if (!utils.isEqual(this.props.model, nextProps.model)) {
       reset |= RESET_MODEL;
@@ -122,7 +196,7 @@ var GridComponent = React.createClass({
     });
   },
   renderScrollableGrid: function (gridClassNames) {
-    var header = this._formHeader();
+    const header = this._formHeader();
     return (
       <div className={gridClassNames.join(' ')}>
         <div className="wrapper-dgrid-header">
@@ -137,15 +211,15 @@ var GridComponent = React.createClass({
                         key={rowKey}
                         className={col.className}
                         onClick={
-                            col.sort ?
-                              this._sortCol.bind(this, col.field) :
-                              this._handleHeaderCellClick.bind(this, col)
-                            }
+                          col.sort ?
+                            this._sortCol.bind(this, col.field) :
+                            this._handleHeaderCellClick.bind(this, col)
+                        }
                         colSpan={col.cols}
                         rowSpan={col.rows}
                         dangerouslySetInnerHTML={{
-                            __html: this._getHeaderCellHTML(col.name)
-                          }}
+                          __html: this._getHeaderCellHTML(col.name)
+                        }}
                       />
                     );
                   }.bind(this))}
@@ -178,7 +252,7 @@ var GridComponent = React.createClass({
     );
   },
   renderGrid: function (gridClassNames) {
-    var header = this._formHeader();
+    const header = this._formHeader();
     gridClassNames = gridClassNames.concat('dgrid-not-scrollable');
     return (
       <div className={gridClassNames.join(' ')}>
@@ -191,30 +265,30 @@ var GridComponent = React.createClass({
         >
           <colgroup>{header.colGroup}</colgroup>
           <thead>
-            {header.cols.map(function (row, colKey) {
-              return (
-                <tr key={colKey}>
-                  {row.map(function (col, rowKey) {
-                    return (
-                      <th
-                        key={rowKey}
-                        className={col.className}
-                        onClick={
-                            col.sort ?
-                              this._sortCol.bind(this, col.field) :
-                              this._handleHeaderCellClick.bind(this, col)
-                            }
-                        colSpan={col.cols}
-                        rowSpan={col.rows}
-                        dangerouslySetInnerHTML={{
-                            __html: this._getHeaderCellHTML(col.name)
-                          }}
-                      />
-                    );
-                  }.bind(this))}
-                </tr>
-              );
-            }.bind(this))}
+          {header.cols.map(function (row, colKey) {
+            return (
+              <tr key={colKey}>
+                {row.map(function (col, rowKey) {
+                  return (
+                    <th
+                      key={rowKey}
+                      className={col.className}
+                      onClick={
+                        col.sort ?
+                          this._sortCol.bind(this, col.field) :
+                          this._handleHeaderCellClick.bind(this, col)
+                      }
+                      colSpan={col.cols}
+                      rowSpan={col.rows}
+                      dangerouslySetInnerHTML={{
+                        __html: this._getHeaderCellHTML(col.name)
+                      }}
+                    />
+                  );
+                }.bind(this))}
+              </tr>
+            );
+          }.bind(this))}
           </thead>
           <tbody className="dgrid-body-table" ref="tbody"/>
           {this._renderTotals(this.props.height)}
@@ -224,7 +298,7 @@ var GridComponent = React.createClass({
     );
   },
   render: function () {
-    var gridClassNames = ['data-grid'];
+    const gridClassNames = ['data-grid'];
 
     if (this.props.className) {
       gridClassNames.push(this.props.className);

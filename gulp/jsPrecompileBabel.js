@@ -17,7 +17,7 @@ function jsPrecompile() {
   return gulp.src(['src/**/*.jsx', 'src/**/*.js'])
     .pipe(babel({
       presets: ['react', 'latest'],
-      plugins: ['transform-runtime']
+      plugins: ['transform-runtime', 'transform-object-rest-spread']
     }))
     .pipe(gulp.dest('lib'));
 }

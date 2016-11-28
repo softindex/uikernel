@@ -10,19 +10,12 @@
 
 'use strict';
 
-var utils = require('../../common/utils');
+import utils from '../../common/utils';
 
 /**
  * Grid mixin, responsible for rows Select
  */
-var GridSelectMixin = {
-  getInitialState: function () {
-    return {
-      selectBlackListMode: false,
-      selected: []
-    };
-  },
-
+const GridSelectMixin = {
   /**
    * Select only these records
    *
@@ -45,7 +38,7 @@ var GridSelectMixin = {
    * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
   selectRecord: function (recordId, ignoreBlackList) {
-    var row = utils.hash(recordId);
+    const row = utils.hash(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.unselectRecord(recordId, true);
@@ -79,13 +72,13 @@ var GridSelectMixin = {
    * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
   unselectRecord: function (recordId, ignoreBlackList) {
-    var row = utils.hash(recordId);
+    const row = utils.hash(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.selectRecord(recordId, true);
     }
 
-    var pos = utils.indexOf(this.state.selected, recordId);
+    const pos = utils.indexOf(this.state.selected, recordId);
     if (pos >= 0) {
       this.state.selected.splice(pos, 1);
     }
@@ -106,7 +99,7 @@ var GridSelectMixin = {
    * @returns {boolean}           Is selected row flag
    */
   isSelected: function (recordId) {
-    var selected = utils.indexOf(this.state.selected, recordId) >= 0;
+    let selected = utils.indexOf(this.state.selected, recordId) >= 0;
     if (this.state.selectBlackListMode) {
       return !selected;
     }
@@ -188,7 +181,7 @@ var GridSelectMixin = {
    */
   _emitChangeSelectedNum: function () {
     if (this.props.onSelectedChange) {
-      var selectedCount = this.state.selected.length;
+      let selectedCount = this.state.selected.length;
       if (this.state.selectBlackListMode) {
         selectedCount = this.getCountRecords() - selectedCount;
       }
@@ -197,4 +190,4 @@ var GridSelectMixin = {
   }
 };
 
-module.exports = GridSelectMixin;
+export default GridSelectMixin;

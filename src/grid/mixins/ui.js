@@ -10,28 +10,22 @@
 
 'use strict';
 
-var React = require('react');
-var findDOMNode = require('react-dom').findDOMNode;
-var utils = require('../../common/utils');
-var toPromise = require('../../common/toPromise');
-var callbackify = require('../../common/callbackify');
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import utils from '../../common/utils';
+import {findDOMNode} from 'react-dom';
+import React from 'react';
 
-var GridUIMixin = {
-  getInitialState: function () {
-    return {
-      colsWithEscapeErrors: {}
-    };
-  },
-
+const GridUIMixin = {
   /**
    * Table content click event handler
    *
    * @param {Event} event
    */
   _handleBodyClick: function (event) {
-    var $target = $(event.target);
-    var $refParent = $target.parents('[ref]');
-    var element;
+    const $target = $(event.target);
+    const $refParent = $target.parents('[ref]');
+    let element;
 
     if ($target.hasClass('dgrid-cell')) {
       element = event.target;
@@ -52,11 +46,11 @@ var GridUIMixin = {
    * @param {string}          ref         Click handler name in the table configuration
    */
   _handleCellClick: function (event, element, ref) {
-    var colId = $(element).attr('key');
-    var row = $(element).parent().attr('key');
-    var columnConfig = this.props.cols[colId];
-    var recordId = this.state.recordsInfo[row].id;
-    var record = this._getRecord(row);
+    const colId = $(element).attr('key');
+    const row = $(element).parent().attr('key');
+    const columnConfig = this.props.cols[colId];
+    const recordId = this.state.recordsInfo[row].id;
+    const record = this._getRecord(row);
 
     // Trigger click handler on the table configuration
     if (ref) {
@@ -72,10 +66,10 @@ var GridUIMixin = {
   },
 
   _handleHeaderCellClick: function (col, event) {
-    var $target = $(event.target);
-    var $refParent = $target.parents('[ref]');
-    var ref = $refParent.attr('ref') || event.target.getAttribute('ref');
-    var handler;
+    const $target = $(event.target);
+    const $refParent = $target.parents('[ref]');
+    const ref = $refParent.attr('ref') || event.target.getAttribute('ref');
+    let handler;
 
     if (ref && col.onClickRefs) {
       handler = col.onClickRefs[ref];
@@ -99,9 +93,9 @@ var GridUIMixin = {
       return;
     }
 
-    var viewCount = this.getViewCount();
+    const viewCount = this.getViewCount();
 
-    var obj = await toPromise(this._loadData.bind(this))({
+    const obj = await toPromise(this._loadData.bind(this))({
       limit: viewCount,
       offset: this.state.page * viewCount,
       sort: this._sortingToArray(),
@@ -109,10 +103,10 @@ var GridUIMixin = {
       extra: this._getAdditionalIds()
     });
 
-    var data;
-    var extra;
-    var page;
-    var recordIds;
+    let data;
+    let extra;
+    let page;
+    let recordIds;
 
     if (!this._isMounted) {
       return;
@@ -161,7 +155,7 @@ var GridUIMixin = {
   },
 
   _getHeaderCellHTML: function (columnName) {
-    var cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
+    const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
     if (cellHtml === undefined) {
       return '';
     }
@@ -169,13 +163,13 @@ var GridUIMixin = {
   },
 
   _escapeRecord: function (columnId, record) {
-    var field;
-    var type;
-    var i;
-    var escapedRecord = {};
-    var column = this.props.cols[columnId];
-    var needEscaping = !column.hasOwnProperty('escape') || column.escape;
-    var fields = column.render.slice(0, -1);
+    let field;
+    let type;
+    let i;
+    const escapedRecord = {};
+    const column = this.props.cols[columnId];
+    const needEscaping = !column.hasOwnProperty('escape') || column.escape;
+    const fields = column.render.slice(0, -1);
 
     for (i = 0; i < fields.length; i++) {
       field = fields[i];
@@ -190,9 +184,10 @@ var GridUIMixin = {
         if (type === 'object' && record[field] && !this.state.colsWithEscapeErrors[columnId]) {
           this.state.colsWithEscapeErrors[columnId] = true;
           console.error(
-            'UIKernel.Grid warning: \nYou send record with fields of Object type in escaped column "' +
-            columnId + '". \nTo use Objects, set column config "escape" to false,' +
-            ' \nand escape "' + columnId + '" field in render function by yourself'
+            `UIKernel.Grid warning: 
+You send record with fields of Object type in escaped column "${columnId}". 
+To use Objects, set column config "escape" to false, 
+and escape "${columnId}" field in render function by yourself`
           );
         }
       }
@@ -213,9 +208,9 @@ var GridUIMixin = {
    * @private
    */
   _getCellHTML: function (columnId, record, selected) {
-    var render = utils.last(this.props.cols[columnId].render);
-    var cellHtml = render(this._escapeRecord(columnId, record), selected);
-    return utils.isDefined(cellHtml) ? cellHtml : '';
+    const render = utils.last(this.props.cols[columnId].render);
+    const cellHtml = render(this._escapeRecord(columnId, record), selected);
+    return `${utils.isDefined(cellHtml) ? cellHtml : ''}`;
   },
 
   /**
@@ -227,27 +222,20 @@ var GridUIMixin = {
    * @private
    */
   _getRowHTML: function (row, className) {
-    var colId;
-    var record = this._getRecord(row);
-    var selected = this.isSelected(this.state.recordsInfo[row].id);
-    var html = '<tr key="' + row + '" class="' +
+    let colId;
+    const record = this._getRecord(row);
+    const selected = this.isSelected(this.state.recordsInfo[row].id);
+    let html = `<tr key="${row}" class="` +
       (className || '') +
       ' ' + this._getRowStatusNames(row).join(' ') +
       ' ' + (selected ? 'dgrid__row_selected' : '') +
       '">';
     for (colId in this.props.cols) {
       if (this._isViewColumn(colId)) {
-        html += '<td key="' + colId + '" class="dgrid-cell' +
-        (this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : '') +
-        (this._isChanged(row, this._getBindParam(colId)) ? ' dgrid-changed' : '') +
-        (this._hasError(row, this._getBindParam(colId)) ? ' dgrid-error' : '') +
-        (this._hasWarning(row, this._getBindParam(colId)) ? ' dgrid-warning' : '') +
-        '">' +
-        this._getCellHTML(colId, record, selected) +
-        '</td>';
+        html += `<td key="${colId}" class="dgrid-cell${this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : ''}${this._isChanged(row, this._getBindParam(colId)) ? ' dgrid-changed' : ''}${this._hasError(row, this._getBindParam(colId)) ? ' dgrid-error' : ''}${this._hasWarning(row, this._getBindParam(colId)) ? ' dgrid-warning' : ''}">${this._getCellHTML(colId, record, selected)}</td>`;
       }
     }
-    return html + '</tr>';
+    return `${html}</tr>`;
   },
 
   /**
@@ -260,13 +248,11 @@ var GridUIMixin = {
       return;
     }
 
-    var i;
-    var row;
-    var htmlExtra = '';
-    var htmlBody = '';
-    var sorted = utils.pairs(this.state.recordsInfo).sort(function (a, b) {
-      return a[1].index - b[1].index;
-    });
+    let i;
+    let row;
+    let htmlExtra = '';
+    let htmlBody = '';
+    const sorted = utils.pairs(this.state.recordsInfo).sort((a, b) => a[1].index - b[1].index);
 
     for (i = 0; i < sorted.length; i++) {
       row = sorted[i][0];
@@ -310,22 +296,22 @@ var GridUIMixin = {
    */
   _getCellElement: function (recordId, colId) {
     return findDOMNode(this.refs.body)
-      .find('tr[key=' + recordId + ']')
-      .find('td[key=' + colId + ']');
+      .find(`tr[key=${recordId}]`)
+      .find(`td[key=${colId}]`);
   },
 
   _removeTR: function (recordId) {
     $(findDOMNode(this.refs.body))
-      .find('tr[key=' + recordId + ']')
+      .find(`tr[key=${recordId}]`)
       .remove();
   },
 
   _renderTotals: function _renderTotals(isScrollable) {
-    var totalsDisplayed = false;
-    var i;
-    var className;
-    var totalsRowHTML = '';
-    var header = this._formHeader();
+    let totalsDisplayed = false;
+    let i;
+    let className;
+    let totalsRowHTML = '';
+    const header = this._formHeader();
 
     // If data for result line display exists, form it
     if (this.state.totals) {
@@ -336,7 +322,7 @@ var GridUIMixin = {
 
         className = this.props.cols[i].className;
         if (className) {
-          totalsRowHTML += '<td class="' + className + '">';
+          totalsRowHTML += `<td class="${className}">`;
         } else {
           totalsRowHTML += '<td>';
         }
@@ -365,26 +351,26 @@ var GridUIMixin = {
 
     return (
       <tfoot className="dgrid-totals">
-        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
+      <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
       </tfoot>
     );
   },
 
   _updateField: function (row, column) {
     $(findDOMNode(this.refs.body))
-      .find('tr[key=' + row + ']')
-      .find('td[key=' + column + ']')
+      .find(`tr[key=${row}]`)
+      .find(`td[key=${column}]`)
       .html(this._getCellHTML(column, this._getRecord(row)))
       .removeClass('dgrid-changed dgrid-error dgrid-warning')
-      .addClass(this._isChanged(
+      .addClass(`${this._isChanged(
         row,
-        this._getBindParam(column)) ? 'dgrid-changed' : '')
-      .addClass(this._hasError(
+        this._getBindParam(column)) ? 'dgrid-changed' : ''}`)
+      .addClass(`${this._hasError(
         row,
-        this._getBindParam(column)) ? 'dgrid-error' : '')
-      .addClass(this._hasWarning(
+        this._getBindParam(column)) ? 'dgrid-error' : ''}`)
+      .addClass(`${this._hasWarning(
         row,
-        this._getBindParam(column)) ? 'dgrid-warning' : '');
+        this._getBindParam(column)) ? 'dgrid-warning' : ''}`);
   },
 
   _updateRow: function (row, cb) {
@@ -403,4 +389,4 @@ var GridUIMixin = {
   }
 };
 
-module.exports = GridUIMixin;
+export default GridUIMixin;

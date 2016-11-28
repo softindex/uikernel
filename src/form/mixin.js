@@ -283,7 +283,6 @@ var FormMixin = {
    * @param {Function}         [cb]       CallBack
    */
   updateField: callbackify(async function (fields, values) {
-    console.log("fields, values : ",fields, values);
     if (this._isNotInitialized()) {
       return;
     }

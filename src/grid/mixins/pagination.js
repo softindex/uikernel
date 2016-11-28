@@ -10,31 +10,16 @@
 
 'use strict';
 
-var React = require('react');
+import React from 'react';
 
-var GridPaginationMixin = {
-  getDefaultProps: function () {
-    return {
-      page: 0,
-      defaultViewCount: 0
-    };
-  },
-
-  getInitialState: function () {
-    return {
-      page: this.props.page,
-      viewCount: this.props.defaultViewCount,
-      count: 0
-    };
-  },
-
+const GridPaginationMixin = {
   /**
    * Change event handler of displayed rows count in a table
    *
    * @param {Event} event
    */
   handleChangeViewCount: function (event) {
-    var count = this.props.viewVariants[event.target.value];
+    let count = this.props.viewVariants[event.target.value];
     if (this._isViewCountPropsMode()) {
       this.props.onChangeViewCount(count);
       return;
@@ -135,7 +120,7 @@ var GridPaginationMixin = {
    * @return {number}
    */
   getPagesCount: function () {
-    var viewCount = this.getViewCount();
+    let viewCount = this.getViewCount();
     return viewCount ? Math.ceil(this.state.count / viewCount) : 1;
   },
 
@@ -150,7 +135,7 @@ var GridPaginationMixin = {
     this.state.page = this._checkPage(page, this.state.viewCount, this.state.count);
   },
 
-  _checkPage: function (page, view, count) {
+  _checkPage: (page, view, count) => {
     if (page * view >= count) {
       page = view ? Math.ceil(count / view) - 1 : 0;
     }
@@ -162,7 +147,7 @@ var GridPaginationMixin = {
   },
 
   _renderPagination: function _renderPagination() {
-    var viewCount = this.getViewCount();
+    let viewCount = this.getViewCount();
     return viewCount ? (
       <div className="dgrid-footer">
         {this.props.viewVariants ? [
@@ -172,9 +157,7 @@ var GridPaginationMixin = {
               value={this.props.viewVariants.indexOf(viewCount)}
               onChange={this.handleChangeViewCount}
             >
-                {this.props.viewVariants.map(function (option, key) {
-                  return <option key={key} value={key}>{option}</option>;
-                }, this)}
+              {this.props.viewVariants.map((option, key) => <option key={key} value={key}>{option}</option>, this)}
             </select>
           </div>
         ] : null}
@@ -200,4 +183,4 @@ var GridPaginationMixin = {
   }
 };
 
-module.exports = GridPaginationMixin;
+export default GridPaginationMixin;

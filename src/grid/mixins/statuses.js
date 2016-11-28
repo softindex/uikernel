@@ -10,21 +10,13 @@
 
 'use strict';
 
-var findDOMNode = require('react-dom').findDOMNode;
-var utils = require('../../common/utils');
+import utils from '../../common/utils';
+import {findDOMNode} from 'react-dom';
 
 /**
  * Grid mixin, responsible for row statuses processing
  */
-var GridStatusesMixin = {
-  getInitialState: function () {
-    return {
-      statusMap: {
-        new: 1 << 0
-      },
-      statuses: {}
-    };
-  },
+const GridStatusesMixin = {
 
   /**
    * Add record status
@@ -33,7 +25,7 @@ var GridStatusesMixin = {
    * @param {string}           status      Record status
    */
   addRecordStatus: function (recordId, status) {
-    var row = utils.hash(recordId);
+    const row = utils.hash(recordId);
 
     // If list does not contain the record, mark its status as empty
     if (!this.state.statuses.hasOwnProperty(row)) {
@@ -55,9 +47,9 @@ var GridStatusesMixin = {
    * @param {string}     status  Status
    */
   addRecordStatusGroup: function (group, status) {
-    var i;
-    var bit = this._getStatusBit(status);
-    var row;
+    let i;
+    const bit = this._getStatusBit(status);
+    let row;
 
     for (i in group) {
       row = utils.hash(group[i]);
@@ -81,8 +73,8 @@ var GridStatusesMixin = {
    * @param {string}  status      Record status
    */
   removeRecordStatus: function (recordId, status) {
-    var bit = this._getStatusBit(status);
-    var row = utils.hash(recordId);
+    const bit = this._getStatusBit(status);
+    const row = utils.hash(recordId);
 
     // Cancel method execution if record has no statuses
     if (!this.state.statuses[row]) {
@@ -103,7 +95,7 @@ var GridStatusesMixin = {
 
     // Remove element's class
     $(findDOMNode(this.refs.body))
-      .find('tr[key=' + row + ']')
+      .find(`tr[key=${row}]`)
       .removeClass(status);
   },
 
@@ -115,7 +107,7 @@ var GridStatusesMixin = {
    * @returns {boolean} Record has status flag
    */
   hasRecordStatus: function (recordId, status) {
-    var row = utils.hash(recordId);
+    const row = utils.hash(recordId);
     if (this.state.statuses[row]) {
       return (this.state.statuses[row].sum & this._getStatusBit(status)) > 0;
     }
@@ -129,9 +121,9 @@ var GridStatusesMixin = {
    * @returns {Array} Record IDs array
    */
   getAllWithStatus: function (status) {
-    var i;
-    var records = [];
-    var bit = this._getStatusBit(status);
+    let i;
+    const records = [];
+    const bit = this._getStatusBit(status);
 
     for (i in this.state.statuses) {
       if (this.state.statuses[i].sum & bit) {
@@ -147,8 +139,8 @@ var GridStatusesMixin = {
    * @param {string}      status  Status
    */
   removeRecordStatusAll: function (status) {
-    var i;
-    var bit = this._getStatusBit(status);
+    let i;
+    const bit = this._getStatusBit(status);
 
     for (i in this.state.statuses) {
       if (this.state.statuses[i].sum & bit) {
@@ -162,7 +154,7 @@ var GridStatusesMixin = {
       }
     }
     $(findDOMNode(this.refs.body))
-      .find('.dgrid-body tr.' + status)
+      .find(`.dgrid-body tr.${status}`)
       .removeClass(status);
   },
 
@@ -174,9 +166,9 @@ var GridStatusesMixin = {
    * @private
    */
   _getRowStatusNames: function (row) {
-    var i;
-    var names = [];
-    var statuses = this.state.statuses[row] && this.state.statuses[row].sum;
+    let i;
+    const names = [];
+    let statuses = this.state.statuses[row] && this.state.statuses[row].sum;
 
     if (!statuses) {
       return [];
@@ -199,8 +191,8 @@ var GridStatusesMixin = {
    * @private
    */
   _getStatusBit: function (statusName) {
-    var status;
-    var offset;
+    let status;
+    let offset;
 
     if (this.state.statusMap.hasOwnProperty(statusName)) {
       status = this.state.statusMap[statusName];
@@ -223,8 +215,8 @@ var GridStatusesMixin = {
    * @private
    */
   _getRecordsWithStatus: function () {
-    var ids = [];
-    var i;
+    const ids = [];
+    let i;
 
     for (i in this.state.statuses) {
       ids.push(this.state.statuses[i].id);
@@ -233,4 +225,4 @@ var GridStatusesMixin = {
   }
 };
 
-module.exports = GridStatusesMixin;
+export default GridStatusesMixin;
