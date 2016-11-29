@@ -57,12 +57,12 @@ const GridSelectMixin = {
       }
     }
 
-    this._updateRow(row, function (err) {
+    this._updateRow(row, (err) => {
       if (err) {
         throw err;
       }
       this._emitChangeSelectedNum();
-    }.bind(this));
+    });
   },
 
   /**
@@ -83,12 +83,12 @@ const GridSelectMixin = {
       this.state.selected.splice(pos, 1);
     }
 
-    this._updateRow(row, function (err) {
+    this._updateRow(row, (err) => {
       if (err) {
         throw err;
       }
       this._emitChangeSelectedNum();
-    }.bind(this));
+    });
   },
 
   /**

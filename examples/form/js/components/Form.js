@@ -9,14 +9,26 @@
  */
 
 var Form =  React.createClass({
-  mixins: [UIKernel.Mixins.Form],
-  componentDidMount: function () {
-    this.initForm({
+  getInitialState: function() {
+    this.form = new UIKernel.Mixins.Form({
       fields: ['name', 'age'], // Fields we need
       model: UIKernel.Adapters.Grid.toFormUpdate(model, 2), // We're going to change record with ID = 2
       autoSubmit: true, // Submit data automatically after it changes
       autoSubmitHandler: this.onSubmit
     });
+
+    return {
+      form: this.form.getAll()
+    };
+  },
+  onFromChange(newState) {
+    newState.form = this.form.getAll();
+    this.setState(newState);
+  },
+
+  componentDidMount: function () {
+    this.form.on('update', this.onFromChange);
+    // this.form.formChangeHandlerOn(this.onFromChange);
   },
 
   onSubmit: function (err) {
@@ -26,11 +38,9 @@ var Form =  React.createClass({
   },
 
   render: function () {
-    if (!this.isLoaded()) {
+    if (!this.state.form.isLoaded) {
       return <span>Loading...</span>;
     }
-
-    var data = this.getData();
 
     return (
       <div className="form">
@@ -39,32 +49,32 @@ var Form =  React.createClass({
         </div>
         <div className="body">
           <form className="form-horizontal change-second-field-form">
-            <div className={'form-group'+ (this.hasError('name') ? ' error' : '')}>
+            <div className={'form-group'+ (this.state.form.errors['name'] ? ' error' : '')}>
               <label className="col-sm-2 control-label">Name</label>
               <div className="col-sm-6">
                 <input
                   type="text"
                   className="form-control"
-                  onChange={this.updateField.bind(null, 'name')}
-                  value={data.name}
+                  onChange={this.form.updateField.bind(this.form, 'name')}
+                  value={this.state.form.data.name}
                   />
               </div>
               <div className="col-sm-3">
-                <div className="validation-error">{this.getFieldErrors('name')}</div>
+                <div className="validation-error">{this.state.form.errors['name']}</div>
               </div>
             </div>
-            <div className={'form-group'+ (this.hasError('age') ? ' error' : '')}>
+            <div className={'form-group'+ (this.state.form.errors['age'] ? ' error' : '')}>
               <label className="col-sm-2 control-label">Age</label>
               <div className="col-sm-6">
                 <input
                   type="number"
                   className="form-control"
-                  onChange={this.updateField.bind(null, 'age')}
-                  value={data.age}
+                  onChange={this.form.updateField.bind(this.form, 'age')}
+                  value={this.state.form.data.age}
                   />
               </div>
               <div className="col-sm-3">
-                <div className="validation-error">{this.getFieldErrors('age')}</div>
+                <div className="validation-error">{this.state.form.errors['age']}</div>
               </div>
             </div>
           </form>

@@ -138,7 +138,7 @@ const GridDataMixin = {
     let errors = this.getErrors();
 
     // Collect all valid changes
-    const changes = utils.reduce(this.state.changes, function (result, rowChanges, row) {
+    const changes = utils.reduce(this.state.changes, (result, rowChanges, row) => {
       if (!errors || !errors[row]) {
         if (this.props.saveFullRecord) {
           result[row] = this._getRecord(row);
@@ -151,7 +151,7 @@ const GridDataMixin = {
         }
       }
       return result;
-    }.bind(this), {});
+    }, {});
 
     // Cancel new record display
     this.removeRecordStatusAll('new');
@@ -164,7 +164,7 @@ const GridDataMixin = {
 
     this.state.partialErrorChecking = false;
 
-    data.forEach(function (record) {
+    data.forEach((record) => {
       const row = this._getRowID(record[0]);
 
       // Skip records that are user changed while data processing
@@ -192,7 +192,7 @@ const GridDataMixin = {
           this._removeRecord(row);
         }
       }
-    }.bind(this));
+    });
 
     this._renderBody();
 
@@ -536,18 +536,18 @@ const GridDataMixin = {
    */
   _loadData: function (settings, cb) {
     toPromise(this.props.model.read.bind(this.props.model))(settings)
-      .then(function (data) {
+      .then((data) => {
         if (this.props.onPageLoad) {
           this.props.onPageLoad(data);
         }
         cb(null, data);
-      }.bind(this))
-      .catch(function (err) {
+      })
+      .catch((err) => {
         if (err && this.props.onError) {
           this.props.onError(err);
         }
         cb(err);
-      }.bind(this));
+      });
   },
 
   /**
@@ -612,7 +612,7 @@ const GridDataMixin = {
   _checkValidatorErrors: function (row, validator, result, cb) {
     const record = this._getRecordChanges(row);
 
-    validator.isValidRecord(record, function (err, validErrors) {
+    validator.isValidRecord(record, (err, validErrors) => {
       if (!err && utils.isEqual(record, this._getRecordChanges(row))) {
         if (validErrors.isEmpty()) {
           delete result[row];
@@ -628,15 +628,15 @@ const GridDataMixin = {
       if (cb) {
         cb(err);
       }
-    }.bind(this));
+    });
   },
 
   _onRecordCreated: function (recordId) {
-    this.updateTable(function () {
+    this.updateTable(() => {
       if (this._isRecordLoaded(recordId)) {
         this._checkWarnings(this._getRowID(recordId));
       }
-    }.bind(this));
+    });
   }
 };
 
