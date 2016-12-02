@@ -36,6 +36,16 @@ ValidationErrors.createFromJSON = function (jsonObject) {
   return validationErrors;
 };
 
+ValidationErrors.merge = function () {
+  var jsonErrors = [{}];
+
+  for (var i = 0; i < arguments.length; i++) {
+    jsonErrors.push(arguments[i].toJSON());
+  }
+
+  return ValidationErrors.createFromJSON(utils.assign.apply(utils, jsonErrors));
+};
+
 /**
  * Add an error
  *

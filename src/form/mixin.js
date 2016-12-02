@@ -239,8 +239,8 @@ var FormMixin = {
       return new ValidationErrors();
     }
 
-    var errors;
     var field;
+    var errors = ValidationErrors.merge(this.state._formMixin.errors, this.state._formMixin.warnings);
 
     // If gradual validation is on, we need
     // to remove unchanged records from errors object
@@ -254,8 +254,6 @@ var FormMixin = {
           errors.clearField(field);
         }
       }
-    } else {
-      errors = this.state._formMixin.errors;
     }
 
     return errors;
@@ -554,7 +552,7 @@ var FormMixin = {
         }
 
         const errorsWithPartialChecking = this.getValidationErrors();
-        cb(null, errorsWithPartialChecking.isEmpty() ? null : errorsWithPartialChecking);
+        cb(errorsWithPartialChecking.isEmpty() ? null : errorsWithPartialChecking);
       });
     }.bind(this);
 
