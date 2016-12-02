@@ -10,7 +10,6 @@
 
 'use strict';
 
-var React = require('react');
 var utils = require('../../common/utils');
 var ValidationErrors = require('../../common/validation/ValidationErrors');
 

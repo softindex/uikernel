@@ -221,11 +221,17 @@ exports.cloneDeep = function (obj) {
   return baseClone(obj, true);
 };
 
-exports.isEmpty = function (obj) {
-  if (!obj) {
+exports.isEmpty = function (value) {
+  if (!value) {
     return true;
   }
-  return Object.keys(obj).length === 0;
+  if (Array.isArray(value)) {
+    return value.length === 0;
+  }
+  if (typeof value === 'object') {
+    return Object.keys(value).length === 0;
+  }
+  return false;
 };
 
 exports.isDefined = function (value) {
@@ -375,9 +381,10 @@ exports.toDate = function (value) {
 exports.without = function (arr, el) {
   var result = [];
   for (var i = 0; i < arr.length; i++) {
-    if (arr[i] !== el) {
-      result.push(arr[i]);
+    if (Array.isArray(el) ? exports.isIntersection(arr[i], el) : arr[i] === el) {
+      continue;
     }
+    result.push(arr[i]);
   }
   return result;
 };

@@ -74,8 +74,11 @@ and a callback. If any errors occur during the asynchronous function execution, 
 A set of basic validation rules is provided:
 
 {% highlight javascript %}
-// Check if value is not empty
+// Check if value is not empty string, null and undefined
 UIKernel.Validators.notNull(string errorMessage)
+
+// Check if value is not empty string, array and object. Not null, undefined, 0
+UIKernel.Validators.notEmpty(string errorMessage)
 
 // Check if value is boolean
 UIKernel.Validators.boolean(string errorMessage)

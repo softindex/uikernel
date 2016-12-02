@@ -64,7 +64,8 @@ var Module = {
     float: require('./lib/common/validation/validators/float'),
     regExp: require('./lib/common/validation/validators/regExp'),
     notNull: require('./lib/common/validation/validators/notNull'),
-    number: require('./lib/common/validation/validators/number')
+    number: require('./lib/common/validation/validators/number'),
+    notEmpty: require('./lib/common/validation/validators/notEmpty')
   },
   _get: variables.get,
   _set: variables.set
