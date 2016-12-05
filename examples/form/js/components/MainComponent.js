@@ -9,6 +9,16 @@
  */
 
 var MainComponent = React.createClass({
+  getInitialState: function () {
+    return {
+      form: {}
+    };
+  },
+
+  onFormStateHandler: function (newFormState) {
+    this.setState({form: newFormState});
+  },
+
   render: function () {
     return (
       <div className="container">
@@ -23,9 +33,12 @@ var MainComponent = React.createClass({
                   ref="grid"
                   model={model}
                   cols={columns}
-                  realtime={true}
+                  autoSubmit={true}
                 />
-                <Form />
+                <Form
+                  state={this.state.form}
+                  stateHandler={this.onFormStateHandler}
+                />
               </div>
             </div>
           </div>

@@ -12,26 +12,14 @@
 
 var csv = require('csv-stringify');
 var callbackify = require('../../../common/callbackify');
+var toPromise = require('../../../common/toPromise');
 
 var toCSV = callbackify(async function (data) {
-
-  var csvPromise = new Promise(function(resolve, reject){
-    csv(
-      data.records.concat([data.totals]),
-      {
-        header: true,
-        columns: data.columns
-      },
-      function (err, data) {
-        if(err){
-          reject(err);
-        }
-        resolve(data);
-      }
-    );
-  });
-
-  var csvData = await csvPromise;
+  var csvData = await toPromise(csv(data.records.concat([data.totals]),
+    {
+      header: true,
+      columns: data.columns
+    }));
 
   return {
     mime: 'text/csv',

@@ -9,7 +9,7 @@
  */
 
 var functionsNames = [];
-module.exports = function (func) {
+module.exports = function (func, onlyPromise) {
   var funcName = func.name;
   return function (...mainArguments) {
     var promise;
@@ -20,8 +20,17 @@ module.exports = function (func) {
       });
       promise = func(...mainArguments);
     });
-    if (typeof promise == 'object') {
-      return promise;
+
+    if (promise) {
+      if (promise.then) {
+        return promise;
+      }
+
+      if (onlyPromise) {
+       return callbackPromise;
+      }
+
+      return Promise.resolve(promise);
     } else {
       if (functionsNames.indexOf(funcName) === -1) {
         console.warn(`You are used callback in: '${funcName}'. Use promise instead`);

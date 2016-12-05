@@ -10,7 +10,7 @@ next: editors.html
 
 `userGrid/model.js`:
 {% highlight javascript %}
-read: function (settings, cb) {
+read: function (settings) {
         var data = {};
         var query = squel.select()
             .field('SQL_CALC_FOUND_ROWS *')
@@ -37,7 +37,7 @@ read: function (settings, cb) {
             }
         }
 
-        MySQL.query(query)
+        return MySQL.query(query)
             .then(function (result) {
                 data.records = result.map(function (elem) {
                     return [elem.id, elem]; //формируем массив данных
@@ -45,11 +45,7 @@ read: function (settings, cb) {
                 return MySQL.query('SELECT FOUND_ROWS() as count')
             })
             .then(function (result) {
-                data.count = result[0].count;
-                cb(null, data);
-            })
-            .catch(function (err) {
-               cb(err);
+                return result[0].count;
             });
 }
 {% endhighlight %}
@@ -76,40 +72,28 @@ data.records = result.map(function (elem) {
 Так же, мы используем свойство `count`, для передачи количества всех записей.
 Подробнее о формате ответов на запросы можно почитать [здесь](/docs/grid-interface.html)
 
-Реализуем методы валидации:
+Реализуем метод валидации:
 {% highlight javascript %}
-isValidRecord: validator.isValidRecord,
-
-// Вспомагательный метод, реализовывать не обязательно
-isValidRecordAsync: promisify(validator.isValidRecord),
+isValidRecord: validator.isValidRecord
 {% endhighlight %}
 
 Метод для получения поля по id:
 {% highlight javascript %}
-getRecord: function (id, cols, cb) {
+getRecord: function (id, cols) {
         var query = squel.select()
             .from('getting_started')
             .where('id = ?', id);
 
         return MySQL.query(query)
             .then(function (result) {
-                var record = result[0];
-                if (cb)
-                    cb(null, record);
-                return record;
-            })
-            .catch(function (err) {
-                console.log(err);
-                if (cb)
-                    cb(err);
-                return err;
-            })
+                return result[0];
+            });
 }
 {% endhighlight %}
 
 Реализуем метод `create`:
 {% highlight javascript %}
-create: function (data, cb) {
+create: function (data) {
 // Валидатор UIKernel не умеет проверять наличее полей, потому назначим значения по умолчанию
         data = Object.assign({
             name: '',
@@ -123,7 +107,7 @@ create: function (data, cb) {
             .into("getting_started")
             .setFields(data);
 
-        this.isValidRecordAsync(data)
+        return this.isValidRecordAsync(data)
             .then(function (validationErrors) {
                 if (validationErrors.isEmpty()) {// Если валидация успешна, записываем данные в базу
                     return MySQL.query(query);
@@ -131,11 +115,8 @@ create: function (data, cb) {
                 else return Promise.reject(validationErrors);// если валидация не успешна, возвращаем объект валидации
             })
             .then(function (result) {
-                cb(null, result.insertId) //после успешного создания записи, возвращаем её id
-            })
-            .catch(function (err) {
-                cb(err);
-            })
+                return result.insertId; //после успешного создания записи, возвращаем её id
+            });
 }
 {% endhighlight %}
 
@@ -143,7 +124,7 @@ create: function (data, cb) {
 
 Реализуем метод `update`:
 {% highlight javascript %}
-update: function (records, cb) {
+update: function (records) {
         var self = this;
         var promises = records.map(function (record) {
             var recordId = record[0];
@@ -168,13 +149,7 @@ update: function (records, cb) {
                 });
         });
 
-        Promise.all(promises)
-            .then(function (result) {
-                cb(null, result) //Массив содержащий объекты валидации и изменения записей базы
-            })
-            .catch(function (err) {
-                cb(err);
-            })
+        return Promise.all(promises)//Массив содержащий объекты валидации и изменения записей базы
     },
 {% endhighlight %}
 

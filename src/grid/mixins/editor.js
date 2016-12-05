@@ -9,10 +9,9 @@
  */
 
 'use strict';
-
-import utils from '../../common/utils';
-import ReactDOM from 'react-dom';
 import React from 'react'; // eslint-disable-line no-unused-vars
+import ReactDOM from 'react-dom';
+import utils from '../../common/utils';
 
 const findDOMNode = ReactDOM.findDOMNode;
 

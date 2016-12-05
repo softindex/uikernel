@@ -534,20 +534,21 @@ const GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: function (settings, cb) {
-    toPromise(this.props.model.read.bind(this.props.model))(settings)
-      .then((data) => {
-        if (this.props.onPageLoad) {
-          this.props.onPageLoad(data);
-        }
-        cb(null, data);
-      })
-      .catch((err) => {
-        if (err && this.props.onError) {
-          this.props.onError(err);
-        }
-        cb(err);
-      });
+  _loadData: async function (settings) {
+    let data;
+    try{
+      data = await this.props.model.read(settings);
+    } catch (err){
+      if (err && this.props.onError) {
+        this.props.onError(err);
+      }
+      throw err;
+    }
+
+    if (this.props.onPageLoad) {
+      this.props.onPageLoad(data);
+    }
+    return data;
   },
 
   /**
@@ -586,18 +587,15 @@ const GridDataMixin = {
     }, cb ? cb.bind(this) : null);
   },
 
-  _checkWarnings: function (row, cb) {
+  _checkWarnings: async function (row) {
     if (!this.props.warningsValidator) {
-      if (cb) {
-        cb();
-      }
       return;
     }
-    this._checkFieldInValidation(row, this.props.warningsValidator, this.state.warnings, cb);
+    return this._checkValidatorErrors(row, this.props.warningsValidator, this.state.warnings);
   },
 
-  _validateRow: function (row, cb) {
-    this._checkFieldInValidation(row, this.props.model, this.state.errors, cb);
+  _validateRow: function (row) {
+    return this._checkValidatorErrors(row, this.props.model, this.state.errors);
   },
 
   /**
@@ -606,29 +604,25 @@ const GridDataMixin = {
    * @param {string}        row         Row ID
    * @param {Validator}     validator   Validator object
    * @param {Validation[]}  result      Result object
-   * @param {Function}      cb          Callback
    * @private
    */
-  _checkValidatorErrors: function (row, validator, result, cb) {
+  _checkValidatorErrors: async function (row, validator, result) {
     const record = this._getRecordChanges(row);
 
-    validator.isValidRecord(record, (err, validErrors) => {
-      if (!err && utils.isEqual(record, this._getRecordChanges(row))) {
-        if (validErrors.isEmpty()) {
-          delete result[row];
-        } else {
-          result[row] = validErrors;
-        }
+    let validErrors = await validator.isValidRecord(record);
 
-        Object.keys(record).forEach(function (field) {
-          this._renderBinds(row, field);
-        }, this);
+    if (utils.isEqual(record, this._getRecordChanges(row))) {
+      if (validErrors.isEmpty()) {
+        delete result[row];
+      } else {
+        result[row] = validErrors;
       }
 
-      if (cb) {
-        cb(err);
-      }
-    });
+      Object.keys(record).forEach((field) => {
+        this._renderBinds(row, field);
+      });
+    }
+    return;
   },
 
   _onRecordCreated: function (recordId) {

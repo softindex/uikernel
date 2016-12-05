@@ -47,10 +47,9 @@ GridToFormUpdate.prototype.constructor = GridToFormUpdate;
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormUpdate.prototype.getData = callbackify(
-  async function (fields) {
+GridToFormUpdate.prototype.getData = callbackify(function (fields) {
     var model = this._adapter.model;
-    return await toPromise(model.getRecord.bind(model))(this._adapter.id, fields)
+    return toPromise(model.getRecord.bind(model))(this._adapter.id, fields)
   }
 );
 
@@ -145,13 +144,17 @@ GridToFormUpdate.prototype.off = function (event, cb) {
 
   this._onUpdateHandlers.forEach(function (handler) {
     if (handler.originalCallback === cb) {
-      ctx._adapter.model.off(handler.wrappedCallback);
+      ctx._adapter.model.off('update', handler.wrappedCallback);
     } else {
       newOnUpdateHandlers.push(handler);
     }
   });
 
   this._onUpdateHandlers = newOnUpdateHandlers;
+};
+
+GridToFormUpdate.prototype.listenerCount = function (event) {
+  return this._adapter.model.listenerCount(event);
 };
 
 module.exports = GridToFormUpdate;

@@ -11,7 +11,8 @@
 var MainComponent = React.createClass({
   getInitialState: function () {
     return {
-      model: model // let's store model in the state
+      model: model, // let's store model in the state
+      createForm: {}
     };
   },
 
@@ -26,15 +27,18 @@ var MainComponent = React.createClass({
   },
 
   onSave: function () {
-    this.refs.grid.save(function (err) {
-      if (err) {
+    this.refs.grid.save()
+      .catch(() => {
         alert('Error');
-      }
-    });
+      });
   },
 
   onClear: function () {
     this.refs.grid.clearAllChanges();
+  },
+
+  onCreateFormStateHandler: function (newFormState) {
+    this.setState({createForm: newFormState});
   },
 
   render: function () {
@@ -49,6 +53,8 @@ var MainComponent = React.createClass({
               <div className="panel-body">
                 <CreateForm
                   onSubmit={this.addRecord}
+                  stateHandler={this.onCreateFormStateHandler}
+                  state={this.state.createForm}
                 />
               </div>
             </div>

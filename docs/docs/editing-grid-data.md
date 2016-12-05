@@ -110,12 +110,11 @@ The last task is to make it possible to discard and save the edited data. So let
 `MainComponent.js`:
 {% highlight javascript %}
 onSave: function () {
-  this.refs.grid.save(function (err) {
-    if (err) {
-      alert('Error');
-    }
-  });
-},
+    this.refs.grid.save()
+      .catch(() => {
+        alert('Error');
+      });
+  },
 
 onClear: function () {
   this.refs.grid.clearAllChanges();

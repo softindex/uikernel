@@ -143,32 +143,18 @@ var SuggestBoxEditor = React.createClass({
       });
   },
 
-  _updateList: function (searchPattern, cb) {
-    this._loadData(searchPattern, function (err, options) {
-      if (err) {
-        throw err;
-      }
-      this.setState({
-        options: options,
-        selectedOptionKey: null,
-        loading: false
-      }, function () {
-        this._scrollListTo();
-        if (typeof cb === 'function') {
-          cb();
-        }
-      });
-    }.bind(this));
+  _updateList:async function (searchPattern) {
+    const options = await this._loadData(searchPattern);
+    await this.setState({
+      options: options,
+      selectedOptionKey: null,
+      loading: false
+    });
+    this._scrollListTo();
   },
 
-  _loadData: function (searchPattern, cb) {
-    toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '')
-      .then(function (data) {
-        cb(null, data);
-      })
-      .catch(function (err) {
-        cb(err);
-      });
+  _loadData: function (searchPattern) {
+    return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '')
   },
 
   _openList: function (searchPattern, cb) {

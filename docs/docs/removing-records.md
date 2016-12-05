@@ -31,16 +31,14 @@ var model = new UIKernel.Models.Grid.Collection({
   // ...
 });
 
-model.delete = function (id, cb) {
-this._xhr({ // используем обёртку вокруг xhr для отпраки запросов, вы можете использовать любую удообную для вас библиотеку.
+model.delete = function (id) {
+model.delete = function (id) { // используем обёртку вокруг xhr для отпраки запросов, вы можете использовать любую удообную для вас библиотеку.
+    return this._xhr({
         method: 'DELETE',
         headers: {
             'Content-type': 'application/json'
         },
         uri: this._apiUrl + id
-    }, function (err, resp, body) {
-        if (err) return cb(err);
-        cb(null, body);
     })
 };
 {% endhighlight %}
@@ -69,11 +67,14 @@ var columns = {
 };
 {% endhighlight %}
 
-Если вы используете Xhr модель то `grid.updateTable()` необходимо поместить в колбек:
+Если вы используете Xhr модель то `grid.updateTable()` необходимо выполнить по окончании `delete()`:
 {% highlight javascript %}
 del: function (event, recordId, record, grid) {
-        grid.getModel().delete(recordId, function (err) {
-          if (!err) grid.updateTable();
+        grid.getModel()
+                    .delete(recordId)
+                    .then(() => {
+                      grid.updateTable();
+                    });
         });
 {% endhighlight %}
 ---

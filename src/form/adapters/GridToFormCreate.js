@@ -54,12 +54,10 @@ GridToFormCreate.prototype.getData = callbackify(
  * @param   {Object}      data      Record
  * @param   {Function}    cb        CallBack function
  */
-GridToFormCreate.prototype.submit = callbackify(
-  async function (data) {
-    var model = this._adapter.model;
-    return await toPromise(model.create.bind(model))(data)
-  }
-);
+GridToFormCreate.prototype.submit = callbackify(async function (data) {
+  var model = this._adapter.model;
+  return await toPromise(model.create.bind(model))(data);
+});
 
 /**
  * Validation checking

@@ -95,7 +95,7 @@ const GridUIMixin = {
 
     const viewCount = this.getViewCount();
 
-    const obj = await toPromise(this._loadData.bind(this))({
+    const obj = await this._loadData({
       limit: viewCount,
       offset: this.state.page * viewCount,
       sort: this._sortingToArray(),

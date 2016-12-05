@@ -78,7 +78,7 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
   if (this._validateOnCreate) {
     validationErrors = await this.isValidRecord(clonedRecord);
     if (!validationErrors.isEmpty()) {
-      return validationErrors;
+      throw validationErrors;
     }
 
     return this._create(clonedRecord);

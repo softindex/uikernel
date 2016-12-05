@@ -10,12 +10,13 @@
 
 'use strict';
 
-var objectHash = require('object-hash');
+import objectHash from 'object-hash';
+import ThrottleError from './ThrottleError';
 
 function baseClone(obj, isDeep) {
-  var i;
-  var cloned;
-  var es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
+  let i;
+  let cloned;
+  const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
 
   if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
     return obj;
@@ -40,9 +41,9 @@ function baseClone(obj, isDeep) {
 /**
  * Check if two arrays intersection exists
  */
-exports.isIntersection = function (a, b) {
-  var i;
-  var c;
+exports.isIntersection = (a, b) =>{
+  let i;
+  let c;
   if (a.length > b.length) {
     c = a;
     a = b;
@@ -62,9 +63,7 @@ exports.isIntersection = function (a, b) {
  * @param   {Object}    obj     Object
  * @return  {number}    Object size
  */
-exports.size = function (obj) {
-  return Object.keys(obj).length;
-};
+exports.size = obj => Object.keys(obj).length;
 
 /**
  * Hash function using djb2 algorithm
@@ -81,8 +80,8 @@ exports.hash = objectHash;
  * @param   {*}       item  Element item
  * @return  {number}
  */
-exports.indexOf = function (arr, item) {
-  var i;
+exports.indexOf = (arr, item) =>{
+  let i;
   for (i = 0; i < arr.length; i++) {
     if (exports.isEqual(arr[i], item)) {
       return i;
@@ -92,49 +91,45 @@ exports.indexOf = function (arr, item) {
 };
 
 exports.throttle = function (func) {
-  var worked = false;
-  var nextArguments;
 
-  return function run() {
-    var ctx = this; // Function context
-    var cb = arguments[arguments.length - 1];
-    var argumentsArray = [].slice.call(arguments);
+  let worked = false;
+  let nextArguments;
+  let nextResolve;
 
-    function nextWorker() {
-      worked = false;
-      if (nextArguments) {
-        var args = nextArguments;
-        nextArguments = null;
-        run.apply(ctx, args);
-        return true;
+  return function run(...args) {
+    return new Promise((resolve, reject) => {
+      if (worked) {
+        nextArguments = args;
+        if (nextResolve) {
+          nextResolve(Promise.reject(new ThrottleError('function call is deprecated')))
+        }
+        nextResolve = resolve;
+        return;
       }
-      return false;
-    }
 
-    if (worked) {
-      // Set as the next call
-      nextArguments = arguments;
-      return;
-    }
+      worked = true;
 
-    worked = true;
-
-    var cbWrapper = function () {
-      if (!nextWorker() && typeof cb === 'function') {
-        cb.apply(null, arguments);
-      }
-    };
-
-    if (typeof cb === 'function') {
-      argumentsArray[argumentsArray.length - 1] = cbWrapper;
-      func.apply(this, argumentsArray.concat(nextWorker));
-    } else {
-      func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
-    }
+      let result = func.apply(this, args);
+      result
+        .then(result => {
+          worked = false;
+          if (nextArguments) {
+            nextResolve(run(...nextArguments));
+            nextArguments = null;
+            reject(new ThrottleError('function call is deprecated'));
+            return;
+          }
+          resolve(result);
+        })
+        .catch(err => {
+          worked = false;
+          reject(err);
+        });
+    });
   };
 };
 
-exports.parseValueFromEvent = function (event) {
+exports.parseValueFromEvent = event =>{
   if (
     event && typeof event === 'object' &&
     event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
@@ -152,7 +147,7 @@ exports.decorate = function (obj, decor) {
   function Decorator() {
     exports.assign(this, decor);
 
-    for (var i in obj) {
+    for (let i in obj) {
       if (typeof obj[i] === 'function' && !decor[i]) {
         this[i] = obj[i].bind(obj);
       }
@@ -170,7 +165,7 @@ exports.decorate = function (obj, decor) {
  * @param b
  * @returns {boolean}
  */
-exports.isEqual = function (a, b) {
+exports.isEqual = (a, b) =>{
   if (
     a === null ||
     b === null ||
@@ -190,17 +185,13 @@ exports.isEqual = function (a, b) {
     return false;
   }
 
-  var p = Object.keys(a);
-  return Object.keys(b).every(function (i) {
-      return p.indexOf(i) >= 0;
-    }) && p.every(function (i) {
-      return exports.isEqual(a[i], b[i]);
-    });
+  const p = Object.keys(a);
+  return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => exports.isEqual(a[i], b[i]));
 };
 
 exports.assign = function (result) {
-  for (var i = 1; i < arguments.length; i++) {
-    for (var j in arguments[i]) {
+  for (let i = 1; i < arguments.length; i++) {
+    for (let j in arguments[i]) {
       result[j] = arguments[i][j];
     }
   }
@@ -233,13 +224,7 @@ exports.isDefined = function (value) {
 };
 
 exports.forEach = function (obj, func, ctx) {
-  for (var i in obj) {
-    func.call(ctx, obj[i], i);
-  }
-};
-
-exports.forEach = function (obj, func, ctx) {
-  for (var i in obj) {
+  for (let i in obj) {
     func.call(ctx, obj[i], i);
   }
 };
@@ -251,7 +236,7 @@ exports.pluck = function (arr, field) {
 };
 
 exports.find = function (arr, func) {
-  for (var i in arr) {
+  for (let i in arr) {
     if (func(arr[i], i)) {
       return arr[i];
     }
@@ -260,7 +245,7 @@ exports.find = function (arr, func) {
 };
 
 exports.findIndex = function (obj, func) {
-  for (var i in obj) {
+  for (let i in obj) {
     if (func(obj[i], i)) {
       return i;
     }
@@ -269,8 +254,8 @@ exports.findIndex = function (obj, func) {
 };
 
 exports.omit = function (obj, predicate) {
-  var result = {};
-  for (var i in obj) {
+  const result = {};
+  for (let i in obj) {
     if (
       (typeof predicate === 'string' && predicate !== i) ||
       (Array.isArray(predicate) && predicate.indexOf(i) < 0) ||
@@ -283,8 +268,8 @@ exports.omit = function (obj, predicate) {
 };
 
 exports.escape = function (string) {
-  var reUnescaped = /[&<>"'`]/g;
-  var escapes = {
+  const reUnescaped = /[&<>"'`]/g;
+  const escapes = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -292,7 +277,7 @@ exports.escape = function (string) {
     '\'': '&#39;',
     '`': '&#96;'
   };
-  string = string === null ? '' : string.toString();
+  string = `${string === null ? '' : string.toString()}`;
   if (string && reUnescaped.test(string)) {
     return string.replace(reUnescaped, function (chr) {
       return escapes[chr];
@@ -302,8 +287,8 @@ exports.escape = function (string) {
 };
 
 exports.zipObject = function (keys, values) {
-  var result = {};
-  for (var i = 0; i < keys.length; i++) {
+  const result = {};
+  for (let i = 0; i < keys.length; i++) {
     result[keys[i]] = values[i];
   }
   return result;
@@ -321,19 +306,19 @@ exports.pick = function (obj, keys, defaultValue) {
 };
 
 exports.reduce = function (obj, func, value) {
-  for (var i in obj) {
+  for (let i in obj) {
     value = func(value, obj[i], i);
   }
   return value;
 };
 
 exports.union = function () {
-  var elements = {};
-  var result = [];
-  var i;
+  const elements = {};
+  const result = [];
+  let i;
 
   for (i = 0; i < arguments.length; i++) {
-    for (var j = 0; j < arguments[i].length; j++) {
+    for (let j = 0; j < arguments[i].length; j++) {
       elements[arguments[i][j]] = arguments[i][j];
     }
   }
@@ -344,26 +329,26 @@ exports.union = function () {
 };
 
 exports.at = function (obj, keys) {
-  var result = [];
+  const result = [];
   if (!Array.isArray(keys)) {
     return [obj[keys]];
   }
-  for (var i = 0; i < keys.length; i++) {
+  for (let i = 0; i < keys.length; i++) {
     result.push(obj[keys[i]]);
   }
   return result;
 };
 
 exports.pairs = function (obj) {
-  var result = [];
-  for (var i in obj) {
+  const result = [];
+  for (let i in obj) {
     result.push([i, obj[i]]);
   }
   return result;
 };
 
 exports.toDate = function (value) {
-  var date;
+  let date;
 
   if (typeof value === 'number') {
     return new Date(value);
@@ -379,8 +364,8 @@ exports.toDate = function (value) {
 };
 
 exports.without = function (arr, el) {
-  var result = [];
-  for (var i = 0; i < arr.length; i++) {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
     if (arr[i] !== el) {
       result.push(arr[i]);
     }
@@ -393,9 +378,9 @@ exports.last = function (arr) {
 };
 
 exports.getRecordChanges = function (model, data, changes, newChanges) {
-  var result = exports.assign({}, changes, newChanges);
+  const result = exports.assign({}, changes, newChanges);
 
-  for (var i in result) {
+  for (let i in result) {
     if (exports.isEqual(data[i], result[i])) {
       delete result[i];
     }

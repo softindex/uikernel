@@ -17,6 +17,7 @@ var variables = require('./lib/common/variables');
 var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
+  Form: require('./lib/form/FormService'),
   createValidator: require('./lib/common/validation/Validator/browser'),
   exportGridData: require('./lib/grid/export/exportGridData'),
   toJSON: require('./lib/grid/export/exporters/toJSON'),
@@ -53,8 +54,9 @@ var Module = {
     Number: require('./lib/editors/Number')
   },
   ArgumentsError: require('./lib/common/ArgumentsError'),
-  Mixins: {
-    Form: require('./lib/form/mixin')
+  ThrottleError: require('./lib/common/ThrottleError'),
+  Services: {
+    Form: require('./lib/form/FormService')
   },
   Validators: {
     boolean: require('./lib/common/validation/validators/boolean'),
