@@ -148,6 +148,11 @@ var SuggestBoxEditor = React.createClass({
         selectedOptionKey: null,
         loading: false
       }, function () {
+        var $popup = $('#' + popupId);
+        $popup.find('.__suggestBoxPopUp-content')
+          .css('bottom', 'auto')
+          .css('position', 'static');
+
         this._scrollListTo();
         if (typeof cb === 'function') {
           cb();
@@ -179,7 +184,7 @@ var SuggestBoxEditor = React.createClass({
       var offsetLeft = inputOffset.left;
 
       if (typeof window !== 'undefined') {
-        var availableSpace = window.innerHeight - offsetTop;
+        var availableSpace = window.innerHeight - (offsetTop - window.scrollY);
 
         if (availableSpace < MIN_POPUP_HEIGHT) {
           offsetTop = inputOffset.top - 300;
