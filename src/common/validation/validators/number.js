@@ -10,7 +10,7 @@
 
 'use strict';
 
-var utils = require('../../utils');
+import utils from '../../utils';
 
 function validator(notNull, min, max, error, value) {
   error = error || 'Not number';
@@ -39,10 +39,6 @@ function validator(notNull, min, max, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-module.exports = function (min, max, error) {
-  return validator.bind(null, false, min, max, error);
-};
+module.exports = (min, max, error) => validator.bind(null, false, min, max, error);
 
-module.exports.notNull = function (min, max, error) {
-  return validator.bind(null, true, min, max, error);
-};
+module.exports.notNull = (min, max, error) => validator.bind(null, true, min, max, error);

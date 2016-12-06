@@ -8,12 +8,10 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../common/utils');
-var AbstractFormModel = require('./AbstractFormModel');
-var Validator = require('../common/validation/Validator/common');
-var callbackify = require('../common/callbackify');
+import callbackify from '../common/callbackify';
+import Validator from '../common/validation/Validator/common';
+import AbstractFormModel from './AbstractFormModel';
+import utils from '../common/utils';
 
 /**
  * Simple form model
@@ -22,7 +20,7 @@ var callbackify = require('../common/callbackify');
  * @param {Validator} validation    Validation
  * @constructor
  */
-var FormModel = function (defaultValues, validation) {
+const FormModel = function (defaultValues, validation) {
   AbstractFormModel.call(this);
   this._validation = validation || new Validator();
   this._data = defaultValues ? utils.clone(defaultValues) : {};
@@ -37,8 +35,8 @@ FormModel.prototype.constructor = FormModel;
  * @param {Function} cb         CallBack function
  */
 FormModel.prototype.getData = callbackify(async function (fields) {
-  var record = {};
-  var i;
+  let record = {};
+  let i;
 
   if (fields) {
     for (i = 0; i < fields.length; i++) {
@@ -58,7 +56,7 @@ FormModel.prototype.getData = callbackify(async function (fields) {
  * @param {Function}    cb          CallBack function
  */
 FormModel.prototype.submit = callbackify(async function (changes) {
-  var validErrors = await this.isValidRecord(changes);
+  const validErrors = await this.isValidRecord(changes);
   if (!validErrors.isEmpty()) {
     throw validErrors;
   }

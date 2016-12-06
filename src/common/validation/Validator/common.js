@@ -8,21 +8,30 @@
  * @providesModule UIKernel
  */
 
+/**
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
+ */
+
 'use strict';
 
-// var suspend = require('suspend');
-var ValidationErrors = require('../ValidationErrors');
-var ArgumentsError = require('../../ArgumentsError');
-var utils = require('../../utils');
-var toPromise = require('../../toPromise');
-var callbackify = require('../../callbackify');
+import ValidationErrors from '../ValidationErrors';
+import ArgumentsError from '../../ArgumentsError';
+import utils from '../../utils';
+import toPromise from '../../toPromise';
+import callbackify from '../../callbackify';
 
 /**
  * Validation check model
  *
  * @constructor
  */
-var Validator = function () {
+const Validator = function () {
   if (!(this instanceof Validator)) {
     return new Validator();
   }
@@ -118,9 +127,9 @@ Validator.prototype.asyncFields = function (fields, validatorFunction) {
  * @returns {Array} fields
  */
 Validator.prototype.getValidationDependency = function (fields) {
-  var result = [];
-  var length;
-  var groups = utils.pluck(
+  const result = [];
+  let length;
+  const groups = utils.pluck(
     this._settings.groupValidators.concat(this._settings.asyncGroupValidators),
     'fields'
   ).concat(this._settings.asyncDependenies);
@@ -128,12 +137,12 @@ Validator.prototype.getValidationDependency = function (fields) {
   while (length !== result.length) {
     length = result.length;
 
-    for (var i = 0; i < groups.length; i++) {
+    for (let i = 0; i < groups.length; i++) {
       if (!utils.isIntersection(groups[i], fields) && !utils.isIntersection(groups[i], result)) {
         continue;
       }
-      for (var j = 0; j < groups[i].length; j++) {
-        var field = groups[i][j];
+      for (let j = 0; j < groups[i].length; j++) {
+        const field = groups[i][j];
         if (fields.indexOf(field) >= 0 || result.indexOf(field) >= 0) {
           continue;
         }
@@ -151,19 +160,19 @@ Validator.prototype.getValidationDependency = function (fields) {
  * @returns {ValidationErrors|null} Record validity
  */
 Validator.prototype.isValidRecord = callbackify(async function (record) {
-  var fields = Object.keys(record);
-  var errors = new ValidationErrors();
-  var awaitStack = [];
-  var i;
-  var j;
-  var error;
-  var field;
-  var validators;
-  var asyncValidators;
-  var groupValidator;
-  var dependentFields;
-  var asyncGroupValidator;
-  var promises = [];
+  const fields = Object.keys(record);
+  const errors = new ValidationErrors();
+  const awaitStack = [];
+  let i;
+  let j;
+  let error;
+  let field;
+  let validators;
+  let asyncValidators;
+  let groupValidator;
+  let dependentFields;
+  let asyncGroupValidator;
+  const promises = [];
 
   dependentFields = this.getValidationDependency(fields);
   if (dependentFields.length) {
@@ -211,7 +220,7 @@ Validator.prototype.isValidRecord = callbackify(async function (record) {
     }
   }
 
-  var asyncErrors = await Promise.all(promises);
+  const asyncErrors = await Promise.all(promises);
   while (asyncErrors.length) {
     error = asyncErrors.pop();
     field = awaitStack.pop();

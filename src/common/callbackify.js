@@ -8,13 +8,13 @@
  * @providesModule UIKernel
  */
 
-var functionsNames = [];
+const functionsNames = [];
 module.exports = function (func) {
-  var funcName = func.name;
+  const funcName = func.name;
 
   return function (...mainArguments) {
-    var lastArgumentIndex = mainArguments.length - 1;
-    var cb = mainArguments[lastArgumentIndex];
+    const lastArgumentIndex = mainArguments.length - 1;
+    let cb = mainArguments[lastArgumentIndex];
 
     if (typeof cb === 'function') {
 
@@ -24,10 +24,10 @@ module.exports = function (func) {
       }
 
       func.apply(this, mainArguments)
-        .then(function (data) {
+        .then(data =>{
           cb(null, data);
         })
-        .catch(function (err) {
+        .catch(err =>{
           cb(err);
         });
     }

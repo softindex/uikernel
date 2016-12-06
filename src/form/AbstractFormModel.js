@@ -8,18 +8,16 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var EventsModel = require('../common/Events');
-var ValidationErrors = require('../common/validation/ValidationErrors');
-var callbackify = require('../common/callbackify');
+import callbackify from '../common/callbackify';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import EventsModel from '../common/Events';
 
 /**
  * Abstract form model
  *
  * @constructor
  */
-var AbstractFormModel = function () {
+const AbstractFormModel = function () {
   EventsModel.call(this);
 };
 AbstractFormModel.prototype = new EventsModel();
@@ -32,9 +30,7 @@ AbstractFormModel.prototype.constructor = AbstractFormModel;
  * @param {Function} cb      CallBack function
  * @abstract
  */
-AbstractFormModel.prototype.getData = callbackify(function (fields) {
-  return Promise.resolve({});
-});
+AbstractFormModel.prototype.getData = callbackify(fields => Promise.resolve({}));
 
 /**
  * Process form data
@@ -43,9 +39,7 @@ AbstractFormModel.prototype.getData = callbackify(function (fields) {
  * @param   {Function}    cb          CallBack function
  * @abstract
  */
-AbstractFormModel.prototype.submit = callbackify(function (changes) {
-  return Promise.resolve();
-});
+AbstractFormModel.prototype.submit = callbackify(changes => Promise.resolve());
 
 /**
  * Get all dependent fields, that are required for validation
@@ -54,9 +48,7 @@ AbstractFormModel.prototype.submit = callbackify(function (changes) {
  * @returns {Array}  Dependencies
  * @abstract
  */
-AbstractFormModel.prototype.getValidationDependency = callbackify(function () {
-  return Promise.resolve([]);
-});
+AbstractFormModel.prototype.getValidationDependency = callbackify(() => Promise.resolve([]));
 
 /**
  * Record validity check
@@ -65,8 +57,6 @@ AbstractFormModel.prototype.getValidationDependency = callbackify(function () {
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractFormModel.prototype.isValidRecord = callbackify(function (record) {
-  return Promise.resolve(new ValidationErrors());
-});
+AbstractFormModel.prototype.isValidRecord = callbackify(record => Promise.resolve(new ValidationErrors()));
 
 module.exports = AbstractFormModel;

@@ -8,17 +8,15 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import toPromise from '../common/toPromise';
+import callbackify from '../common/callbackify';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import Validator from '../common/validation/Validator/common';
+import defaultXhr from '../common/defaultXhr';
+import EventsModel from '../common/Events';
+import url from 'url';
 
-var url = require('url');
-var EventsModel = require('../common/Events');
-var defaultXhr = require('../common/defaultXhr');
-var Validator = require('../common/validation/Validator/common');
-var ValidationErrors = require('../common/validation/ValidationErrors');
-var callbackify = require('../common/callbackify');
-var toPromise = require('../common/toPromise');
-
-var FormXhrModel = function (settings) {
+const FormXhrModel = function (settings) {
   EventsModel.call(this);
 
   if (!settings.api) {
@@ -35,22 +33,22 @@ FormXhrModel.prototype = new EventsModel();
 FormXhrModel.prototype.constructor = FormXhrModel;
 
 FormXhrModel.prototype.getData = callbackify(async function (fields) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+  const parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.fields = JSON.stringify(fields);
   delete parsedUrl.search;
 
-  var response = await toPromise(this._xhr.bind(this))({
+  const response = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     uri: url.format(parsedUrl)
   });
 
-  var body = JSON.parse(response);
+  const body = JSON.parse(response);
 
   return body;
 });
 
 FormXhrModel.prototype.submit = callbackify(async function (changes) {
-  var body = await toPromise(this._xhr.bind(this))({
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'POST',
     headers: {
       'Content-type': 'application/json'

@@ -8,13 +8,11 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../../common/utils');
-var AbstractGridModel = require('./AbstractGridModel');
-var Validator = require('../../common/validation/Validator/common');
-var toPromise = require('../../common/toPromise');
-var callbackify = require('../../common/callbackify');
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import Validator from '../../common/validation/Validator/common';
+import AbstractGridModel from './AbstractGridModel';
+import utils from '../../common/utils';
 
 /**
  * Specifies a grid model that will work with array data passed to it as a parameter.
@@ -27,7 +25,7 @@ var callbackify = require('../../common/callbackify');
  * @param {bool}      [options.validateOnCreate]
  * @constructor
  */
-var GridCollectionModel = function (options) {
+const GridCollectionModel = function (options) {
   AbstractGridModel.call(this);
 
   options = options || {};
@@ -63,10 +61,10 @@ GridCollectionModel.prototype.setData = function (data) {
  * @param {Function}    cb      CallBack function
  */
 GridCollectionModel.prototype.create = callbackify(async function (record) {
-  var i;
-  var field;
-  var validationErrors;
-  var clonedRecord = utils.clone(record);
+  let i;
+  let field;
+  let validationErrors;
+  const clonedRecord = utils.clone(record);
 
   for (i in this._requiredFields) {
     field = this._requiredFields[i];
@@ -88,7 +86,7 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
 });
 
 GridCollectionModel.prototype._create = callbackify(function (record) {
-  var id = this._getID();
+  const id = this._getID();
   this.data.push([id, record]);
   this.trigger('create', id);
   return id;
@@ -107,20 +105,18 @@ GridCollectionModel.prototype._create = callbackify(function (record) {
  * @param {Function}    cb                      CallBack function
  */
 GridCollectionModel.prototype.read = callbackify(function (settings) {
-  var data = utils.cloneDeep(this.data);
-  var result = {};
+  let data = utils.cloneDeep(this.data);
+  const result = {};
 
   // Get extra records
   if (settings.extra && settings.extra.length > 0) {
-    result.extraRecords = data.filter(function (record) {
-      return settings.extra.indexOf(record[0]) >= 0;
-    });
+    result.extraRecords = data.filter(record => settings.extra.indexOf(record[0]) >= 0);
   }
 
   // Delete unnecessary fields
   if (settings.fields) {
-    utils.forEach(result.extraRecords, function (record) {
-      utils.forEach(record[1], function (value, key) {
+    utils.forEach(result.extraRecords, record =>{
+      utils.forEach(record[1], (value, key) =>{
         if (settings.fields.indexOf(key) === -1) {
           delete record[1][key];
         }
@@ -130,10 +126,10 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
 
   // Sorting
   if (settings.sort && settings.sort.length > 0) {
-    var sortField = settings.sort[0][0];
-    var sortMode = settings.sort[0][1];
+    const sortField = settings.sort[0][0];
+    const sortMode = settings.sort[0][1];
 
-    data = data.sort(function (prev, next) {
+    data = data.sort((prev, next) =>{
       if (prev[1][sortField] < next[1][sortField]) {
         return sortMode === 'asc' ? -1 : 1;
       } else if (prev[1][sortField] > next[1][sortField]) {
@@ -153,15 +149,15 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
 
   // Offset and limit
   if (settings.offset || settings.limit) {
-    var start = settings.offset || 0;
-    var end = (settings.offset + settings.limit) || data.length;
+    const start = settings.offset || 0;
+    const end = (settings.offset + settings.limit) || data.length;
     data = data.slice(start, end);
   }
 
   // Delete unnecessary fields
   if (settings.fields) {
-    utils.forEach(data, function (record) {
-      utils.forEach(record[1], function (value, key) {
+    utils.forEach(data, record =>{
+      utils.forEach(record[1], (value, key) =>{
         if (settings.fields.indexOf(key) === -1) {
           delete record[1][key];
         }
@@ -182,15 +178,15 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
  * @param {Function}        cb      CallBack function
  */
 GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
-  var record = utils.cloneDeep(this._getRecordByID(id));
+  let record = utils.cloneDeep(this._getRecordByID(id));
   if (!record) {
     return Promise.reject(Error('Record not found.'));
   }
 
-  var returnRecord = record[1];
+  const returnRecord = record[1];
 
   // Deleting unused fields
-  utils.forEach(returnRecord, function (value, key) {
+  utils.forEach(returnRecord, (value, key) =>{
     if (fields.indexOf(key) === -1) {
       delete returnRecord[key];
     }
@@ -207,23 +203,23 @@ GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
  * @abstract
  */
 GridCollectionModel.prototype.update = callbackify(async function (changes) {
-  var completed = 0;
-  var result;
-  var appliedChanges = [];
-  var finish = false;
+  let completed = 0;
+  let result;
+  const appliedChanges = [];
+  let finish = false;
 
   if (!changes.length) {
     return [];
   }
 
-  var promises = changes.map(async function (change) {
+  const promises = changes.map(async function (change) {
     if (finish) {
       return;
     }
 
-    try{
+    try {
       var validErrors = await this.isValidRecord(change[1]);
-    } catch (err){
+    } catch (err) {
       finish = true;
       throw err;
     }
@@ -276,9 +272,7 @@ GridCollectionModel.prototype._getID = function () {
 };
 
 GridCollectionModel.prototype._getRecordByID = function (id) {
-  return utils.find(this.data, function (record) {
-    return record[0] === id;
-  });
+  return utils.find(this.data, record => record[0] === id);
 };
 
 module.exports = GridCollectionModel;

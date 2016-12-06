@@ -10,7 +10,7 @@
 
 'use strict';
 
-var utils = require('../../utils');
+import utils from '../../utils';
 
 /**
  * Create NULL validator
@@ -18,10 +18,8 @@ var utils = require('../../utils');
  * @param {string} error Error message
  * @returns {Function}
  */
-module.exports = function (error) {
-  return function (value) {
-    if (!utils.isDefined(value)) {
-      return error;
-    }
-  };
+module.exports = error => value => {
+  if (!utils.isDefined(value)) {
+    return error;
+  }
 };

@@ -8,14 +8,12 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import toPromise from '../../../common/toPromise';
+import callbackify from '../../../common/callbackify';
+import csv from 'csv-stringify';
 
-var csv = require('csv-stringify');
-var callbackify = require('../../../common/callbackify');
-var toPromise = require('../../../common/toPromise');
-
-var toCSV = callbackify(async function (data) {
-  var csvData = await toPromise(csv(data.records.concat([data.totals]),
+const toCSV = callbackify(async data => {
+  const csvData = await toPromise(csv(data.records.concat([data.totals]),
     {
       header: true,
       columns: data.columns

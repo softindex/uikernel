@@ -8,13 +8,11 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../../common/utils');
-var Events = require('../../common/Events');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
-var toPromise = require('../../common/toPromise');
-var callbackify = require('../../common/callbackify');
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import Events from '../../common/Events';
+import utils from '../../common/utils';
 
 /**
  * Adapter that allows us to use Grid model record as a form model
@@ -48,7 +46,7 @@ GridToFormUpdate.prototype.constructor = GridToFormUpdate;
  * @param {Function}  cb         CallBack function
  */
 GridToFormUpdate.prototype.getData = callbackify(function (fields) {
-    var model = this._adapter.model;
+    const model = this._adapter.model;
     return toPromise(model.getRecord.bind(model))(this._adapter.id, fields)
   }
 );
@@ -61,9 +59,9 @@ GridToFormUpdate.prototype.getData = callbackify(function (fields) {
  */
 GridToFormUpdate.prototype.submit = callbackify(
   async function (changes) {
-    var record = utils.clone(changes);
-    var model = this._adapter.model;
-    var result = await toPromise(model.update.bind(model))([[this._adapter.id, record]]);
+    const record = utils.clone(changes);
+    const model = this._adapter.model;
+    let result = await toPromise(model.update.bind(model))([[this._adapter.id, record]]);
     result = result[0][1];
     if (result instanceof ValidationErrors) {
       throw result;
@@ -80,7 +78,7 @@ GridToFormUpdate.prototype.submit = callbackify(
  */
 GridToFormUpdate.prototype.isValidRecord = callbackify(
   async function (record) {
-    var model = this._adapter.model;
+    const model = this._adapter.model;
     return await toPromise(model.isValidRecord.bind(model))(record)
   }
 );
@@ -102,7 +100,7 @@ GridToFormUpdate.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.on = function (event, cb) {
-  var ctx = this;
+  const ctx = this;
 
   if (event !== 'update') {
     Events.prototype.on.call(this, event, cb);
@@ -111,7 +109,7 @@ GridToFormUpdate.prototype.on = function (event, cb) {
 
   // onChange filters out table events, that do not regard to our record
   function onChange(changes) {
-    for (var i = 0; i < changes.length; i++) {
+    for (let i = 0; i < changes.length; i++) {
       if (utils.isEqual(changes[i][0], ctx._adapter.id)) {
         cb(changes[i][1]);
         return;
@@ -134,15 +132,15 @@ GridToFormUpdate.prototype.on = function (event, cb) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.off = function (event, cb) {
-  var ctx = this;
-  var newOnUpdateHandlers = [];
+  const ctx = this;
+  const newOnUpdateHandlers = [];
 
   if (event !== 'update') {
     Events.prototype.off.call(this, event, cb);
     return;
   }
 
-  this._onUpdateHandlers.forEach(function (handler) {
+  this._onUpdateHandlers.forEach(handler =>{
     if (handler.originalCallback === cb) {
       ctx._adapter.model.off('update', handler.wrappedCallback);
     } else {

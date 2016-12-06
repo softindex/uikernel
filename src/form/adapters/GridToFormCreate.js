@@ -8,11 +8,10 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import Events from '../../common/Events';
 
-var Events = require('../../common/Events');
-var toPromise = require('../../common/toPromise');
-var callbackify = require('../../common/callbackify');
 /**
  * Adapter allows to use Grid model as a model for new form record creation
  *
@@ -20,7 +19,7 @@ var callbackify = require('../../common/callbackify');
  * @param {Object}              [initialData]   Default field values
  * @constructor
  */
-var GridToFormCreate = function (model, initialData) {
+const GridToFormCreate = function (model, initialData) {
   if (!(this instanceof GridToFormCreate)) {
     return new GridToFormCreate(model, initialData);
   }
@@ -42,8 +41,7 @@ GridToFormCreate.prototype.constructor = GridToFormCreate;
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormCreate.prototype.getData = callbackify(
-  async function () {
+GridToFormCreate.prototype.getData = callbackify(async function () {
     return await this._adapter.initialData
   }
 );
@@ -55,7 +53,7 @@ GridToFormCreate.prototype.getData = callbackify(
  * @param   {Function}    cb        CallBack function
  */
 GridToFormCreate.prototype.submit = callbackify(async function (data) {
-  var model = this._adapter.model;
+  const model = this._adapter.model;
   return await toPromise(model.create.bind(model))(data);
 });
 
@@ -65,9 +63,8 @@ GridToFormCreate.prototype.submit = callbackify(async function (data) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridToFormCreate.prototype.isValidRecord = callbackify(
-  async function (record) {
-    var model = this._adapter.model;
+GridToFormCreate.prototype.isValidRecord = callbackify(async function (record) {
+    const model = this._adapter.model;
     return await toPromise(model.isValidRecord.bind(model))(record)
   }
 );

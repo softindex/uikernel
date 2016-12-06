@@ -8,42 +8,36 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import variables from './variables';
+import xhr from 'xhr';
 
-var xhr = require('xhr');
-var variables = require('./variables');
-
-var defaultXhr = function (settings, cb) {
-  return new Promise(function (resolve, reject) {
-    xhr(settings, function (err, response, body) {
-      if (response.statusCode !== 200) {
-        if (!err) {
-          err = new Error();
-          err.statusCode = response.statusCode;
-          err.message = 'Status Code: ' + err.statusCode;
-        }
-        if (body) {
-          try {
-            var parsedBody = JSON.parse(body);
-            err.message = parsedBody.message || body;
-          } catch (e) {
-            err.message = body;
-          }
-        }
-        reject(err);
+const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
+  xhr(settings, (err, response, body) => {
+    if (response.statusCode !== 200) {
+      if (!err) {
+        err = new Error();
+        err.statusCode = response.statusCode;
+        err.message = 'Status Code: ' + err.statusCode;
       }
+      if (body) {
+        try {
+          var parsedBody = JSON.parse(body);
+          err.message = parsedBody.message || body;
+        } catch (e) {
+          err.message = body;
+        }
+      }
+      reject(err);
+    }
 
-      if (cb)
-        cb(err, response, body);
-      resolve(body);
-    });
+    if (cb)
+      cb(err, response, body);
+    resolve(body);
   });
-};
+});
 
 if (!variables.get('xhr')) {
   variables.set('xhr', defaultXhr);
 }
 
-module.exports = function (settings, cb) {
-  return variables.get('xhr')(settings, cb);
-};
+module.exports = (settings, cb) => variables.get('xhr')(settings, cb);

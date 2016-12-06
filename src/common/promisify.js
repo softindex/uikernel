@@ -11,14 +11,14 @@
 module.exports = function (fun, multiplyArgs) {
   return function (...mainArguments) {
     mainArguments = mainArguments.filter((elem) => elem);
-    var lastArgumentIndex = mainArguments.length - 1;
+    const lastArgumentIndex = mainArguments.length - 1;
     if (typeof mainArguments[lastArgumentIndex] === 'function') {
       // console.warn('You are using callback(');
       fun.apply(this, mainArguments);
     }
     else {
       return new Promise(function (resolve, reject) {
-        mainArguments.push(function (err, ...data) {
+        mainArguments.push((err, ...data) =>{
           if (err) return reject(err);
           if (multiplyArgs){
             resolve(data);

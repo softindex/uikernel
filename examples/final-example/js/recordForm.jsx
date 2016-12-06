@@ -151,9 +151,9 @@ var RecordForm = React.createClass({
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-default" data-dismiss="modal">Cancel</button>
-            <button type="button" className="btn btn-default" onClick={this.form.clearChanges}>Discard</button>
             <button type="submit" className="btn btn-primary" onClick={this.save}>Save</button>
+            <button type="button" className="btn btn-default" onClick={this.form.clearChanges}>Discard</button>
+            <button type="button" className="btn btn-default" data-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>

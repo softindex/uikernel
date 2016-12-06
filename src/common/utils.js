@@ -189,7 +189,7 @@ exports.isEqual = (a, b) =>{
   return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => exports.isEqual(a[i], b[i]));
 };
 
-exports.assign = function (result) {
+exports.assign = function(result){
   for (let i = 1; i < arguments.length; i++) {
     for (let j in arguments[i]) {
       result[j] = arguments[i][j];
@@ -204,38 +204,28 @@ exports.assign = function (result) {
  * @param obj
  * @returns {*}
  */
-exports.clone = function (obj) {
-  return baseClone(obj, false);
-};
+exports.clone = obj => baseClone(obj, false);
 
-exports.cloneDeep = function (obj) {
-  return baseClone(obj, true);
-};
+exports.cloneDeep = obj => baseClone(obj, true);
 
-exports.isEmpty = function (obj) {
+exports.isEmpty = obj =>{
   if (!obj) {
     return true;
   }
   return Object.keys(obj).length === 0;
 };
 
-exports.isDefined = function (value) {
-  return value !== null && value !== undefined && value !== '';
-};
+exports.isDefined = value => value !== null && value !== undefined && value !== '';
 
-exports.forEach = function (obj, func, ctx) {
+exports.forEach = (obj, func, ctx) =>{
   for (let i in obj) {
     func.call(ctx, obj[i], i);
   }
 };
 
-exports.pluck = function (arr, field) {
-  return arr.map(function (item) {
-    return item[field];
-  });
-};
+exports.pluck = (arr, field) => arr.map(item => item[field]);
 
-exports.find = function (arr, func) {
+exports.find = (arr, func) =>{
   for (let i in arr) {
     if (func(arr[i], i)) {
       return arr[i];
@@ -244,7 +234,7 @@ exports.find = function (arr, func) {
   return null;
 };
 
-exports.findIndex = function (obj, func) {
+exports.findIndex = (obj, func) =>{
   for (let i in obj) {
     if (func(obj[i], i)) {
       return i;
@@ -253,7 +243,7 @@ exports.findIndex = function (obj, func) {
   return -1;
 };
 
-exports.omit = function (obj, predicate) {
+exports.omit = (obj, predicate) =>{
   const result = {};
   for (let i in obj) {
     if (
@@ -267,7 +257,7 @@ exports.omit = function (obj, predicate) {
   return result;
 };
 
-exports.escape = function (string) {
+exports.escape = string =>{
   const reUnescaped = /[&<>"'`]/g;
   const escapes = {
     '&': '&amp;',
@@ -279,14 +269,12 @@ exports.escape = function (string) {
   };
   string = `${string === null ? '' : string.toString()}`;
   if (string && reUnescaped.test(string)) {
-    return string.replace(reUnescaped, function (chr) {
-      return escapes[chr];
-    });
+    return string.replace(reUnescaped, chr => escapes[chr]);
   }
   return string;
 };
 
-exports.zipObject = function (keys, values) {
+exports.zipObject = (keys, values) =>{
   const result = {};
   for (let i = 0; i < keys.length; i++) {
     result[keys[i]] = values[i];
@@ -294,25 +282,23 @@ exports.zipObject = function (keys, values) {
   return result;
 };
 
-exports.pick = function (obj, keys, defaultValue) {
-  return keys.reduce(function (result, key) {
-    if (obj.hasOwnProperty(key)) {
-      result[key] = obj[key];
-    } else if (defaultValue !== undefined) {
-      result[key] = defaultValue;
-    }
-    return result;
-  }, {});
-};
+exports.pick = (obj, keys, defaultValue) => keys.reduce((result, key) => {
+  if (obj.hasOwnProperty(key)) {
+    result[key] = obj[key];
+  } else if (defaultValue !== undefined) {
+    result[key] = defaultValue;
+  }
+  return result;
+}, {});
 
-exports.reduce = function (obj, func, value) {
+exports.reduce = (obj, func, value) =>{
   for (let i in obj) {
     value = func(value, obj[i], i);
   }
   return value;
 };
 
-exports.union = function () {
+exports.union = function() {
   const elements = {};
   const result = [];
   let i;
@@ -328,7 +314,7 @@ exports.union = function () {
   return result;
 };
 
-exports.at = function (obj, keys) {
+exports.at = (obj, keys) =>{
   const result = [];
   if (!Array.isArray(keys)) {
     return [obj[keys]];
@@ -339,7 +325,7 @@ exports.at = function (obj, keys) {
   return result;
 };
 
-exports.pairs = function (obj) {
+exports.pairs = obj =>{
   const result = [];
   for (let i in obj) {
     result.push([i, obj[i]]);
@@ -347,7 +333,7 @@ exports.pairs = function (obj) {
   return result;
 };
 
-exports.toDate = function (value) {
+exports.toDate = value =>{
   let date;
 
   if (typeof value === 'number') {
@@ -363,7 +349,7 @@ exports.toDate = function (value) {
   return new Date(value);
 };
 
-exports.without = function (arr, el) {
+exports.without = (arr, el) =>{
   const result = [];
   for (let i = 0; i < arr.length; i++) {
     if (arr[i] !== el) {
@@ -373,11 +359,9 @@ exports.without = function (arr, el) {
   return result;
 };
 
-exports.last = function (arr) {
-  return arr[arr.length - 1];
-};
+exports.last = arr => arr[arr.length - 1];
 
-exports.getRecordChanges = function (model, data, changes, newChanges) {
+exports.getRecordChanges = (model, data, changes, newChanges) =>{
   const result = exports.assign({}, changes, newChanges);
 
   for (let i in result) {

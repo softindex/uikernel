@@ -10,7 +10,7 @@
 
 'use strict';
 
-var utils = require('../../utils');
+import utils from '../../utils';
 
 function validator(notNull, variants, error, values) {
   error = error || 'Not in variants';
@@ -21,7 +21,7 @@ function validator(notNull, variants, error, values) {
     return;
   }
 
-  for (var i = 0; i < values.length; i++) {
+  for (let i = 0; i < values.length; i++) {
     if (variants.indexOf(values[i]) < 0) {
       return error;
     }
@@ -35,10 +35,6 @@ function validator(notNull, variants, error, values) {
  * @param {string} error Error message
  * @returns {Function}
  */
-module.exports = function (variants, error) {
-  return validator.bind(null, false, variants, error);
-};
+module.exports = (variants, error) => validator.bind(null, false, variants, error);
 
-module.exports.notNull = function (variants, error) {
-  return validator.bind(null, true, variants, error);
-};
+module.exports.notNull = (variants, error) => validator.bind(null, true, variants, error);

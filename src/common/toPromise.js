@@ -8,13 +8,13 @@
  * @providesModule UIKernel
  */
 
-var functionsNames = [];
-module.exports = function (func, onlyPromise) {
-  var funcName = func.name;
+const functionsNames = [];
+module.exports = (func, onlyPromise) => {
+  const funcName = func.name;
   return function (...mainArguments) {
-    var promise;
-    var callbackPromise = new Promise(function (resolve, reject) {
-      mainArguments.push(function (err, data) {
+    let promise;
+    const callbackPromise = new Promise((resolve, reject) => {
+      mainArguments.push((err, data) => {
         if (err) return reject(err);
         resolve(data);
       });
@@ -27,7 +27,7 @@ module.exports = function (func, onlyPromise) {
       }
 
       if (onlyPromise) {
-       return callbackPromise;
+        return callbackPromise;
       }
 
       return Promise.resolve(promise);

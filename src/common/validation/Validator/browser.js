@@ -10,11 +10,11 @@
 
 'use strict';
 
-var Validator = require('./common');
-var ValidationErrors = require('../ValidationErrors');
-var defaultXhr = require('../../defaultXhr');
-var toPromise = require('../../toPromise');
-var callbackify = require('../../callbackify');
+import callbackify from '../../callbackify';
+import toPromise from '../../toPromise';
+import defaultXhr from '../../defaultXhr';
+import ValidationErrors from '../ValidationErrors';
+import Validator from './common';
 
 /**
  * Get validator.
@@ -25,7 +25,7 @@ var callbackify = require('../../callbackify');
  * @return {Validator}
  * @type {Module}
  */
-var ClientValidator = function (serverValidationUrl, xhr) {
+const ClientValidator = function (serverValidationUrl, xhr) {
   if (!(this instanceof ClientValidator)) {
     return new ClientValidator(serverValidationUrl, xhr);
   }
@@ -43,9 +43,9 @@ ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
       return Validator.prototype.isValidRecord.call(this, record);
     }
 
-    var xhrResult;
-    var validationErrors;
-    var body;
+    let xhrResult;
+    let validationErrors;
+    let body;
 
     try {
       xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({

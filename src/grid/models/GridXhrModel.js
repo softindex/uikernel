@@ -8,15 +8,13 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var url = require('url');
-var AbstractGridModel = require('./AbstractGridModel');
-var defaultXhr = require('../../common/defaultXhr');
-var Validator = require('../../common/validation/Validator/common');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
-var callbackify = require('../../common/callbackify');
-var toPromise = require('../../common/toPromise');
+import toPromise from '../../common/toPromise';
+import callbackify from '../../common/callbackify';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import Validator from '../../common/validation/Validator/common';
+import defaultXhr from '../../common/defaultXhr';
+import AbstractGridModel from './AbstractGridModel';
+import url from 'url';
 
 /**
  * Grid model, that works with API via XHR
@@ -27,7 +25,7 @@ var toPromise = require('../../common/toPromise');
  * @param {Function}  [settings.xhr]                    XHR interface
  * @constructor
  */
-var GridXhrModel = function (settings) {
+const GridXhrModel = function (settings) {
   AbstractGridModel.call(this);
 
   if (!settings.api) {
@@ -50,7 +48,7 @@ GridXhrModel.prototype.constructor = GridXhrModel;
  * @param {Function}    cb      CallBack function
  */
 GridXhrModel.prototype.create = callbackify(async function (record) {
-  var body = await toPromise(this._xhr.bind(this))({
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'POST',
     headers: {'Content-type': 'application/json'},
     uri: this._apiUrl,
@@ -81,7 +79,7 @@ GridXhrModel.prototype.create = callbackify(async function (record) {
  * @param {Function}    cb                      CallBack function
  */
 GridXhrModel.prototype.read = callbackify(async function (settings) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+  const parsedUrl = url.parse(this._apiUrl, true);
 
   parsedUrl.query.fields = JSON.stringify(settings.fields);
   parsedUrl.query.offset = settings.offset || 0;
@@ -99,12 +97,12 @@ GridXhrModel.prototype.read = callbackify(async function (settings) {
   }
   delete parsedUrl.search;
 
-  var response = await toPromise(this._xhr.bind(this))({
+  const response = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     uri: url.format(parsedUrl)
   });
 
-  var body;
+  let body;
 
   // Parse response
   body = JSON.parse(response);
@@ -120,12 +118,12 @@ GridXhrModel.prototype.read = callbackify(async function (settings) {
  * @param {Function}        cb      CallBack function
  */
 GridXhrModel.prototype.getRecord = callbackify(async function (id, fields) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+  const parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
   parsedUrl.pathname = url.resolve(parsedUrl.pathname, JSON.stringify(id));
   delete parsedUrl.search;
 
-  var body = await toPromise(this._xhr.bind(this))({
+  const body = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     uri: url.format(parsedUrl)
   });
@@ -141,7 +139,7 @@ GridXhrModel.prototype.getRecord = callbackify(async function (id, fields) {
  * @abstract
  */
 GridXhrModel.prototype.update = callbackify(async function (changes) {
-  var body = await toPromise(this._xhr.bind(this))({
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'PUT',
     headers: {
       'Content-type': 'application/json'
@@ -156,7 +154,7 @@ GridXhrModel.prototype.update = callbackify(async function (changes) {
     this.trigger('update', body.changes);
   }
 
-  body.errors.forEach(function (error) {
+  body.errors.forEach(error =>{
     error[1] = ValidationErrors.createFromJSON(error[1]);
   });
 

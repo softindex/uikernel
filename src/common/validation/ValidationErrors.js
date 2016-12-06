@@ -10,8 +10,7 @@
 
 'use strict';
 
-var utils = require('../utils');
-
+import utils from '../utils';
 /**
  * Field errors control manager
  * @constructor
@@ -30,8 +29,8 @@ function ValidationErrors() {
  * @return  {ValidationErrors}
  * @static
  */
-ValidationErrors.createFromJSON = function (jsonObject) {
-  var validationErrors = new ValidationErrors();
+ValidationErrors.createFromJSON = jsonObject =>{
+  const validationErrors = new ValidationErrors();
   validationErrors._fields = jsonObject ? utils.clone(jsonObject) : {};
   return validationErrors;
 };
@@ -79,7 +78,7 @@ ValidationErrors.prototype.getFieldErrors = function (field) {
  * @returns {string[]|null}
  */
 ValidationErrors.prototype.getFailedFields = function () {
-  var fields = Object.keys(this._fields);
+  const fields = Object.keys(this._fields);
   return fields.length ? fields : null;
 };
 

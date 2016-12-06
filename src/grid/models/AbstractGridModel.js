@@ -8,11 +8,9 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var EventsModel = require('../../common/Events');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
-var callbackify = require('../../common/callbackify');
+import callbackify from '../../common/callbackify';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import EventsModel from '../../common/Events';
 
 /**
  * Grid model abstraction
@@ -20,7 +18,7 @@ var callbackify = require('../../common/callbackify');
  * @constructor
  * @extends EventsModel
  */
-var AbstractGridModel = function () {
+const AbstractGridModel = function () {
   EventsModel.call(this);
 };
 AbstractGridModel.prototype = new EventsModel();
@@ -33,9 +31,7 @@ AbstractGridModel.prototype.constructor = AbstractGridModel;
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.create = callbackify(function (record) {
-  return Promise.resolve();
-});
+AbstractGridModel.prototype.create = callbackify(record => Promise.resolve());
 
 /**
  * Get records list
@@ -50,13 +46,11 @@ AbstractGridModel.prototype.create = callbackify(function (record) {
  * @param {Function}    cb                      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.read = callbackify(function (settings) {
-  return Promise.resolve({
-    records: [],   // Primary records
-    ids: [],    // Extra records
-    extraRecords: 0    // In all records count
-  });
-});
+AbstractGridModel.prototype.read = callbackify(settings => Promise.resolve({
+  records: [],   // Primary records
+  ids: [],    // Extra records
+  extraRecords: 0    // In all records count
+}));
 
 /**
  * Get the particular record
@@ -66,9 +60,7 @@ AbstractGridModel.prototype.read = callbackify(function (settings) {
  * @param {Function}  cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.getRecord = callbackify(function (id, fields) {
-  return Promise.resolve();
-});
+AbstractGridModel.prototype.getRecord = callbackify((id, fields) => Promise.resolve());
 
 /**
  * Apply record changes
@@ -77,9 +69,7 @@ AbstractGridModel.prototype.getRecord = callbackify(function (id, fields) {
  * @param {Function}    cb          CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.update = callbackify(function (changes) {
-  return Promise.resolve([]);
-});
+AbstractGridModel.prototype.update = callbackify(changes => Promise.resolve([]));
 
 /**
  * Get all dependent fields, that are required for validation
@@ -88,9 +78,7 @@ AbstractGridModel.prototype.update = callbackify(function (changes) {
  * @returns {Array}  Dependencies
  * @abstract
  */
-AbstractGridModel.prototype.getValidationDependency = function () {
-  return [];
-};
+AbstractGridModel.prototype.getValidationDependency = () => [];
 
 /**
  * Validation check
@@ -99,8 +87,6 @@ AbstractGridModel.prototype.getValidationDependency = function () {
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.isValidRecord = callbackify(function (record) {
-  return Promise.resolve(new ValidationErrors());
-});
+AbstractGridModel.prototype.isValidRecord = callbackify(record => Promise.resolve(new ValidationErrors()));
 
 module.exports = AbstractGridModel;

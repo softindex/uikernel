@@ -8,13 +8,11 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import toPromise from '../common/toPromise';
+import React from 'react';
+import utils from '../common/utils';
 
-var utils = require('../common/utils');
-var React = require('react');
-var toPromise = require('../common/toPromise');
-
-var SelectEditor = React.createClass({
+export const SelectEditor = React.createClass({
   propTypes: {
     options: React.PropTypes.array,
     model: React.PropTypes.shape({
@@ -25,11 +23,9 @@ var SelectEditor = React.createClass({
     onLabelChange: React.PropTypes.func,
     value: React.PropTypes.any
   },
-  getDefaultProps: function () {
-    return {
-      options: []
-    };
-  },
+  getDefaultProps: () => ({
+    options: []
+  }),
   getInitialState: function () {
     return {
       options: this.props.options,
@@ -39,17 +35,17 @@ var SelectEditor = React.createClass({
   componentDidMount: function () {
     if (this.props.model) {
       toPromise(this.props.model.read.bind(this.props.model))('')
-      .then(function(data){
-        data.unshift([null, '']);
+        .then(function (data) {
+          data.unshift([null, '']);
 
-        this.setState({
-          options: data,
-          loading: false
+          this.setState({
+            options: data,
+            loading: false
+          });
+        }.bind(this))
+        .catch(err => {
+          throw err;
         });
-      }.bind(this))
-      .catch(function(err){
-        throw err;
-      });
     }
   },
 
@@ -58,8 +54,8 @@ var SelectEditor = React.createClass({
   },
 
   handleChange: function (e) {
-    var option = this.getOptions()[e.target.value];
-    if (!(option instanceof Array)){
+    let option = this.getOptions()[e.target.value];
+    if (!(option instanceof Array)) {
       option = [option, option];
     }
     this.props.onChange(option[0]);
@@ -69,8 +65,8 @@ var SelectEditor = React.createClass({
   },
 
   render: function () {
-    var options = this.getOptions();
-    var valueIndex = utils.findIndex(options, function (option) {
+    const options = this.getOptions();
+    const valueIndex = utils.findIndex(options, function (option) {
       return utils.isEqual(option instanceof Array ? option[0] : option, this.props.value);
     }.bind(this));
 
@@ -81,13 +77,11 @@ var SelectEditor = React.createClass({
         onChange={this.handleChange}
         disabled={this.props.disabled || this.state.loading}
       >
-      {options.map(function (item, index) {
-        return (
+        {options.map((item, index) => (
           <option key={index} value={index}>
             {item instanceof Array ? item[1] : item}
           </option>
-        );
-      }, this)}
+        ), this)}
       </select>
     );
   }
