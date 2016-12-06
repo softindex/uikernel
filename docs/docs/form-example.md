@@ -22,72 +22,79 @@ To update field values, you can use either `updateField` or `validateField`.
 
 {% highlight javascript %}
 var FormComponent =  React.createClass({
-  mixins: [UIKernel.Mixins.Form],
-  componentDidMount: function () {
-    this.initForm({
-      fields: ['name', 'surname', 'phone', 'age'], // fields we need
-      model: UIKernel.Adapters.Grid.toFormUpdate(model, 2) // we're going to edit record with ID = 2
-    });
-  },
+  getInitialState: function() {
+      this.form = new UIKernel.Services.Form();
+      return null;
+    },
+    onFormChange(newFormState) {
+      if (!_.isEqual(this.props.state.data, newFormState.data)) {
+        this.form.submit()
+          .catch(err =>{
+            if (err && !(err instanceof UIKernel.Models.ValidationErrors)) { // If error is not a validation one
+              alert('Error');
+            }
+          });
+      }
+      this.props.stateHandler(newFormState);
+    },
 
-  save: function (e) { // save our changes
-    e.preventDefault();
-    this.submit(function (err) {
-    }.bind(this));
-  },
+    componentDidMount: function () {
+      this.form.init({
+        fields: ['name', 'age'], // Fields we need
+        model: UIKernel.Adapters.Grid.toFormUpdate(model, 2), // We're going to change record with ID = 2
+      });
+      this.form.addChangeListener(this.onFormChange);
+    },
 
-  render: function () {
+    componentWillUnmount() {
+      this.form.removeChangeListener(this.onFormChange);
+    },
 
-    if (!this.isLoaded()) {
-      return <span>Loading...</span>;
+    render: function () {
+      if (!this.props.state.isLoaded) {
+        return <span>Loading...</span>;
+      }
+
+      return (
+        <div className="form">
+          <div className="header panel-heading">
+            <h4 className="title">Edit record number 2</h4>
+          </div>
+          <div className="body">
+            <form className="form-horizontal change-second-field-form">
+              <div className={'form-group'+ (this.props.state.errors.name ? ' error' : '')}>
+                <label className="col-sm-2 control-label">Name</label>
+                <div className="col-sm-6">
+                  <input
+                    type="text"
+                    className="form-control"
+                    onChange={this.form.updateField.bind(this.form, 'name')}
+                    value={this.props.state.data.name}
+                    />
+                </div>
+                <div className="col-sm-3">
+                  <div className="validation-error">{this.props.state.errors.name}</div>
+                </div>
+              </div>
+              <div className={'form-group'+ (this.props.state.errors.age ? ' error' : '')}>
+                <label className="col-sm-2 control-label">Age</label>
+                <div className="col-sm-6">
+                  <input
+                    type="number"
+                    className="form-control"
+                    onChange={this.form.updateField.bind(this.form, 'age')}
+                    value={this.props.state.data.age}
+                    />
+                </div>
+                <div className="col-sm-3">
+                  <div className="validation-error">{this.props.state.errors.age}</div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      );
     }
-    var data = this.getData();
-
-    return (
-      <div className="form">
-        <div className="header panel-heading">
-          <h4 className="title">Edit record number 2</h4>
-        </div>
-        <div className="body">
-          <form className="form-horizontal change-second-field-form">
-            <div className={'form-group'+ (this.hasError('name') ? ' error' : '')}>
-              <label className="col-sm-2 control-label">Name</label>
-              <div className="col-sm-6">
-                <input
-                  type="text"
-                  className="form-control"
-                  onChange={this.validateField.bind(null, 'name')}
-                  value={data.name}
-                  />
-              </div>
-              <div className="col-sm-3">
-                <div className="validation-error">{this.getValidationError('name')}</div>
-              </div>
-            </div>
-            <div className={'form-group'+ (this.hasError('age') ? ' error' : '')}>
-              <label className="col-sm-2 control-label">Age</label>
-              <div className="col-sm-6">
-                <input
-                  type="number"
-                  className="form-control"
-                  onChange={this.validateField.bind(null, 'age')}
-                  value={data.age}
-                  />
-              </div>
-              <div className="col-sm-3">
-                <div className="validation-error">{this.getValidationError('age')}</div>
-              </div>
-            </div>
-            <div className="form-group">
-              <div className="col-sm-offset-3 col-sm-9">
-                <button type="submit" className="btn btn-primary" onClick={this.save}>Save</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  }
 });
 {% endhighlight %}
 
@@ -165,30 +172,43 @@ var columns = {
 
 {% highlight javascript %}
 var MainComponent = React.createClass({
-  render: function () {
-    return (
-      <div>
-        <div className="row">
-          <div className="col-sm-12">
-            <div className="panel panel-info">
-              <div className="panel-heading">
-                <h3 className="panel-title">Records</h3>
-              </div>
-              <div className="panel-body padding0">
-                <UIKernel.Component
-                  ref="grid"
-                  model={model}
-                  cols={columns}
-                  realtime={true}
-                />
-                <FormComponent />
+  getInitialState: function () {
+      return {
+        form: {}
+      };
+    },
+
+    onFormStateHandler: function (newFormState) {
+      this.setState({form: newFormState});
+    },
+
+    render: function () {
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="col-sm-12">
+              <div className="panel panel-info">
+                <div className="panel-heading">
+                  <h3 className="panel-title">Records</h3>
+                </div>
+                <div className="panel-body padding0">
+                  <UIKernel.Grid
+                    ref="grid"
+                    model={model}
+                    cols={columns}
+                    autoSubmit={true}
+                  />
+                  <Form
+                    state={this.state.form}
+                    stateHandler={this.onFormStateHandler}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 });
 {% endhighlight %}
 ---
