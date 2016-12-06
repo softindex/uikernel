@@ -10,9 +10,14 @@
 
 var MainComponent = React.createClass({
   getInitialState: function () {
+    this.defaultFilters = {
+      search: '',
+      age: null,
+      gender: 0
+    };
     return {
       model: model, // let's store model in the state
-      createForm: {}
+      filters: this.defaultFilters
     };
   },
 
@@ -20,9 +25,10 @@ var MainComponent = React.createClass({
     this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   },
 
-  applyFilters: function (filters) {
+  applyFilters: function (newFilters) {
     this.setState({
-      model: UIKernel.applyGridFilters(model, filters)
+      filters: newFilters,
+      model: UIKernel.applyGridFilters(model, newFilters)
     });
   },
 
@@ -37,8 +43,11 @@ var MainComponent = React.createClass({
     this.refs.grid.clearAllChanges();
   },
 
-  onCreateFormStateHandler: function (newFormState) {
-    this.setState({createForm: newFormState});
+  clearFilters: function () {
+    this.setState({
+      filters: this.defaultFilters,
+      model: UIKernel.applyGridFilters(model, this.defaultFilters)
+    });
   },
 
   render: function () {
@@ -53,8 +62,6 @@ var MainComponent = React.createClass({
               <div className="panel-body">
                 <CreateForm
                   onSubmit={this.addRecord}
-                  stateHandler={this.onCreateFormStateHandler}
-                  state={this.state.createForm}
                 />
               </div>
             </div>
@@ -67,6 +74,8 @@ var MainComponent = React.createClass({
               <div className="panel-body">
                 <FiltersForm
                   onSubmit={this.applyFilters}
+                  state = {this.state.filters}
+                  clearFilters = {this.clearFilters}
                 />
               </div>
             </div>

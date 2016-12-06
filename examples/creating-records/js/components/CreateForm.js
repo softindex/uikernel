@@ -11,7 +11,7 @@
 var CreateForm = React.createClass({
   getInitialState: function () {
     this.form = new UIKernel.Form();
-    return null;
+    return this.form.getAll();
   },
 
   componentDidMount() {
@@ -35,7 +35,7 @@ var CreateForm = React.createClass({
   },
 
   onFormChange(newFormState) {
-    this.props.stateHandler(newFormState);
+    this.setState(newFormState);
   },
 
   save: function (e) { // save record handler
@@ -47,16 +47,16 @@ var CreateForm = React.createClass({
   },
 
   render: function () {
-    if (!this.props.state.isLoaded) {
+    if (!this.state.isLoaded) {
       return <span>Loading...</span>;
     }
 
     return (
       <div>
-        {this.props.state.globalError ? this.props.state.globalError.message : ''}
+        {this.state.globalError ? this.state.globalError.message : ''}
         <form className="form-horizontal edit-form" onSubmit={this.save}>
           <div
-            className={"form-group" + (this.props.state.changes.name ? ' changed' : '') + (this.props.state.errors.name ? ' error' : '')}>
+            className={"form-group" + (this.state.changes.name ? ' changed' : '') + (this.state.errors.name ? ' error' : '')}>
             <label className="col-sm-3 control-label">First Name</label>
             <div className="col-sm-9">
               <input
@@ -66,12 +66,12 @@ var CreateForm = React.createClass({
                 onChange={this.form.updateField.bind(this.form,'name')}
                 onFocus={this.form.clearError.bind(this.form, 'name')}
                 onBlur={this.form.validateForm}
-                value={this.props.state.data.name}
+                value={this.state.data.name}
               />
             </div>
           </div>
           <div
-            className={"form-group" + (this.props.state.changes.surname ? ' changed' : '') + (this.props.state.errors.surname ? ' error' : '')}>
+            className={"form-group" + (this.state.changes.surname ? ' changed' : '') + (this.state.errors.surname ? ' error' : '')}>
             <label className="col-sm-3 control-label">Last Name</label>
             <div className="col-sm-9">
               <input
@@ -81,12 +81,12 @@ var CreateForm = React.createClass({
                 onChange={this.form.updateField.bind(this.form,'surname')}
                 onFocus={this.form.clearError.bind(this.form, 'surname')}
                 onBlur={this.form.validateForm}
-                value={this.props.state.data.surname}
+                value={this.state.data.surname}
               />
             </div>
           </div>
           <div
-            className={"form-group" + (this.props.state.changes.phone ? ' changed' : '') + (this.props.state.errors.phone ? ' error' : '')}>
+            className={"form-group" + (this.state.changes.phone ? ' changed' : '') + (this.state.errors.phone ? ' error' : '')}>
             <label className="col-sm-3 control-label">Phone</label>
             <div className="col-sm-9">
               <input
@@ -96,12 +96,12 @@ var CreateForm = React.createClass({
                 onChange={this.form.updateField.bind(this.form,'phone')}
                 onFocus={this.form.clearError.bind(this.form, 'phone')}
                 onBlur={this.form.validateForm}
-                value={this.props.state.data.phone}
+                value={this.state.data.phone}
               />
             </div>
           </div>
           <div
-            className={"form-group" + (this.props.state.changes.age ? ' changed' : '') + (this.props.state.errors.age ? ' error' : '')}>
+            className={"form-group" + (this.state.changes.age ? ' changed' : '') + (this.state.errors.age ? ' error' : '')}>
             <label className="col-sm-3 control-label">Age</label>
             <div className="col-sm-9">
               <input
@@ -111,12 +111,12 @@ var CreateForm = React.createClass({
                 onChange={this.form.updateField.bind(this.form,'age')}
                 onFocus={this.form.clearError.bind(this.form, 'age')}
                 onBlur={this.form.validateForm}
-                value={this.props.state.data.age}
+                value={this.state.data.age}
               />
             </div>
           </div>
           <div
-            className={"form-group" + (this.props.state.changes.gender ? ' changed' : '') + (this.props.state.errors.gender ? ' error' : '')}>
+            className={"form-group" + (this.state.changes.gender ? ' changed' : '') + (this.state.errors.gender ? ' error' : '')}>
             <label className="col-sm-3 control-label">Gender</label>
             <div className="col-sm-9">
               <UIKernel.Editors.Select
@@ -128,7 +128,7 @@ var CreateForm = React.createClass({
                 onChange={this.form.updateField.bind(this.form,'gender')}
                 onFocus={this.form.clearError.bind(this.form, 'gender')}
                 onBlur={this.form.validateForm}
-                value={this.props.state.data.gender}
+                value={this.state.data.gender}
               />
             </div>
           </div>

@@ -210,6 +210,10 @@
   background-color: #ffcccc;
 }
 
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
+  border: 2px solid #dea4ff
+}
+
 .data-grid tbody.dgrid-body-table tr:hover {
   background-color: #ffffd0;
 }
