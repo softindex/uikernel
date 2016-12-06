@@ -1,3 +1,13 @@
+/**
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule UIKernel
+ */
+
 let express = require('express');
 let ValidationErrors = require('../../common/validation/ValidationErrors');
 let toPromise = require('../../common/toPromise');

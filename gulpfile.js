@@ -12,12 +12,12 @@
 
 var gulp = require('gulp');
 var jsDetectErrors = require('./gulp/jsDetectErrors');
-var jsPrecompile = require('./gulp/jsPrecompileBabel');
+var jsPrecompile = require('./gulp/jsPrecompile');
 var jsClear = require('./gulp/jsClear');
 var jsDocsClear = require('./gulp/jsDocsClear');
 var generateJSDoc = require('./gulp/generateJSDoc');
 var archive = require('./gulp/archive');
-var jsBundle = require('./gulp/jsBundle');
+var jsBundle = require('./gulp/jsBundleWP');
 var addLicense = require('./gulp/addLicense');
 var deploySite = require('./gulp/deploySite');
 var buildSite = require('./gulp/buildSite');

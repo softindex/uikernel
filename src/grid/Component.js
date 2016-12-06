@@ -13,6 +13,7 @@
 /**
  * React table component
  */
+
 import React from 'react';
 import utils from '../common/utils';
 
@@ -202,10 +203,10 @@ export const GridComponent = React.createClass({
         <div className="wrapper-dgrid-header">
           <table cellSpacing="0" className="dgrid-header">
             <colgroup>{header.colGroup}</colgroup>
-            {header.cols.map(function (row, colKey) {
+            {header.cols.map((row, colKey) => {
               return (
                 <tr key={colKey}>
-                  {row.map(function (col, rowKey) {
+                  {row.map((col, rowKey) => {
                     return (
                       <th
                         key={rowKey}
@@ -222,10 +223,10 @@ export const GridComponent = React.createClass({
                         }}
                       />
                     );
-                  }.bind(this))}
+                  })}
                 </tr>
               );
-            }.bind(this))}
+            })}
           </table>
         </div>
         <div
@@ -265,10 +266,10 @@ export const GridComponent = React.createClass({
         >
           <colgroup>{header.colGroup}</colgroup>
           <thead>
-          {header.cols.map(function (row, colKey) {
+          {header.cols.map((row, colKey) => {
             return (
               <tr key={colKey}>
-                {row.map(function (col, rowKey) {
+                {row.map((col, rowKey) => {
                   return (
                     <th
                       key={rowKey}
@@ -285,10 +286,10 @@ export const GridComponent = React.createClass({
                       }}
                     />
                   );
-                }.bind(this))}
+                })}
               </tr>
             );
-          }.bind(this))}
+          })}
           </thead>
           <tbody className="dgrid-body-table" ref="tbody"/>
           {this._renderTotals(this.props.height)}

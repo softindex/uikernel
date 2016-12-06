@@ -124,12 +124,12 @@ export const SuggestBoxEditor = React.createClass({
     }
 
     toPromise(model.getLabel.bind(model))(id)
-      .then(function (label) {
+      .then((label) => {
         if (!this._isMounted) {
           return;
         }
         this._setLabelTo(label, true)
-      }.bind(this))
+      })
       .catch(err => {
         if (err) {
           console.error(err);
@@ -191,17 +191,17 @@ export const SuggestBoxEditor = React.createClass({
           left: offsetLeft
         });
 
-      this._updateList(searchPattern, function () {
-        const selectedOptionKey = utils.findIndex(this.state.options, function (option) {
+      this._updateList(searchPattern, () => {
+        const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
           return utils.isEqual(option.id, this.props.value);
-        }.bind(this));
+        });
         if (selectedOptionKey) {
           this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
         }
         if (typeof cb === 'function') {
           cb();
         }
-      }.bind(this));
+      });
     });
   },
 
@@ -436,7 +436,7 @@ export const SuggestBoxEditor = React.createClass({
             </li>
           );
         } else {
-          options = this.state.options.map(function (option, key) {
+          options = this.state.options.map((option, key) => {
             const optionClassNames = [classes.option];
             if (key === this.state.selectedOptionKey) {
               optionClassNames.push(classes.optionFocused);
@@ -463,7 +463,7 @@ export const SuggestBoxEditor = React.createClass({
                 }
               </li>
             );
-          }.bind(this));
+          });
         }
       }
 

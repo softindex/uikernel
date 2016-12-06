@@ -35,14 +35,14 @@ export const SelectEditor = React.createClass({
   componentDidMount: function () {
     if (this.props.model) {
       toPromise(this.props.model.read.bind(this.props.model))('')
-        .then(function (data) {
+        .then(data => {
           data.unshift([null, '']);
 
           this.setState({
             options: data,
             loading: false
           });
-        }.bind(this))
+        })
         .catch(err => {
           throw err;
         });
@@ -66,9 +66,9 @@ export const SelectEditor = React.createClass({
 
   render: function () {
     const options = this.getOptions();
-    const valueIndex = utils.findIndex(options, function (option) {
+    const valueIndex = utils.findIndex(options, option => {
       return utils.isEqual(option instanceof Array ? option[0] : option, this.props.value);
-    }.bind(this));
+    });
 
     return (
       <select

@@ -42,21 +42,21 @@ const GridEditorMixin = {
     }
 
     const editorContext = {
-      updateField: function (field, nextValue) {
+      updateField: (field, nextValue) => {
         const data = {};
         data[field] = nextValue;
         this._setRowChanges(row, data);
-      }.bind(this)
+      }
     };
 
     const props = {
-      onChange: function (values) {
+      onChange: (values) => {
         this._onChangeEditor(row, column, values, editorContext, element);
-      }.bind(this),
-      onFocus: function () {
+      },
+      onFocus: () => {
         this._onFocusEditor(row, column);
-      }.bind(this),
-      onBlur: function () {
+      },
+      onBlur: () => {
         // Remove Editor
         if (focusDone) {
           ReactDOM.unmountComponentAtNode(element);
@@ -64,7 +64,7 @@ const GridEditorMixin = {
           $element.removeClass('dgrid-input-wrapper');
           this._onBlurEditor(row, column);
         }
-      }.bind(this),
+      },
       value: value
     };
 
