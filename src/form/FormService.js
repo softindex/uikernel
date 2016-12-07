@@ -37,7 +37,7 @@ class FormService {
    * @param {Object}            [settings.data]                         Preset data
    * @param {Object}            [settings.changes                       Preset changes
    * @param {bool}              [settings.submitAll=false]              Send all form for validity check
-   * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
+   * @param {bool}              [settings._partialErrorChecking=false]   Activate partial gradual form validation
    * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
    */
   async init(settings) {
@@ -48,8 +48,8 @@ class FormService {
     this._data = settings.data || null;
     this._changes = settings.changes || {};
     this.showDependentFields = settings.showDependentFields || false;
-    this.partialErrorChecking = settings.partialErrorChecking; // Current mode
-    this.partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
+    this._partialErrorChecking = settings._partialErrorChecking; // Current mode
+    this._partialErrorCheckingDefault = settings._partialErrorChecking; // Default mode
     this.model = settings.model; // FormModel
     this.fields = settings.fields;
     this.submitAll = settings.submitAll;
@@ -163,6 +163,7 @@ class FormService {
     this.updateField(fields, values);
     return this.validateForm();
   }
+
   /**
    * Set data in the form
    *
@@ -210,7 +211,7 @@ class FormService {
     const changes = this._getChanges();
 
     this._globalError = null;
-    this.partialErrorChecking = false;
+    this._partialErrorChecking = false;
 
     this._setState();
 
@@ -281,78 +282,20 @@ class FormService {
     this._errors.clear();
     this._changes = {};
     this._globalError = false;
-    this.partialErrorChecking = this.partialErrorCheckingDefault;
+    this._partialErrorChecking = this._partialErrorCheckingDefault;
     this._setState();
   }
 
   setPartialErrorChecking(value) {
-    this.partialErrorChecking = value;
+    this._partialErrorChecking = value;
     this._setState();
   }
 
-  /**
-   * Check is data loaded
-   *
-   * @returns {boolean}
-   */
-  _isLoaded() {
-    return this &&
-      Boolean(this._data || this._globalError);
-  }
-
-  /**
-   * Get form changes
-   *
-   * @return {{}}
-   */
-  _getChangesFields() { // TODO _getChanges
-    const changes = {};
-    for (let field in this._changes) {
-      if (!this._isDependentField(field)) {
-        changes[field] = this._changes[field];
-      }
-    }
-    return changes;
-  }
-
-  /**
-   * Get form errors
-   *
-   * @returns {ValidationErrors} Form errors
-   */
-  _getValidationErrors() {
-    // If gradual validation is on, we need
-    // to remove unchanged records from errors object
-    if (!this.partialErrorChecking || !this._errors) {
-      return this._errors;
-    }
-
-    const errors = this._errors.clone();
-
-    // Look through all form fields
-    for (const field in this._data) {
-      // If field is unchanged, remove errors, that regard to this field
-      if (!this._changes.hasOwnProperty(field)) {
-        errors.clearField(field);
-      }
-    }
-
-    return errors;
-  }
-
-  _setState() {
-    this._eventEmitter.trigger('update', this.getAll());
-  }
-
-  /**
-   * Model records changes handler
-   *
-   * @param {Object} changes  Changes
-   * @private
-   */
-  _onModelChange(changes) {
-    this._data = {...this._data, ...changes};
-    this._setState();
+  getPartialErrorChecking() {
+    return {
+      _partialErrorChecking: this._partialErrorChecking,
+      _partialErrorCheckingDefault: this._partialErrorCheckingDefault
+    };
   }
 
   async validateForm() {
@@ -397,6 +340,73 @@ class FormService {
     if (!errorsWithPartialChecking.isEmpty()) {
       return errorsWithPartialChecking;
     }
+
+    return;
+  }
+
+  /**
+   * Check is data loaded
+   *
+   * @returns {boolean}
+   */
+  _isLoaded() {
+    return this &&
+      Boolean(this._data || this._globalError);
+  }
+
+  /**
+   * Get form changes
+   *
+   * @return {{}}
+   */
+  _getChangesFields() { // TODO _getChanges
+    const changes = {};
+    for (let field in this._changes) {
+      if (!this._isDependentField(field)) {
+        changes[field] = this._changes[field];
+      }
+    }
+    return changes;
+  }
+
+  /**
+   * Get form errors
+   *
+   * @returns {ValidationErrors} Form errors
+   */
+  _getValidationErrors() {
+    // If gradual validation is on, we need
+    // to remove unchanged records from errors object
+    if (!this._partialErrorChecking || !this._errors) {
+      return this._errors;
+    }
+
+    const errors = this._errors.clone();
+
+    // Look through all form fields
+    for (const field in this._data) {
+      // If field is unchanged, remove errors, that regard to this field
+      if (!this._changes.hasOwnProperty(field)) {
+        errors.clearField(field);
+      }
+    }
+
+    return errors;
+  }
+
+  _setState() {
+    this._eventEmitter.trigger('update', this.getAll());
+  }
+
+  /**
+   * Model records changes handler
+   *
+   * @param {Object} changes  Changes
+   * @private
+   */
+  _onModelChange(changes) {
+    this._data = {...this._data, ...changes};
+    this._setState();
   }
 
   _getData() {
