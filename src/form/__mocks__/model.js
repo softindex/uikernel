@@ -1,4 +1,4 @@
-let ValidErr = require('../../common/validation/ValidationErrors');
+let ValidationErrors = require('../../common/validation/ValidationErrors');
 let data = {
   name: '',
   surname: '',
@@ -12,6 +12,9 @@ module.exports = {
     return data;
   },
   submit: function (data) {
+    if (data.name === 'Error') {
+      throw ValidationErrors.createFromJSON({name: 'error in name'});
+    }
   },
   isValidRecord: function (data) {
     let error = {
@@ -24,7 +27,7 @@ module.exports = {
       throw 'global error exist';
     }
     if (data.name === 'Error') {
-      return ValidErr.createFromJSON({name: 'error in name'});
+      return ValidationErrors.createFromJSON({name: 'error in name'});
     }
     return error;
   },

@@ -230,7 +230,6 @@ class FormService {
     const newChanges = this._getChanges();
     const actualChanges = utils.isEqual(changes, newChanges);
     const validationError = err instanceof ValidationErrors;
-
     // Replacing empty error to null
     if (validationError && err.isEmpty()) {
       err = null;
