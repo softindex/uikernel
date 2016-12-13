@@ -40,7 +40,7 @@ function FormExpressApi() {
             ctx._result(err, null, req, res, next);
             return;
           }
-          ctx._result(err, {data: null, error: err}, req, res, next);
+          ctx._result(null, {data: null, error: err}, req, res, next);
         });
     }],
     validate: [(req, res, next) =>{

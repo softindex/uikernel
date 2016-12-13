@@ -64,6 +64,9 @@ var Module = {
     number: require('./lib/common/validation/validators/number'),
     notEmpty: require('./lib/common/validation/validators/notEmpty')
   },
+  Mixins: {
+    Form: require('./lib/form/mixin')
+  },
   _get: variables.get,
   _set: variables.set
 };

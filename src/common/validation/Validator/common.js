@@ -193,7 +193,7 @@ Validator.prototype.isValidRecord = callbackify(async function (record) {
       for (j = 0; j < asyncValidators.length; j++) {
         awaitStack.push(i);
         promises.push(
-          await toPromise(asyncValidators)(record[i])
+          await toPromise(asyncValidators[j])(record[i])
         );
       }
     }

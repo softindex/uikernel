@@ -14,11 +14,12 @@ import utils from '../utils';
  * @constructor
  */
 function ValidationErrors() {
-  if (!(this instanceof ValidationErrors)) {
-    return new ValidationErrors();
-  }
   this._fields = {};
+  Error.captureStackTrace(this, ValidationErrors);
 }
+
+ValidationErrors.prototype = Object.create(Error.prototype);
+ValidationErrors.prototype.constructor = ValidationErrors;
 
 /**
  * Convert JSON to ValidationErrors object
