@@ -53,15 +53,6 @@ var GridSelectMixin = {
 
     if (utils.indexOf(this.state.selected, recordId) < 0) {
       this.state.selected.push(recordId);
-
-      if (this.state.selected.length === this.state.count) {
-        if (this.state.selectBlackListMode) {
-          this.unselectAll();
-        } else {
-          this.selectAll();
-        }
-        return;
-      }
     }
 
     this._updateRow(row, function (err) {
@@ -88,6 +79,11 @@ var GridSelectMixin = {
     var pos = utils.indexOf(this.state.selected, recordId);
     if (pos >= 0) {
       this.state.selected.splice(pos, 1);
+
+      if(!this.state.selected.length && !ignoreBlackList){
+        this.unselectAll();
+        return;
+      }
     }
 
     this._updateRow(row, function (err) {
@@ -130,7 +126,7 @@ var GridSelectMixin = {
    * Switch records selection mode
    */
   toggleSelectAll: function () {
-    if (this.state.selectBlackListMode) {
+    if (this.state.selectBlackListMode || this.state.selected.length >= this.getCountRecords()) {
       this.unselectAll();
     } else {
       this.selectAll();
