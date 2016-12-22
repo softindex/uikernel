@@ -1,7 +1,7 @@
 ---
 title: Editors
 id: editors
-prev: creating-records.html
+prev: server-model.html
 next: labels.html
 ---
 

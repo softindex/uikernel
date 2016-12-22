@@ -93,16 +93,6 @@ var model = new UIKernel.Models.Grid.Collection({
   validation: validation
 });
 {% endhighlight %}
-
-Или
-
-{% highlight javascript %}
-var model = new UIKernel.Models.Grid.Xhr({
-  // ...
-  validation: validation
-});
-{% endhighlight %}
-
 ---
 
 The last task is to make it possible to discard and save the edited data. So let's create the `onSave` and `onClear` methods in our `MainComponent`.

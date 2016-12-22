@@ -2,7 +2,7 @@
 title: Creating records
 id: creating-records
 prev: removing-records.html
-next: editors.html
+next: server-side.html
 ---
 
 * [Live demo](/examples/creating-records/){:target="_blank"}

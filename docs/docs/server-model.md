@@ -1,7 +1,7 @@
 ---
 title: Создание модели
-id: server_model
-prev: server_validation.html
+id: server-model
+prev: server-validation.html
 next: editors.html
 ---
 

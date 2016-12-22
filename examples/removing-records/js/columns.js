@@ -16,8 +16,11 @@ var columns = {
     }],
     onClickRefs: {
       del: function (event, recordId, record, grid) { // ref="del" click handler
-        grid.getModel().delete(recordId);
-        grid.updateTable();
+        grid.getModel().delete(recordId, function (err) {
+          if (!err) {
+            grid.updateTable();
+          }
+        });
       }
     }
   },

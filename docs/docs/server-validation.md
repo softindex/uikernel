@@ -1,8 +1,8 @@
 ---
 title: Валидация данных
-id: server_validation
-prev: server_routes.html
-next: server_model.html
+id: server-validation
+prev: server-routes.html
+next: server-model.html
 ---
 
 UIKernel поддерживает клиентскую и серверную валидации.

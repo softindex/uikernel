@@ -1,10 +1,9 @@
 ---
 title: Серверная часть
-id: server_side
-prev: tutorial.html
-next: server_routes.html
+id: server-side
+prev: creating-records.html
+next: server-routes.html
 ---
-* [Live demo](/examples/creating-records/){:target="_blank"}
 * [Code]({{ site.github }}/examples/creating-records){:target="_blank"}
 
 В этом туториале мы напишем серверную часть приложения которое будет использовать UIKernel.

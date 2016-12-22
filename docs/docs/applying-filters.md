@@ -136,10 +136,7 @@ var model = new UIKernel.Models.Grid.Collection({
       }
 });
 {% endhighlight %}
-
-Если вы получаете данные в модель из сервера то реализовывать метод `filtersHandler` не нужно. // вставить ссылку на grid-model-xhr.html ?
-
---------------------------------------------
+---
 
 Finally, let's add the `onChangeFiltersHandler` method to our `MainComponent` and render the form. Open your `MainComponent.js` file and modify it as bellow:
 

@@ -1,8 +1,8 @@
 ---
 title: Настройка роутов
-id: server_routes
-prev: server_side.html
-next: server_validation.html
+id: server-routes
+prev: server-side.html
+next: server-validation.html
 ---
 
 В нашем приложении будет только один модуль `userGrid`, он отвечает за работу с данными которые будут передаватся в клиентскую модель.

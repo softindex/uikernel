@@ -18,14 +18,14 @@
     - id: creating-records
       title: Creating records
   - id: server-side
-    title: Серверная часть
+    title: Server Tutorial
     subitems:
     - id: server-routes
-      title: Настройка роутов
+      title: Routing
     - id: server-validation
-      title: Валидация данных
+      title: Validation
     - id: server-model
-      title: Создание модели
+      title: Server Models
 - title: Editors
   items:
   - id: editors

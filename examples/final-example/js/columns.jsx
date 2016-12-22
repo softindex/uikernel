@@ -47,8 +47,11 @@ var columns = {
         });
       },
       remove: function (event, recordId, record, grid) { // ref="remove" click handler
-        grid.getModel().delete(recordId);
-        grid.updateTable();
+        grid.getModel().delete(recordId, function (err) {
+          if (!err) {
+            grid.updateTable();
+          }
+        });
       }
     }
   },

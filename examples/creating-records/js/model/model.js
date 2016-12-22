@@ -66,11 +66,11 @@ var model = (function ( ) {
     requiredFields: ["name", "surname", "phone", "age", "gender"]
   });
 
-  model.delete = function (id) {
+  model.delete = function (id, cb) {
     this.data = _.reject(this.data, function (record) {
       return record[0] === id;
     });
-    return id;
+    cb(null, id);
   };
 
   return model;
