@@ -25,6 +25,14 @@ var model = new UIKernel.Models.Grid.Collection({
 
 Here, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html) and pass it a settings object as an argument.
 
+Вы можете использовать [UIKernel.Models.Grid.Xhr](/docs/grid-model-xhr.html) для создания модели которая будет взаимодействовать с сервером.
+
+{% highlight javascript %}
+var model = new UIKernel.Models.Grid.Xhr({
+    api: 'api/userGrid',
+});
+{% endhighlight %}
+
 Next, we'll configure columns.
 
 `columns.js`:
