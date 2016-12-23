@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 /**
@@ -170,11 +168,10 @@ Validator.prototype.isValidRecord = callbackify(async function (record) {
   let validators;
   let asyncValidators;
   let groupValidator;
-  let dependentFields;
   let asyncGroupValidator;
   const promises = [];
 
-  dependentFields = this.getValidationDependency(fields);
+  const dependentFields = this.getValidationDependency(fields);
   if (dependentFields.length) {
     throw new ArgumentsError('Not enough fields for validator: ' + dependentFields.join(', '));
   }

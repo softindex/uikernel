@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 import callbackify from '../../common/callbackify';
@@ -178,7 +176,7 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
  * @param {Function}        cb      CallBack function
  */
 GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
-  let record = utils.cloneDeep(this._getRecordByID(id));
+  const record = utils.cloneDeep(this._getRecordByID(id));
   if (!record) {
     return Promise.reject(Error('Record not found.'));
   }
@@ -204,9 +202,9 @@ GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
  */
 GridCollectionModel.prototype.update = callbackify(async function (changes) {
   let completed = 0;
-  let result;
   const appliedChanges = [];
   let finish = false;
+  let validErrors;
 
   if (!changes.length) {
     return [];
@@ -218,7 +216,7 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
     }
 
     try {
-      var validErrors = await this.isValidRecord(change[1]);
+      validErrors = await this.isValidRecord(change[1]);
     } catch (err) {
       finish = true;
       throw err;
@@ -235,7 +233,7 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
     }
   }.bind(this));
 
-  result = await Promise.all(promises);
+  const result = await Promise.all(promises);
 
   if (completed === changes.length) {
     this.trigger('update', appliedChanges);

@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -35,11 +33,11 @@ ValidationErrors.createFromJSON = function (jsonObject) {
   return validationErrors;
 };
 
-ValidationErrors.merge = function () {
-  var jsonErrors = [{}];
+ValidationErrors.merge = function (...args) {
+  const jsonErrors = [{}];
 
-  for (var i = 0; i < arguments.length; i++) {
-    jsonErrors.push(arguments[i].toJSON());
+  for (let i = 0; i < args.length; i++) {
+    jsonErrors.push(args[i].toJSON());
   }
 
   return ValidationErrors.createFromJSON(utils.assign.apply(utils, jsonErrors));

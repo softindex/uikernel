@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -166,15 +164,14 @@ const GridStatusesMixin = {
    * @private
    */
   _getRowStatusNames: function (row) {
-    let i;
     const names = [];
-    let statuses = this.state.statuses[row] && this.state.statuses[row].sum;
+    const statuses = this.state.statuses[row] && this.state.statuses[row].sum;
 
     if (!statuses) {
       return [];
     }
 
-    for (i in this.state.statusMap) {
+    for (const i in this.state.statusMap) {
       if (statuses & this.state.statusMap[i]) {
         names.push(i);
       }

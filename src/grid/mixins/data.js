@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -124,7 +122,7 @@ const GridDataMixin = {
    * @param {Function} cb CallBack function
    */
   save: callbackify(async function () {
-    let errors = this.getErrors();
+    const errors = this.getErrors();
 
     // Collect all valid changes
     const changes = utils.reduce(this.state.changes, (result, rowChanges, row) => {
@@ -549,7 +547,7 @@ const GridDataMixin = {
   _getAdditionalIds: function () {
     const additionalIds = this._getRecordsWithStatus();
     let id;
-    for (let row in this.state.changes) {
+    for (const row in this.state.changes) {
       id = this.state.recordsInfo[row].id;
       if (additionalIds.indexOf(id) < 0) {
         additionalIds.push(id);
@@ -598,7 +596,7 @@ const GridDataMixin = {
   _checkValidatorErrors: async function (row, validator, result) {
     const record = this._getRecordChanges(row);
 
-    let validErrors = await validator.isValidRecord(record);
+    const validErrors = await validator.isValidRecord(record);
 
     if (utils.isEqual(record, this._getRecordChanges(row))) {
       if (validErrors.isEmpty()) {
@@ -611,7 +609,6 @@ const GridDataMixin = {
         this._renderBinds(row, field);
       });
     }
-    return;
   },
 
   _onRecordCreated: function (recordId) {

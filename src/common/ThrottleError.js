@@ -4,13 +4,14 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-import ArgumentsError from './ArgumentsError'
-export default class ThrottleError extends ArgumentsError{
-  constructor(message){
-    super(message);
-  }
+function ThrottleError() {
+  this.message = 'Too many function call';
+  Error.captureStackTrace(this, ThrottleError);
 }
+
+ThrottleError.prototype = Object.create(Error.prototype);
+ThrottleError.prototype.constructor = ThrottleError;
+
+export default ThrottleError;

@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 import toPromise from '../../common/toPromise';
@@ -102,12 +100,7 @@ GridXhrModel.prototype.read = callbackify(async function (settings) {
     uri: url.format(parsedUrl)
   });
 
-  let body;
-
-  // Parse response
-  body = JSON.parse(response);
-
-  return body;
+  return JSON.parse(response);
 });
 
 /**

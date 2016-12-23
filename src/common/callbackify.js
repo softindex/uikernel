@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 const functionsNames = [];
@@ -14,7 +12,7 @@ module.exports = function (func) {
 
   return function (...mainArguments) {
     const lastArgumentIndex = mainArguments.length - 1;
-    let cb = mainArguments[lastArgumentIndex];
+    const cb = mainArguments[lastArgumentIndex];
 
     if (typeof cb === 'function') {
 

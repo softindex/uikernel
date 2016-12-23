@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 import EventEmitter from '../common/Events';
@@ -13,14 +11,15 @@ import toPromise from '../common/toPromise';
 import Validator from '../common/validation/Validator/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import utils from '../common/utils';
+import ThrottleError from '../common/ThrottleError';
 
 class FormService {
 
   constructor() {
     this._data = null;
     this._changes = null;
-    this._errors = null;
-    this._warnings = null;
+    this._errors = new ValidationErrors();
+    this._warnings = new ValidationErrors();
     this._globalError = null;
     this._warningsValidator = null;
     this._eventEmitter = new EventEmitter();
@@ -41,7 +40,7 @@ class FormService {
    * @param {Object}            [settings.data]                         Preset data
    * @param {Object}            [settings.changes                       Preset changes
    * @param {bool}              [settings.submitAll=false]              Send all form for validity check
-   * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
+   * @param {bool}              [settings._partialErrorChecking=false]   Activate partial gradual form validation
    * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
    * @param {Validator}         [settings.warningsValidator]            Warningss validator for fields
    */
@@ -53,8 +52,8 @@ class FormService {
     this._data = settings.data || null;
     this._changes = settings.changes || {};
     this.showDependentFields = settings.showDependentFields || false;
-    this.partialErrorChecking = settings.partialErrorChecking; // Current mode
-    this.partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
+    this._partialErrorChecking = settings._partialErrorChecking; // Current mode
+    this._partialErrorCheckingDefault = settings._partialErrorChecking; // Default mode
     this.model = settings.model; // FormModel
     this.fields = settings.fields;
     this.submitAll = settings.submitAll;
@@ -79,7 +78,14 @@ class FormService {
 
     this.model.on('update', this._onModelChange);
     this._setState();
-    await this.validateForm();
+
+    try {
+      await this.validateForm();
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
   }
 
   getAll() {
@@ -102,7 +108,7 @@ class FormService {
       data: this._getData(),
       originalData: this._data,
       changes: this._getChangesFields(),
-      errors: this._getValidationErrors() ? this._getValidationErrors()._fields : {},
+      errors: this._getValidationErrors(),
       globalError: this._globalError,
       isSubmitting: this.isSubmitting
     };
@@ -115,7 +121,7 @@ class FormService {
    * @param {string|string[]}  fields  Parameters
    * @param {*}                values   Event or data
    */
-  updateField(fields, values) {
+  async updateField(fields, values) {
     if (this._isNotInitialized) {
       return;
     }
@@ -126,7 +132,7 @@ class FormService {
       fields = [fields];
       values = [values];
     }
-    this.set(utils.zipObject(fields, values));
+    await this.set(utils.zipObject(fields, values));
   }
 
   addChangeListener(func) {
@@ -169,15 +175,22 @@ class FormService {
 
   validateField(fields, values) {
     this.updateField(fields, values);
-    return this.validateForm();
+    try {
+      this.validateForm();
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
   }
+
   /**
    * Set data in the form
    *
    * @param {Object}    data              Data
    * @param {bool}      [validate=false]  Validate form
    */
-  set(data, validate) {
+  async set(data, validate) {
     if (!this._isLoaded()) {
       return;
     }
@@ -187,7 +200,13 @@ class FormService {
     this._setState();
 
     if (validate) {
-      this.validateForm();
+      try {
+        await this.validateForm();
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
+      }
     }
   }
 
@@ -196,7 +215,7 @@ class FormService {
       return;
     }
 
-    this.set(data);
+    await this.set(data);
     return await this.submit();
   }
 
@@ -218,7 +237,7 @@ class FormService {
     const changes = this._getChanges();
 
     this._globalError = null;
-    this.partialErrorChecking = false;
+    this._partialErrorChecking = false;
 
     this._setState();
 
@@ -237,7 +256,6 @@ class FormService {
     const newChanges = this._getChanges();
     const actualChanges = utils.isEqual(changes, newChanges);
     const validationError = err instanceof ValidationErrors;
-
     // Replacing empty error to null
     if (validationError && err.isEmpty()) {
       err = null;
@@ -291,13 +309,49 @@ class FormService {
     this._warnings.clear();
     this._changes = {};
     this._globalError = false;
-    this.partialErrorChecking = this.partialErrorCheckingDefault;
+    this._partialErrorChecking = this._partialErrorCheckingDefault;
     this._setState();
   }
 
   setPartialErrorChecking(value) {
-    this.partialErrorChecking = value;
+    this._partialErrorChecking = value;
     this._setState();
+  }
+
+  getPartialErrorChecking() {
+    return {
+      _partialErrorChecking: this._partialErrorChecking,
+      _partialErrorCheckingDefault: this._partialErrorCheckingDefault
+    };
+  }
+
+  async validateForm() {
+    if (this._isNotInitialized) {
+      return;
+    }
+
+    this.validating = true;
+    this._globalError = null;
+
+    await Promise.all([
+      this._runValidator(this.model, this._getChanges, '_errors'),
+      this._runValidator(this._warningsValidator, this._getData, '_warnings')
+    ]);
+
+    this.validating = false;
+
+    let field;
+    while (field = this.pendingClearErrors.pop()) {
+      this._warnings.clearField(field);
+      this._errors.clearField(field);
+    }
+
+    this._setState();
+
+    const errorsWithPartialChecking = this._getValidationErrors();
+    if (!errorsWithPartialChecking.isEmpty()) {
+      return errorsWithPartialChecking;
+    }
   }
 
   /**
@@ -317,7 +371,7 @@ class FormService {
    */
   _getChangesFields() { // TODO _getChanges
     const changes = {};
-    for (let field in this._changes) {
+    for (const field in this._changes) {
       if (!this._isDependentField(field)) {
         changes[field] = this._changes[field];
       }
@@ -331,11 +385,11 @@ class FormService {
    * @returns {ValidationErrors} Form errors
    */
   _getValidationErrors() {
-    const errors = ValidationErrors.merge(this.state._formMixin.errors, this.state._formMixin.warnings);
+    const errors = ValidationErrors.merge(this._errors, this._warnings);
 
     // If gradual validation is on, we need
     // to remove unchanged records from errors object
-    if (!this.partialErrorChecking) {
+    if (!this._partialErrorChecking) {
       return errors;
     }
 
@@ -363,42 +417,6 @@ class FormService {
   _onModelChange(changes) {
     this._data = {...this._data, ...changes};
     this._setState();
-  }
-
-  async validateForm() {
-    if (this._isNotInitialized) {
-      return;
-    }
-
-    let completeError;
-
-    this.validating = true;
-
-    await Promise.all([
-      this._runValidator(this.model, this._getChanges, '_errors')
-        .catch(err => completeError = err),
-      this._runValidator(this._warningsValidator, this._getData, '_warnings')
-        .catch(err => completeError = err)
-    ]);
-
-    this.validating = false;
-
-    let field;
-    while (field = this.pendingClearErrors.pop()) {
-      this._warnings.clearField(field);
-      this._errors.clearField(field);
-    }
-
-    this._setState();
-
-    if (completeError) {
-      throw  completeError;
-    }
-
-    const errorsWithPartialChecking = this._getValidationErrors();
-    if (!errorsWithPartialChecking.isEmpty()) {
-      return errorsWithPartialChecking;
-    }
   }
 
   _getData() {
@@ -439,7 +457,7 @@ class FormService {
     }
 
     if (err) {
-      throw err;
+      this._globalError = err;
     }
   }
 }

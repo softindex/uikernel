@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -19,7 +17,7 @@ const GridPaginationMixin = {
    * @param {Event} event
    */
   handleChangeViewCount: function (event) {
-    let count = this.props.viewVariants[event.target.value];
+    const count = this.props.viewVariants[event.target.value];
     if (this._isViewCountPropsMode()) {
       this.props.onChangeViewCount(count);
       return;
@@ -120,7 +118,7 @@ const GridPaginationMixin = {
    * @return {number}
    */
   getPagesCount: function () {
-    let viewCount = this.getViewCount();
+    const viewCount = this.getViewCount();
     return viewCount ? Math.ceil(this.state.count / viewCount) : 1;
   },
 
@@ -147,7 +145,7 @@ const GridPaginationMixin = {
   },
 
   _renderPagination: function _renderPagination() {
-    let viewCount = this.getViewCount();
+    const viewCount = this.getViewCount();
     return viewCount ? (
       <div className="dgrid-footer">
         {this.props.viewVariants ? [

@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -71,7 +69,7 @@ const GridEditorMixin = {
     editorContext.props = props;
 
     // Display Editor
-    let Component = this.props.cols[column].editor.call(editorContext, record);
+    const Component = this.props.cols[column].editor.call(editorContext, record);
 
     if (!Component) {
       return;

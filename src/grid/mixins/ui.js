@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -103,27 +101,22 @@ const GridUIMixin = {
       extra: this._getAdditionalIds()
     });
 
-    let data;
-    let extra;
-    let page;
-    let recordIds;
-
     if (!this._isMounted) {
       return;
     }
 
     // If required page is not included in the range of existing pages,
     // request existing in a moment page
-    page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
+    const page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
     if (page !== this.state.page) {
       this.state.page = page;
       this.updateTable();
       return;
     }
 
-    data = this._dataArrayToObject(obj.records);
-    extra = this._dataArrayToObject(obj.extraRecords || []);
-    recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
+    const data = this._dataArrayToObject(obj.records);
+    const extra = this._dataArrayToObject(obj.extraRecords || []);
+    const recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
 
     await toPromise(this.setState.bind(this))({
       data: utils.assign({}, data.records, extra.records),

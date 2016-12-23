@@ -4,11 +4,7 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
-
-'use strict';
 
 import objectHash from 'object-hash';
 import ThrottleError from './ThrottleError';
@@ -96,12 +92,19 @@ exports.throttle = function (func) {
   let nextArguments;
   let nextResolve;
 
+  /**
+   * @throws {ThrottleError} Too many function call
+   */
   return function run(...args) {
+    const parentStack = '\n' + new Error().stack.split('\n').slice(1).join('\n');
+
     return new Promise((resolve, reject) => {
       if (worked) {
         nextArguments = args;
         if (nextResolve) {
-          nextResolve(Promise.reject(new ThrottleError('function call is deprecated')))
+          const error = new ThrottleError();
+          error.stack += parentStack;
+          nextResolve(Promise.reject(error));
         }
         nextResolve = resolve;
         return;
@@ -109,14 +112,16 @@ exports.throttle = function (func) {
 
       worked = true;
 
-      let result = func.apply(this, args);
-      result
+      func.apply(this, args)
         .then(result => {
           worked = false;
           if (nextArguments) {
             nextResolve(run(...nextArguments));
             nextArguments = null;
-            reject(new ThrottleError('function call is deprecated'));
+
+            const error = new ThrottleError();
+            error.stack += parentStack;
+            reject(error);
             return;
           }
           resolve(result);
@@ -147,7 +152,7 @@ exports.decorate = function (obj, decor) {
   function Decorator() {
     exports.assign(this, decor);
 
-    for (let i in obj) {
+    for (const i in obj) {
       if (typeof obj[i] === 'function' && !decor[i]) {
         this[i] = obj[i].bind(obj);
       }
@@ -191,7 +196,7 @@ exports.isEqual = (a, b) =>{
 
 exports.assign = function(result){
   for (let i = 1; i < arguments.length; i++) {
-    for (let j in arguments[i]) {
+    for (const j in arguments[i]) {
       result[j] = arguments[i][j];
     }
   }
@@ -224,7 +229,7 @@ exports.isEmpty = function (value) {
 exports.isDefined = value => value !== null && value !== undefined && value !== '';
 
 exports.forEach = (obj, func, ctx) =>{
-  for (let i in obj) {
+  for (const i in obj) {
     func.call(ctx, obj[i], i);
   }
 };
@@ -232,7 +237,7 @@ exports.forEach = (obj, func, ctx) =>{
 exports.pluck = (arr, field) => arr.map(item => item[field]);
 
 exports.find = (arr, func) =>{
-  for (let i in arr) {
+  for (const i in arr) {
     if (func(arr[i], i)) {
       return arr[i];
     }
@@ -241,7 +246,7 @@ exports.find = (arr, func) =>{
 };
 
 exports.findIndex = (obj, func) =>{
-  for (let i in obj) {
+  for (const i in obj) {
     if (func(obj[i], i)) {
       return i;
     }
@@ -251,7 +256,7 @@ exports.findIndex = (obj, func) =>{
 
 exports.omit = (obj, predicate) =>{
   const result = {};
-  for (let i in obj) {
+  for (const i in obj) {
     if (
       (typeof predicate === 'string' && predicate !== i) ||
       (Array.isArray(predicate) && predicate.indexOf(i) < 0) ||
@@ -298,7 +303,7 @@ exports.pick = (obj, keys, defaultValue) => keys.reduce((result, key) => {
 }, {});
 
 exports.reduce = (obj, func, value) =>{
-  for (let i in obj) {
+  for (const i in obj) {
     value = func(value, obj[i], i);
   }
   return value;
@@ -333,7 +338,7 @@ exports.at = (obj, keys) =>{
 
 exports.pairs = obj =>{
   const result = [];
-  for (let i in obj) {
+  for (const i in obj) {
     result.push([i, obj[i]]);
   }
   return result;
@@ -371,7 +376,7 @@ exports.last = arr => arr[arr.length - 1];
 exports.getRecordChanges = (model, data, changes, newChanges) =>{
   const result = exports.assign({}, changes, newChanges);
 
-  for (let i in result) {
+  for (const i in result) {
     if (exports.isEqual(data[i], result[i])) {
       delete result[i];
     }

@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -175,8 +173,8 @@ const GridSortingMixin = {
    */
   _getSortParams: function (column) {
     const params = {column: column};
+    const sorts = this.getSortDirection();
     let sortIndex;
-    let sorts = this.getSortDirection();
 
     if (!this.props.cols[column].sortCycle) {
       return null;
@@ -228,7 +226,7 @@ const GridSortingMixin = {
       return [sort.column, sort.direction];
     }
 
-    let direction = this.getSortDirection();
+    const direction = this.getSortDirection();
     if (!direction) {
       return null;
     }

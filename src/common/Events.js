@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -70,7 +68,7 @@ class EventsModel {
    * @param {string} event name
    */
   listenerCount(event) {
-    return this._subscribers[event].length;
+    return this._subscribers[event] ? this._subscribers[event].length : 0;
   }
 
   /**

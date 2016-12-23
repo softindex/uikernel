@@ -4,8 +4,6 @@
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
 'use strict';
@@ -45,7 +43,6 @@ ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
 
     let xhrResult;
     let validationErrors;
-    let body;
 
     try {
       xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
@@ -67,9 +64,7 @@ ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
       throw err;
     }
 
-    body = JSON.parse(xhrResult);
-
-    return ValidationErrors.createFromJSON(body);
+    return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
 
   }
 );
