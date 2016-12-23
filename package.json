@@ -14,7 +14,7 @@
   "browser": "./browser",
   "repository": "git@github.com:softindex/uikernel.git",
   "scripts": {
-    "test": "jest"
+    "prepublish": "gulp bundle"
   },
   "dependencies": {
     "csv-stringify": "^1.0.4",
@@ -52,7 +52,6 @@
     "gulp-rename": "^1.2.2",
     "gulp-sequence": "^0.4.6",
     "gulp-uglify": "^2.0.0",
-    "jest": "^17.0.3",
     "merge-stream": "^1.0.0",
     "webpack": "^1.13.3",
     "webpack-stream": "^3.2.0",
