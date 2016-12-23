@@ -8,10 +8,10 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var url = require('url');
-var defaultXhr = require('../common/defaultXhr');
+import callbackify from '../common/callbackify';
+import toPromise from '../common/toPromise';
+import defaultXhr from '../common/defaultXhr';
+import url from 'url';
 
 /**
  * Simple list client model which works via XMLHttpRequest
@@ -34,33 +34,25 @@ function ListXMLHttpRequestModel(apiURL, xhr) {
  * @param {string}    search  List search query
  * @param {Function}  cb      CallBack function
  */
-ListXMLHttpRequestModel.prototype.read = function (search, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+ListXMLHttpRequestModel.prototype.read = callbackify(async function (search) {
+  const parsedUrl = url.parse(this._apiUrl, true);
   delete parsedUrl.search;
   if (search) {
     parsedUrl.query.v = search;
   }
 
-  this._xhr({
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     headers: {
       'Content-type': 'application/json'
     },
     uri: url.format(parsedUrl)
-  }, function (err, resp, body) {
-    if (err) {
-      return cb(err);
-    }
-
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
-
-    cb(null, body);
   });
-};
+
+  body = JSON.parse(body);
+
+  return body;
+});
 
 /**
  * Get option name using ID
@@ -68,29 +60,21 @@ ListXMLHttpRequestModel.prototype.read = function (search, cb) {
  * @param {*}         id  Option ID
  * @param {Function}  cb  CallBack function
  */
-ListXMLHttpRequestModel.prototype.getLabel = function (id, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
-  parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'label/' + JSON.stringify(id));
+ListXMLHttpRequestModel.prototype.getLabel = callbackify(async function (id) {
+  const parsedUrl = url.parse(this._apiUrl, true);
+  parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
 
-  this._xhr({
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     headers: {
       'Content-type': 'application/json'
     },
     uri: url.format(parsedUrl)
-  }, function (err, resp, body) {
-    if (err) {
-      return cb(err);
-    }
-
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
-
-    cb(null, body);
   });
-};
+
+  body = JSON.parse(body);
+
+  return body;
+});
 
 module.exports = ListXMLHttpRequestModel;

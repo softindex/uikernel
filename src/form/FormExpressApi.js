@@ -8,38 +8,52 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var express = require('express');
-var ValidationErrors = require('../common/validation/ValidationErrors');
+import toPromise from '../common/toPromise';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import express from 'express';
 
 function FormExpressApi() {
   if (!(this instanceof FormExpressApi)) {
     return new FormExpressApi();
   }
 
-  var ctx = this;
+  const ctx = this;
 
   ctx.middlewares = {
-    getData: [function (req, res, next) {
-      var fields = req.query.fields ? JSON.parse(req.query.fields) : null;
-      ctx._getModel(req, res).getData(fields, function (err, data) {
-        ctx._result(err, data, req, res, next);
-      });
-    }],
-    submit: [function (req, res, next) {
-      ctx._getModel(req, res).submit(req.body, function (err, data) {
-        if (err && !(err instanceof ValidationErrors)) {
+    getData: [(req, res, next) =>{
+      const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
+      const model = ctx._getModel(req, res);
+      toPromise(model.getData.bind(model))(fields)
+        .then(data =>{
+          ctx._result(null, data, req, res, next);
+        })
+        .catch(err =>{
           ctx._result(err, null, req, res, next);
-          return;
-        }
-        ctx._result(null, {data: data, error: err}, req, res, next);
-      });
+        });
     }],
-    validate: [function (req, res, next) {
-      ctx._getModel(req, res).isValidRecord(req.body, function (err, data) {
-        ctx._result(err, data, req, res, next);
-      });
+    submit: [(req, res, next) =>{
+      const model = ctx._getModel(req, res);
+      toPromise(model.submit.bind(model))(req.body)
+        .then(data =>{
+          ctx._result(null, {data: data, error: null}, req, res, next);
+        })
+        .catch(err =>{
+          if (err && !(err instanceof ValidationErrors)) {
+            ctx._result(err, null, req, res, next);
+            return;
+          }
+          ctx._result(err, {data: null, error: err}, req, res, next);
+        });
+    }],
+    validate: [(req, res, next) =>{
+      const model = ctx._getModel(req, res);
+      toPromise(model.isValidRecord.bind(model))(req.body)
+        .then(data =>{
+          ctx._result(null, data, req, res, next);
+        })
+        .catch(err =>{
+          ctx._result(err, null, req, res, next);
+        });
     }]
   };
 }
@@ -48,9 +62,7 @@ FormExpressApi.prototype.model = function (model) {
   if (typeof model === 'function') {
     this._getModel = model;
   } else {
-    this._getModel = function () {
-      return model;
-    };
+    this._getModel = () => model;
   }
   return this;
 };
@@ -84,7 +96,7 @@ FormExpressApi.prototype.result = function (func) {
   return this;
 };
 FormExpressApi.prototype.getRouter = function () {
-  var ctx = this;
+  const ctx = this;
 
   return new express.Router()
     .get('/', ctx.middlewares.getData)
@@ -93,10 +105,10 @@ FormExpressApi.prototype.getRouter = function () {
 };
 
 // Default implementation
-FormExpressApi.prototype._getModel = function () {
+FormExpressApi.prototype._getModel = () =>{
   throw Error('Model is not defined.');
 };
-FormExpressApi.prototype._result = function (err, data, req, res, next) {
+FormExpressApi.prototype._result = (err, data, req, res, next) =>{
   if (err) {
     next(err);
   } else {

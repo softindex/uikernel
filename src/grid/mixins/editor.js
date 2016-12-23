@@ -9,19 +9,13 @@
  */
 
 'use strict';
+import React from 'react'; // eslint-disable-line no-unused-vars
+import ReactDOM from 'react-dom';
+import utils from '../../common/utils';
 
-var React = require('react'); // eslint-disable-line no-unused-vars
-var ReactDOM = require('react-dom');
-var utils = require('../../common/utils');
+const findDOMNode = ReactDOM.findDOMNode;
 
-var findDOMNode = ReactDOM.findDOMNode;
-
-var GridEditorMixin = {
-  getInitialState: function () {
-    return {
-      editor: {}
-    };
-  },
+const GridEditorMixin = {
 
   /**
    * Display Editor in a table cell
@@ -32,11 +26,11 @@ var GridEditorMixin = {
    * @private
    */
   _renderEditor: function (element, row, column) {
-    var binds = this._getBindParam(column);
-    var record = this._getRecord(row);
-    var $element = $(element);
-    var value = utils.at(record, binds);
-    var focusDone = false;
+    const binds = this._getBindParam(column);
+    const record = this._getRecord(row);
+    const $element = $(element);
+    let value = utils.at(record, binds);
+    let focusDone = false;
 
     if (!Array.isArray(binds)) {
       value = value[0];
@@ -47,43 +41,43 @@ var GridEditorMixin = {
       return;
     }
 
-    var editorContext = {
-      updateField: function (field, nextValue, cb) {
-        var data = {};
+    const editorContext = {
+      updateField: (field, nextValue) => {
+        const data = {};
         data[field] = nextValue;
-        this._setRowChanges(row, data, cb);
-      }.bind(this)
+        this._setRowChanges(row, data);
+      }
     };
 
-    var props = {
-      onChange: function (values) {
+    const props = {
+      onChange: (values) => {
         this._onChangeEditor(row, column, values, editorContext, element);
-      }.bind(this),
-      onFocus: function () {
+      },
+      onFocus: () => {
         this._onFocusEditor(row, column);
-      }.bind(this),
-      onBlur: function () {
+      },
+      onBlur: () => {
         // Remove Editor
         if (focusDone) {
           ReactDOM.unmountComponentAtNode(element);
-          delete this.state.editor[row + '_' + column];
+          delete this.state.editor[`${row}_${column}`];
           $element.removeClass('dgrid-input-wrapper');
           this._onBlurEditor(row, column);
         }
-      }.bind(this),
+      },
       value: value
     };
 
     editorContext.props = props;
 
     // Display Editor
-    var Component = this.props.cols[column].editor.call(editorContext, record);
+    let Component = this.props.cols[column].editor.call(editorContext, record);
 
     if (!Component) {
       return;
     }
 
-    this.state.editor[row + '_' + column] = ReactDOM.render(Component, element, function () {
+    this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element, function () {
       $element.addClass('dgrid-input-wrapper');
 
       if (typeof this.focus === 'function') {
@@ -96,15 +90,15 @@ var GridEditorMixin = {
   },
 
   _onChangeEditor: function (row, column, values, editorContext, element) {
-    var binds = this._getBindParam(column);
+    let binds = this._getBindParam(column);
 
     values = utils.cloneDeep(utils.parseValueFromEvent(values));
 
-    var record = this._getRecord(row);
-    var context = utils.cloneDeep(editorContext);
+    const record = this._getRecord(row);
+    const context = utils.cloneDeep(editorContext);
     context.props.value = values;
-    var Component = this.props.cols[column].editor.call(context, record);
-    this.state.editor[row + '_' + column] = ReactDOM.render(Component, element);
+    const Component = this.props.cols[column].editor.call(context, record);
+    this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element);
 
     if (!Array.isArray(binds)) {
       binds = [binds];
@@ -119,7 +113,7 @@ var GridEditorMixin = {
       return;
     }
 
-    var binds = this._getBindParam(column);
+    let binds = this._getBindParam(column);
     if (!Array.isArray(binds)) {
       binds = [binds];
     }
@@ -148,8 +142,8 @@ var GridEditorMixin = {
   },
 
   _isEditorVisible: function (row, column) {
-    return Boolean(this.state.editor[row + '_' + column]);
+    return Boolean(this.state.editor[`${row}_${column}`]);
   }
 };
 
-module.exports = GridEditorMixin;
+export default GridEditorMixin;

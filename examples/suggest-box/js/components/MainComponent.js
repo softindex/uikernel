@@ -15,11 +15,10 @@ var MainComponent = React.createClass({
     };
   },
   save: function () {
-    this.refs.grid.save(function (err) {
-      if (err) {
+    this.refs.grid.save()
+      .catch(() => {
         alert('Error');
-      }
-    });
+      });
   },
 
   clear: function () {

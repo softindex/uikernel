@@ -12,149 +12,162 @@ First, let's create a form for adding new records to our grid. Open your `Create
 
 {% highlight javascript %}
 var CreateFormComponent = React.createClass({
-  mixins: [UIKernel.Mixins.Form],
+  getInitialState: function () {
+      this.form = new UIKernel.Form();
+      return null;
+    },
 
-  componentDidMount() {
-    this.initForm({
-      fields: ['name', 'surname', 'phone', 'age', 'gender'],
-      model: UIKernel.Adapters.Grid.toFormCreate(model, { // pass it default field values
-        name: '',
-        surname: '',
-        phone: '',
-        age: '',
-        gender: 1
-      }),
-      submitAll: true,
-      partialErrorChecking: true
-    });
-  },
+    componentDidMount() {
+      this.form.init({
+        fields: ['name', 'surname', 'phone', 'age', 'gender'],
+        model: UIKernel.Adapters.Grid.toFormCreate(model, { // pass it default field values
+          name: '',
+          surname: '',
+          phone: '',
+          age: '',
+          gender: 1
+        }),
+        submitAll: true,
+        partialErrorChecking: true
+      });
+      this.form.addChangeListener(this.onFormChange);
+    },
 
-  save: function (e) {
-    e.preventDefault();
-    this.submit(function (err, recordId) {
-      if (!err) {
-        this.props.onSubmit(recordId);
+    componentWillUnmount() {
+      this.form.removeChangeListener(this.onFormChange);
+    },
+
+    onFormChange(newFormState) {
+      this.props.stateHandler(newFormState);
+    },
+
+    save: function (e) { // save record handler
+      e.preventDefault();
+      this.form.submit()
+        .then((recordId) => {
+          this.props.onSubmit(recordId)
+        });
+    },
+
+    render: function () {
+      if (!this.props.state.isLoaded) {
+        return <span>Loading...</span>;
       }
-    }.bind(this));
-  },
 
-  render: function () {
-    if (!this.isLoaded()) {
-      return <span>Loading...</span>;
-    }
-
-    var data = this.getData();
-    var globalError = this.getGlobalError();
-
-    return (
-      <div>
-        {globalError ? globalError.message : ''}
-        <form className="form-horizontal edit-form" onSubmit={this.save}>
-          <div className={"form-group" + (this.hasChanges('name') ? ' changed' : '') + (this.hasError('name') ? ' error' : '')}>
-            <label className="col-sm-3 control-label">First Name</label>
-            <div className="col-sm-9">
-              <input
-                type="text"
-                placeholder="Alyx"
-                className="form-control"
-                onChange={this.updateField.bind(null, 'name')}
-                onFocus={this.clearError.bind(null, 'name')}
-                onBlur={this.validateForm}
-                value={data.name}
-              />
+      return (
+        <div>
+          {this.props.state.globalError ? this.props.state.globalError.message : ''}
+          <form className="form-horizontal edit-form" onSubmit={this.save}>
+            <div
+              className={"form-group" + (this.props.state.changes.name ? ' changed' : '') + (this.props.state.errors.name ? ' error' : '')}>
+              <label className="col-sm-3 control-label">First Name</label>
+              <div className="col-sm-9">
+                <input
+                  type="text"
+                  placeholder="Alyx"
+                  className="form-control"
+                  onChange={this.form.updateField.bind(this.form,'name')}
+                  onFocus={this.form.clearError.bind(this.form, 'name')}
+                  onBlur={this.form.validateForm}
+                  value={this.props.state.data.name}
+                />
+              </div>
             </div>
-          </div>
-          <div className={"form-group" + (this.hasChanges('surname') ? ' changed' : '') + (this.hasError('surname') ? ' error' : '')}>
-            <label className="col-sm-3 control-label">Last Name</label>
-            <div className="col-sm-9">
-              <input
-                type="text"
-                placeholder="Vance"
-                className="form-control"
-                onChange={this.updateField.bind(null, 'surname')}
-                onFocus={this.clearError.bind(null, 'surname')}
-                onBlur={this.validateForm}
-                value={data.surname}
-              />
+            <div
+              className={"form-group" + (this.props.state.changes.surname ? ' changed' : '') + (this.props.state.errors.surname ? ' error' : '')}>
+              <label className="col-sm-3 control-label">Last Name</label>
+              <div className="col-sm-9">
+                <input
+                  type="text"
+                  placeholder="Vance"
+                  className="form-control"
+                  onChange={this.form.updateField.bind(this.form,'surname')}
+                  onFocus={this.form.clearError.bind(this.form, 'surname')}
+                  onBlur={this.form.validateForm}
+                  value={this.props.state.data.surname}
+                />
+              </div>
             </div>
-          </div>
-          <div className={"form-group" + (this.hasChanges('phone') ? ' changed' : '') + (this.hasError('phone') ? ' error' : '')}>
-            <label className="col-sm-3 control-label">Phone</label>
-            <div className="col-sm-9">
-              <input
-                type="text"
-                placeholder="555-0100"
-                className="form-control"
-                onChange={this.updateField.bind(null, 'phone')}
-                onFocus={this.clearError.bind(null, 'phone')}
-                onBlur={this.validateForm}
-                value={data.phone}
-              />
+            <div
+              className={"form-group" + (this.props.state.changes.phone ? ' changed' : '') + (this.props.state.errors.phone ? ' error' : '')}>
+              <label className="col-sm-3 control-label">Phone</label>
+              <div className="col-sm-9">
+                <input
+                  type="text"
+                  placeholder="555-0100"
+                  className="form-control"
+                  onChange={this.form.updateField.bind(this.form,'phone')}
+                  onFocus={this.form.clearError.bind(this.form, 'phone')}
+                  onBlur={this.form.validateForm}
+                  value={this.props.state.data.phone}
+                />
+              </div>
             </div>
-          </div>
-          <div className={"form-group" + (this.hasChanges('age') ? ' changed' : '') + (this.hasError('age') ? ' error' : '')}>
-            <label className="col-sm-3 control-label">Age</label>
-            <div className="col-sm-9">
-              <input
-                type="number"
-                placeholder="18"
-                className="form-control"
-                onChange={this.updateField.bind(null, 'age')}
-                onFocus={this.clearError.bind(null, 'age')}
-                onBlur={this.validateForm}
-                value={data.age}
-              />
+            <div
+              className={"form-group" + (this.props.state.changes.age ? ' changed' : '') + (this.props.state.errors.age ? ' error' : '')}>
+              <label className="col-sm-3 control-label">Age</label>
+              <div className="col-sm-9">
+                <input
+                  type="number"
+                  placeholder="18"
+                  className="form-control"
+                  onChange={this.form.updateField.bind(this.form,'age')}
+                  onFocus={this.form.clearError.bind(this.form, 'age')}
+                  onBlur={this.form.validateForm}
+                  value={this.props.state.data.age}
+                />
+              </div>
             </div>
-          </div>
-          <div className={"form-group" + (this.hasChanges('gender') ? ' changed' : '') + (this.hasError('gender') ? ' error' : '')}>
-            <label className="col-sm-3 control-label">Gender</label>
-            <div className="col-sm-9">
-              <UIKernel.Editors.Select
-                options={[
-                  [1, 'Male'],
-                  [2, 'Female']
-                ]}
-                className="form-control"
-                onChange={this.updateField.bind(null, 'gender')}
-                onFocus={this.clearError.bind(null, 'gender')}
-                onBlur={this.validateForm}
-                value={data.gender}
-              />
+            <div
+              className={"form-group" + (this.props.state.changes.gender ? ' changed' : '') + (this.props.state.errors.gender ? ' error' : '')}>
+              <label className="col-sm-3 control-label">Gender</label>
+              <div className="col-sm-9">
+                <UIKernel.Editors.Select
+                  options={[
+                    [1, 'Male'],
+                    [2, 'Female']
+                  ]}
+                  className="form-control"
+                  onChange={this.form.updateField.bind(this.form,'gender')}
+                  onFocus={this.form.clearError.bind(this.form, 'gender')}
+                  onBlur={this.form.validateForm}
+                  value={this.props.state.data.gender}
+                />
+              </div>
             </div>
-          </div>
-          <div className="form-group">
-            <div className="col-sm-offset-3 col-sm-9">
-              <button type="button" className="btn btn-success" onClick={this.clearChanges}>
-                Clear
-              </button>
+            <div className="form-group">
+              <div className="col-sm-offset-3 col-sm-9">
+                <button type="button" className="btn btn-success" onClick={this.form.clearChanges}>
+                  Clear
+                </button>
                 {' '}
-              <button type="submit" className="btn btn-primary">
-                Add
-              </button>
+                <button type="submit" className="btn btn-primary">
+                  Add
+                </button>
+              </div>
             </div>
-          </div>
-        </form>
-      </div>
-    );
-  }
+          </form>
+        </div>
+      );
+    }
 });
 {% endhighlight %}
 ---
 
-Here, we're using the `UIKernel.Mixins.Form` mixin.
+Here, we're using the `UIKernel.Services.Form` service.
 
-We initialize our form by calling `initForm` in `componentDidMount`. The argument passed to `initForm` is an object with settings.
+We create instance of form service and initialize our form by calling `initForm` in `componentDidMount`. The argument passed to `init` is an object with settings.
 The `fields` property contains an array of form field names.
 In the `model` property, we call `UIKernel.Adapters.Grid.toFormCreate` to create a model, which uses the grid model for creating new records.
 We pass it our grid model and an object of default field values as arguments.
-`submitAll: true` means that all form will be sent for validation, `partialErrorChecking: true` - that the form fields will be validated in response to user input.
+`partialErrorChecking: true` means that the form fields will be validated in response to user input.
 
 Note that the form uses validation rules we've specified before.
 
 In the `save` method, we call `submit`, which sends data to our model.
 If `submit` is successful, the  callback from  `MainComponent` will be invoked.
 
-In `render`, we call `isLoaded` to check if data loaded, `getData` to get the form data, and `getGlobalError` to get global errors if there are any.
+In `render`, we use `isLoaded` to check if data loaded, `getData` to get the form data, and `getGlobalError` to get global errors if there are any.
 
 All inputs have the `onChange`, `onFocus`, and `onBlur` props with callbacks set.
 
@@ -188,9 +201,20 @@ Next up, let's modify `MainComponent` by adding it a new method named `addRecord
 
 `MainComponent.js`:
 {% highlight javascript %}
+getInitialState: function () {
+    return {
+      model: model,
+      createForm: {}
+    };
+},
+
 addRecord: function (recordId) {
   this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
 }
+
+onCreateFormStateHandler: function (newFormState) {
+    this.setState({createForm: newFormState});
+},
 
 // ...
 {% endhighlight %}
@@ -207,6 +231,8 @@ Additionally, we'll initialize our form and pass it the `onSubmit` property.
     <div className="panel-body">
       <CreateFormComponent
         onSubmit={this.addRecord}
+        stateHandler={this.onCreateFormStateHandler}
+        state={this.state.createForm}
       />
     </div>
   </div>

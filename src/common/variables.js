@@ -10,13 +10,11 @@
 
 'use strict';
 
-var variables = {};
+let variables = {};
 
 module.exports = {
-  get: function (key) {
-    return variables[key];
-  },
-  set: function (key, value) {
+  get: key => variables[key],
+  set: (key, value) => {
     variables[key] = value;
   }
 };

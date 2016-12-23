@@ -10,10 +10,10 @@
 
 'use strict';
 
-var React = require('react');
-var utils = require('../../common/utils');
+import utils from '../../common/utils';
+import React from 'react';
 
-var GridColumnsMixin = {
+const GridColumnsMixin = {
   /**
    * Column visibility flag
    *
@@ -40,13 +40,13 @@ var GridColumnsMixin = {
    * @private
    */
   _formHeader: function () {
-    var columnId;
-    var rows = [[/* top */], [/* bottom */]];
-    var colGroup = [];
-    var lastParent = {name: ''};
-    var addInfo;
-    var sortParams;
-    var classNames;
+    let columnId;
+    const rows = [[/* top */], [/* bottom */]];
+    const colGroup = [];
+    let lastParent = {name: ''};
+    let addInfo;
+    let sortParams;
+    let classNames;
 
     for (columnId in this.props.cols) {
       // Skip column if it's invisible
@@ -73,7 +73,7 @@ var GridColumnsMixin = {
 
       sortParams = this._getSortParams(columnId);
       if (sortParams) {
-        classNames.push('dgrid-' + sortParams.direction);
+        classNames.push(`dgrid-${sortParams.direction}`);
         addInfo.field = sortParams.column;
         addInfo.sort = sortParams.direction;
       }
@@ -106,9 +106,9 @@ var GridColumnsMixin = {
    * @private
    */
   _getFieldsToRender: function () {
-    var i;
-    var cols = this.props.cols;
-    var columns = [];
+    let i;
+    const cols = this.props.cols;
+    let columns = [];
     for (i in cols) {
       columns = utils.union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
     }
@@ -123,8 +123,8 @@ var GridColumnsMixin = {
    * @private
    */
   _isFieldAffectsRender: function (field) {
-    var i;
-    var cols = this.props.cols;
+    let i;
+    const cols = this.props.cols;
     for (i in cols) {
       if (cols[i].render.indexOf(field) >= 0) {
         return true;
@@ -141,9 +141,9 @@ var GridColumnsMixin = {
    * @private
    */
   _getDependentColumns: function (field) {
-    var i;
-    var cols = this.props.cols;
-    var columns = [];
+    let i;
+    const cols = this.props.cols;
+    const columns = [];
 
     for (i in cols) {
       if (cols[i].render.indexOf(field) < 0) {
@@ -159,4 +159,4 @@ var GridColumnsMixin = {
   }
 };
 
-module.exports = GridColumnsMixin;
+export default GridColumnsMixin;

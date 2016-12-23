@@ -47,14 +47,6 @@ var columns = {
   // ...
 };
 {% endhighlight %}
-
-Если вы используете Xhr модель то `grid.updateTable()` необходимо поместить в колбек:
-{% highlight javascript %}
-del: function (event, recordId, record, grid) {
-        grid.getModel().delete(recordId, function (err) {
-          if (!err) grid.updateTable();
-        });
-{% endhighlight %}
 ---
 
 That's all. Now we can remove grid records.

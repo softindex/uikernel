@@ -8,13 +8,11 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import variables from './variables';
+import xhr from 'xhr';
 
-var xhr = require('xhr');
-var variables = require('./variables');
-
-var defaultXhr = function (settings, cb) {
-  xhr(settings, function (err, response, body) {
+const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
+  xhr(settings, (err, response, body) => {
     if (response.statusCode !== 200) {
       if (!err) {
         err = new Error();
@@ -29,16 +27,17 @@ var defaultXhr = function (settings, cb) {
           err.message = body;
         }
       }
+      reject(err);
     }
 
-    cb(err, response, body);
+    if (cb)
+      cb(err, response, body);
+    resolve(body);
   });
-};
+});
 
 if (!variables.get('xhr')) {
   variables.set('xhr', defaultXhr);
 }
 
-module.exports = function (settings, cb) {
-  variables.get('xhr')(settings, cb);
-};
+module.exports = (settings, cb) => variables.get('xhr')(settings, cb);

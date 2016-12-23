@@ -12,10 +12,11 @@
 
 var gulp = require('gulp');
 var rename = require('gulp-rename');
-var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 var licenser = require('gulp-licenser');
 var packageInfo = require('../package.json');
+var webpack = require('webpack-stream');
+var argv = require('yargs').argv;
 
 var LICENSE_TEMPLATE =
   '/**\n' +
@@ -30,17 +31,12 @@ var LICENSE_TEMPLATE =
 
 function jsBundle() {
   return gulp.src('browser.js')
-    .pipe(browserify({
-      shim: {
-        react: {
-          path: 'node_modules/react/dist/react.min.js',
-          exports: 'React'
-        },
-        'react-dom': {
-          path: 'node_modules/react-dom/dist/react-dom.min.js',
-          exports: 'ReactDOM'
-        }
-      }
+    .pipe(webpack({
+      externals: {
+        'react': 'React',
+        'react-dom' : 'ReactDOM'
+      },
+      devtool: argv.map ? 'eval' : false
     }))
     .pipe(rename(packageInfo.name + '.js'))
     .pipe(gulp.dest('dist'))

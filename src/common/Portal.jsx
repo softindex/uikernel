@@ -8,14 +8,10 @@
  * @providesModule UIKernel
  */
 
-/*eslint no-unused-vars: [0, { "varsIgnorePattern": "ChildrenWrapper"}]*/
+import ReactDOM from 'react-dom';
+import React from 'react';
 
-'use strict';
-
-var React = require('react');
-var ReactDOM = require('react-dom');
-
-var ChildrenWrapper = React.createClass({
+export const ChildrenWrapper = React.createClass({
   propTypes: {
     children: React.PropTypes.node
   },
@@ -37,9 +33,9 @@ var ChildrenWrapper = React.createClass({
   }
 });
 
-var portalClass = '__portal';
+const portalClass = '__portal';
 
-var Portal = React.createClass({
+export const Portal = React.createClass({
   propTypes: {
     children: React.PropTypes.node,
     id: React.PropTypes.string,
@@ -47,24 +43,22 @@ var Portal = React.createClass({
     onDocumentMouseScroll: React.PropTypes.func
   },
 
-  getInitialState: function () {
-    return {
-      portal: null
-    };
-  },
+  getInitialState: () => ({
+    portal: null
+  }),
 
   componentDidMount: function () {
     document.addEventListener('mousedown', this._onDocumentMouseDown, false);
     document.addEventListener('scroll', this._onDocumentMouseScroll, true);
 
-    var portal = document.createElement('div');
+    const portal = document.createElement('div');
     document.body.appendChild(portal);
 
     portal.className = portalClass;
     this.state.portal = portal;
     this.state.wrapper = ReactDOM.render(
       <ChildrenWrapper {...this.props}>{this.props.children}</ChildrenWrapper>
-    , this.state.portal);
+      , this.state.portal);
   },
 
   componentWillUnmount: function () {
@@ -80,7 +74,7 @@ var Portal = React.createClass({
   },
 
   _isDocumentEventOwner: function (target) {
-    return $(target).parents('.' + portalClass).get(0) === this.state.portal;
+    return $(target).parents(`.${portalClass}`).get(0) === this.state.portal;
   },
 
   _onDocumentMouseDown: function (e) {
@@ -95,9 +89,7 @@ var Portal = React.createClass({
     }
   },
 
-  render: function () {
-    return null;
-  }
+  render: () => null
 });
 
 module.exports = Portal;

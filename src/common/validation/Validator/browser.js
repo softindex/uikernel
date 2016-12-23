@@ -10,9 +10,11 @@
 
 'use strict';
 
-var Validator = require('./common');
-var ValidationErrors = require('../ValidationErrors');
-var defaultXhr = require('../../defaultXhr');
+import callbackify from '../../callbackify';
+import toPromise from '../../toPromise';
+import defaultXhr from '../../defaultXhr';
+import ValidationErrors from '../ValidationErrors';
+import Validator from './common';
 
 /**
  * Get validator.
@@ -23,7 +25,7 @@ var defaultXhr = require('../../defaultXhr');
  * @return {Validator}
  * @type {Module}
  */
-var ClientValidator = function (serverValidationUrl, xhr) {
+const ClientValidator = function (serverValidationUrl, xhr) {
   if (!(this instanceof ClientValidator)) {
     return new ClientValidator(serverValidationUrl, xhr);
   }
@@ -36,42 +38,40 @@ var ClientValidator = function (serverValidationUrl, xhr) {
 ClientValidator.prototype = Object.create(Validator.prototype);
 ClientValidator.prototype.constructor = ClientValidator;
 
-ClientValidator.prototype.isValidRecord = function (record, cb) {
-  if (!this._settings.serverValidationUrl) {
-    return Validator.prototype.isValidRecord.call(this, record, cb);
-  }
+ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
+    if (!this._settings.serverValidationUrl) {
+      return Validator.prototype.isValidRecord.call(this, record);
+    }
 
-  // Server validation start
-  this._settings.xhr({
-    method: 'POST',
-    headers: {'Content-type': 'application/json'},
-    body: JSON.stringify(record),
-    uri: this._settings.serverValidationUrl
-  }, function (err, resp, body) {
-    if (err) {
-      if (resp.status === 413) {
+    let xhrResult;
+    let validationErrors;
+    let body;
+
+    try {
+      xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
+        method: 'POST',
+        headers: {'Content-type': 'application/json'},
+        body: JSON.stringify(record),
+        uri: this._settings.serverValidationUrl
+      });
+    } catch (err) {
+      if (err.statusCode === 413) {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors
-        Validator.prototype.isValidRecord.call(this, record, function (err2, errors) {
-          if (errors.isEmpty()) {
-            return cb(err);
-          }
-          cb(err2, errors);
-        });
-        return;
+        validationErrors = await toPromise(Validator.prototype.isValidRecord).call(this, record);
+        if (!validationErrors.isEmpty()) {
+          return validationErrors;
+        }
       }
-      return cb(err);
+      throw err;
     }
 
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
+    body = JSON.parse(xhrResult);
 
-    cb(null, ValidationErrors.createFromJSON(body));
-  }.bind(this));
-};
+    return ValidationErrors.createFromJSON(body);
+
+  }
+);
 
 module.exports = ClientValidator;

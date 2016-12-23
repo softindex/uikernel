@@ -10,8 +10,14 @@
 
 var MainComponent = React.createClass({
   getInitialState: function () {
+    this.defaultFilters = {
+      search: '',
+      age: null,
+      gender: 0
+    };
     return {
-      model: model // let's store model in the state
+      model: model, // let's store model in the state
+      filters: this.defaultFilters
     };
   },
 
@@ -19,22 +25,29 @@ var MainComponent = React.createClass({
     this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   },
 
-  applyFilters: function (filters) {
+  applyFilters: function (newFilters) {
     this.setState({
-      model: UIKernel.applyGridFilters(model, filters)
+      filters: newFilters,
+      model: UIKernel.applyGridFilters(model, newFilters)
     });
   },
 
   onSave: function () {
-    this.refs.grid.save(function (err) {
-      if (err) {
+    this.refs.grid.save()
+      .catch(() => {
         alert('Error');
-      }
-    });
+      });
   },
 
   onClear: function () {
     this.refs.grid.clearAllChanges();
+  },
+
+  clearFilters: function () {
+    this.setState({
+      filters: this.defaultFilters,
+      model: UIKernel.applyGridFilters(model, this.defaultFilters)
+    });
   },
 
   render: function () {
@@ -61,6 +74,8 @@ var MainComponent = React.createClass({
               <div className="panel-body">
                 <FiltersForm
                   onSubmit={this.applyFilters}
+                  state = {this.state.filters}
+                  clearFilters = {this.clearFilters}
                 />
               </div>
             </div>

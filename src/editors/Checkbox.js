@@ -8,12 +8,10 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import {findDOMNode} from 'react-dom';
+import React from 'react';
 
-var React = require('react');
-var findDOMNode = require('react-dom').findDOMNode;
-
-var Checkbox = React.createClass({
+export const Checkbox = React.createClass({
   propTypes: {
     indeterminate: React.PropTypes.bool
   },

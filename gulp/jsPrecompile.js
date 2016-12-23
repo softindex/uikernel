@@ -10,16 +10,17 @@
 
 'use strict';
 
-var gulp = require('gulp');
-var plumber = require('gulp-plumber');
-var regenerator = require('gulp-regenerator');
-var react = require('gulp-react');
+const gulp = require('gulp');
+const babel = require('gulp-babel');
+const argv = require('yargs').argv;
 
 function jsPrecompile() {
   return gulp.src(['src/**/*.jsx', 'src/**/*.js'])
-    .pipe(plumber())
-    .pipe(regenerator())
-    .pipe(react())
+    .pipe(babel({
+      presets: ['react', 'latest', 'stage-0'],
+      plugins: ['transform-runtime', 'babel-plugin-add-module-exports'],
+      sourceMaps: argv.map ? 'inline' : false
+    }))
     .pipe(gulp.dest('lib'));
 }
 

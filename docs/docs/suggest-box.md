@@ -113,31 +113,43 @@ Now let’s create a modal using the Bootstrap Modal Plugin. The modal will cont
 `FormComponent.js`:
 {% highlight javascript %}
 var FormComponent = React.createClass({
-  mixins: [UIKernel.Mixins.Form],
+  getInitialState: function () {
+    this.form = new UIKernel.Services.Form();
+
+    return {
+      form: this.form.getAll()
+    };
+  },
 
   componentDidMount: function () {
-    this.initForm({
+    this.form.init({
       model: this.props.model, // Get FormModel from props
       fields: ['name', 'country', 'countryName'],
       changes: this.props.changes
     });
+    this.form.addChangeListener(this.onFormChange);
+  },
+
+  componentWillUnmount() {
+    this.form.removeChangeListener(this.onFormChange);
+  },
+
+  onFormChange(newFormState) {
+    this.setState({form: newFormState});
   },
 
   save: function (e) {
     e.preventDefault();
-    this.submit(function (err) {
-      if (!err) {
-        this.props.onSubmit();
-      }
-    }.bind(this));
+    this.form.submit()
+    .then(() => {
+      this.props.onSubmit();
+    });
   },
 
   render: function () {
-    if (!this.isLoaded()) {
+    if (!this.state.form.isLoaded) {
       return <span>Loading...</span>;
     }
-
-    var data = this.getData();
 
     return (
       <div className="modal-dialog">
@@ -147,22 +159,22 @@ var FormComponent = React.createClass({
               <span aria-hidden="true">×</span>
               <span className="sr-only">Close</span>
             </button>
-            <h4 className="modal-title">Edit {data.name}</h4>
+            <h4 className="modal-title">Edit {this.state.form.data.name}</h4>
           </div>
           <div className="modal-body">
             <form>
               <table className="table my-form">
                 <tr
-                  className={(this.hasChanges('country') ? 'changed' : '') + (this.hasError('country') ? ' error' : '')}
+                  className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.errors.country ? ' error' : '')}
                 >
                   <td>Country:</td>
                   <td>
                     <UIKernel.Editors.SuggestBox
                       model={countries}
-                      onChange={this.validateField.bind(null, 'country')}
-                      onLabelChange={this.updateField.bind(null, 'countryName')}
+                      onChange={this.form.validateField.bind(this.form, 'country')}
+                      onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
                       select={true}
-                      value={data.country}
+                      value={this.state.form.data.country}
                     />
                   </td>
                 </tr>
@@ -170,9 +182,10 @@ var FormComponent = React.createClass({
             </form>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-white" data-dismiss="modal">Cancel</button>
-            <button type="button" className="btn btn-white" onClick={this.clearChanges}>Discard</button>
             <button type="submit" className="btn btn-primary" onClick={this.save}>Save</button>
+            <button type="button" className="btn btn-white" onClick={this.form.clearChanges}>Discard</button>
+            <button type="button" className="btn btn-white" data-dismiss="modal">Cancel</button>
+
           </div>
         </div>
       </div>

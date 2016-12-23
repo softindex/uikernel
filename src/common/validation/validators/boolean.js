@@ -10,7 +10,7 @@
 
 'use strict';
 
-var utils = require('../../utils');
+import utils from '../../utils';
 
 function validator(notNull, error, value) {
   error = error || 'Not boolean';
@@ -32,9 +32,7 @@ function validator(notNull, error, value) {
  * @param {string} error Error message
  * @returns {Function} Validator
  */
-module.exports = function (error) {
-  return validator.bind(null, false, error);
-};
+module.exports = error => validator.bind(null, false, error);
 
 module.exports.notNull = function (error) {
   return validator.bind(null, this, error);

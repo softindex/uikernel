@@ -8,9 +8,9 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var Events = require('../../common/Events');
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import Events from '../../common/Events';
 
 /**
  * Adapter allows to use Grid model as a model for new form record creation
@@ -19,7 +19,7 @@ var Events = require('../../common/Events');
  * @param {Object}              [initialData]   Default field values
  * @constructor
  */
-var GridToFormCreate = function (model, initialData) {
+const GridToFormCreate = function (model, initialData) {
   if (!(this instanceof GridToFormCreate)) {
     return new GridToFormCreate(model, initialData);
   }
@@ -41,9 +41,10 @@ GridToFormCreate.prototype.constructor = GridToFormCreate;
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormCreate.prototype.getData = function (fields, cb) {
-  cb(null, this._adapter.initialData);
-};
+GridToFormCreate.prototype.getData = callbackify(async function () {
+    return await this._adapter.initialData
+  }
+);
 
 /**
  * Create new record
@@ -51,9 +52,10 @@ GridToFormCreate.prototype.getData = function (fields, cb) {
  * @param   {Object}      data      Record
  * @param   {Function}    cb        CallBack function
  */
-GridToFormCreate.prototype.submit = function (data, cb) {
-  this._adapter.model.create(data, cb);
-};
+GridToFormCreate.prototype.submit = callbackify(async function (data) {
+  const model = this._adapter.model;
+  return await toPromise(model.create.bind(model))(data);
+});
 
 /**
  * Validation checking
@@ -61,9 +63,11 @@ GridToFormCreate.prototype.submit = function (data, cb) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridToFormCreate.prototype.isValidRecord = function (record, cb) {
-  this._adapter.model.isValidRecord(record, cb);
-};
+GridToFormCreate.prototype.isValidRecord = callbackify(async function (record) {
+    const model = this._adapter.model;
+    return await toPromise(model.isValidRecord.bind(model))(record)
+  }
+);
 
 /**
  * Get all dependent fields, that are required for validation

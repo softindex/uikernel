@@ -8,16 +8,14 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import floatValidator from '../common/validation/validators/float';
+import utils from '../common/utils';
+import {findDOMNode} from 'react-dom';
+import React from 'react';
 
-var React = require('react');
-var findDOMNode = require('react-dom').findDOMNode;
-var utils = require('../common/utils');
-var floatValidator = require('../common/validation/validators/float');
+const invalidFloat = floatValidator(null, null, true);
 
-var invalidFloat = floatValidator(null, null, true);
-
-var NumberEditor = React.createClass({
+export const NumberEditor = React.createClass({
   propTypes: {
     onChange: React.PropTypes.func.isRequired,
     value: React.PropTypes.any
@@ -33,7 +31,7 @@ var NumberEditor = React.createClass({
     }
   },
   _onChangeHandler: function (e) {
-    var target = e.target;
+    const target = e.target;
     if (target.validity.valid || !invalidFloat(target.valueAsNumber)) {
       if (isNaN(target.valueAsNumber)) { // Empty input
         this.state.value = null;

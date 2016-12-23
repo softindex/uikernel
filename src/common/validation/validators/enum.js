@@ -10,7 +10,7 @@
 
 'use strict';
 
-var utils = require('../../utils');
+import utils from '../../utils';
 
 function validator(notNull, variants, error, value) {
   error = error || 'Not in variants';
@@ -33,10 +33,6 @@ function validator(notNull, variants, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-module.exports = function (variants, error) {
-  return validator.bind(null, false, variants, error);
-};
+module.exports = (variants, error) => validator.bind(null, false, variants, error);
 
-module.exports.notNull = function (variants, error) {
-  return validator.bind(null, true, variants, error);
-};
+module.exports.notNull = (variants, error) => validator.bind(null, true, variants, error);

@@ -8,30 +8,28 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var suspend = require('suspend');
-var utils = require('../../common/utils');
-var ArgumentsError = require('../../common/ArgumentsError');
+import toPromise from '../../common/toPromise';
+import callbackify from '../../common/callbackify';
+import ArgumentsError from '../../common/ArgumentsError';
+import utils from '../../common/utils';
 
 function formatColumns(columns, viewColumns) {
-  var formattedColumns = {};
-  var columnId;
-  var i;
+  const formattedColumns = {};
+  let columnId;
+  let i;
 
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
-    formattedColumns[columnId] = (columns[columnId].parent ? columns[columnId].parent + ' ': '') +
-      columns[columnId].name;
+    formattedColumns[columnId] = `${columns[columnId].parent ? columns[columnId].parent + ' ' : ''}${columns[columnId].name}`;
   }
 
   return formattedColumns;
 }
 
 function formatRecord(record, columns) {
-  var columnId;
-  var column;
-  var formattedRecord = utils.clone(record);
+  let columnId;
+  let column;
+  const formattedRecord = utils.clone(record);
 
   for (columnId in columns) {
     column = columns[columnId];
@@ -44,9 +42,7 @@ function formatRecord(record, columns) {
 function formatData(records, totals, columns, viewColumns) {
   const formatted = {
     columns: formatColumns(columns, viewColumns),
-    records: records.map(function (record) {
-      return utils.pick(formatRecord(record[1], columns), viewColumns);
-    })
+    records: records.map(record => utils.pick(formatRecord(record[1], columns), viewColumns))
   };
   if (totals) {
     formatted.totals = utils.pick(formatRecord(totals, columns), viewColumns, '');
@@ -55,10 +51,10 @@ function formatData(records, totals, columns, viewColumns) {
 }
 
 function getFields(columns, viewColumns) {
-  var fields = {};
-  var i;
-  var j;
-  var columnId;
+  const fields = {};
+  let i;
+  let j;
+  let columnId;
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
     for (j = 0; j < columns[columnId].render.length - 1; j++) {
@@ -78,8 +74,8 @@ function assertValidViewColumns(columns, viewColumns){
     throw new ArgumentsError('"viewColumns" can`t be empty');
   }
 
-  var i;
-  var notExistColumns = [];
+  let i;
+  const notExistColumns = [];
   for (i = 0; i < viewColumns.length; i++) {
     if (!columns[viewColumns[i]]) {
       notExistColumns.push(JSON.stringify(viewColumns[i]))
@@ -87,7 +83,7 @@ function assertValidViewColumns(columns, viewColumns){
   }
 
   if(notExistColumns.length){
-    throw new ArgumentsError('You trying to get not exist columns: [' + notExistColumns.join(', ') + '];');
+    throw new ArgumentsError(`You trying to get not exist columns: [${notExistColumns.join(', ')}];`);
   }
 }
 
@@ -103,16 +99,16 @@ function assertValidViewColumns(columns, viewColumns){
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-module.exports = suspend.callback(function * (gridModel, columns, viewColumns, exporter, settings) {
+module.exports = callbackify(async(gridModel, columns, viewColumns, exporter, settings) =>{
   assertValidViewColumns(columns, viewColumns);
-  var result = yield gridModel.read({
+  const result = await toPromise(gridModel.read.bind(gridModel))({
     fields: getFields(columns, viewColumns),
     sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
     limit: settings.limit,
     offset: settings.offset
-  }, suspend.resume());
+  });
 
-  var data = formatData(result.records, result.totals, columns, viewColumns);
+  const data = formatData(result.records, result.totals, columns, viewColumns);
 
-  return yield exporter(data, suspend.resume());
+  return await toPromise(exporter)(data);
 });

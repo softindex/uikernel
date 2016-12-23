@@ -10,7 +10,7 @@
 
 'use strict';
 
-var utils = require('../../utils');
+import utils from '../../utils';
 
 function validator(notNull, regExp, error, value) {
   error = error || 'Not valid';
@@ -21,7 +21,7 @@ function validator(notNull, regExp, error, value) {
     return;
   }
 
-  var type = typeof value;
+  const type = typeof value;
   if ((type !== 'string' && type !== 'number') || !regExp.test(value)) {
     return error;
   }
@@ -34,10 +34,6 @@ function validator(notNull, regExp, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-module.exports = function (regExp, error) {
-  return validator.bind(null, false, regExp, error);
-};
+module.exports = (regExp, error) => validator.bind(null, false, regExp, error);
 
-module.exports.notNull = function (regExp, error) {
-  return validator.bind(null, true, regExp, error);
-};
+module.exports.notNull = (regExp, error) => validator.bind(null, true, regExp, error);

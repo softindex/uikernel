@@ -9,10 +9,13 @@
  */
 
 var CreateForm = React.createClass({
-  mixins: [UIKernel.Mixins.Form],
+  getInitialState: function () {
+    this.form = new UIKernel.Form();
+    return this.form.getAll();
+  },
 
   componentDidMount() {
-    this.initForm({
+    this.form.init({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
       model: UIKernel.Adapters.Grid.toFormCreate(model, { // pass it default field values
         name: '',
@@ -24,86 +27,96 @@ var CreateForm = React.createClass({
       submitAll: true,
       partialErrorChecking: true
     });
+    this.form.addChangeListener(this.onFormChange);
+  },
+
+  componentWillUnmount() {
+    this.form.removeChangeListener(this.onFormChange);
+  },
+
+  onFormChange(newFormState) {
+    this.setState(newFormState);
   },
 
   save: function (e) { // save record handler
     e.preventDefault();
-    this.submit(function (err, recordId) {
-      if (!err) {
-        this.props.onSubmit(recordId);
-      }
-    }.bind(this));
+    this.form.submit()
+      .then((recordId) => {
+        this.props.onSubmit(recordId)
+      });
   },
 
   render: function () {
-    if (!this.isLoaded()) {
+    if (!this.state.isLoaded) {
       return <span>Loading...</span>;
     }
 
-    var data = this.getData();
-    var globalError = this.getGlobalError();
-
     return (
       <div>
-        {globalError ? globalError.message : ''}
+        {this.state.globalError ? this.state.globalError.message : ''}
         <form className="form-horizontal edit-form" onSubmit={this.save}>
-          <div className={"form-group" + (this.hasChanges('name') ? ' changed' : '') + (this.hasError('name') ? ' error' : '')}>
+          <div
+            className={"form-group" + (this.state.changes.name ? ' changed' : '') + (this.state.errors.name ? ' error' : '')}>
             <label className="col-sm-3 control-label">First Name</label>
             <div className="col-sm-9">
               <input
                 type="text"
                 placeholder="Alyx"
                 className="form-control"
-                onChange={this.updateField.bind(null, 'name')}
-                onFocus={this.clearError.bind(null, 'name')}
-                onBlur={this.validateForm}
-                value={data.name}
+                onChange={this.form.updateField.bind(this.form,'name')}
+                onFocus={this.form.clearError.bind(this.form, 'name')}
+                onBlur={this.form.validateForm}
+                value={this.state.data.name}
               />
             </div>
           </div>
-          <div className={"form-group" + (this.hasChanges('surname') ? ' changed' : '') + (this.hasError('surname') ? ' error' : '')}>
+          <div
+            className={"form-group" + (this.state.changes.surname ? ' changed' : '') + (this.state.errors.surname ? ' error' : '')}>
             <label className="col-sm-3 control-label">Last Name</label>
             <div className="col-sm-9">
               <input
                 type="text"
                 placeholder="Vance"
                 className="form-control"
-                onChange={this.updateField.bind(null, 'surname')}
-                onFocus={this.clearError.bind(null, 'surname')}
-                onBlur={this.validateForm}
-                value={data.surname}
+                onChange={this.form.updateField.bind(this.form,'surname')}
+                onFocus={this.form.clearError.bind(this.form, 'surname')}
+                onBlur={this.form.validateForm}
+                value={this.state.data.surname}
               />
             </div>
           </div>
-          <div className={"form-group" + (this.hasChanges('phone') ? ' changed' : '') + (this.hasError('phone') ? ' error' : '')}>
+          <div
+            className={"form-group" + (this.state.changes.phone ? ' changed' : '') + (this.state.errors.phone ? ' error' : '')}>
             <label className="col-sm-3 control-label">Phone</label>
             <div className="col-sm-9">
               <input
                 type="text"
                 placeholder="555-0100"
                 className="form-control"
-                onChange={this.updateField.bind(null, 'phone')}
-                onFocus={this.clearError.bind(null, 'phone')}
-                onBlur={this.validateForm}
-                value={data.phone}
+                onChange={this.form.updateField.bind(this.form,'phone')}
+                onFocus={this.form.clearError.bind(this.form, 'phone')}
+                onBlur={this.form.validateForm}
+                value={this.state.data.phone}
               />
             </div>
           </div>
-          <div className={"form-group" + (this.hasChanges('age') ? ' changed' : '') + (this.hasError('age') ? ' error' : '')}>
+          <div
+            className={"form-group" + (this.state.changes.age ? ' changed' : '') + (this.state.errors.age ? ' error' : '')}>
             <label className="col-sm-3 control-label">Age</label>
             <div className="col-sm-9">
               <input
                 type="number"
                 placeholder="18"
                 className="form-control"
-                onChange={this.updateField.bind(null, 'age')}
-                onFocus={this.clearError.bind(null, 'age')}
-                onBlur={this.validateForm}
-                value={data.age}
+                onChange={this.form.updateField.bind(this.form,'age')}
+                onFocus={this.form.clearError.bind(this.form, 'age')}
+                onBlur={this.form.validateForm}
+                value={this.state.data.age}
               />
             </div>
           </div>
-          <div className={"form-group" + (this.hasChanges('gender') ? ' changed' : '') + (this.hasError('gender') ? ' error' : '')}>
+          <div
+            className={"form-group" + (this.state.changes.gender ? ' changed' : '') + (this.state.errors.gender ? ' error' : '')}>
             <label className="col-sm-3 control-label">Gender</label>
             <div className="col-sm-9">
               <UIKernel.Editors.Select
@@ -112,19 +125,19 @@ var CreateForm = React.createClass({
                   [2, 'Female']
                 ]}
                 className="form-control"
-                onChange={this.updateField.bind(null, 'gender')}
-                onFocus={this.clearError.bind(null, 'gender')}
-                onBlur={this.validateForm}
-                value={data.gender}
+                onChange={this.form.updateField.bind(this.form,'gender')}
+                onFocus={this.form.clearError.bind(this.form, 'gender')}
+                onBlur={this.form.validateForm}
+                value={this.state.data.gender}
               />
             </div>
           </div>
           <div className="form-group">
             <div className="col-sm-offset-3 col-sm-9">
-              <button type="button" className="btn btn-success" onClick={this.clearChanges}>
+              <button type="button" className="btn btn-success" onClick={this.form.clearChanges}>
                 Clear
               </button>
-                {' '}
+              {' '}
               <button type="submit" className="btn btn-primary">
                 Add
               </button>

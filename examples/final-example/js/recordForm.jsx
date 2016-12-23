@@ -9,10 +9,13 @@
  */
 
 var RecordForm = React.createClass({
-  mixins: [UIKernel.Mixins.Form],
 
-  getInitialState: function() {
-    return {};
+  getInitialState: function () {
+    this.form = new UIKernel.Services.Form();
+
+    return {
+      form: this.form.getAll()
+    };
   },
 
   componentDidMount: function () {
@@ -27,25 +30,30 @@ var RecordForm = React.createClass({
       formProperties.partialErrorChecking = true;
     }
 
-    this.initForm(formProperties);
+    this.form.init(formProperties);
+    this.form.addChangeListener(this.onFormChange);
+  },
+
+  componentWillUnmount() {
+    this.form.removeChangeListener(this.onFormChange);
+  },
+
+  onFormChange(newFormState) {
+    this.setState({form: newFormState});
   },
 
   save: function (e) {
     e.preventDefault();
-    this.submit(function (err, recordId) {
-      if (!err) {
-        this.props.onSubmit(recordId);
-      }
-    }.bind(this));
+    this.form.submit()
+      .then((recordId) => {
+        this.props.onSubmit(recordId)
+      });
   },
 
   render: function () {
-    if (!this.isLoaded()) {
+    if (!this.state.form.isLoaded) {
       return <span>Loading...</span>;
     }
-
-    var data = this.getData();
-    var globalError = this.getGlobalError();
 
     return (
       <div className="modal-dialog modal-lg">
@@ -56,95 +64,96 @@ var RecordForm = React.createClass({
               <span className="sr-only">Close</span>
             </button>
             <h4 className="modal-title">
-              {this.props.mode === "edit" ? "Edit " + data.name + ' ' + data.surname : "Create"}
+              {this.props.mode === "edit" ? "Edit " + this.state.form.data.name + ' ' + this.state.form.data.surname : "Create"}
             </h4>
           </div>
           <div className="modal-body">
             <div className="form-horizontal">
               <div className="form-group">
                 <div className="col-sm-9 col-sm-offset-3">
-                  <b className="text-danger">{globalError ? globalError.message : ''}</b>
+                  <b
+                    className="text-danger">{this.state.form.globalError ? this.state.form.globalError.message : ''}</b>
                 </div>
               </div>
-              <div className={"form-group" + (this.hasChanges('name') ? ' bg-warning' : '') +
-                  (this.hasError('name') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.changes.name ? ' bg-warning' : '') +
+              (this.state.form.errors.name ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">First Name</label>
                 <div className="col-sm-9">
                   <input
                     type="text"
                     className="form-control"
-                    onChange={this.updateField.bind(null, 'name')}
-                    onFocus={this.clearError.bind(null, 'name')}
-                    onBlur={this.validateForm}
-                    value={data.name}
+                    onChange={this.form.updateField.bind(this.form, 'name')}
+                    onFocus={this.form.clearError.bind(this.form,'name')}
+                    onBlur={this.form.validateForm}
+                    value={this.state.form.data.name}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.hasChanges('surname') ? ' bg-warning' : '') +
-                  (this.hasError('surname') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.changes.surname ? ' bg-warning' : '') +
+              (this.state.form.errors.surname ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Last Name</label>
                 <div className="col-sm-9">
                   <input
                     type="text"
                     className="form-control"
-                    onChange={this.updateField.bind(null, 'surname')}
-                    onFocus={this.clearError.bind(null, 'surname')}
-                    onBlur={this.validateForm}
-                    value={data.surname}
+                    onChange={this.form.updateField.bind(this.form, 'surname')}
+                    onFocus={this.form.clearError.bind(this.form,'surname')}
+                    onBlur={this.form.validateForm}
+                    value={this.state.form.data.surname}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.hasChanges('phone') ? ' bg-warning' : '') +
-                  (this.hasError('phone') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.changes.phone ? ' bg-warning' : '') +
+              (this.state.form.errors.phone ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Phone</label>
                 <div className="col-sm-9">
                   <input
                     type="text"
                     className="form-control"
-                    onChange={this.updateField.bind(null, 'phone')}
-                    onFocus={this.clearError.bind(null, 'phone')}
-                    onBlur={this.validateForm}
-                    value={data.phone}
+                    onChange={this.form.updateField.bind(this.form, 'phone')}
+                    onFocus={this.form.clearError.bind(this.form,'phone')}
+                    onBlur={this.form.validateForm}
+                    value={this.state.form.data.phone}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.hasChanges('age') ? ' bg-warning' : '') +
-                  (this.hasError('age') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.changes.age ? ' bg-warning' : '') +
+              (this.state.form.errors.age ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Age</label>
                 <div className="col-sm-9">
                   <input
                     type="number"
                     className="form-control"
-                    onChange={this.updateField.bind(null, 'age')}
-                    onFocus={this.clearError.bind(null, 'age')}
-                    onBlur={this.validateForm}
-                    value={data.age}
+                    onChange={this.form.updateField.bind(this.form, 'age')}
+                    onFocus={this.form.clearError.bind(this.form,'age')}
+                    onBlur={this.form.validateForm}
+                    value={this.state.form.data.age}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.hasChanges('gender') ? ' bg-warning' : '') +
-                  (this.hasError('email') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.changes.gender ? ' bg-warning' : '') +
+              (this.state.form.errors.email ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Gender</label>
                 <div className="col-sm-9">
                   <UIKernel.Editors.Select
-                    className="form-control"
-                    onChange={this.updateField.bind(null, 'gender')}
-                    onFocus={this.clearError.bind(null, 'gender')}
-                    onBlur={this.validateForm}
                     options={[
                       [1, 'Male'],
                       [2, 'Female']
                     ]}
-                    value={data.gender}
+                    className="form-control"
+                    onChange={this.form.updateField.bind(this.form, 'gender')}
+                    onFocus={this.form.clearError.bind(this.form,'gender')}
+                    onBlur={this.form.validateForm}
+                    value={this.state.form.data.gender}
                   />
                 </div>
               </div>
             </div>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-default" data-dismiss="modal">Cancel</button>
-            <button type="button" className="btn btn-default" onClick={this.clearChanges}>Discard</button>
             <button type="submit" className="btn btn-primary" onClick={this.save}>Save</button>
+            <button type="button" className="btn btn-default" onClick={this.form.clearChanges}>Discard</button>
+            <button type="button" className="btn btn-default" data-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>

@@ -10,56 +10,10 @@
 
 'use strict';
 
-var React = require('react');
-var utils = require('../../common/utils');
+// import React from 'react';
+import utils from '../../common/utils';
 
-var GridSortingMixin = {
-  propTypes: (function () {
-    var sortElementProp = React.PropTypes.shape({
-      column: React.PropTypes.string,
-      direction: React.PropTypes.string
-    });
-
-    var sortProp = React.PropTypes.oneOfType([
-      sortElementProp,
-      React.PropTypes.arrayOf(sortElementProp)
-    ]);
-
-    return {
-      onSorting: React.PropTypes.func,
-      defaultSort: function (props, propName) {
-        if (!props.defaultSort) {
-          return;
-        }
-        var validProp = sortProp(props, propName);
-        if (validProp) {
-          return validProp;
-        }
-        if (props.hasOwnProperty('sort')) {
-          return Error('You can not set "defaultSort" when specified "sort" prop');
-        }
-      },
-      sort: function (props, propName) {
-        if (!props.sort) {
-          return;
-        }
-        var validProp = sortProp(props, propName);
-        if (validProp) {
-          return validProp;
-        }
-        if (!props.onSorting) {
-          return Error('You need to define prop "onSorting" when set "sort"');
-        }
-      }
-    };
-  })(),
-
-  getInitialState: function () {
-    return {
-      sort: this._getDefaultSort()
-    };
-  },
-
+const GridSortingMixin = {
   /**
    * Sort by column
    *
@@ -71,7 +25,7 @@ var GridSortingMixin = {
       throw Error('You can not use function "sort" when set prop "sort"');
     }
 
-    var sort = {
+    const sort = {
       column: column,
       direction: direction
     };
@@ -118,7 +72,7 @@ var GridSortingMixin = {
    * @private
    */
   _resetSorting: function () {
-    var sort = this._getDefaultSort();
+    const sort = this._getDefaultSort();
 
     if (this._isSortingPropsMode()) {
       this.onSorting(sort);
@@ -135,18 +89,16 @@ var GridSortingMixin = {
    * @private
    */
   _sortCol: function (column) {
-    var newOrder;
-    var cycle = this.props.cols[column].sortCycle;
-    var newSorts = utils.clone(this.getSortDirection());
-    var sortElement = {column: column};
-    var currentSortIndex;
-    var currentSort;
+    let newOrder;
+    const cycle = this.props.cols[column].sortCycle;
+    let newSorts = utils.clone(this.getSortDirection());
+    const sortElement = {column: column};
+    let currentSortIndex;
+    let currentSort;
 
     if (this.props.multipleSorting) {
       // Find an element among the other sorts
-      currentSortIndex = utils.findIndex(newSorts, function (sort) {
-        return sort.column === column;
-      });
+      currentSortIndex = utils.findIndex(newSorts, sort => sort.column === column);
 
       if (currentSortIndex >= 0) {
         currentSort = newSorts[currentSortIndex];
@@ -191,7 +143,7 @@ var GridSortingMixin = {
       }
     }
 
-    if(this.props.onSorting){
+    if (this.props.onSorting) {
       this.props.onSorting(newSorts, column, newOrder);
     }
 
@@ -222,9 +174,9 @@ var GridSortingMixin = {
    * @private
    */
   _getSortParams: function (column) {
-    var params = {column: column};
-    var sortIndex;
-    var sorts = this.getSortDirection();
+    const params = {column: column};
+    let sortIndex;
+    let sorts = this.getSortDirection();
 
     if (!this.props.cols[column].sortCycle) {
       return null;
@@ -236,9 +188,7 @@ var GridSortingMixin = {
     }
 
     if (this.props.multipleSorting) {
-      sortIndex = utils.findIndex(sorts, function (sort) {
-        return sort.column === params.column;
-      });
+      sortIndex = utils.findIndex(sorts, sort => sort.column === params.column);
 
       if (sortIndex < 0 || sortIndex < sorts.length - 1) {
         params.direction = 'default';
@@ -278,7 +228,7 @@ var GridSortingMixin = {
       return [sort.column, sort.direction];
     }
 
-    var direction = this.getSortDirection();
+    let direction = this.getSortDirection();
     if (!direction) {
       return null;
     }
@@ -294,4 +244,4 @@ var GridSortingMixin = {
   }
 };
 
-module.exports = GridSortingMixin;
+export default GridSortingMixin;

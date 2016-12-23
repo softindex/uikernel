@@ -22,10 +22,9 @@ var MainComponent = React.createClass({
   },
 
   onSave: function () {
-    this.refs.grid.save(function (err) {
-      if (err) {
-        alert('Error');
-      }
+    this.refs.grid.save()
+    .catch(() => {
+      alert('Error');
     });
   },
 

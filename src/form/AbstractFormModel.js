@@ -8,17 +8,16 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var EventsModel = require('../common/Events');
-var ValidationErrors = require('../common/validation/ValidationErrors');
+import callbackify from '../common/callbackify';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import EventsModel from '../common/Events';
 
 /**
  * Abstract form model
  *
  * @constructor
  */
-var AbstractFormModel = function () {
+const AbstractFormModel = function () {
   EventsModel.call(this);
 };
 AbstractFormModel.prototype = new EventsModel();
@@ -31,9 +30,7 @@ AbstractFormModel.prototype.constructor = AbstractFormModel;
  * @param {Function} cb      CallBack function
  * @abstract
  */
-AbstractFormModel.prototype.getData = function (fields, cb) {
-  cb(null, {});
-};
+AbstractFormModel.prototype.getData = callbackify((/*fields*/) => Promise.resolve({}));
 
 /**
  * Process form data
@@ -42,9 +39,7 @@ AbstractFormModel.prototype.getData = function (fields, cb) {
  * @param   {Function}    cb          CallBack function
  * @abstract
  */
-AbstractFormModel.prototype.submit = function (changes, cb) {
-  cb(null);
-};
+AbstractFormModel.prototype.submit = callbackify((/*changes*/) => Promise.resolve());
 
 /**
  * Get all dependent fields, that are required for validation
@@ -53,9 +48,7 @@ AbstractFormModel.prototype.submit = function (changes, cb) {
  * @returns {Array}  Dependencies
  * @abstract
  */
-AbstractFormModel.prototype.getValidationDependency = function () {
-  return [];
-};
+AbstractFormModel.prototype.getValidationDependency = callbackify(() => Promise.resolve([]));
 
 /**
  * Record validity check
@@ -64,8 +57,6 @@ AbstractFormModel.prototype.getValidationDependency = function () {
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractFormModel.prototype.isValidRecord = function (record, cb) {
-  cb(null, new ValidationErrors());
-};
+AbstractFormModel.prototype.isValidRecord = callbackify((/*record*/) => Promise.resolve(new ValidationErrors()));
 
 module.exports = AbstractFormModel;

@@ -8,15 +8,15 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import toPromise from '../common/toPromise';
+import callbackify from '../common/callbackify';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import Validator from '../common/validation/Validator/common';
+import defaultXhr from '../common/defaultXhr';
+import EventsModel from '../common/Events';
+import url from 'url';
 
-var url = require('url');
-var EventsModel = require('../common/Events');
-var defaultXhr = require('../common/defaultXhr');
-var Validator = require('../common/validation/Validator/common');
-var ValidationErrors = require('../common/validation/ValidationErrors');
-
-var FormXhrModel = function (settings) {
+const FormXhrModel = function (settings) {
   EventsModel.call(this);
 
   if (!settings.api) {
@@ -32,59 +32,40 @@ var FormXhrModel = function (settings) {
 FormXhrModel.prototype = new EventsModel();
 FormXhrModel.prototype.constructor = FormXhrModel;
 
-FormXhrModel.prototype.getData = function (fields, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+FormXhrModel.prototype.getData = callbackify(async function (fields) {
+  const parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.fields = JSON.stringify(fields);
   delete parsedUrl.search;
 
-  this._xhr({
+  const response = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     uri: url.format(parsedUrl)
-  }, function (err, resp, response) {
-    var body;
-
-    if (err) {
-      return cb(err);
-    }
-
-    // Parse response
-    try {
-      body = JSON.parse(response);
-    } catch (e) {
-      cb(e);
-    }
-
-    cb(null, body);
   });
-};
 
-FormXhrModel.prototype.submit = function (changes, cb) {
-  this._xhr({
+  const body = JSON.parse(response);
+
+  return body;
+});
+
+FormXhrModel.prototype.submit = callbackify(async function (changes) {
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'POST',
     headers: {
       'Content-type': 'application/json'
     },
     uri: this._apiUrl,
     body: JSON.stringify(changes)
-  }, function (err, resp, body) {
-    if (err) {
-      return cb(err);
-    }
+  });
 
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
+  body = JSON.parse(body);
 
-    if (body.error) {
-      return cb(ValidationErrors.createFromJSON(body.error));
-    }
+  if (body.error) {
+    throw ValidationErrors.createFromJSON(body.error);
+  }
 
-    this.trigger('update', body.data);
-    cb(null, body.data);
-  }.bind(this));
-};
+  this.trigger('update', body.data);
+  return body.data;
+});
 
 /**
  * Get all dependent fields, that are required for validation
@@ -102,8 +83,8 @@ FormXhrModel.prototype.getValidationDependency = function (fields) {
  * @param {Object}      record
  * @param {Function}    cb      CallBack function
  */
-FormXhrModel.prototype.isValidRecord = function (record, cb) {
-  this._validator.isValidRecord(record, cb);
-};
+FormXhrModel.prototype.isValidRecord = callbackify(function (record) {
+  return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
+});
 
 module.exports = FormXhrModel;

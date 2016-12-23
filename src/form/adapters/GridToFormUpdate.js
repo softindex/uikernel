@@ -8,11 +8,11 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../../common/utils');
-var Events = require('../../common/Events');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import Events from '../../common/Events';
+import utils from '../../common/utils';
 
 /**
  * Adapter that allows us to use Grid model record as a form model
@@ -45,14 +45,11 @@ GridToFormUpdate.prototype.constructor = GridToFormUpdate;
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormUpdate.prototype.getData = function (fields, cb) {
-  this._adapter.model.getRecord(this._adapter.id, fields, function (err, data) {
-    if (err) {
-      return cb(err);
-    }
-    cb(null, data);
-  });
-};
+GridToFormUpdate.prototype.getData = callbackify(function (fields) {
+    const model = this._adapter.model;
+    return toPromise(model.getRecord.bind(model))(this._adapter.id, fields)
+  }
+);
 
 /**
  * Apply changes
@@ -60,19 +57,18 @@ GridToFormUpdate.prototype.getData = function (fields, cb) {
  * @param   {Object}      changes     Form data
  * @param   {Function}    cb          CallBack function
  */
-GridToFormUpdate.prototype.submit = function (changes, cb) {
-  var record = utils.clone(changes);
-  this._adapter.model.update([[this._adapter.id, record]], function (err, data) {
-    if (err) {
-      return cb(err);
-    }
-    var result = data[0][1];
+GridToFormUpdate.prototype.submit = callbackify(
+  async function (changes) {
+    const record = utils.clone(changes);
+    const model = this._adapter.model;
+    let result = await toPromise(model.update.bind(model))([[this._adapter.id, record]]);
+    result = result[0][1];
     if (result instanceof ValidationErrors) {
-      return cb(result);
+      throw result;
     }
-    cb(null, result);
-  });
-};
+    return result;
+  }
+);
 
 /**
  * Record validity check
@@ -80,9 +76,12 @@ GridToFormUpdate.prototype.submit = function (changes, cb) {
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridToFormUpdate.prototype.isValidRecord = function (record, cb) {
-  this._adapter.model.isValidRecord(record, cb);
-};
+GridToFormUpdate.prototype.isValidRecord = callbackify(
+  async function (record) {
+    const model = this._adapter.model;
+    return await toPromise(model.isValidRecord.bind(model))(record)
+  }
+);
 
 /**
  * Get all dependent fields, that are required for validation
@@ -101,7 +100,7 @@ GridToFormUpdate.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.on = function (event, cb) {
-  var ctx = this;
+  const ctx = this;
 
   if (event !== 'update') {
     Events.prototype.on.call(this, event, cb);
@@ -110,7 +109,7 @@ GridToFormUpdate.prototype.on = function (event, cb) {
 
   // onChange filters out table events, that do not regard to our record
   function onChange(changes) {
-    for (var i = 0; i < changes.length; i++) {
+    for (let i = 0; i < changes.length; i++) {
       if (utils.isEqual(changes[i][0], ctx._adapter.id)) {
         cb(changes[i][1]);
         return;
@@ -133,23 +132,27 @@ GridToFormUpdate.prototype.on = function (event, cb) {
  * @param {Function}    cb      CallBack function
  */
 GridToFormUpdate.prototype.off = function (event, cb) {
-  var ctx = this;
-  var newOnUpdateHandlers = [];
+  const ctx = this;
+  const newOnUpdateHandlers = [];
 
   if (event !== 'update') {
     Events.prototype.off.call(this, event, cb);
     return;
   }
 
-  this._onUpdateHandlers.forEach(function (handler) {
+  this._onUpdateHandlers.forEach(handler =>{
     if (handler.originalCallback === cb) {
-      ctx._adapter.model.off(handler.wrappedCallback);
+      ctx._adapter.model.off('update', handler.wrappedCallback);
     } else {
       newOnUpdateHandlers.push(handler);
     }
   });
 
   this._onUpdateHandlers = newOnUpdateHandlers;
+};
+
+GridToFormUpdate.prototype.listenerCount = function (event) {
+  return this._adapter.model.listenerCount(event);
 };
 
 module.exports = GridToFormUpdate;

@@ -8,15 +8,15 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import toPromise from '../common/toPromise';
+import utils from '../common/utils';
+import Portal from '../common/Portal';
+import {findDOMNode} from 'react-dom';
+import React from 'react';
 
-var React = require('react');
-var findDOMNode = require('react-dom').findDOMNode;
-var Portal = require('../common/Portal');
-var utils = require('../common/utils');
 
-var popupId = '__suggestBoxPopUp';
-var classes = {
+const popupId = '__suggestBoxPopUp';
+const classes = {
   option: '__suggestBoxPopUp-option',
   optionFocused: '__suggestBoxPopUp-option-focused',
   optionSelectable: '__suggestBoxPopUp-option-selectable',
@@ -31,14 +31,14 @@ var classes = {
   arrow: '__suggestBox-arrow',
   up: '__suggestBox-up'
 };
-var TAB_KEY = 9;
-var ENTER_KEY = 13;
-var ESCAPE_KEY = 27;
-var ARROW_UP_KEY = 38;
-var ARROW_DOWN_KEY = 40;
-var MIN_POPUP_HEIGHT = 100;
+const TAB_KEY = 9;
+const ENTER_KEY = 13;
+const ESCAPE_KEY = 27;
+const ARROW_UP_KEY = 38;
+const ARROW_DOWN_KEY = 40;
+const MIN_POPUP_HEIGHT = 100;
 
-var SuggestBoxEditor = React.createClass({
+export const SuggestBoxEditor = React.createClass({
   propTypes: {
     disabled: React.PropTypes.bool,
     model: React.PropTypes.shape({
@@ -55,14 +55,12 @@ var SuggestBoxEditor = React.createClass({
     loadingElement: React.PropTypes.element
   },
 
-  getDefaultProps: function () {
-    return {
-      disabled: false,
-      notFoundElement: <div>Nothing found</div>,
-      loadingElement: <div>Loading...</div>,
-      value: null
-    };
-  },
+  getDefaultProps: () => ({
+    disabled: false,
+    notFoundElement: <div>Nothing found</div>,
+    loadingElement: <div>Loading...</div>,
+    value: null
+  }),
 
   getInitialState: function () {
     this._loadData = utils.throttle(this._loadData);
@@ -108,9 +106,7 @@ var SuggestBoxEditor = React.createClass({
     }
   },
 
-  _getOptionLabel: function (option) {
-    return Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label;
-  },
+  _getOptionLabel: option => Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label,
 
   _setLabelTo: function (label, markAsValid) {
     if (label === null || label === undefined) {
@@ -127,42 +123,39 @@ var SuggestBoxEditor = React.createClass({
       return this._setLabelTo('', true);
     }
 
-    model.getLabel(id, function (err, label) {
-      if (!this._isMounted) {
-        return;
-      }
-      if (err) {
-        throw err;
-      }
-      this._setLabelTo(label, true);
-    }.bind(this));
-  },
-
-  _updateList: function (searchPattern, cb) {
-    this._loadData(searchPattern, function (err, options) {
-      if (err) {
-        throw err;
-      }
-      this.setState({
-        options: options,
-        selectedOptionKey: null,
-        loading: false
-      }, function () {
-        var $popup = $('#' + popupId);
-        $popup.find('.__suggestBoxPopUp-content')
-          .css('bottom', 'auto')
-          .css('position', 'static');
-
-        this._scrollListTo();
-        if (typeof cb === 'function') {
-          cb();
+    toPromise(model.getLabel.bind(model))(id)
+      .then((label) => {
+        if (!this._isMounted) {
+          return;
+        }
+        this._setLabelTo(label, true)
+      })
+      .catch(err => {
+        if (err) {
+          console.error(err);
+          throw err;
         }
       });
-    }.bind(this));
   },
 
-  _loadData: function (searchPattern, cb) {
-    this.props.model.read(searchPattern || '', cb);
+  _updateList: async function (searchPattern) {
+    const options = await this._loadData(searchPattern);
+    await this.setState({
+      options: options,
+      selectedOptionKey: null,
+      loading: false
+    });
+
+    var $popup = $('#' + popupId);
+    $popup.find('.__suggestBoxPopUp-content')
+      .css('bottom', 'auto')
+      .css('position', 'static');
+
+    this._scrollListTo();
+  },
+
+  _loadData: function (searchPattern) {
+    return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '')
   },
 
   _openList: function (searchPattern, cb) {
@@ -173,18 +166,18 @@ var SuggestBoxEditor = React.createClass({
     this.setState({isOpened: true, loading: true}, function () {
       findDOMNode(this.refs.input).select();
 
-      var $input = $(findDOMNode(this.refs.input));
-      var $popup = $('#' + popupId);
+      const $input = $(findDOMNode(this.refs.input));
+      const $popup = $(`#${popupId}`);
 
-      var inputOffset = $input.offset();
-      var inputWidth = $input.css('width');
-      var inputHeight = $input.css('height');
+      const inputOffset = $input.offset();
+      const inputWidth = $input.css('width');
+      const inputHeight = $input.css('height');
 
-      var offsetTop = inputOffset.top + parseInt(inputHeight);
-      var offsetLeft = inputOffset.left;
+      let offsetTop = inputOffset.top + parseInt(inputHeight);
+      const offsetLeft = inputOffset.left;
 
       if (typeof window !== 'undefined') {
-        var availableSpace = window.innerHeight - (offsetTop - window.scrollY);
+        const availableSpace = window.innerHeight - (offsetTop - window.scrollY);
 
         if (availableSpace < MIN_POPUP_HEIGHT) {
           offsetTop = inputOffset.top - 300;
@@ -204,17 +197,17 @@ var SuggestBoxEditor = React.createClass({
           left: offsetLeft
         });
 
-      this._updateList(searchPattern, function () {
-        var selectedOptionKey = utils.findIndex(this.state.options, function (option) {
+      this._updateList(searchPattern, () => {
+        const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
           return utils.isEqual(option.id, this.props.value);
-        }.bind(this));
+        });
         if (selectedOptionKey) {
           this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
         }
         if (typeof cb === 'function') {
           cb();
         }
-      }.bind(this));
+      });
     });
   },
 
@@ -271,9 +264,9 @@ var SuggestBoxEditor = React.createClass({
 
   _focusOptionAndScrollIntoView: function (key) {
     this.state.selectedOptionKey = key;
-    $('.' + classes.optionFocused).removeClass(classes.optionFocused);
-    $('.' + classes.option + '[data-key="' + key + '"]').addClass(classes.optionFocused);
-    var domOption = $('#' + popupId + ' li[data-key="' + key + '"]').get(0);
+    $(`.${classes.optionFocused}`).removeClass(classes.optionFocused);
+    $(`.${classes.option}[data-key="${key}"]`).addClass(classes.optionFocused);
+    const domOption = $(`#${popupId} li[data-key="${key}"]`).get(0);
     this._scrollListTo(domOption);
   },
 
@@ -283,7 +276,7 @@ var SuggestBoxEditor = React.createClass({
       return this._focusOption(this.state.selectedOptionKey);
     }
 
-    var key;
+    let key;
     for (key = this.state.selectedOptionKey + 1; key < this.state.options.length; key++) {
       if (this.state.options[key].id) {
         return this._focusOption(key, true);
@@ -302,7 +295,7 @@ var SuggestBoxEditor = React.createClass({
       return this._focusOption(this.state.selectedOptionKey);
     }
 
-    var key;
+    let key;
     for (key = this.state.selectedOptionKey - 1; key >= 0; key--) {
       if (this.state.options[key].id) {
         return this._focusOption(key, true);
@@ -315,8 +308,8 @@ var SuggestBoxEditor = React.createClass({
     }
   },
 
-  _scrollListTo: function (target) {
-    var container = $('#' + popupId).get(0);
+  _scrollListTo: target => {
+    let container = $(`#${popupId}`).get(0);
     if (!container) {
       return;
     }
@@ -347,7 +340,7 @@ var SuggestBoxEditor = React.createClass({
     if (e.button !== 0) {
       return;
     }
-    var $target = $(e.target);
+    let $target = $(e.target);
     if (isOwner) {
       if (!$target.hasClass(classes.option)) {
         $target = $target.parent();
@@ -357,7 +350,7 @@ var SuggestBoxEditor = React.createClass({
         this._closeList(true);
       }
     } else {
-      if (!$target.parents('.' + classes.searchBlock).length) {
+      if (!$target.parents(`.${classes.searchBlock}`).length) {
         this._setLabelTo(this.state.lastValidLabel);
       }
       if (!this._isParentOf(e.target)) {
@@ -428,9 +421,9 @@ var SuggestBoxEditor = React.createClass({
   },
 
   render: function () {
-    var arrowClasses = [classes.arrow];
-    var options;
-    var optionsPopup = null;
+    const arrowClasses = [classes.arrow];
+    let options;
+    let optionsPopup = null;
 
     if (this.state.isOpened) {
       arrowClasses.push(classes.up);
@@ -449,8 +442,8 @@ var SuggestBoxEditor = React.createClass({
             </li>
           );
         } else {
-          options = this.state.options.map(function (option, key) {
-            var optionClassNames = [classes.option];
+          options = this.state.options.map((option, key) => {
+            const optionClassNames = [classes.option];
             if (key === this.state.selectedOptionKey) {
               optionClassNames.push(classes.optionFocused);
             }
@@ -471,13 +464,12 @@ var SuggestBoxEditor = React.createClass({
                 className={optionClassNames.join(' ')}
               >
                 {
-                  Array.isArray(option.label) ? option.label.map(function (label, columnKey) {
-                    return <div key={columnKey}>{label}</div>;
-                  }) : <div>{option.label}</div>
+                  Array.isArray(option.label) ? option.label.map((label, columnKey) => <div
+                    key={columnKey}>{label}</div>) : <div>{option.label}</div>
                 }
               </li>
             );
-          }.bind(this));
+          });
         }
       }
 

@@ -8,9 +8,9 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../../common/utils');
+import toPromise from '../../common/toPromise';
+import callbackify from '../../common/callbackify';
+import utils from '../../common/utils';
 
 /**
  * Defines filter values while reading Grid model data
@@ -20,10 +20,10 @@ var utils = require('../../common/utils');
  */
 function applyGridFilters(model, filters) {
   return utils.decorate(model, {
-    read: function (options, cb) {
-      options.filters = filters;
-      model.read(options, cb);
-    }
+    read: callbackify(options =>{
+        options.filters = filters;
+        return toPromise(model.read.bind(model))(options);
+      })
   });
 }
 

@@ -8,13 +8,11 @@
  * @providesModule UIKernel
  */
 
-'use strict';
+import utils from '../common/utils';
+import {findDOMNode} from 'react-dom';
+import React from 'react';
 
-var React = require('react');
-var findDOMNode = require('react-dom').findDOMNode;
-var utils = require('../common/utils');
-
-var DatePickerEditor = React.createClass({
+export const DatePickerEditor = React.createClass({
   propTypes: {
     format: React.PropTypes.string,
     textFormat: React.PropTypes.string,
@@ -26,11 +24,9 @@ var DatePickerEditor = React.createClass({
     onChange: React.PropTypes.func.isRequired
   },
 
-  getDefaultProps: function () {
-    return {
-      textFormat: 'yyyy-mm-dd'
-    };
-  },
+  getDefaultProps: () => ({
+    textFormat: 'yyyy-mm-dd'
+  }),
   getInitialState: function () {
     return {
       format: this.props.format ? this.getFormat(this.props.format) : null,
@@ -38,7 +34,7 @@ var DatePickerEditor = React.createClass({
     };
   },
   componentDidMount: function () {
-    var $element = $(findDOMNode(this.refs.input))
+    const $element = $(findDOMNode(this.refs.input))
       .datepicker({
         minDate: this.props.min ? utils.toDate(this.props.min) : null,
         maxDate: this.props.max ? utils.toDate(this.props.max) : null,
@@ -48,7 +44,8 @@ var DatePickerEditor = React.createClass({
       });
 
     // Remove jQueryUI DatePicker key commands
-    $.datepicker._doKeyDown = function () { };
+    $.datepicker._doKeyDown = () => {
+    };
 
     if (this.props.value) {
       $element.val($.datepicker.formatDate(this.state.textFormat, utils.toDate(this.props.value)));
@@ -59,7 +56,7 @@ var DatePickerEditor = React.createClass({
     }
   },
   componentWillReceiveProps: function (props) {
-    var $datePicker = $(findDOMNode(this.refs.input));
+    const $datePicker = $(findDOMNode(this.refs.input));
     if (props.min !== this.props.min) {
       $datePicker.datepicker('option', 'minDate', props.min ? utils.toDate(props.min) : null);
     }
@@ -71,7 +68,7 @@ var DatePickerEditor = React.createClass({
       $datePicker.datepicker('option', 'dateFormat', this.getFormat(props.textFormat));
     }
     if (props.value !== this.props.value) {
-      var text = '';
+      let text = '';
       if (props.value) {
         text = $.datepicker.formatDate(this.state.textFormat, utils.toDate(props.value));
       }
@@ -83,9 +80,9 @@ var DatePickerEditor = React.createClass({
    * Save date changes
    */
   setDate: function () {
-    var inputElement = findDOMNode(this.refs.input);
-    var value = inputElement.value;
-    var date;
+    const inputElement = findDOMNode(this.refs.input);
+    const value = inputElement.value;
+    let date;
 
     // Try to parse input text
     try {
@@ -121,9 +118,7 @@ var DatePickerEditor = React.createClass({
    * @param   {string}    format      DateFormat
    * @returns {string}    jQuery  UI DateFormat
    */
-  getFormat: function (format) {
-    return format.replace('yyyy', 'yy');
-  },
+  getFormat: format => format.replace('yyyy', 'yy'),
 
   render: function () {
     return (

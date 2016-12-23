@@ -8,10 +8,9 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
-var express = require('express');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
+let express = require('express');
+let ValidationErrors = require('../../common/validation/ValidationErrors');
+let toPromise = require('../../common/toPromise');
 
 /**
  * Form Express API for Grid model interaction
@@ -24,11 +23,11 @@ function GridExpressApi() {
     return new GridExpressApi();
   }
 
-  var builderContext = this;
+  const builderContext = this;
 
   builderContext.middlewares = {
-    read: [function (req, res, next) {
-      var settings = {};
+    read: [(req, res, next) =>{
+      const settings = {};
       if (req.query.limit) {
         settings.limit = req.query.limit;
       }
@@ -47,26 +46,42 @@ function GridExpressApi() {
       if (req.query.filters) {
         settings.filters = JSON.parse(req.query.filters);
       }
-      builderContext._getModel(req, res).read(settings, function (err, response) {
-        builderContext._result(err, response, req, res, next);
-      });
+      const model = builderContext._getModel(req, res);
+      toPromise(model.read.bind(model))(settings)
+        .then(response =>{
+          builderContext._result(null, response, req, res, next);
+        })
+        .catch(err =>{
+          builderContext._result(err, null, req, res, next);
+        });
     }],
-    validate: [function (req, res, next) {
-      builderContext._getModel(req, res).isValidRecord(req.body, function (err, errors) {
-        builderContext._result(err, errors, req, res, next);
-      });
+    validate: [(req, res, next) =>{
+      const model = builderContext._getModel(req, res);
+      toPromise(model.isValidRecord.bind(model))(req.body)
+        .then(errors =>{
+          builderContext._result(null, errors, req, res, next);
+        })
+        .catch(err =>{
+          builderContext._result(err, null, req, res, next);
+        });
     }],
-    getRecord: [function (req, res, next) {
-      var cols = req.query.cols ? JSON.parse(req.query.cols) : null;
-      var recordId = req.params.recordId ? JSON.parse(req.params.recordId) : null;
-      builderContext._getModel(req, res).getRecord(recordId, cols, function (err, response) {
-        builderContext._result(err, response, req, res, next);
-      });
+    getRecord: [(req, res, next) =>{
+      const cols = req.query.cols ? JSON.parse(req.query.cols) : null;
+      const recordId = req.params.recordId ? JSON.parse(req.params.recordId) : null;
+      const model = builderContext._getModel(req, res);
+      toPromise(model.getRecord.bind(model))(recordId, cols)
+        .then(response =>{
+          builderContext._result(null, response, req, res, next);
+        })
+        .catch(err =>{
+          builderContext._result(err, null, req, res, next);
+        });
     }],
-    update: [function (req, res, next) {
-      builderContext._getModel(req, res).update(req.body, function (err, data) {
-        if (!err) {
-          data = data.reduce(function (result, record) {
+    update: [(req, res, next) =>{
+      const model = builderContext._getModel(req, res);
+      toPromise(model.update.bind(model))(req.body)
+        .then(data =>{
+          data = data.reduce((result, record) =>{
             if (record[1] instanceof ValidationErrors) {
               result.errors.push(record);
             } else {
@@ -77,17 +92,24 @@ function GridExpressApi() {
             changes: [],
             errors: []
           });
-        }
-        builderContext._result(err, data, req, res, next);
-      });
+          builderContext._result(null, data, req, res, next);
+        })
+        .catch(err =>{
+          builderContext._result(err, null, req, res, next);
+        });
     }],
-    create: [function (req, res, next) {
-      builderContext._getModel(req, res).create(req.body, function (err, data) {
-        if (err && !(err instanceof ValidationErrors)) {
-          return builderContext._result(err, null, req, res, next);
-        }
-        builderContext._result(null, {data: data, error: err}, req, res, next);
-      });
+    create: [(req, res, next) =>{
+      const model = builderContext._getModel(req, res);
+      toPromise(model.create.bind(model))(req.body)
+        .then(data =>{
+          builderContext._result(null, {data: data, error: null}, req, res, next);
+        })
+        .catch(err =>{
+          if (!(err instanceof ValidationErrors)) {
+            return builderContext._result(err, null, req, res, next);
+          }
+          builderContext._result(null, {data: null, error: err}, req, res, next);
+        });
     }]
   };
 }
@@ -102,9 +124,7 @@ GridExpressApi.prototype.model = function (model) {
   if (typeof model === 'function') {
     this._getModel = model;
   } else {
-    this._getModel = function () {
-      return model;
-    };
+    this._getModel = () => model;
   }
   return this;
 };
@@ -161,7 +181,7 @@ GridExpressApi.prototype.result = function (func) {
 };
 
 GridExpressApi.prototype.getRouter = function () {
-  var builderContext = this;
+  const builderContext = this;
 
   return new express.Router()
     .get('/', builderContext.middlewares.read)
@@ -169,16 +189,16 @@ GridExpressApi.prototype.getRouter = function () {
     .get('/:recordId', builderContext.middlewares.getRecord)
     .put('/', builderContext.middlewares.update)
     .post('/', builderContext.middlewares.create)
-    .use(function (err, req, res, next) {
+    .use((err, req, res, next) =>{
       builderContext._result(err, null, req, res, next);
     });
 };
 
 // Default implementation
-GridExpressApi.prototype._getModel = function () {
+GridExpressApi.prototype._getModel = () =>{
   throw Error('Model is not defined.');
 };
-GridExpressApi.prototype._result = function (err, data, req, res, next) {
+GridExpressApi.prototype._result = (err, data, req, res, next) =>{
   if (err) {
     next(err);
   } else {
