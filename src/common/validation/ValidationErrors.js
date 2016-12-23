@@ -29,7 +29,7 @@ function ValidationErrors() {
  * @return  {ValidationErrors}
  * @static
  */
-ValidationErrors.createFromJSON = jsonObject =>{
+ValidationErrors.createFromJSON = function (jsonObject) {
   const validationErrors = new ValidationErrors();
   validationErrors._fields = jsonObject ? utils.clone(jsonObject) : {};
   return validationErrors;

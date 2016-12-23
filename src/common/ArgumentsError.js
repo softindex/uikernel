@@ -12,6 +12,7 @@
 
 function ArgumentsError(message) {
   this.message = message;
+  this.status = this.statusCode = 422;
   Error.captureStackTrace(this, ArgumentsError);
 }
 

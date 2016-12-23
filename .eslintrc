@@ -30,5 +30,3 @@ rules:
   react/no-direct-mutation-state: 0
   react/no-find-dom-node: 0
   require-yield: 0
-  no-ex-assign: 0
-  no-unused-vars: ["error", { "vars": "all", "args": "none" }]

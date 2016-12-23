@@ -55,9 +55,6 @@ var Module = {
   },
   ArgumentsError: require('./lib/common/ArgumentsError'),
   ThrottleError: require('./lib/common/ThrottleError'),
-  Services: {
-    Form: require('./lib/form/FormService')
-  },
   Validators: {
     boolean: require('./lib/common/validation/validators/boolean'),
     date: require('./lib/common/validation/validators/date'),
