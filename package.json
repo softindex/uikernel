@@ -59,7 +59,9 @@
     "yargs": "^5.0.0"
   },
   "jest": {
-    "verbose": true,
-    "modulePathIgnorePatterns": ["form"]
+    "testRegex": "/__tests__/",
+    "testPathDirs": [
+      "<rootDir>/src"
+    ]
   }
 }

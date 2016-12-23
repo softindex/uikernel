@@ -1,3 +1,11 @@
+/**
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import ValidationError from '../ValidationErrors'
 
 import boolean from '../validators/boolean'
@@ -31,7 +39,7 @@ describe('ValidationError', () => {
   });
 
   it('getFailedFields', () => {
-    expect(validationError.getFailedFields()).toEqual(["test"]);
+    expect(validationError.getFailedFields()).toEqual(['test']);
   });
 
   it('isEmpty', () => {
@@ -143,7 +151,7 @@ describe('Validator', () => {
     let result = await validator.isValidRecord({name: true});
     expect(result.toJSON()).toEqual({});
     result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({"name": ["err text"]});
+    expect(result.toJSON()).toEqual({'name': ['err text']});
   });
 
   it('field', async () => {
@@ -151,7 +159,7 @@ describe('Validator', () => {
     let result = await validator.isValidRecord({name: true});
     expect(result.toJSON()).toEqual({});
     result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({"name": ["err text"]});
+    expect(result.toJSON()).toEqual({'name': ['err text']});
   });
 
 

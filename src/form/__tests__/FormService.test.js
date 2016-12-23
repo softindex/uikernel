@@ -1,5 +1,12 @@
+/**
+ * Copyright (с) 2015, SoftIndex LLC.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 const Form = require('../FormService');
-const FormModel = require('../FormModel');
 const ValidationErrors = require('../../common/validation/ValidationErrors');
 jest.mock('model');
 // const model = require('model');
@@ -22,7 +29,7 @@ function getInitSettings() {
   jest.resetModules();
   const model = require('model');
   return {...initSettings, model};
-};
+}
 
 describe('init form', () => {
   const initSettings = getInitSettings();
@@ -259,15 +266,15 @@ describe('submit', () => { //fixme разные валидаторы
   });
 
   it('global error', async() => {
-    form.model.submit = jest.fn(() => {throw "global error!"});
+    form.model.submit = jest.fn(() => {throw 'global error!'});
     stateHandler.mockClear();
 
     try{
-      let result = await form.submit();
+      await form.submit();
     } catch (err){
-      expect(err).toEqual("global error!");
+      expect(err).toEqual('global error!');
     }
-    expect(form.getAll().globalError).toEqual("global error!");
+    expect(form.getAll().globalError).toEqual('global error!');
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
 
@@ -363,8 +370,8 @@ describe('validateForm', () => {
   it('validation error', async() => {
     form.set({name: 'Error'});
     let result = await form.validateForm();
-    expect(result.getFieldErrors('name')).toEqual("error in name");
-    expect(form.getAll().errors).toEqual({"name": "error in name"});
+    expect(result.getFieldErrors('name')).toEqual('error in name');
+    expect(form.getAll().errors).toEqual({'name': 'error in name'});
   });
 
   it('global error', async() => {
@@ -404,7 +411,7 @@ describe('validateForm', () => {
 });
 
 describe('before init', async() => {
-  const initSettings = getInitSettings();
+  getInitSettings();
   let form = new Form();
   const func = [
     form.updateField.bind(form),
