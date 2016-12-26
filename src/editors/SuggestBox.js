@@ -92,7 +92,8 @@ export const SuggestBoxEditor = React.createClass({
       || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
-      || this.state.options.length !== nextState.options.length;
+      || this.state.options.length !== nextState.options.length
+      || this.props.disabled !== nextProps.disabled;
   },
 
   componentWillReceiveProps: function (nextProps) {
