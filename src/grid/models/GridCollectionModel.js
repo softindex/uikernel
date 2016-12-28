@@ -31,7 +31,10 @@ const GridCollectionModel = function (options) {
   this.data = options.data || [];
   this._id = 1;
   this._filtersHandler = options.filtersHandler;
-  this._validation = options.validation || new Validator();
+  if (options.validation) {
+    console.warn('Property "validation" is deprecated, use "validator" instead');
+  }
+  this._validator = options.validator || options.validation || new Validator();
   this._requiredFields = options.requiredFields || [];
   this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
 
@@ -249,7 +252,7 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
  * @returns {Array}  Dependencies
  */
 GridCollectionModel.prototype.getValidationDependency = function (fields) {
-  return this._validation.getValidationDependency(fields);
+  return this._validator.getValidationDependency(fields);
 };
 
 /**
@@ -259,7 +262,7 @@ GridCollectionModel.prototype.getValidationDependency = function (fields) {
  * @param {Function}    cb      CallBack function
  */
 GridCollectionModel.prototype.isValidRecord = callbackify(function (record) {
-  return toPromise(this._validation.isValidRecord.bind(this._validation))(record);
+  return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
 });
 
 GridCollectionModel.prototype._getID = function () {
