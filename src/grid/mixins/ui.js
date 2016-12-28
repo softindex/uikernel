@@ -105,6 +105,10 @@ const GridUIMixin = {
       return;
     }
 
+    if (this.getViewCount() && !obj.count) {
+      throw new Error('Incorrect response from GridModel. "response.count" not defined');
+    }
+
     // If required page is not included in the range of existing pages,
     // request existing in a moment page
     const page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
