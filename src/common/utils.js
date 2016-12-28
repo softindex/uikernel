@@ -87,51 +87,104 @@ exports.indexOf = (arr, item) =>{
 };
 
 exports.throttle = function (func) {
+  return function () {
+    if (typeof arguments[arguments.length - 1] === 'function'){
+      return throttleCallback(func).apply(this, arguments);
+    } else {
+      return throttlePromise(func).apply(this, arguments);
+    }
+  };
 
-  let worked = false;
-  let nextArguments;
-  let nextResolve;
 
-  /**
-   * @throws {ThrottleError} Too many function call
-   */
-  return function run(...args) {
-    const parentStack = '\n' + new Error().stack.split('\n').slice(1).join('\n');
+  function throttleCallback(func) {
+    var worked = false;
+    var nextArguments;
 
-    return new Promise((resolve, reject) => {
-      if (worked) {
-        nextArguments = args;
-        if (nextResolve) {
-          const error = new ThrottleError();
-          error.stack += parentStack;
-          nextResolve(Promise.reject(error));
+    return function run() {
+      var ctx = this; // Function context
+      var cb = arguments[arguments.length - 1];
+      var argumentsArray = [].slice.call(arguments);
+
+      function nextWorker() {
+        worked = false;
+        if (nextArguments) {
+          var args = nextArguments;
+          nextArguments = null;
+          run.apply(ctx, args);
+          return true;
         }
-        nextResolve = resolve;
+        return false;
+      }
+
+      if (worked) {
+        // Set as the next call
+        nextArguments = arguments;
         return;
       }
 
       worked = true;
 
-      func.apply(this, args)
-        .then(result => {
-          worked = false;
-          if (nextArguments) {
-            nextResolve(run(...nextArguments));
-            nextArguments = null;
+      var cbWrapper = function () {
+        if (!nextWorker() && typeof cb === 'function') {
+          cb.apply(null, arguments);
+        }
+      };
 
+      if (typeof cb === 'function') {
+        argumentsArray[argumentsArray.length - 1] = cbWrapper;
+        func.apply(this, argumentsArray.concat(nextWorker));
+      } else {
+        func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
+      }
+    };
+  }
+
+  function throttlePromise(func) {
+    let worked = false;
+    let nextArguments;
+    let nextResolve;
+
+    /**
+     * @throws {ThrottleError} Too many function call
+     */
+    return function run(...args) {
+      const parentStack = '\n' + new Error().stack.split('\n').slice(1).join('\n');
+
+      return new Promise((resolve, reject) => {
+        if (worked) {
+          nextArguments = args;
+          if (nextResolve) {
             const error = new ThrottleError();
             error.stack += parentStack;
-            reject(error);
-            return;
+            nextResolve(Promise.reject(error));
           }
-          resolve(result);
-        })
-        .catch(err => {
-          worked = false;
-          reject(err);
-        });
-    });
-  };
+          nextResolve = resolve;
+          return;
+        }
+
+        worked = true;
+
+        func.apply(this, args)
+          .then(result => {
+            worked = false;
+            if (nextArguments) {
+              nextResolve(run(...nextArguments));
+              nextArguments = null;
+
+              const error = new ThrottleError();
+              error.stack += parentStack;
+              reject(error);
+              return;
+            }
+            resolve(result);
+          })
+          .catch(err => {
+            worked = false;
+            reject(err);
+          });
+      });
+    };
+  }
 };
 
 exports.parseValueFromEvent = event =>{
