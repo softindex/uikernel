@@ -217,7 +217,7 @@ export const GridComponent = React.createClass({
                         colSpan={col.cols}
                         rowSpan={col.rows}
                         dangerouslySetInnerHTML={{
-                          __html: this._getHeaderCellHTML(col.name)
+                          __html: this._getHeaderCellHTML(col.name || colKey)
                         }}
                       />
                     );
@@ -280,7 +280,7 @@ export const GridComponent = React.createClass({
                       colSpan={col.cols}
                       rowSpan={col.rows}
                       dangerouslySetInnerHTML={{
-                        __html: this._getHeaderCellHTML(col.name)
+                        __html: this._getHeaderCellHTML(col.name || colKey)
                       }}
                     />
                   );

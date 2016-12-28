@@ -25,6 +25,20 @@ A model used by one-to-many editors like SuggestBox and Select.
 
 Get options for a Select or SuggestBox editor.
 
+### Example
+{% highlight javascript %}
+list.read('name', function (err, res) {
+    console.log(res);
+    /*
+    [
+      [1,'Alex'],
+      [2,'Bob']
+    ]
+    */
+})
+});
+{% endhighlight %}
+
 ---
 
 ### getLabel

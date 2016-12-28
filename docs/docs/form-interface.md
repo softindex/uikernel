@@ -17,6 +17,13 @@ Model for handling form requests.
 
 Returns all requested fields.
 
+### Example
+{% highlight javascript %}
+form.getData(['search'], function (err, data) {
+    console.log(data);//{ search: "query" }
+});
+{% endhighlight %}
+
 ----
 
 ### submit
