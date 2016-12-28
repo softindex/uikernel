@@ -38,15 +38,11 @@ const GridColumnsMixin = {
    * @private
    */
   _formHeader: function () {
-    let columnId;
     const rows = [[/* top */], [/* bottom */]];
     const colGroup = [];
     let lastParent = {name: ''};
-    let addInfo;
-    let sortParams;
-    let classNames;
 
-    for (columnId in this.props.cols) {
+    for (const columnId in this.props.cols) {
       // Skip column if it's invisible
       if (!this._isViewColumn(columnId)) {
         continue;
@@ -60,8 +56,9 @@ const GridColumnsMixin = {
         })
       );
 
-      classNames = [this._getColumnClass(columnId)];
-      addInfo = {
+      const classNames = [this._getColumnClass(columnId)];
+      const addInfo = {
+        id: columnId,
         name: this.props.cols[columnId].name,
         onClick: this.props.cols[columnId].onClick,
         onClickRefs: this.props.cols[columnId].onClickRefs,
@@ -69,7 +66,7 @@ const GridColumnsMixin = {
         rows: 1
       };
 
-      sortParams = this._getSortParams(columnId);
+      const sortParams = this._getSortParams(columnId);
       if (sortParams) {
         classNames.push(`dgrid-${sortParams.direction}`);
         addInfo.field = sortParams.column;

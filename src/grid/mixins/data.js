@@ -68,7 +68,7 @@ const GridDataMixin = {
    */
   getWarnings: function () {
     const result = [];
-    for (let i in this.state.warnings) {
+    for (const i in this.state.warnings) {
       result.push([
         this.state.recordsInfo[i].id,
         this.state.warnings[i]
@@ -96,7 +96,7 @@ const GridDataMixin = {
    */
   getErrors: function () {
     const result = [];
-    for (let i in this.state.errors) {
+    for (const i in this.state.errors) {
       result.push([
         this.state.recordsInfo[i].id,
         this.state.errors[i]
