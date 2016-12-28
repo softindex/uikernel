@@ -27,10 +27,10 @@ function GridExpressApi() {
     read: [(req, res, next) =>{
       const settings = {};
       if (req.query.limit) {
-        settings.limit = req.query.limit;
+        settings.limit = parseInt(req.query.limit);
       }
       if (req.query.offset) {
-        settings.offset = req.query.offset;
+        settings.offset = parseInt(req.query.offset);
       }
       if (req.query.sort) {
         settings.sort = JSON.parse(req.query.sort);
