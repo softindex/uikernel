@@ -181,17 +181,19 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
 GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
   const record = utils.cloneDeep(this._getRecordByID(id));
   if (!record) {
-    return Promise.reject(Error('Record not found.'));
+    return Promise.reject(new Error('Record not found.'));
   }
 
   const returnRecord = record[1];
 
   // Deleting unused fields
-  utils.forEach(returnRecord, (value, key) =>{
-    if (fields.indexOf(key) === -1) {
-      delete returnRecord[key];
-    }
-  });
+  if (fields) {
+    utils.forEach(returnRecord, (value, key) => {
+      if (fields.indexOf(key) === -1) {
+        delete returnRecord[key];
+      }
+    });
+  }
 
   return Promise.resolve(returnRecord);
 });
