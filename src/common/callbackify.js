@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import utils from '../common/utils';
+
 const functionsNames = [];
 module.exports = function (func) {
   const funcName = func.name;
@@ -15,9 +17,8 @@ module.exports = function (func) {
     const cb = mainArguments[lastArgumentIndex];
 
     if (typeof cb === 'function') {
-
       if (functionsNames.indexOf(funcName) === -1) {
-        console.warn(`You are used callback in: '${funcName}'. Use promise instead`);
+        utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
         functionsNames.push(funcName);
       }
 

@@ -148,7 +148,7 @@ exports.throttle = function (func) {
      * @throws {ThrottleError} Too many function call
      */
     return function run(...args) {
-      const parentStack = '\n' + new Error().stack.split('\n').slice(1).join('\n');
+      const parentStack = '\n' + exports.getStack();
 
       return new Promise((resolve, reject) => {
         if (worked) {
@@ -441,4 +441,15 @@ exports.getRecordChanges = (model, data, changes, newChanges) =>{
   ));
 
   return result;
+};
+
+exports.getStack = function () {
+  return new Error().stack
+    .split('\n')
+    .slice(2) // Error message, getStack
+    .join('\n');
+};
+
+exports.warn = function (message) {
+  console.warn(message, '\n', exports.getStack());
 };
