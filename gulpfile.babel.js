@@ -10,8 +10,6 @@ const gulp = require('gulp');
 const jsDetectErrors = require('./gulp/jsDetectErrors');
 const jsPrecompile = require('./gulp/jsPrecompile');
 const jsClear = require('./gulp/jsClear');
-const jsDocsClear = require('./gulp/jsDocsClear');
-const generateJSDoc = require('./gulp/generateJSDoc');
 const archive = require('./gulp/archive');
 const jsBundle = require('./gulp/jsBundle');
 const addLicense = require('./gulp/addLicense');
@@ -20,9 +18,6 @@ const buildSite = require('./gulp/buildSite');
 const release = require('./gulp/release');
 
 gulp.task('default', ['precompile']);
-
-gulp.task('jsdoc', ['jsdoc:clear', 'license'], generateJSDoc);
-gulp.task('jsdoc:clear', jsDocsClear);
 
 gulp.task('bundle', ['precompile'], jsBundle);
 gulp.task('precompile', ['license', 'clear'], jsPrecompile);

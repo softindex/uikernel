@@ -1,6 +1,5 @@
 node_modules
 .idea
-jsdoc
 _site
 .publish
 npm-debug.log
