@@ -64,7 +64,7 @@ var FormMixin = {
     ctx._initState(settings);
 
     function done() {
-      ctx.state._formMixin.model.on('update', ctx._handleModelChange);
+      ctx.state._formMixin.model.on('update', ctx._handleModelChange.bind(ctx));
       ctx.setState(ctx.state, function () {
         ctx._validateForm(function () {
           if (cb) {
