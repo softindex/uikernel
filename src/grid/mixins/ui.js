@@ -105,7 +105,7 @@ const GridUIMixin = {
       return;
     }
 
-    if (this.getViewCount() && !obj.count) {
+    if (this.getViewCount() && !(obj.count >= 0)) {
       throw new Error('Incorrect response from GridModel. "response.count" not defined');
     }
 
