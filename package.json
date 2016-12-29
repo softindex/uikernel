@@ -43,6 +43,7 @@
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",
     "gulp-gh-pages": "^0.5.4",
+    "gulp-if": "^2.0.2",
     "gulp-jsdoc3": "^0.3.0",
     "gulp-licenser": "^1.0.2",
     "gulp-rename": "^1.2.2",

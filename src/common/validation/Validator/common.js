@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -15,8 +15,6 @@
  *
  * @providesModule UIKernel
  */
-
-'use strict';
 
 import ValidationErrors from '../ValidationErrors';
 import ArgumentsError from '../../ArgumentsError';
@@ -230,4 +228,4 @@ Validator.prototype.isValidRecord = callbackify(async function (record) {
   return errors;
 });
 
-module.exports = Validator;
+export default Validator;

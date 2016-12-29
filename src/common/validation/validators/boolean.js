@@ -1,12 +1,10 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
-'use strict';
 
 import utils from '../../utils';
 
@@ -30,7 +28,7 @@ function validator(notNull, error, value) {
  * @param {string} error Error message
  * @returns {Function} Validator
  */
-module.exports = error => validator.bind(null, false, error);
+export default error => validator.bind(null, false, error);
 
 module.exports.notNull = function (error) {
   return validator.bind(null, this, error);

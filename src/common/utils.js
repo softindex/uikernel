@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -97,18 +97,18 @@ exports.throttle = function (func) {
 
 
   function throttleCallback(func) {
-    var worked = false;
-    var nextArguments;
+    let worked = false;
+    let nextArguments;
 
     return function run() {
-      var ctx = this; // Function context
-      var cb = arguments[arguments.length - 1];
-      var argumentsArray = [].slice.call(arguments);
+      const ctx = this; // Function context
+      const cb = arguments[arguments.length - 1];
+      const argumentsArray = [].slice.call(arguments);
 
       function nextWorker() {
         worked = false;
         if (nextArguments) {
-          var args = nextArguments;
+          const args = nextArguments;
           nextArguments = null;
           run.apply(ctx, args);
           return true;
@@ -124,7 +124,7 @@ exports.throttle = function (func) {
 
       worked = true;
 
-      var cbWrapper = function () {
+      const cbWrapper = function () {
         if (!nextWorker() && typeof cb === 'function') {
           cb.apply(null, arguments);
         }

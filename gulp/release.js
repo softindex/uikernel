@@ -1,29 +1,27 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';
+import fs from 'fs';
+import sequence from 'gulp-sequence';
+import {spawn} from 'child_process';
+import {argv} from 'yargs';
+import pkg from '../package.json';
 
-var fs = require('fs');
-var sequence = require('gulp-sequence');
-var spawn = require('child_process').spawn;
-var argv = require('yargs').argv;
-var pkg = require('../package.json');
-
-var repo = argv.repo || 'origin';
-var tag = 'v' + pkg.version;
+const repo = argv.repo || 'origin';
+const tag = 'v' + pkg.version;
 
 function exec(cmd, params, cb) {
   spawn(cmd, params).on('exit', cb);
 }
 
 function assertOutputIsEmpty(cmd, options, errorMsg, cb) {
-  var p = spawn(cmd, options);
-  var hasOutput = false;
+  const p = spawn(cmd, options);
+  let hasOutput = false;
 
   p.on('exit', function () {
     if (hasOutput) {
@@ -65,7 +63,7 @@ function release(cb) {
     assertOutputIsEmpty('git', ['tag', '-l', tag], 'Tag already exists', function () {
       sequence('bundle')(function () {
         getIgnoreData(function (ignoreData) {
-          var newIgnoreData = filterIgnoreData(ignoreData);
+          const newIgnoreData = filterIgnoreData(ignoreData);
           setIgnoreData(newIgnoreData, function () {
             exec('git', ['add', '.'], function () { // stage all
               exec('git', ['commit', '-m', tag], function () { // commit
@@ -83,4 +81,4 @@ function release(cb) {
   });
 }
 
-module.exports = release;
+export default release;

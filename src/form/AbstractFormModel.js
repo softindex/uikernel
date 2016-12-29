@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -57,4 +57,4 @@ AbstractFormModel.prototype.getValidationDependency = callbackify(() => Promise.
  */
 AbstractFormModel.prototype.isValidRecord = callbackify((/*record*/) => Promise.resolve(new ValidationErrors()));
 
-module.exports = AbstractFormModel;
+export default AbstractFormModel;

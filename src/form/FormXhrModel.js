@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -85,4 +85,4 @@ FormXhrModel.prototype.isValidRecord = callbackify(function (record) {
   return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
 });
 
-module.exports = FormXhrModel;
+export default FormXhrModel;

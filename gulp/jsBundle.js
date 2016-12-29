@@ -1,22 +1,20 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';
+import gulp from 'gulp';
+import rename from 'gulp-rename';
+import uglify from 'gulp-uglify';
+import licenser from 'gulp-licenser';
+import packageInfo from '../package.json';
+import webpack from 'webpack-stream';
+import {argv} from 'yargs';
 
-var gulp = require('gulp');
-var rename = require('gulp-rename');
-var uglify = require('gulp-uglify');
-var licenser = require('gulp-licenser');
-var packageInfo = require('../package.json');
-var webpack = require('webpack-stream');
-var argv = require('yargs').argv;
-
-var LICENSE_TEMPLATE =
+const LICENSE_TEMPLATE =
   '/**\n' +
   ' * Copyright (с) 2015, SoftIndex LLC.\n' +
   ' * All rights reserved.\n' +
@@ -45,4 +43,4 @@ function jsBundle() {
     .pipe(gulp.dest('dist'));
 }
 
-module.exports = jsBundle;
+export default jsBundle;

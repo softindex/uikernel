@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -19,7 +19,7 @@ const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
       }
       if (body) {
         try {
-          var parsedBody = JSON.parse(body);
+          const parsedBody = JSON.parse(body);
           err.message = parsedBody.message || body;
         } catch (e) {
           err.message = body;
@@ -38,4 +38,4 @@ if (!variables.get('xhr')) {
   variables.set('xhr', defaultXhr);
 }
 
-module.exports = (settings, cb) => variables.get('xhr')(settings, cb);
+export default (settings, cb) => variables.get('xhr')(settings, cb);

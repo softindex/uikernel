@@ -1,16 +1,14 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';
-
-const gulp = require('gulp');
-const babel = require('gulp-babel');
-const argv = require('yargs').argv;
+import gulp from 'gulp';
+import babel from 'gulp-babel';
+import {argv} from 'yargs';
 
 function jsPrecompile() {
   return gulp.src(['src/**/*.jsx', 'src/**/*.js'])
@@ -22,4 +20,4 @@ function jsPrecompile() {
     .pipe(gulp.dest('lib'));
 }
 
-module.exports = jsPrecompile;
+export default jsPrecompile;

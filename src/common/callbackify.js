@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -9,7 +9,7 @@
 import utils from '../common/utils';
 
 const functionsNames = [];
-module.exports = function (func) {
+export default function (func) {
   const funcName = func.name;
 
   return function (...mainArguments) {
@@ -34,4 +34,4 @@ module.exports = function (func) {
       return func.apply(this, mainArguments);
     }
   };
-};
+}

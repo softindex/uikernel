@@ -1,25 +1,23 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';
-
-var gulp = require('gulp');
-var jsDetectErrors = require('./gulp/jsDetectErrors');
-var jsPrecompile = require('./gulp/jsPrecompile');
-var jsClear = require('./gulp/jsClear');
-var jsDocsClear = require('./gulp/jsDocsClear');
-var generateJSDoc = require('./gulp/generateJSDoc');
-var archive = require('./gulp/archive');
-var jsBundle = require('./gulp/jsBundle');
-var addLicense = require('./gulp/addLicense');
-var deploySite = require('./gulp/deploySite');
-var buildSite = require('./gulp/buildSite');
-var release = require('./gulp/release');
+const gulp = require('gulp');
+const jsDetectErrors = require('./gulp/jsDetectErrors');
+const jsPrecompile = require('./gulp/jsPrecompile');
+const jsClear = require('./gulp/jsClear');
+const jsDocsClear = require('./gulp/jsDocsClear');
+const generateJSDoc = require('./gulp/generateJSDoc');
+const archive = require('./gulp/archive');
+const jsBundle = require('./gulp/jsBundle');
+const addLicense = require('./gulp/addLicense');
+const deploySite = require('./gulp/deploySite');
+const buildSite = require('./gulp/buildSite');
+const release = require('./gulp/release');
 
 gulp.task('default', ['precompile']);
 

@@ -1,12 +1,10 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
-'use strict';
 
 import callbackify from '../../callbackify';
 import toPromise from '../../toPromise';
@@ -69,4 +67,4 @@ ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
   }
 );
 
-module.exports = ClientValidator;
+export default ClientValidator;

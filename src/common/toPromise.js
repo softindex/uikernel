@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -9,7 +9,7 @@
 import utils from '../common/utils';
 
 const functionsNames = [];
-module.exports = (func, onlyPromise) => {
+export default (func, onlyPromise) => {
   const funcName = func.name;
   return function (...mainArguments) {
     let promise;

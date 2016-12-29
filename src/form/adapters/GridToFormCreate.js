@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -77,4 +77,4 @@ GridToFormCreate.prototype.getValidationDependency = function (fields) {
   return this._adapter.model.getValidationDependency(fields);
 };
 
-module.exports = GridToFormCreate;
+export default GridToFormCreate;

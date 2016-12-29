@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -97,7 +97,7 @@ function assertValidViewColumns(columns, viewColumns){
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-module.exports = callbackify(async(gridModel, columns, viewColumns, exporter, settings) =>{
+export default callbackify(async(gridModel, columns, viewColumns, exporter, settings) =>{
   assertValidViewColumns(columns, viewColumns);
   const result = await toPromise(gridModel.read.bind(gridModel))({
     fields: getFields(columns, viewColumns),

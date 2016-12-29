@@ -1,22 +1,20 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-'use strict';
-
-var utils = require('../common/utils');
-var Validator = require('../common/validation/Validator/common');
-var ValidationErrors = require('../common/validation/ValidationErrors');
+import utils from '../common/utils';
+import Validator from '../common/validation/Validator/common';
+import ValidationErrors from '../common/validation/ValidationErrors';
 
 /**
  * Grid form mixin
  * @mixin
  */
-var FormMixin = {
+const FormMixin = {
   getInitialState: function () {
     this._validateForm = utils.throttle(this._validateForm);
 
@@ -59,7 +57,7 @@ var FormMixin = {
    * @param {Function}          [cb]                                    CallBack function
    */
   initForm: function (settings, cb) {
-    var ctx = this;
+    const ctx = this;
 
     ctx._initState(settings);
 
@@ -114,8 +112,8 @@ var FormMixin = {
    * @return {{}}
    */
   getChanges: function () {
-    var changes = {};
-    for (var field in this.state._formMixin.changes) {
+    const changes = {};
+    for (const field in this.state._formMixin.changes) {
       if (!this._isDependentField(field)) {
         changes[field] = this.state._formMixin.changes[field];
       }
@@ -134,7 +132,7 @@ var FormMixin = {
       return false;
     }
 
-    var state = this.state._formMixin;
+    const state = this.state._formMixin;
 
     if (field === undefined) {
       return !utils.isEmpty(state.changes);
@@ -158,7 +156,7 @@ var FormMixin = {
       return false;
     }
 
-    var state = this.state._formMixin;
+    const state = this.state._formMixin;
 
     // Check group of fields
     if (Array.isArray(field)) {
@@ -237,8 +235,8 @@ var FormMixin = {
       return new ValidationErrors();
     }
 
-    var field;
-    var errors = ValidationErrors.merge(this.state._formMixin.errors, this.state._formMixin.warnings);
+    let field;
+    let errors = ValidationErrors.merge(this.state._formMixin.errors, this.state._formMixin.warnings);
 
     // If gradual validation is on, we need
     // to remove unchanged records from errors object
@@ -345,7 +343,7 @@ var FormMixin = {
       validate = false;
     }
 
-    var state = this.state._formMixin;
+    const state = this.state._formMixin;
     state.changes = utils.getRecordChanges(state.model, state.data, state.changes, data);
 
     if (validate) {
@@ -381,7 +379,7 @@ var FormMixin = {
 
     this.state._formMixin.submitting = true;
 
-    var changes = this._getChanges();
+    const changes = this._getChanges();
 
     this.state._formMixin.globalError = null;
     this.state._formMixin.partialErrorChecking = false;
@@ -396,9 +394,9 @@ var FormMixin = {
 
       this.state._formMixin.submitting = false;
 
-      var newChanges = this._getChanges();
-      var actualChanges = utils.isEqual(changes, newChanges);
-      var validationError = err instanceof ValidationErrors;
+      const newChanges = this._getChanges();
+      const actualChanges = utils.isEqual(changes, newChanges);
+      const validationError = err instanceof ValidationErrors;
 
       // Replacing empty error to null
       if (validationError && err.isEmpty()) {
@@ -519,10 +517,10 @@ var FormMixin = {
       return stop();
     }
 
-    var completed = 0;
-    var completeError;
-    var onComplete = function (err) {
-      var field;
+    let completed = 0;
+    let completeError;
+    const onComplete = function (err) {
+      let field;
 
       if (this._isUnmounted) {
         return;
@@ -561,7 +559,7 @@ var FormMixin = {
   },
 
   _runValidator: function (validator, getData, output, cb) {
-    var data = getData();
+    const data = getData();
     validator.isValidRecord(data, function (err, validErrors) {
       if (this._isUnmounted || !utils.isEqual(data, getData())) {
         return;
@@ -593,9 +591,9 @@ var FormMixin = {
   },
 
   _isDependentField: function (field) {
-    var state = this.state._formMixin;
+    const state = this.state._formMixin;
     return state.changes.hasOwnProperty(field) && utils.isEqual(state.changes[field], state.data[field]);
   }
 };
 
-module.exports = FormMixin;
+export default FormMixin;

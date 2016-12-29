@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -75,4 +75,4 @@ ListXMLHttpRequestModel.prototype.getLabel = callbackify(async function (id) {
   return body;
 });
 
-module.exports = ListXMLHttpRequestModel;
+export default ListXMLHttpRequestModel;

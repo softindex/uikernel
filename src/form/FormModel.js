@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -84,4 +84,4 @@ FormModel.prototype.isValidRecord = callbackify(async function (record) {
   }
 );
 
-module.exports = FormModel;
+export default FormModel;

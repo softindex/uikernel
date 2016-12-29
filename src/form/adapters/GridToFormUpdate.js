@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -153,4 +153,4 @@ GridToFormUpdate.prototype.listenerCount = function (event) {
   return this._adapter.model.listenerCount(event);
 };
 
-module.exports = GridToFormUpdate;
+export default GridToFormUpdate;

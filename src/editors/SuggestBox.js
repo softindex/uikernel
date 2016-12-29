@@ -1,5 +1,5 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
@@ -144,7 +144,7 @@ export const SuggestBoxEditor = React.createClass({
       loading: false
     });
 
-    var $popup = $('#' + popupId);
+    const $popup = $('#' + popupId);
     $popup.find('.__suggestBoxPopUp-content')
       .css('bottom', 'auto')
       .css('position', 'static');
@@ -507,4 +507,4 @@ export const SuggestBoxEditor = React.createClass({
   }
 });
 
-module.exports = SuggestBoxEditor;
+export default SuggestBoxEditor;

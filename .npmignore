@@ -1,15 +1,13 @@
 docs
 src
-vendor
 gulp
 examples
 .idea
 .editorconfig
 .eslintrc
 .gitignore
-.jscsrc
 .npmignore
 .publish
-gulpfile.js
+gulpfile.babel.js
 bower.json
 npm-debug.log
