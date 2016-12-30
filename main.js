@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import browserModule from './browser';
+const browserModule = require('./browser');
 
 browserModule.gridExpressApi = require('./lib/grid/models/gridExpressApi');
 browserModule.listExpressApi = require('./lib/list/ListExpressApi');

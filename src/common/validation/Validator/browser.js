@@ -27,6 +27,10 @@ class ClientValidator extends Validator {
     this._settings.xhr = xhr || defaultXhr;
   }
 
+  static create(serverValidationUrl, xhr) {
+    return new ClientValidator(serverValidationUrl, xhr);
+  }
+
   isValidRecord = callbackify(async function (record) {
     if (!this._settings.serverValidationUrl) {
       return Validator.prototype.isValidRecord.call(this, record);
@@ -57,4 +61,4 @@ class ClientValidator extends Validator {
   });
 }
 
-export default ClientValidator;
+export default ClientValidator.create;

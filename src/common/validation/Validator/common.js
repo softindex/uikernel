@@ -31,6 +31,10 @@ class Validator {
     this.getValidationDependency = this.getValidationDependency.bind(this);
   }
 
+  static create() {
+    return new Validator();
+  }
+
   /**
    * Add field sync validators
    *
@@ -205,4 +209,4 @@ class Validator {
   });
 }
 
-export default Validator;
+export default Validator.create;
