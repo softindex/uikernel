@@ -209,4 +209,4 @@ class Validator {
   });
 }
 
-export default Validator.create;
+export default Validator;

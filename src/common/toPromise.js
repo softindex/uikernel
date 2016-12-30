@@ -9,7 +9,8 @@
 import utils from '../common/utils';
 
 const functionsNames = [];
-export default (func, onlyPromise) => {
+
+const toPromise = function (func, hideWarning) {
   const funcName = func.name;
   return function (...mainArguments) {
     let promise;
@@ -24,21 +25,20 @@ export default (func, onlyPromise) => {
     });
 
     if (promise) {
-      if (promise.then) {
+      if (promise.then && promise.catch) {
         return promise;
       }
-
-      if (onlyPromise) {
-        return callbackPromise;
-      }
-
-      return Promise.resolve(promise);
+      utils.warn('The return value is not a function');
     } else {
-      if (!functionsNames.includes(funcName)) {
-        utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
-        functionsNames.push(funcName);
+      if (!hideWarning) {
+        if (!functionsNames.includes(funcName)) {
+          utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
+          functionsNames.push(funcName);
+        }
       }
       return callbackPromise;
     }
   };
 };
+
+export default toPromise;

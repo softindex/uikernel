@@ -25,15 +25,16 @@ class ClientValidator extends Validator {
     super();
     this._settings.serverValidationUrl = serverValidationUrl;
     this._settings.xhr = xhr || defaultXhr;
+    this.isValidRecord = callbackify(this.isValidRecord);
   }
 
   static create(serverValidationUrl, xhr) {
     return new ClientValidator(serverValidationUrl, xhr);
   }
 
-  isValidRecord = callbackify(async function (record) {
+  async isValidRecord(record) {
     if (!this._settings.serverValidationUrl) {
-      return Validator.prototype.isValidRecord.call(this, record);
+      return super.isValidRecord(record);
     }
 
     let xhrResult;
@@ -49,7 +50,7 @@ class ClientValidator extends Validator {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors
-        const validationErrors = await toPromise(Validator.prototype.isValidRecord).call(this, record);
+        const validationErrors = await toPromise(super.isValidRecord).call(this, record);
         if (!validationErrors.isEmpty()) {
           return validationErrors;
         }
@@ -58,7 +59,7 @@ class ClientValidator extends Validator {
     }
 
     return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
-  });
+  }
 }
 
-export default ClientValidator.create;
+export default ClientValidator;

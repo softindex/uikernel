@@ -35,8 +35,8 @@ const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
 
-export const SuggestBoxEditor = React.createClass({
-  propTypes: {
+class SuggestBoxEditor extends React.Component {
+  static propTypes = {
     disabled: React.PropTypes.bool,
     model: React.PropTypes.shape({
       read: React.PropTypes.func,
@@ -50,26 +50,27 @@ export const SuggestBoxEditor = React.createClass({
     label: React.PropTypes.string,
     notFoundElement: React.PropTypes.element,
     loadingElement: React.PropTypes.element
-  },
+  };
 
-  getDefaultProps: () => ({
+  static defaultProps = {
     disabled: false,
     notFoundElement: <div>Nothing found</div>,
     loadingElement: <div>Loading...</div>,
     value: null
-  }),
+  };
 
-  getInitialState: function () {
+  constructor(props) {
+    super(props);
     this._loadData = utils.throttle(this._loadData);
-    return {
+    this.state = {
       isOpened: false,
       options: [],
       selectedOptionKey: null,
       lastValidLabel: ''
     };
-  },
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     this._isMounted = true;
     if (this.props.defaultLabel) {
       this._setLabelTo(this.props.defaultLabel, true);
@@ -78,21 +79,21 @@ export const SuggestBoxEditor = React.createClass({
     } else {
       this._getLabelFromModel(this.props.model, this.props.value);
     }
-  },
+  }
 
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     this._isMounted = false;
-  },
+  }
 
-  shouldComponentUpdate: function (nextProps, nextState) {
+  shouldComponentUpdate(nextProps, nextState) {
     return !utils.isEqual(this.props.value, nextProps.value)
       || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
       || this.state.options.length !== nextState.options.length;
-  },
+  }
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (!utils.isEqual(this.props.value, nextProps.value)) {
       if (!this.props.hasOwnProperty('label')) {
         this._getLabelFromModel(nextProps.model, nextProps.value);
@@ -101,11 +102,13 @@ export const SuggestBoxEditor = React.createClass({
     if (this.props.label !== nextProps.label) {
       this._setLabelTo(nextProps.label, true);
     }
-  },
+  }
 
-  _getOptionLabel: option => Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label,
+  _getOptionLabel(option) {
+    return Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label;
+  }
 
-  _setLabelTo: function (label, markAsValid) {
+  _setLabelTo(label, markAsValid) {
     if (label === null || label === undefined) {
       label = '';
     }
@@ -113,9 +116,9 @@ export const SuggestBoxEditor = React.createClass({
     if (markAsValid) {
       this.state.lastValidLabel = label;
     }
-  },
+  }
 
-  _getLabelFromModel: function (model, id) {
+  _getLabelFromModel(model, id) {
     if (id === null || id === undefined) {
       return this._setLabelTo('', true);
     }
@@ -133,9 +136,9 @@ export const SuggestBoxEditor = React.createClass({
           throw err;
         }
       });
-  },
+  }
 
-  _updateList: async function (searchPattern) {
+  async _updateList(searchPattern) {
     const options = await this._loadData(searchPattern);
     await this.setState({
       options: options,
@@ -149,18 +152,18 @@ export const SuggestBoxEditor = React.createClass({
       .css('position', 'static');
 
     this._scrollListTo();
-  },
+  }
 
-  _loadData: function (searchPattern) {
+  async _loadData(searchPattern) {
     return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '');
-  },
+  }
 
-  _openList: function (searchPattern, cb) {
+  _openList(searchPattern, cb) {
     if (this.props.disabled || this.state.isOpened) {
       return;
     }
 
-    this.setState({isOpened: true, loading: true}, function () {
+    this.setState({isOpened: true, loading: true}, () => {
       findDOMNode(this.refs.input).select();
 
       const $input = $(findDOMNode(this.refs.input));
@@ -206,14 +209,14 @@ export const SuggestBoxEditor = React.createClass({
         }
       });
     });
-  },
+  }
 
-  _onInputFocus: function () {
+  _onInputFocus() {
     this._openList();
     findDOMNode(this.refs.input).select();
-  },
+  }
 
-  _closeList: function (shouldBlur) {
+  _closeList(shouldBlur) {
     if (shouldBlur) {
       findDOMNode(this.refs.input).blur();
     }
@@ -225,17 +228,17 @@ export const SuggestBoxEditor = React.createClass({
       selectedOptionKey: null,
       isOpened: false
     });
-  },
+  }
 
-  _toggleList: function () {
+  _toggleList() {
     if (this.state.isOpened) {
       this._closeList();
     } else {
       this._openList();
     }
-  },
+  }
 
-  _selectOption: function (option) {
+  _selectOption(option) {
     this.props.onChange(option.id, option);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option.label);
@@ -244,9 +247,9 @@ export const SuggestBoxEditor = React.createClass({
       this.props.onMetadataChange(option.metadata);
     }
     findDOMNode(this.refs.input).select();
-  },
+  }
 
-  _focusOption: function (key, shouldSelectOption) {
+  _focusOption(key, shouldSelectOption) {
     if (shouldSelectOption === true) {
       this._selectOption(this.state.options[key]);
     }
@@ -257,17 +260,17 @@ export const SuggestBoxEditor = React.createClass({
         this._focusOptionAndScrollIntoView(key);
       });
     }
-  },
+  }
 
-  _focusOptionAndScrollIntoView: function (key) {
+  _focusOptionAndScrollIntoView(key) {
     this.state.selectedOptionKey = key;
     $(`.${classes.optionFocused}`).removeClass(classes.optionFocused);
     $(`.${classes.option}[data-key="${key}"]`).addClass(classes.optionFocused);
     const domOption = $(`#${popupId} li[data-key="${key}"]`).get(0);
     this._scrollListTo(domOption);
-  },
+  }
 
-  _focusNextOption: function () {
+  _focusNextOption() {
     if (this.state.selectedOptionKey === null) {
       this.state.selectedOptionKey = 0;
       return this._focusOption(this.state.selectedOptionKey);
@@ -284,9 +287,9 @@ export const SuggestBoxEditor = React.createClass({
         return this._focusOption(key, true);
       }
     }
-  },
+  }
 
-  _focusPrevOption: function () {
+  _focusPrevOption() {
     if (this.state.selectedOptionKey === null) {
       this.state.selectedOptionKey = 0;
       return this._focusOption(this.state.selectedOptionKey);
@@ -303,9 +306,9 @@ export const SuggestBoxEditor = React.createClass({
         return this._focusOption(key, true);
       }
     }
-  },
+  }
 
-  _scrollListTo: target => {
+  _scrollListTo(target) {
     const container = $(`#${popupId}`).get(0);
     if (!container) {
       return;
@@ -321,9 +324,9 @@ export const SuggestBoxEditor = React.createClass({
     } else if (target.offsetTop - container.scrollTop < 0) {
       container.scrollTop = target.offsetTop;
     }
-  },
+  }
 
-  _isParentOf: function (child) {
+  _isParentOf(child) {
     while (child) {
       child = $(child).parent().get(0);
       if (child === findDOMNode(this)) {
@@ -331,9 +334,9 @@ export const SuggestBoxEditor = React.createClass({
       }
     }
     return false;
-  },
+  }
 
-  _onDocumentMouseDown: function (e, isOwner) {
+  _onDocumentMouseDown(e, isOwner) {
     if (e.button !== 0) {
       return;
     }
@@ -354,18 +357,18 @@ export const SuggestBoxEditor = React.createClass({
         this._closeList(true);
       }
     }
-  },
+  }
 
-  _onDocumentMouseScroll: function (e, isOwner) {
+  _onDocumentMouseScroll(e, isOwner) {
     if (!isOwner) {
       if (this.state.isOpened) {
         this._setLabelTo(this.state.lastValidLabel);
       }
       this._closeList(true);
     }
-  },
+  }
 
-  _onInputKeyDown: function (e) {
+  _onInputKeyDown(e) {
     if (this.props.disabled) {
       return;
     }
@@ -403,21 +406,21 @@ export const SuggestBoxEditor = React.createClass({
       this._closeList();
       break;
     }
-  },
+  }
 
-  _onInputValueChange: function (e) {
+  _onInputValueChange(e) {
     if (this.state.isOpened) {
       this._updateList(e.target.value);
     } else {
       this._openList(e.target.value);
     }
-  },
+  }
 
-  focus: function () {
+  focus() {
     findDOMNode(this.refs.input).focus();
-  },
+  }
 
-  render: function () {
+  render() {
     const arrowClasses = [classes.arrow];
     let options;
     let optionsPopup = null;
@@ -457,7 +460,7 @@ export const SuggestBoxEditor = React.createClass({
               <li
                 key={key}
                 data-key={key}
-                onMouseOver={this._focusOption.bind(null, key)}
+                onMouseOver={this._focusOption.bind(this, key)}
                 className={optionClassNames.join(' ')}
               >
                 {
@@ -473,8 +476,8 @@ export const SuggestBoxEditor = React.createClass({
       optionsPopup = (
         <Portal
           id={popupId}
-          onDocumentMouseDown={this._onDocumentMouseDown}
-          onDocumentMouseScroll={this._onDocumentMouseScroll}
+          onDocumentMouseDown={this::this._onDocumentMouseDown}
+          onDocumentMouseScroll={this::this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
         >
           <div className="__suggestBoxPopUp-content">
@@ -491,7 +494,7 @@ export const SuggestBoxEditor = React.createClass({
             {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange'])}
             ref='input'
             type='text'
-            onClick={this::this._openList.bind(null, '')}
+            onClick={this._openList.bind(this, '')}
             onFocus={this::this._onInputFocus}
             onKeyDown={this::this._onInputKeyDown}
             onChange={this::this._onInputValueChange}
@@ -504,6 +507,6 @@ export const SuggestBoxEditor = React.createClass({
       </div>
     );
   }
-});
+}
 
 export default SuggestBoxEditor;

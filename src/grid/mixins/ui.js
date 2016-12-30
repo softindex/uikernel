@@ -120,7 +120,7 @@ const GridUIMixin = {
     const extra = this._dataArrayToObject(obj.extraRecords || []);
     const recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
 
-    await toPromise(this.setState.bind(this))({
+    await toPromise(this.setState.bind(this), true)({
       data: Object.assign({}, data.records, extra.records),
       mainIds: Object.keys(data.records),
       count: obj.count,
