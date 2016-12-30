@@ -103,7 +103,7 @@ const GridUIMixin = {
       return;
     }
 
-    if (this.getViewCount() && !obj.hasOwnPropery('count')) {
+    if (this.getViewCount() && !obj.hasOwnProperty('count')) {
       throw new Error('Incorrect response from GridModel. "response.count" not defined');
     }
 
