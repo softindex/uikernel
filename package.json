@@ -19,7 +19,6 @@
   "dependencies": {
     "csv-stringify": "^1.0.4",
     "express": "^4.14.0",
-    "object-hash": "^1.1.4",
     "react": "~0.14.8",
     "react-dom": "~0.14.8",
     "xhr": "^2.2.0"

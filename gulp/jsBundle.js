@@ -16,6 +16,10 @@ import {argv} from 'yargs';
 function jsBundle() {
   return gulp.src('browser.js')
     .pipe(webpack({
+      output: {
+        libraryTarget: 'var',
+        library: 'UIKernel'
+      },
       externals: {
         'react': 'React',
         'react-dom': 'ReactDOM'

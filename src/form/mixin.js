@@ -474,7 +474,7 @@ const FormMixin = {
    * @private
    */
   _handleModelChange: function (changes) {
-    utils.assign(this.state._formMixin.data, utils.cloneDeep(changes));
+    Object.assign(this.state._formMixin.data, utils.cloneDeep(changes));
     if (!this._isUnmounted) {
       this.setState(this.state);
     }
@@ -579,7 +579,7 @@ const FormMixin = {
     if (!this.state._formMixin.data) {
       return null;
     }
-    return utils.assign({}, this.state._formMixin.data, this.state._formMixin.changes);
+    return Object.assign({}, this.state._formMixin.data, this.state._formMixin.changes);
   },
 
   _getChanges: function () {

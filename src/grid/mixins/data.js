@@ -127,7 +127,7 @@ const GridDataMixin = {
           result[row] = this._getRecord(row);
         } else {
           result[row] = {};
-          utils.assign(result[row], rowChanges, utils.pick(
+          Object.assign(result[row], rowChanges, utils.pick(
             this.state.data[row],
             this.props.model.getValidationDependency(Object.keys(result[row]))
           ));
@@ -396,7 +396,7 @@ const GridDataMixin = {
    */
   _getRecord: function (row) {
     if (this.state.data[row]) {
-      return utils.assign({}, this.state.data[row], this.state.changes[row]);
+      return Object.assign({}, this.state.data[row], this.state.changes[row]);
     }
     return null;
   },
@@ -441,7 +441,7 @@ const GridDataMixin = {
     let row;
 
     for (i = 0; i < arr.length; i++) {
-      row = utils.hash(arr[i][0]);
+      row = JSON.stringify(arr[i][0]);
       records[row] = arr[i][1];
       info[row] = {
         id: arr[i][0],
@@ -489,7 +489,7 @@ const GridDataMixin = {
 
   _isRecordLoaded: function (recordId) {
     // TODO Can be optimized
-    const row = utils.hash(recordId);
+    const row = JSON.stringify(recordId);
     return this.state.data.hasOwnProperty(row);
   },
 
@@ -501,7 +501,7 @@ const GridDataMixin = {
    * @private
    */
   _getRowID: function (recordId) {
-    const row = utils.hash(recordId);
+    const row = JSON.stringify(recordId);
 
     if (!this.state.data.hasOwnProperty(row)) {
       throw Error('Record with the ID is not contained in the table.');

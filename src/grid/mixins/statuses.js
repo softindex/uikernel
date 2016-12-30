@@ -21,7 +21,7 @@ const GridStatusesMixin = {
    * @param {string}           status      Record status
    */
   addRecordStatus: function (recordId, status) {
-    const row = utils.hash(recordId);
+    const row = JSON.stringify(recordId);
 
     // If list does not contain the record, mark its status as empty
     if (!this.state.statuses.hasOwnProperty(row)) {
@@ -48,7 +48,7 @@ const GridStatusesMixin = {
     let row;
 
     for (i in group) {
-      row = utils.hash(group[i]);
+      row = JSON.stringify(group[i]);
       if (!this.state.statuses.hasOwnProperty(row)) {
         this.state.statuses[row] = {
           id: group[i],
@@ -70,7 +70,7 @@ const GridStatusesMixin = {
    */
   removeRecordStatus: function (recordId, status) {
     const bit = this._getStatusBit(status);
-    const row = utils.hash(recordId);
+    const row = JSON.stringify(recordId);
 
     // Cancel method execution if record has no statuses
     if (!this.state.statuses[row]) {
@@ -103,7 +103,7 @@ const GridStatusesMixin = {
    * @returns {boolean} Record has status flag
    */
   hasRecordStatus: function (recordId, status) {
-    const row = utils.hash(recordId);
+    const row = JSON.stringify(recordId);
     if (this.state.statuses[row]) {
       return (this.state.statuses[row].sum & this._getStatusBit(status)) > 0;
     }

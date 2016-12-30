@@ -17,7 +17,6 @@ const Module = {
   createValidator: require('./lib/common/validation/Validator/browser'),
   exportGridData: require('./lib/grid/export/exportGridData'),
   toJSON: require('./lib/grid/export/exporters/toJSON'),
-  toCSV: require('./lib/grid/export/exporters/toCSV'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
@@ -69,4 +68,4 @@ const Module = {
   _set: variables.set
 };
 
-global.UIKernel = module.exports = Module;
+module.exports = Module;

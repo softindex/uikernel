@@ -56,7 +56,7 @@ class FormModel extends AbstractFormModel {
     if (!validErrors.isEmpty()) {
       throw validErrors;
     }
-    utils.assign(this._data, changes);
+    Object.assign(this._data, changes);
     this.trigger('update', changes);
     return changes;
   });

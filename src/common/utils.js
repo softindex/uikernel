@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import objectHash from 'object-hash';
 import ThrottleError from './ThrottleError';
 
 function baseClone(obj, isDeep) {
@@ -60,14 +59,6 @@ exports.isIntersection = function (a, b) {
 exports.size = function (obj) {
   return Object.keys(obj).length;
 };
-
-/**
- * Hash function using djb2 algorithm
- *
- * @param   {string} str Initial string
- * @return  {string} hash
- */
-exports.hash = objectHash;
 
 /**
  * Element position (isEqual checking)
@@ -201,7 +192,7 @@ exports.parseValueFromEvent = function (event) {
 
 exports.decorate = function (obj, decor) {
   function Decorator() {
-    exports.assign(this, decor);
+    Object.assign(this, decor);
 
     for (const i in obj) {
       if (typeof obj[i] === 'function' && !decor[i]) {
@@ -243,15 +234,6 @@ exports.isEqual = function (a, b) {
 
   const p = Object.keys(a);
   return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => exports.isEqual(a[i], b[i]));
-};
-
-exports.assign = function (result, ...objects) {
-  for (const object of objects) {
-    for (const [field, value] of Object.entries(object)) {
-      result[field] = value;
-    }
-  }
-  return result;
 };
 
 /**
@@ -429,7 +411,7 @@ exports.last = function (arr) {
 };
 
 exports.getRecordChanges = function (model, data, changes, newChanges) {
-  const result = exports.assign({}, changes, newChanges);
+  const result = Object.assign({}, changes, newChanges);
 
   for (const i in result) {
     if (exports.isEqual(data[i], result[i])) {
@@ -437,7 +419,7 @@ exports.getRecordChanges = function (model, data, changes, newChanges) {
     }
   }
 
-  exports.assign(result, exports.pick(
+  Object.assign(result, exports.pick(
     data,
     model.getValidationDependency(Object.keys(result))
   ));

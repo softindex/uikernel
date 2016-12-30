@@ -420,7 +420,7 @@ class FormService {
   }
 
   _getData() {
-    return utils.assign({}, this._data, this._changes);
+    return Object.assign({}, this._data, this._changes);
   }
 
   _getChanges() {

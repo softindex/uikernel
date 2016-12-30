@@ -37,7 +37,7 @@ class ValidationErrors {
       jsonErrors.push(arg.toJSON());
     }
 
-    return ValidationErrors.createFromJSON(utils.assign(...jsonErrors));
+    return ValidationErrors.createFromJSON(Object.assign(...jsonErrors));
   };
 
   /**

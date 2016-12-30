@@ -215,7 +215,7 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
     return [];
   }
 
-  const promises = changes.map(async function (change) {
+  const promises = changes.map(async (change) => {
     if (finish) {
       return;
     }
@@ -230,13 +230,13 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
     ++completed;
 
     if (validErrors.isEmpty()) {
-      utils.assign(this._getRecordByID(change[0])[1], change[1]);
+      Object.assign(this._getRecordByID(change[0])[1], change[1]);
       appliedChanges.push(change);
       return change;
     } else {
       return [change[0], validErrors];
     }
-  }.bind(this));
+  });
 
   const result = await Promise.all(promises);
 
