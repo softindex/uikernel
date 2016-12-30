@@ -2,7 +2,7 @@
 title: Express Grid API
 id: grid-express-api
 prev: grid-export.html
-next: form-mixin.html
+next: form-service.html
 ---
 
 You can use Grid Express API to link the client UI and Grid server model.

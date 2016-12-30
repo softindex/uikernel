@@ -64,8 +64,6 @@
     title: Express API
 - title: Form
   items:
-  - id: form-mixin
-    title: Mixin
   - id: form-service
     title: Service
   - id: form-interface
