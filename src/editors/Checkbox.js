@@ -9,21 +9,21 @@
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 
-export const Checkbox = React.createClass({
-  propTypes: {
+class Checkbox extends React.Component {
+  static propTypes = {
     indeterminate: React.PropTypes.bool
-  },
+  };
 
-  componentDidMount: function () {
+  componentDidMount() {
     this._setIndeterminate(this.props.indeterminate);
-  },
-  componentWillReceiveProps: function (props) {
+  }
+  componentWillReceiveProps(props) {
     this._setIndeterminate(props.indeterminate);
-  },
-  _setIndeterminate: function (value) {
+  }
+  _setIndeterminate(value) {
     findDOMNode(this.refs.checkbox).indeterminate = value;
-  },
-  render: function () {
+  }
+  render() {
     return (
       <input
         {...this.props}
@@ -32,6 +32,6 @@ export const Checkbox = React.createClass({
       />
     );
   }
-});
+}
 
 export default Checkbox;

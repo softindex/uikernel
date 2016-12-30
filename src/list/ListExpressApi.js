@@ -23,14 +23,14 @@ function ListExpressApi() {
   const builderContext = this;
 
   builderContext.middlewares = {
-    read: [(req, res, next) =>{
-      builderContext._read(req.query.v, req, builderContext._getModel(req, res), (err, response) =>{
+    read: [(req, res, next) => {
+      builderContext._read(req.query.v, req, builderContext._getModel(req, res), (err, response) => {
         builderContext._result(err, response, req, res, next);
       });
     }],
-    getLabel: [(req, res, next) =>{
+    getLabel: [(req, res, next) => {
       const id = JSON.parse(req.params.id);
-      builderContext._getLabel(id, req, builderContext._getModel(req, res), (err, response) =>{
+      builderContext._getLabel(id, req, builderContext._getModel(req, res), (err, response) => {
         builderContext._result(err, response, req, res, next);
       });
     }]
@@ -81,28 +81,28 @@ ListExpressApi.prototype.getRouter = function () {
 };
 
 // Default implementation
-ListExpressApi.prototype._getModel = () =>{
+ListExpressApi.prototype._getModel = () => {
   throw Error('Model is not defined.');
 };
-ListExpressApi.prototype._read = (search, req, model, cb) =>{
+ListExpressApi.prototype._read = (search, req, model, cb) => {
   toPromise(model.read.bind(model))(search)
-    .then(data =>{
+    .then(data => {
       cb(null, data);
     })
-    .catch(err =>{
+    .catch(err => {
       cb(err);
     });
 };
-ListExpressApi.prototype._getLabel = (id, req, model, cb) =>{
+ListExpressApi.prototype._getLabel = (id, req, model, cb) => {
   toPromise(model.getLabel.bind(model))(id)
-    .then(data =>{
+    .then(data => {
       cb(null, data);
     })
-    .catch(err =>{
+    .catch(err => {
       cb(err);
     });
 };
-ListExpressApi.prototype._result = (err, data, req, res, next) =>{
+ListExpressApi.prototype._result = (err, data, req, res, next) => {
   if (err) {
     next(err);
   } else {

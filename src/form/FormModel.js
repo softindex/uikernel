@@ -11,77 +11,75 @@ import Validator from '../common/validation/Validator/common';
 import AbstractFormModel from './AbstractFormModel';
 import utils from '../common/utils';
 
-/**
- * Simple form model
- *
- * @param {Object}    defaultValues Default form field values
- * @param {Validator} validation    Validation
- * @constructor
- */
-const FormModel = function (defaultValues, validation) {
-  AbstractFormModel.call(this);
-  this._validation = validation || new Validator();
-  this._data = defaultValues ? utils.clone(defaultValues) : {};
-};
-FormModel.prototype = new AbstractFormModel();
-FormModel.prototype.constructor = FormModel;
+class FormModel extends AbstractFormModel {
+  /**
+   * Simple form model
+   *
+   * @param {Object}    defaultValues Default form field values
+   * @param {Validator} validation    Validation
+   * @constructor
+   */
+  constructor(defaultValues, validation) {
+    super();
+    this._validation = validation || new Validator();
+    this._data = defaultValues ? utils.clone(defaultValues) : {};
+  }
 
-/**
- * Get data
- *
- * @param {Array}    fields     Required fields
- * @param {Function} cb         CallBack function
- */
-FormModel.prototype.getData = callbackify(async function (fields) {
-  let record = {};
-  let i;
+  /**
+   * Get data
+   *
+   * @param {Array}    fields     Required fields
+   * @param {Function} cb         CallBack function
+   */
+  getData = callbackify(async function (fields) {
+    let record = {};
 
-  if (fields) {
-    for (i = 0; i < fields.length; i++) {
-      record[fields[i]] = this._data[fields[i]];
+    if (fields) {
+      for (const field of fields) {
+        record[field] = this._data[field];
+      }
+    } else {
+      record = utils.clone(this._data);
     }
-  } else {
-    record = utils.clone(this._data);
-  }
 
-  return record;
-});
+    return record;
+  });
 
-/**
- * Process form data
- *
- * @param {Object}      changes     Form data
- * @param {Function}    cb          CallBack function
- */
-FormModel.prototype.submit = callbackify(async function (changes) {
-  const validErrors = await this.isValidRecord(changes);
-  if (!validErrors.isEmpty()) {
-    throw validErrors;
-  }
-  utils.assign(this._data, changes);
-  this.trigger('update', changes);
-  return changes;
-});
+  /**
+   * Process form data
+   *
+   * @param {Object}      changes     Form data
+   * @param {Function}    cb          CallBack function
+   */
+  submit = callbackify(async function (changes) {
+    const validErrors = await this.isValidRecord(changes);
+    if (!validErrors.isEmpty()) {
+      throw validErrors;
+    }
+    utils.assign(this._data, changes);
+    this.trigger('update', changes);
+    return changes;
+  });
 
-/**
- * Get all dependent fields, that are required for validation
- *
- * @param   {Array}  fields   Fields list
- * @returns {Array}  Dependencies
- */
-FormModel.prototype.getValidationDependency = function (fields) {
-  return this._validation.getValidationDependency(fields);
-};
+  /**
+   * Get all dependent fields, that are required for validation
+   *
+   * @param   {Array}  fields   Fields list
+   * @returns {Array}  Dependencies
+   */
+  getValidationDependency = function (fields) {
+    return this._validation.getValidationDependency(fields);
+  };
 
-/**
- * Validation check
- *
- * @param {Object}      record
- * @param {Function}    cb      CallBack function
- */
-FormModel.prototype.isValidRecord = callbackify(async function (record) {
+  /**
+   * Validation check
+   *
+   * @param {Object}      record
+   * @param {Function}    cb      CallBack function
+   */
+  isValidRecord = callbackify(async function (record) {
     return await this._validation.isValidRecord(record);
-  }
-);
+  });
+}
 
 export default FormModel;

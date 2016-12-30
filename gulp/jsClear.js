@@ -9,7 +9,7 @@
 import del from 'del';
 
 function jsClear() {
-  return del(['lib', 'dist', '_site']);
+  return del(['dist', '_site']);
 }
 
 export default jsClear;

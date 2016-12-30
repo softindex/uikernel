@@ -24,7 +24,7 @@ function GridExpressApi() {
   const builderContext = this;
 
   builderContext.middlewares = {
-    read: [(req, res, next) =>{
+    read: [(req, res, next) => {
       const settings = {};
       if (req.query.limit) {
         settings.limit = parseInt(req.query.limit);
@@ -46,40 +46,40 @@ function GridExpressApi() {
       }
       const model = builderContext._getModel(req, res);
       toPromise(model.read.bind(model))(settings)
-        .then(response =>{
+        .then(response => {
           builderContext._result(null, response, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           builderContext._result(err, null, req, res, next);
         });
     }],
-    validate: [(req, res, next) =>{
+    validate: [(req, res, next) => {
       const model = builderContext._getModel(req, res);
       toPromise(model.isValidRecord.bind(model))(req.body)
-        .then(errors =>{
+        .then(errors => {
           builderContext._result(null, errors, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           builderContext._result(err, null, req, res, next);
         });
     }],
-    getRecord: [(req, res, next) =>{
+    getRecord: [(req, res, next) => {
       const cols = req.query.cols ? JSON.parse(req.query.cols) : null;
       const recordId = req.params.recordId ? JSON.parse(req.params.recordId) : null;
       const model = builderContext._getModel(req, res);
       toPromise(model.getRecord.bind(model))(recordId, cols)
-        .then(response =>{
+        .then(response => {
           builderContext._result(null, response, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           builderContext._result(err, null, req, res, next);
         });
     }],
-    update: [(req, res, next) =>{
+    update: [(req, res, next) => {
       const model = builderContext._getModel(req, res);
       toPromise(model.update.bind(model))(req.body)
-        .then(data =>{
-          data = data.reduce((result, record) =>{
+        .then(data => {
+          data = data.reduce((result, record) => {
             if (record[1] instanceof ValidationErrors) {
               result.errors.push(record);
             } else {
@@ -92,17 +92,17 @@ function GridExpressApi() {
           });
           builderContext._result(null, data, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           builderContext._result(err, null, req, res, next);
         });
     }],
-    create: [(req, res, next) =>{
+    create: [(req, res, next) => {
       const model = builderContext._getModel(req, res);
       toPromise(model.create.bind(model))(req.body)
-        .then(data =>{
+        .then(data => {
           builderContext._result(null, {data: data, error: null}, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           if (!(err instanceof ValidationErrors)) {
             return builderContext._result(err, null, req, res, next);
           }
@@ -187,16 +187,16 @@ GridExpressApi.prototype.getRouter = function () {
     .get('/:recordId', builderContext.middlewares.getRecord)
     .put('/', builderContext.middlewares.update)
     .post('/', builderContext.middlewares.create)
-    .use((err, req, res, next) =>{
+    .use((err, req, res, next) => {
       builderContext._result(err, null, req, res, next);
     });
 };
 
 // Default implementation
-GridExpressApi.prototype._getModel = () =>{
+GridExpressApi.prototype._getModel = () => {
   throw Error('Model is not defined.');
 };
-GridExpressApi.prototype._result = (err, data, req, res, next) =>{
+GridExpressApi.prototype._result = (err, data, req, res, next) => {
   if (err) {
     next(err);
   } else {

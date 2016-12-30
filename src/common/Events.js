@@ -10,7 +10,6 @@ import utils from './utils';
 
 /**
  * Events control model
- * @constructor
  */
 class EventsModel {
   constructor() {
@@ -45,18 +44,15 @@ class EventsModel {
   /**
    * Trigger inner model event
    *
-   * @param {number} event Event ID
+   * @param {number}  event   Event ID
+   * @param {...*}    params
    */
-  trigger(event) {
-    let i;
-
+  trigger(event, ...params) {
     if (!this._subscribers[event] || !this._subscribers[event].length) {
       return;
     }
-    for (i = 0; i < this._subscribers[event].length; i++) {
-      if (this._subscribers[event][i]) {
-        this._subscribers[event][i].apply(null, [].slice.call(arguments, 1));
-      }
+    for (const subscriber of this._subscribers[event]) {
+      subscriber(...params);
     }
   }
 

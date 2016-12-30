@@ -8,7 +8,7 @@
 
 import utils from '../../utils';
 
-function validator(notNull, error, value) {
+function baseValidator(notNull, error, value) {
   error = error || 'Not boolean';
   if (!utils.isDefined(value)) {
     if (notNull) {
@@ -28,8 +28,7 @@ function validator(notNull, error, value) {
  * @param {string} error Error message
  * @returns {Function} Validator
  */
-export default error => validator.bind(null, false, error);
+const validator = error => baseValidator.bind(null, false, error);
+validator.notNull = error => baseValidator.bind(null, true, error);
 
-module.exports.notNull = function (error) {
-  return validator.bind(null, this, error);
-};
+export default validator;

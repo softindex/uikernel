@@ -22,8 +22,6 @@
     "object-hash": "^1.1.4",
     "react": "~0.14.8",
     "react-dom": "~0.14.8",
-    "regenerator-runtime": "^0.9.5",
-    "suspend": "^0.7.0",
     "xhr": "^2.2.0"
   },
   "devDependencies": {
@@ -41,6 +39,8 @@
     "gulp": "^3.9.1",
     "gulp-archiver": "^1.0.0",
     "gulp-babel": "^6.1.2",
+    "gulp-changed": "^1.3.2",
+    "gulp-count": "^0.3.0",
     "gulp-eslint": "^3.0.1",
     "gulp-gh-pages": "^0.5.4",
     "gulp-if": "^2.0.2",
@@ -50,6 +50,8 @@
     "gulp-uglify": "^2.0.0",
     "jest": "^17.0.3",
     "merge-stream": "^1.0.0",
+    "path-exists": "^3.0.0",
+    "through2": "^2.0.3",
     "webpack": "^1.13.3",
     "webpack-stream": "^3.2.0",
     "yargs": "^5.0.0"

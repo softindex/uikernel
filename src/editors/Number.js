@@ -13,22 +13,23 @@ import React from 'react';
 
 const invalidFloat = floatValidator(null, null, true);
 
-export const NumberEditor = React.createClass({
-  propTypes: {
+class NumberEditor extends React.Component {
+  static propTypes = {
     onChange: React.PropTypes.func.isRequired,
     value: React.PropTypes.any
-  },
-  getInitialState: function () {
-    return {
-      value: this.props.value
+  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: props.value
     };
-  },
-  componentWillReceiveProps: function (nextProps) {
+  }
+  componentWillReceiveProps(nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
       findDOMNode(this.refs.input).value = this.state.value = nextProps.value;
     }
-  },
-  _onChangeHandler: function (e) {
+  }
+  _onChangeHandler(e) {
     const target = e.target;
     if (target.validity.valid || !invalidFloat(target.valueAsNumber)) {
       if (isNaN(target.valueAsNumber)) { // Empty input
@@ -40,19 +41,19 @@ export const NumberEditor = React.createClass({
       this.state.value = NaN;
     }
     this.props.onChange(this.state.value);
-  },
-  render: function () {
+  }
+  render() {
     return (
       <input
         step="any"
         {...utils.omit(this.props, 'value')}
         type="number"
         ref="input"
-        onChange={this._onChangeHandler}
+        onChange={this::this._onChangeHandler}
         defaultValue={this.props.value}
       />
     );
   }
-});
+}
 
 export default NumberEditor;

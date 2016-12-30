@@ -28,8 +28,9 @@ const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
       reject(err);
     }
 
-    if (cb)
+    if (cb) {
       cb(err, response, body);
+    }
     resolve(body);
   });
 });

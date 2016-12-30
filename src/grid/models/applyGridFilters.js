@@ -18,10 +18,10 @@ import utils from '../../common/utils';
  */
 function applyGridFilters(model, filters) {
   return utils.decorate(model, {
-    read: callbackify(options =>{
-        options.filters = filters;
-        return toPromise(model.read.bind(model))(options);
-      })
+    read: callbackify(options => {
+      options.filters = filters;
+      return toPromise(model.read.bind(model))(options);
+    })
   });
 }
 

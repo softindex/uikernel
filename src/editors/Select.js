@@ -10,8 +10,8 @@ import toPromise from '../common/toPromise';
 import React from 'react';
 import utils from '../common/utils';
 
-export const SelectEditor = React.createClass({
-  propTypes: {
+class SelectEditor extends React.Component {
+  static propTypes = {
     options: React.PropTypes.array,
     model: React.PropTypes.shape({
       read: React.PropTypes.func
@@ -20,17 +20,19 @@ export const SelectEditor = React.createClass({
     onChange: React.PropTypes.func.isRequired,
     onLabelChange: React.PropTypes.func,
     value: React.PropTypes.any
-  },
-  getDefaultProps: () => ({
+  };
+  static defaultProps = {
     options: []
-  }),
-  getInitialState: function () {
-    return {
-      options: this.props.options,
-      loading: Boolean(this.props.model)
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      options: props.options,
+      loading: Boolean(props.model)
     };
-  },
-  componentDidMount: function () {
+  }
+  componentDidMount() {
     if (this.props.model) {
       toPromise(this.props.model.read.bind(this.props.model))('')
         .then(data => {
@@ -45,13 +47,13 @@ export const SelectEditor = React.createClass({
           throw err;
         });
     }
-  },
+  }
 
-  getOptions: function () {
+  getOptions() {
     return this.props.model ? this.state.options : this.props.options;
-  },
+  }
 
-  handleChange: function (e) {
+  handleChange(e) {
     let option = this.getOptions()[e.target.value];
     if (!(option instanceof Array)) {
       option = [option, option];
@@ -60,9 +62,9 @@ export const SelectEditor = React.createClass({
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option[1]);
     }
-  },
+  }
 
-  render: function () {
+  render() {
     const options = this.getOptions();
     const valueIndex = utils.findIndex(options, option => {
       return utils.isEqual(option instanceof Array ? option[0] : option, this.props.value);
@@ -72,7 +74,7 @@ export const SelectEditor = React.createClass({
       <select
         {...utils.omit(this.props, 'value')}
         value={valueIndex}
-        onChange={this.handleChange}
+        onChange={this::this.handleChange}
         disabled={this.props.disabled || this.state.loading}
       >
         {options.map((item, index) => (
@@ -83,6 +85,6 @@ export const SelectEditor = React.createClass({
       </select>
     );
   }
-});
+}
 
 export default SelectEditor;

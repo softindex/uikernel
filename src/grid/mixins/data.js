@@ -519,9 +519,9 @@ const GridDataMixin = {
    */
   _loadData: async function (settings) {
     let data;
-    try{
+    try {
       data = await this.props.model.read(settings);
-    } catch (err){
+    } catch (err) {
       if (err && this.props.onError) {
         this.props.onError(err);
       }

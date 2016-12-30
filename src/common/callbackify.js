@@ -17,20 +17,19 @@ export default function (func) {
     const cb = mainArguments[lastArgumentIndex];
 
     if (typeof cb === 'function') {
-      if (functionsNames.indexOf(funcName) === -1) {
+      if (!functionsNames.includes(funcName)) {
         utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
         functionsNames.push(funcName);
       }
 
       func.apply(this, mainArguments)
-        .then(data =>{
+        .then(data => {
           cb(null, data);
         })
-        .catch(err =>{
+        .catch(err => {
           cb(err);
         });
-    }
-    else {
+    } else {
       return func.apply(this, mainArguments);
     }
   };

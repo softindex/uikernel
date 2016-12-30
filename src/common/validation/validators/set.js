@@ -8,7 +8,7 @@
 
 import utils from '../../utils';
 
-function validator(notNull, variants, error, values) {
+function baseValidator(notNull, variants, error, values) {
   error = error || 'Not in variants';
   if (!utils.isDefined(values) || !values.length) {
     if (notNull) {
@@ -17,8 +17,8 @@ function validator(notNull, variants, error, values) {
     return;
   }
 
-  for (let i = 0; i < values.length; i++) {
-    if (variants.indexOf(values[i]) < 0) {
+  for (const value of values) {
+    if (variants.indexOf(value) < 0) {
       return error;
     }
   }
@@ -31,6 +31,7 @@ function validator(notNull, variants, error, values) {
  * @param {string} error Error message
  * @returns {Function}
  */
-export default (variants, error) => validator.bind(null, false, variants, error);
+const validator = (variants, error) => baseValidator.bind(null, false, variants, error);
+validator.notNull = (variants, error) => baseValidator.bind(null, true, variants, error);
 
-module.exports.notNull = (variants, error) => validator.bind(null, true, variants, error);
+export default validator;

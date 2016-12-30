@@ -18,24 +18,24 @@ function FormExpressApi() {
   const ctx = this;
 
   ctx.middlewares = {
-    getData: [(req, res, next) =>{
+    getData: [(req, res, next) => {
       const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
       const model = ctx._getModel(req, res);
       toPromise(model.getData.bind(model))(fields)
-        .then(data =>{
+        .then(data => {
           ctx._result(null, data, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           ctx._result(err, null, req, res, next);
         });
     }],
-    submit: [(req, res, next) =>{
+    submit: [(req, res, next) => {
       const model = ctx._getModel(req, res);
       toPromise(model.submit.bind(model))(req.body)
-        .then(data =>{
+        .then(data => {
           ctx._result(null, {data: data, error: null}, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           if (err && !(err instanceof ValidationErrors)) {
             ctx._result(err, null, req, res, next);
             return;
@@ -43,13 +43,13 @@ function FormExpressApi() {
           ctx._result(null, {data: null, error: err}, req, res, next);
         });
     }],
-    validate: [(req, res, next) =>{
+    validate: [(req, res, next) => {
       const model = ctx._getModel(req, res);
       toPromise(model.isValidRecord.bind(model))(req.body)
-        .then(data =>{
+        .then(data => {
           ctx._result(null, data, req, res, next);
         })
-        .catch(err =>{
+        .catch(err => {
           ctx._result(err, null, req, res, next);
         });
     }]
@@ -103,10 +103,10 @@ FormExpressApi.prototype.getRouter = function () {
 };
 
 // Default implementation
-FormExpressApi.prototype._getModel = () =>{
+FormExpressApi.prototype._getModel = () => {
   throw Error('Model is not defined.');
 };
-FormExpressApi.prototype._result = (err, data, req, res, next) =>{
+FormExpressApi.prototype._result = (err, data, req, res, next) => {
   if (err) {
     next(err);
   } else {

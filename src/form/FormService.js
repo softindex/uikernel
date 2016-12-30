@@ -14,7 +14,6 @@ import utils from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
 
 class FormService {
-
   constructor() {
     this._data = null;
     this._changes = null;
@@ -248,8 +247,7 @@ class FormService {
     let err;
     try {
       data = await this.model.submit(changes);
-    }
-    catch (error) {
+    } catch (error) {
       err = error;
     }
 

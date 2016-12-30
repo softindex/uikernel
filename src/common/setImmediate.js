@@ -7,7 +7,7 @@
  */
 
 if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') {
-  window.setImmediate = ((() =>{
+  window.setImmediate = ((() => {
     let head = {};
     let tail = head;
     const ID = Math.random();
@@ -27,10 +27,10 @@ if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') 
     } else {
       window.attachEvent('onmessage', onMessage);
     }
-    return window.postMessage ? func =>{
+    return window.postMessage ? func => {
       tail = tail.next = {func: func};
       window.postMessage(ID, '*');
-    } : func =>{
+    } : func => {
       setTimeout(func, 0);
     };
   })());

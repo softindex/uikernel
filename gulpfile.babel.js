@@ -6,25 +6,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const gulp = require('gulp');
-const jsDetectErrors = require('./gulp/jsDetectErrors');
-const jsPrecompile = require('./gulp/jsPrecompile');
-const jsClear = require('./gulp/jsClear');
-const archive = require('./gulp/archive');
-const jsBundle = require('./gulp/jsBundle');
-const addLicense = require('./gulp/addLicense');
-const deploySite = require('./gulp/deploySite');
-const buildSite = require('./gulp/buildSite');
-const release = require('./gulp/release');
+import gulp from 'gulp';
+import jsDetectErrors from './gulp/jsDetectErrors';
+import jsPrecompile from './gulp/jsPrecompile';
+import jsClear from './gulp/jsClear';
+import archive from './gulp/archive';
+import jsBundle from './gulp/jsBundle';
+import addLicense from './gulp/addLicense';
+import deploySite from './gulp/deploySite';
+import buildSite from './gulp/buildSite';
+import release from './gulp/release';
+import clearOldLibFiles from './gulp/clearOldLibFiles';
 
-gulp.task('default', ['precompile']);
+gulp.task('default', ['lib']);
+gulp.task('bundle', ['license'], jsBundle);
+gulp.task('release', release);
 
-gulp.task('bundle', ['precompile'], jsBundle);
-gulp.task('precompile', ['license', 'clear'], jsPrecompile);
-gulp.task('license', ['detectErrors'], addLicense);
-gulp.task('detectErrors', jsDetectErrors);
+gulp.task('license', ['lib'], addLicense);
+gulp.task('lib', ['detectErrors'], jsPrecompile);
+gulp.task('detectErrors', ['clearOldLibFiles', 'clear'], jsDetectErrors);
+gulp.task('clearOldLibFiles', clearOldLibFiles);
 gulp.task('clear', jsClear);
+
 gulp.task('deploySite', ['buildSite'], deploySite);
 gulp.task('buildSite', ['archive'], buildSite);
 gulp.task('archive', ['bundle'], archive);
-gulp.task('release', release);

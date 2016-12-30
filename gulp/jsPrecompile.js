@@ -8,15 +8,14 @@
 
 import gulp from 'gulp';
 import babel from 'gulp-babel';
-import {argv} from 'yargs';
+import changed from 'gulp-changed';
+import count from 'gulp-count';
 
 function jsPrecompile() {
-  return gulp.src(['src/**/*.jsx', 'src/**/*.js'])
-    .pipe(babel({
-      presets: ['react', 'latest', 'stage-0'],
-      plugins: ['transform-runtime', 'babel-plugin-add-module-exports'],
-      sourceMaps: argv.map ? 'inline' : false
-    }))
+  return gulp.src(['src/**/*.js'])
+    .pipe(changed('lib', {hasChanged: changed.compareLastModifiedTime}))
+    .pipe(count('babel transplit ## files'))
+    .pipe(babel())
     .pipe(gulp.dest('lib'));
 }
 

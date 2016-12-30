@@ -12,7 +12,6 @@ import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 
-
 const popupId = '__suggestBoxPopUp';
 const classes = {
   option: '__suggestBoxPopUp-option',
@@ -126,7 +125,7 @@ export const SuggestBoxEditor = React.createClass({
         if (!this._isMounted) {
           return;
         }
-        this._setLabelTo(label, true)
+        this._setLabelTo(label, true);
       })
       .catch(err => {
         if (err) {
@@ -153,7 +152,7 @@ export const SuggestBoxEditor = React.createClass({
   },
 
   _loadData: function (searchPattern) {
-    return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '')
+    return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '');
   },
 
   _openList: function (searchPattern, cb) {
@@ -372,37 +371,37 @@ export const SuggestBoxEditor = React.createClass({
     }
 
     switch (e.keyCode) {
-      case ARROW_DOWN_KEY:
+    case ARROW_DOWN_KEY:
+      e.preventDefault();
+      if (!this.state.isOpened) {
+        return this._openList();
+      }
+      this._focusNextOption();
+      break;
+    case ARROW_UP_KEY:
+      e.preventDefault();
+      if (!this.state.isOpened) {
+        return this._openList();
+      }
+      this._focusPrevOption();
+      break;
+    case TAB_KEY:
+    case ENTER_KEY:
+      if (e.keyCode === ENTER_KEY) {
         e.preventDefault();
-        if (!this.state.isOpened) {
-          return this._openList();
-        }
-        this._focusNextOption();
-        break;
-      case ARROW_UP_KEY:
-        e.preventDefault();
-        if (!this.state.isOpened) {
-          return this._openList();
-        }
-        this._focusPrevOption();
-        break;
-      case TAB_KEY:
-      case ENTER_KEY:
-        if (e.keyCode === ENTER_KEY) {
-          e.preventDefault();
-        }
-        if (this.state.selectedOptionKey === null) {
-          this._setLabelTo(this.state.lastValidLabel);
-        } else {
-          this._selectOption(this.state.options[this.state.selectedOptionKey]);
-        }
-        this._closeList();
-        break;
-      case ESCAPE_KEY:
-        e.preventDefault();
+      }
+      if (this.state.selectedOptionKey === null) {
         this._setLabelTo(this.state.lastValidLabel);
-        this._closeList();
-        break;
+      } else {
+        this._selectOption(this.state.options[this.state.selectedOptionKey]);
+      }
+      this._closeList();
+      break;
+    case ESCAPE_KEY:
+      e.preventDefault();
+      this._setLabelTo(this.state.lastValidLabel);
+      this._closeList();
+      break;
     }
   },
 
@@ -492,12 +491,12 @@ export const SuggestBoxEditor = React.createClass({
             {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange'])}
             ref='input'
             type='text'
-            onClick={this._openList.bind(null, '')}
-            onFocus={this._onInputFocus}
-            onKeyDown={this._onInputKeyDown}
-            onChange={this._onInputValueChange}
+            onClick={this::this._openList.bind(null, '')}
+            onFocus={this::this._onInputFocus}
+            onKeyDown={this::this._onInputKeyDown}
+            onChange={this::this._onInputValueChange}
           />
-          <div onClick={this._toggleList} className={classes.selectBtn}>
+          <div onClick={this::this._toggleList} className={classes.selectBtn}>
             <div className={arrowClasses.join(' ')}></div>
           </div>
         </div>

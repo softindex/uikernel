@@ -10,7 +10,6 @@ import objectHash from 'object-hash';
 import ThrottleError from './ThrottleError';
 
 function baseClone(obj, isDeep) {
-  let i;
   let cloned;
   const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
 
@@ -20,15 +19,15 @@ function baseClone(obj, isDeep) {
 
   if (Array.isArray(obj)) {
     cloned = [];
-    for (i = 0; i < obj.length; i++) {
-      cloned.push(isDeep ? baseClone(obj[i], true) : obj[i]);
+    for (const el of obj) {
+      cloned.push(isDeep ? baseClone(el, true) : el);
     }
-  } else if (es6types.indexOf(obj.toString()) >= 0) {
+  } else if (es6types.includes(obj.toString())) {
     cloned = new obj.constructor(obj);
   } else {
     cloned = {};
-    for (i in obj) {
-      cloned[i] = isDeep ? baseClone(obj[i], true) : obj[i];
+    for (const [field, value] of Object.entries(obj)) {
+      cloned[field] = isDeep ? baseClone(value, true) : value;
     }
   }
   return cloned;
@@ -37,16 +36,15 @@ function baseClone(obj, isDeep) {
 /**
  * Check if two arrays intersection exists
  */
-exports.isIntersection = (a, b) =>{
-  let i;
+exports.isIntersection = function (a, b) {
   let c;
   if (a.length > b.length) {
     c = a;
     a = b;
     b = c;
   }
-  for (i = 0; i < a.length; i++) {
-    if (b.indexOf(a[i]) >= 0) {
+  for (const el of a) {
+    if (b.includes(el)) {
       return true;
     }
   }
@@ -59,7 +57,9 @@ exports.isIntersection = (a, b) =>{
  * @param   {Object}    obj     Object
  * @return  {number}    Object size
  */
-exports.size = obj => Object.keys(obj).length;
+exports.size = function (obj) {
+  return Object.keys(obj).length;
+};
 
 /**
  * Hash function using djb2 algorithm
@@ -76,9 +76,8 @@ exports.hash = objectHash;
  * @param   {*}       item  Element item
  * @return  {number}
  */
-exports.indexOf = (arr, item) =>{
-  let i;
-  for (i = 0; i < arr.length; i++) {
+exports.indexOf = function (arr, item) {
+  for (let i = 0; i < arr.length; i++) {
     if (exports.isEqual(arr[i], item)) {
       return i;
     }
@@ -88,13 +87,12 @@ exports.indexOf = (arr, item) =>{
 
 exports.throttle = function (func) {
   return function () {
-    if (typeof arguments[arguments.length - 1] === 'function'){
+    if (typeof arguments[arguments.length - 1] === 'function') {
       return throttleCallback(func).apply(this, arguments);
     } else {
       return throttlePromise(func).apply(this, arguments);
     }
   };
-
 
   function throttleCallback(func) {
     let worked = false;
@@ -187,14 +185,14 @@ exports.throttle = function (func) {
   }
 };
 
-exports.parseValueFromEvent = event =>{
+exports.parseValueFromEvent = function (event) {
   if (
     event && typeof event === 'object' &&
     event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
   ) {
     switch (event.target.type) {
-      case 'checkbox':
-        return event.target.checked;
+    case 'checkbox':
+      return event.target.checked;
     }
     return event.target.value;
   }
@@ -223,7 +221,7 @@ exports.decorate = function (obj, decor) {
  * @param b
  * @returns {boolean}
  */
-exports.isEqual = (a, b) =>{
+exports.isEqual = function (a, b) {
   if (
     a === null ||
     b === null ||
@@ -247,10 +245,10 @@ exports.isEqual = (a, b) =>{
   return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => exports.isEqual(a[i], b[i]));
 };
 
-exports.assign = function(result){
-  for (let i = 1; i < arguments.length; i++) {
-    for (const j in arguments[i]) {
-      result[j] = arguments[i][j];
+exports.assign = function (result, ...objects) {
+  for (const object of objects) {
+    for (const [field, value] of Object.entries(object)) {
+      result[field] = value;
     }
   }
   return result;
@@ -262,9 +260,13 @@ exports.assign = function(result){
  * @param obj
  * @returns {*}
  */
-exports.clone = obj => baseClone(obj, false);
+exports.clone = function (obj) {
+  return baseClone(obj, false);
+};
 
-exports.cloneDeep = obj => baseClone(obj, true);
+exports.cloneDeep = function (obj) {
+  return baseClone(obj, true);
+};
 
 exports.isEmpty = function (value) {
   if (!value) {
@@ -279,17 +281,21 @@ exports.isEmpty = function (value) {
   return false;
 };
 
-exports.isDefined = value => value !== null && value !== undefined && value !== '';
+exports.isDefined = function (value) {
+  return value !== null && value !== undefined && value !== '';
+};
 
-exports.forEach = (obj, func, ctx) =>{
+exports.forEach = function (obj, func, ctx) {
   for (const i in obj) {
     func.call(ctx, obj[i], i);
   }
 };
 
-exports.pluck = (arr, field) => arr.map(item => item[field]);
+exports.pluck = function (arr, field) {
+  return arr.map(item => item[field]);
+};
 
-exports.find = (arr, func) =>{
+exports.find = function (arr, func) {
   for (const i in arr) {
     if (func(arr[i], i)) {
       return arr[i];
@@ -298,7 +304,7 @@ exports.find = (arr, func) =>{
   return null;
 };
 
-exports.findIndex = (obj, func) =>{
+exports.findIndex = function (obj, func) {
   for (const i in obj) {
     if (func(obj[i], i)) {
       return i;
@@ -307,21 +313,21 @@ exports.findIndex = (obj, func) =>{
   return -1;
 };
 
-exports.omit = (obj, predicate) =>{
+exports.omit = function (obj, predicate) {
   const result = {};
-  for (const i in obj) {
+  for (const [field, value] of Object.entries(obj)) {
     if (
-      (typeof predicate === 'string' && predicate !== i) ||
-      (Array.isArray(predicate) && predicate.indexOf(i) < 0) ||
-      (typeof predicate === 'function' && !predicate(obj[i], i))
+      (typeof predicate === 'string' && predicate !== field) ||
+      (Array.isArray(predicate) && !predicate.includes(field)) ||
+      (typeof predicate === 'function' && !predicate(value, field))
     ) {
-      result[i] = obj[i];
+      result[field] = value;
     }
   }
   return result;
 };
 
-exports.escape = string =>{
+exports.escape = function (string) {
   const reUnescaped = /[&<>"'`]/g;
   const escapes = {
     '&': '&amp;',
@@ -338,7 +344,7 @@ exports.escape = string =>{
   return string;
 };
 
-exports.zipObject = (keys, values) =>{
+exports.zipObject = function (keys, values) {
   const result = {};
   for (let i = 0; i < keys.length; i++) {
     result[keys[i]] = values[i];
@@ -355,41 +361,35 @@ exports.pick = (obj, keys, defaultValue) => keys.reduce((result, key) => {
   return result;
 }, {});
 
-exports.reduce = (obj, func, value) =>{
+exports.reduce = function (obj, func, value) {
   for (const i in obj) {
     value = func(value, obj[i], i);
   }
   return value;
 };
 
-exports.union = function() {
+exports.union = function (...args) {
   const elements = {};
-  const result = [];
-  let i;
-
-  for (i = 0; i < arguments.length; i++) {
-    for (let j = 0; j < arguments[i].length; j++) {
-      elements[arguments[i][j]] = arguments[i][j];
+  for (const arg of args) {
+    for (const el of arg) {
+      elements[el] = el;
     }
   }
-  for (i in elements) {
-    result.push(elements[i]);
-  }
-  return result;
+  return Object.values(elements);
 };
 
-exports.at = (obj, keys) =>{
+exports.at = function (obj, keys) {
   const result = [];
   if (!Array.isArray(keys)) {
     return [obj[keys]];
   }
-  for (let i = 0; i < keys.length; i++) {
-    result.push(obj[keys[i]]);
+  for (const key of keys) {
+    result.push(obj[key]);
   }
   return result;
 };
 
-exports.pairs = obj =>{
+exports.pairs = function (obj) {
   const result = [];
   for (const i in obj) {
     result.push([i, obj[i]]);
@@ -397,7 +397,7 @@ exports.pairs = obj =>{
   return result;
 };
 
-exports.toDate = value =>{
+exports.toDate = function (value) {
   let date;
 
   if (typeof value === 'number') {
@@ -424,9 +424,11 @@ exports.without = function (arr, el) {
   return result;
 };
 
-exports.last = arr => arr[arr.length - 1];
+exports.last = function (arr) {
+  return arr[arr.length - 1];
+};
 
-exports.getRecordChanges = (model, data, changes, newChanges) =>{
+exports.getRecordChanges = function (model, data, changes, newChanges) {
   const result = exports.assign({}, changes, newChanges);
 
   for (const i in result) {

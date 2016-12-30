@@ -147,7 +147,7 @@ GridXhrModel.prototype.update = callbackify(async function (changes) {
     this.trigger('update', body.changes);
   }
 
-  body.errors.forEach(error =>{
+  body.errors.forEach(error => {
     error[1] = ValidationErrors.createFromJSON(error[1]);
   });
 

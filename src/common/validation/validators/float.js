@@ -8,7 +8,7 @@
 
 import utils from '../../utils';
 
-function validator(notNull, min, max, error, value) {
+function baseValidator(notNull, min, max, error, value) {
   error = error || 'Invalid float';
   if (!utils.isDefined(value)) {
     if (notNull) {
@@ -35,6 +35,7 @@ function validator(notNull, min, max, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-export default (min, max, error) => validator.bind(null, false, min, max, error);
+const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
+validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
 
-module.exports.notNull = (min, max, error) => validator.bind(null, true, min, max, error);
+export default validator;

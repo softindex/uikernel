@@ -12,36 +12,27 @@ import defaultXhr from '../../defaultXhr';
 import ValidationErrors from '../ValidationErrors';
 import Validator from './common';
 
-/**
- * Get validator.
- *
- * @param {string}  serverValidationUrl
- * @param {Object}  xhr
- *
- * @return {Validator}
- * @type {Module}
- */
-const ClientValidator = function (serverValidationUrl, xhr) {
-  if (!(this instanceof ClientValidator)) {
-    return new ClientValidator(serverValidationUrl, xhr);
+class ClientValidator extends Validator {
+  /**
+   * Get validator.
+   *
+   * @param {string}  serverValidationUrl
+   * @param {{}}      xhr
+   *
+   * @return {Validator}
+   */
+  constructor(serverValidationUrl, xhr) {
+    super();
+    this._settings.serverValidationUrl = serverValidationUrl;
+    this._settings.xhr = xhr || defaultXhr;
   }
 
-  Validator.call(this);
-  this._settings.serverValidationUrl = serverValidationUrl;
-  this._settings.xhr = xhr || defaultXhr;
-};
-
-ClientValidator.prototype = Object.create(Validator.prototype);
-ClientValidator.prototype.constructor = ClientValidator;
-
-ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
+  isValidRecord = callbackify(async function (record) {
     if (!this._settings.serverValidationUrl) {
       return Validator.prototype.isValidRecord.call(this, record);
     }
 
     let xhrResult;
-    let validationErrors;
-
     try {
       xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
         method: 'POST',
@@ -54,7 +45,7 @@ ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors
-        validationErrors = await toPromise(Validator.prototype.isValidRecord).call(this, record);
+        const validationErrors = await toPromise(Validator.prototype.isValidRecord).call(this, record);
         if (!validationErrors.isEmpty()) {
           return validationErrors;
         }
@@ -63,8 +54,7 @@ ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
     }
 
     return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
-
-  }
-);
+  });
+}
 
 export default ClientValidator;

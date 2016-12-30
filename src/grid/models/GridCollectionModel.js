@@ -116,8 +116,8 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
 
   // Delete unnecessary fields
   if (settings.fields) {
-    utils.forEach(result.extraRecords, record =>{
-      utils.forEach(record[1], (value, key) =>{
+    utils.forEach(result.extraRecords, record => {
+      utils.forEach(record[1], (value, key) => {
         if (settings.fields.indexOf(key) === -1) {
           delete record[1][key];
         }
@@ -130,7 +130,7 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
     const sortField = settings.sort[0][0];
     const sortMode = settings.sort[0][1];
 
-    data = data.sort((prev, next) =>{
+    data = data.sort((prev, next) => {
       if (prev[1][sortField] < next[1][sortField]) {
         return sortMode === 'asc' ? -1 : 1;
       } else if (prev[1][sortField] > next[1][sortField]) {
@@ -157,8 +157,8 @@ GridCollectionModel.prototype.read = callbackify(function (settings) {
 
   // Delete unnecessary fields
   if (settings.fields) {
-    utils.forEach(data, record =>{
-      utils.forEach(record[1], (value, key) =>{
+    utils.forEach(data, record => {
+      utils.forEach(record[1], (value, key) => {
         if (settings.fields.indexOf(key) === -1) {
           delete record[1][key];
         }

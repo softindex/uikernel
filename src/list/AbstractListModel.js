@@ -8,23 +8,27 @@
 
 /**
  * Abstract List model
- * @constructor
  */
-function AbstractListModel() {}
+class AbstractListModel {
+  /**
+   * Get data
+   *
+   * @param {string}    search  Search query
+   * @abstract
+   */
+  read(/*search*/) {
+    return Promise.resolve([]);
+  }
 
-/**
- * Get data
- *
- * @param {string}    search  Search query
- * @abstract
- */
-AbstractListModel.read = (/*search*/) => Promise.resolve([]);
-
-/**
- * Get option name using ID
- *
- * @param {*}         id  Option ID
- */
-AbstractListModel.getLabel = (/*id*/) => Promise.resolve('');
+  /**
+   * Get option name using ID
+   *
+   * @param {*}         id  Option ID
+   * @abstract
+   */
+  getLabel(/*id*/) {
+    return Promise.resolve('');
+  }
+}
 
 export default AbstractListModel;

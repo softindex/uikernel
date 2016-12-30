@@ -8,28 +8,15 @@
 
 import Form from '../FormService';
 import ValidationErrors from '../../common/validation/ValidationErrors';
-jest.mock('model');
-
-const initSettings = {
-  fields: ['name', 'surname', 'phone', 'age', 'gender'],
-  submitAll: true,
-  partialErrorChecking: true
-};
-
-const defaultState = {
-  isLoaded: false,
-  data: {},
-  originalData: {},
-  changes: {},
-  errors: new ValidationErrors(),
-  globalError: null,
-  isSubmitting: false
-};
 
 function getInitSettings() {
   jest.resetModules();
-  const model = require('model');
-  return {...initSettings, model};
+  return {
+    fields: ['name', 'surname', 'phone', 'age', 'gender'],
+    submitAll: true,
+    partialErrorChecking: true,
+    model: require('formModel')
+  };
 }
 
 let form;
@@ -65,6 +52,15 @@ describe('init form', () => {
 describe('get all', () => {
   const initSettings = getInitSettings();
   const form = new Form();
+  const defaultState = {
+    isLoaded: false,
+    data: {},
+    originalData: {},
+    changes: {},
+    errors: new ValidationErrors(),
+    globalError: null,
+    isSubmitting: false
+  };
 
   it('before init', () => {
     expect(form.getAll()).toEqual(defaultState);
@@ -228,9 +224,9 @@ describe('submit', () => {
       throw validationError;
     };
 
-    try{
+    try {
       await form.submit();
-    } catch (err){
+    } catch (err) {
       expect(err).toEqual(validationError);
     }
 
@@ -263,9 +259,9 @@ describe('submit', () => {
       throw globalError;
     };
 
-    try{
+    try {
       await form.submit();
-    } catch (err){
+    } catch (err) {
       expect(err).toEqual(globalError);
     }
 
@@ -379,7 +375,6 @@ describe('validateForm', () => {
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({
         name: 'Error',
-        surname: 'Error',
         age: 'Error'
       });
     };
@@ -425,5 +420,4 @@ describe('before init', async() => {
     });
     await Promise.all(promises);
   });
-
 });

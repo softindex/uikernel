@@ -6,18 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationError from '../ValidationErrors'
+import ValidationError from '../ValidationErrors';
 
-import boolean from '../validators/boolean'
-import date from '../validators/date'
-import enumValidator from '../validators/enum'
-import float from '../validators/float'
-import notNull from '../validators/notNull'
-import number from '../validators/number'
-import regExp from '../validators/regExp'
-import set from '../validators/set'
+import boolean from '../validators/boolean';
+import date from '../validators/date';
+import enumValidator from '../validators/enum';
+import float from '../validators/float';
+import notNull from '../validators/notNull';
+import number from '../validators/number';
+import regExp from '../validators/regExp';
+import set from '../validators/set';
 
-import Validator from '../Validator/common'
+import Validator from '../Validator/common';
 
 describe('ValidationError', () => {
   let validationError;
@@ -26,7 +26,7 @@ describe('ValidationError', () => {
   });
 
   it('add', () => {
-    validationError.add('test2','error2');
+    validationError.add('test2', 'error2');
     expect(validationError.toJSON()).toEqual({test: ['error'], test2: ['error2']});
   });
 
@@ -82,7 +82,7 @@ describe('validators', () => {
   });
 
   it('enum', () => {
-    const validator = enumValidator(['a', 'b', 'c'],'err text');
+    const validator = enumValidator(['a', 'b', 'c'], 'err text');
     const validatorNotNull = enumValidator.notNull(['a', 'b', 'c'], 'err text');
     expect(validator('a')).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
@@ -96,7 +96,7 @@ describe('validators', () => {
     const validatorNotNull = float.notNull(3, 10, 'err text');
     expect(validator(4)).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
-    expect(validatorNotNull(7,5)).toBeUndefined();
+    expect(validatorNotNull(7, 5)).toBeUndefined();
     expect(validatorNotNull(34)).toBe('err text');
     expect(validatorNotNull()).toBe('err text');
   });
@@ -113,7 +113,7 @@ describe('validators', () => {
     expect(validator(4)).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
     expect(validatorNotNull(7)).toBeUndefined();
-    expect(validatorNotNull(34,5)).toBe('err text');
+    expect(validatorNotNull(34, 5)).toBe('err text');
     expect(validatorNotNull()).toBe('err text');
   });
 
@@ -123,20 +123,19 @@ describe('validators', () => {
     expect(validator('abcd')).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
     expect(validatorNotNull('abcd')).toBeUndefined();
-    expect(validatorNotNull(34,5)).toBe('err text');
+    expect(validatorNotNull(34, 5)).toBe('err text');
     expect(validatorNotNull()).toBe('err text');
   });
 
   it('set', () => {
-    const validator = set(['a', 'b', 'c'],'err text');
+    const validator = set(['a', 'b', 'c'], 'err text');
     const validatorNotNull = set.notNull(['a', 'b', 'c'], 'err text');
     expect(validator(['a'])).toBeUndefined();
-    expect(validator(['a','rtrtr'])).toBe('err text');
+    expect(validator(['a', 'rtrtr'])).toBe('err text');
     expect(validatorNotNull(['b'])).toBeUndefined();
     expect(validatorNotNull(34)).toBe('err text');
     expect(validatorNotNull()).toBe('err text');
   });
-
 });
 
 describe('Validator', () => {
@@ -161,6 +160,4 @@ describe('Validator', () => {
     result = await validator.isValidRecord({name: 6456});
     expect(result.toJSON()).toEqual({'name': ['err text']});
   });
-
-
 });

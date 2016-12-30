@@ -27,8 +27,7 @@ const RESET_VIEW_COLUMNS = 1 << 1;
 const RESET_SORT = 1 << 2;
 const RESET_VIEW_COUNT = 1 << 3;
 
-export const GridComponent = React.createClass({
-
+const GridComponent = React.createClass({
   ...GridColumnsMixin,
   ...gridMixinPagination,
   ...gridMixinStatuses,
@@ -43,7 +42,6 @@ export const GridComponent = React.createClass({
       column: React.PropTypes.string,
       direction: React.PropTypes.string
     });
-
     const sortProp = React.PropTypes.oneOfType([
       sortElementProp,
       React.PropTypes.arrayOf(sortElementProp)
@@ -102,7 +100,7 @@ export const GridComponent = React.createClass({
         isValidRecord: React.PropTypes.func,
         getValidationDependency: React.PropTypes.func
       })
-    }
+    };
   })(),
   getDefaultProps: () => ({
     page: 0,

@@ -11,68 +11,68 @@ import toPromise from '../common/toPromise';
 import defaultXhr from '../common/defaultXhr';
 import url from 'url';
 
-/**
- * Simple list client model which works via XMLHttpRequest
- *
- * @param {string}    apiURL  API address for list model interaction
- * @param {Function}  [xhr]   XHR wrapper
- * @constructor
- */
-function ListXMLHttpRequestModel(apiURL, xhr) {
-  this._apiURL = apiURL;
-  this._xhr = xhr || defaultXhr;
-  this._apiUrl = apiURL
-    .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
-    .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
-}
-
-/**
- * Get model data
- *
- * @param {string}    search  List search query
- * @param {Function}  cb      CallBack function
- */
-ListXMLHttpRequestModel.prototype.read = callbackify(async function (search) {
-  const parsedUrl = url.parse(this._apiUrl, true);
-  delete parsedUrl.search;
-  if (search) {
-    parsedUrl.query.v = search;
+class ListXMLHttpRequestModel {
+  /**
+   * Simple list client model which works via XMLHttpRequest
+   *
+   * @param {string}    apiURL  API address for list model interaction
+   * @param {Function}  [xhr]   XHR wrapper
+   * @constructor
+   */
+  constructor(apiURL, xhr) {
+    this._apiURL = apiURL;
+    this._xhr = xhr || defaultXhr;
+    this._apiUrl = apiURL
+      .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
+      .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  let body = await toPromise(this._xhr.bind(this))({
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    uri: url.format(parsedUrl)
+  /**
+   * Get model data
+   *
+   * @param {string}    search  List search query
+   * @param {Function}  cb      CallBack function
+   */
+  read = callbackify(async function (search) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+    delete parsedUrl.search;
+    if (search) {
+      parsedUrl.query.v = search;
+    }
+
+    const body = await toPromise(this._xhr.bind(this))({
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      uri: url.format(parsedUrl)
+    });
+
+    return JSON.parse(body);
   });
 
-  body = JSON.parse(body);
+  /**
+   * Get option name using ID
+   *
+   * @param {*}         id  Option ID
+   * @param {Function}  cb  CallBack function
+   */
+  getLabel = callbackify(async function (id) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
 
-  return body;
-});
+    let body = await toPromise(this._xhr.bind(this))({
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      uri: url.format(parsedUrl)
+    });
 
-/**
- * Get option name using ID
- *
- * @param {*}         id  Option ID
- * @param {Function}  cb  CallBack function
- */
-ListXMLHttpRequestModel.prototype.getLabel = callbackify(async function (id) {
-  const parsedUrl = url.parse(this._apiUrl, true);
-  parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
+    body = JSON.parse(body);
 
-  let body = await toPromise(this._xhr.bind(this))({
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    uri: url.format(parsedUrl)
+    return body;
   });
-
-  body = JSON.parse(body);
-
-  return body;
-});
+}
 
 export default ListXMLHttpRequestModel;

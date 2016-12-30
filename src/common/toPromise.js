@@ -15,7 +15,9 @@ export default (func, onlyPromise) => {
     let promise;
     const callbackPromise = new Promise((resolve, reject) => {
       mainArguments.push((err, data) => {
-        if (err) return reject(err);
+        if (err) {
+          return reject(err);
+        }
         resolve(data);
       });
       promise = func(...mainArguments);
@@ -32,7 +34,7 @@ export default (func, onlyPromise) => {
 
       return Promise.resolve(promise);
     } else {
-      if (functionsNames.indexOf(funcName) === -1) {
+      if (!functionsNames.includes(funcName)) {
         utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
         functionsNames.push(funcName);
       }

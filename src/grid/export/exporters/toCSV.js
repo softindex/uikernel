@@ -10,12 +10,11 @@ import toPromise from '../../../common/toPromise';
 import callbackify from '../../../common/callbackify';
 import csv from 'csv-stringify';
 
-const toCSV = callbackify(async data => {
-  const csvData = await toPromise(csv(data.records.concat([data.totals]),
-    {
-      header: true,
-      columns: data.columns
-    }));
+const toCSV = callbackify(async function (data) {
+  const csvData = await toPromise(csv(data.records.concat([data.totals]), {
+    header: true,
+    columns: data.columns
+  }));
 
   return {
     mime: 'text/csv',

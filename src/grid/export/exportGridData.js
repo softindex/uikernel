@@ -50,13 +50,9 @@ function formatData(records, totals, columns, viewColumns) {
 
 function getFields(columns, viewColumns) {
   const fields = {};
-  let i;
-  let j;
-  let columnId;
-  for (i = 0; i < viewColumns.length; i++) {
-    columnId = viewColumns[i];
-    for (j = 0; j < columns[columnId].render.length - 1; j++) {
-      fields[columns[columnId].render[j]] = true;
+  for (const columnId of viewColumns) {
+    for (let i = 0; i < columns[columnId].render.length - 1; i++) {
+      fields[columns[columnId].render[i]] = true;
     }
   }
 
@@ -67,21 +63,20 @@ function getFields(columns, viewColumns) {
  * @param {{}} columns
  * @param {string[]} viewColumns
  */
-function assertValidViewColumns(columns, viewColumns){
-  if(!viewColumns || !viewColumns.length){
+function assertValidViewColumns(columns, viewColumns) {
+  if (!viewColumns || !viewColumns.length) {
     throw new ArgumentsError('"viewColumns" can`t be empty');
   }
 
-  let i;
   const notExistColumns = [];
-  for (i = 0; i < viewColumns.length; i++) {
-    if (!columns[viewColumns[i]]) {
-      notExistColumns.push(JSON.stringify(viewColumns[i]))
+  for (const columnId of viewColumns) {
+    if (!columns[columnId]) {
+      notExistColumns.push(columnId);
     }
   }
 
-  if(notExistColumns.length){
-    throw new ArgumentsError(`You trying to get not exist columns: [${notExistColumns.join(', ')}];`);
+  if (notExistColumns.length) {
+    throw new ArgumentsError(`You trying to get not exist columns: ${notExistColumns.join(', ')}`);
   }
 }
 
@@ -97,7 +92,7 @@ function assertValidViewColumns(columns, viewColumns){
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-export default callbackify(async(gridModel, columns, viewColumns, exporter, settings) =>{
+export default callbackify(async(gridModel, columns, viewColumns, exporter, settings) => {
   assertValidViewColumns(columns, viewColumns);
   const result = await toPromise(gridModel.read.bind(gridModel))({
     fields: getFields(columns, viewColumns),
