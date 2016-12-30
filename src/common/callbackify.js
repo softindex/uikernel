@@ -12,9 +12,9 @@ const functionsNames = [];
 export default function (func) {
   const funcName = func.name;
 
-  return function (...mainArguments) {
-    const lastArgumentIndex = mainArguments.length - 1;
-    const cb = mainArguments[lastArgumentIndex];
+  return function (...args) {
+    const lastArgumentIndex = args.length - 1;
+    const cb = args[lastArgumentIndex];
 
     if (typeof cb === 'function') {
       if (!functionsNames.includes(funcName)) {
@@ -22,7 +22,7 @@ export default function (func) {
         functionsNames.push(funcName);
       }
 
-      func.apply(this, mainArguments)
+      func.apply(this, args.slice(0, -1))
         .then(data => {
           cb(null, data);
         })
@@ -30,7 +30,7 @@ export default function (func) {
           cb(err);
         });
     } else {
-      return func.apply(this, mainArguments);
+      return func.apply(this, args);
     }
   };
 }
