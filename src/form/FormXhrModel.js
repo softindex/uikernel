@@ -29,19 +29,6 @@ class FormXhrModel extends EventsModel {
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  getData = callbackify(async function (fields) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.query.fields = JSON.stringify(fields);
-    delete parsedUrl.search;
-
-    const response = await toPromise(this._xhr.bind(this))({
-      method: 'GET',
-      uri: url.format(parsedUrl)
-    });
-
-    return JSON.parse(response);
-  });
-
   submit = callbackify(async function (changes) {
     let body = await toPromise(this._xhr.bind(this))({
       method: 'POST',
@@ -82,5 +69,18 @@ class FormXhrModel extends EventsModel {
     return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
   });
 }
+
+FormXhrModel.prototype.getData = callbackify(async function (fields) {
+  const parsedUrl = url.parse(this._apiUrl, true);
+  parsedUrl.query.fields = JSON.stringify(fields);
+  delete parsedUrl.search;
+
+  const response = await toPromise(this._xhr.bind(this))({
+    method: 'GET',
+    uri: url.format(parsedUrl)
+  });
+
+  return JSON.parse(response);
+});
 
 export default FormXhrModel;

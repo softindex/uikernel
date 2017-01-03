@@ -9,7 +9,7 @@
 var RecordForm = React.createClass({
 
   getInitialState: function () {
-    this.form = new UIKernel.Services.Form();
+    this.form = new UIKernel.Form();
 
     return {
       form: this.form.getAll()

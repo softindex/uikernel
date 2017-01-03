@@ -27,52 +27,51 @@ class ListXMLHttpRequestModel {
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  /**
-   * Get model data
-   *
-   * @param {string}    search  List search query
-   * @param {Function}  cb      CallBack function
-   */
-  read = callbackify(async function (search) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    delete parsedUrl.search;
-    if (search) {
-      parsedUrl.query.v = search;
-    }
-
-    const body = await toPromise(this._xhr.bind(this))({
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      uri: url.format(parsedUrl)
-    });
-
-    return JSON.parse(body);
-  });
-
-  /**
-   * Get option name using ID
-   *
-   * @param {*}         id  Option ID
-   * @param {Function}  cb  CallBack function
-   */
-  getLabel = callbackify(async function (id) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
-
-    let body = await toPromise(this._xhr.bind(this))({
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      uri: url.format(parsedUrl)
-    });
-
-    body = JSON.parse(body);
-
-    return body;
-  });
 }
+
+/**
+ * Get model data
+ *
+ * @param {string}    search  List search query
+ */
+ListXMLHttpRequestModel.prototype.read = callbackify(async function (search) {
+  const parsedUrl = url.parse(this._apiUrl, true);
+  delete parsedUrl.search;
+  if (search) {
+    parsedUrl.query.v = search;
+  }
+
+  const body = await toPromise(this._xhr.bind(this))({
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json'
+    },
+    uri: url.format(parsedUrl)
+  });
+
+  return JSON.parse(body);
+});
+
+/**
+ * Get option name using ID
+ *
+ * @param {*}         id  Option ID
+ */
+ListXMLHttpRequestModel.prototype.getLabel = callbackify(async function (id) {
+  const parsedUrl = url.parse(this._apiUrl, true);
+  parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
+
+  let body = await toPromise(this._xhr.bind(this))({
+    method: 'GET',
+    headers: {
+      'Content-type': 'application/json'
+    },
+    uri: url.format(parsedUrl)
+  });
+
+  body = JSON.parse(body);
+
+  return body;
+});
 
 export default ListXMLHttpRequestModel;

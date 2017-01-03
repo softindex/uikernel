@@ -7,6 +7,7 @@
  */
 
 import utils from '../common/utils';
+import callbackify from '../common/callbackify';
 import Validator from '../common/validation/Validator/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 
@@ -58,6 +59,8 @@ const FormMixin = {
    */
   initForm: function (settings, cb) {
     const ctx = this;
+    settings.model.getData = callbackify(::settings.model.getData);
+    settings.model.submit = callbackify(::settings.model.submit);
 
     ctx._initState(settings);
 
@@ -560,7 +563,7 @@ const FormMixin = {
 
   _runValidator: function (validator, getData, output, cb) {
     const data = getData();
-    validator.isValidRecord(data, function (err, validErrors) {
+    callbackify(::validator.isValidRecord)(data, function (err, validErrors) {
       if (this._isUnmounted || !utils.isEqual(data, getData())) {
         return;
       }

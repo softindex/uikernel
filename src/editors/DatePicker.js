@@ -32,6 +32,7 @@ class DatePickerEditor extends React.Component {
       format: props.format ? this.getFormat(props.format) : null,
       textFormat: this.getFormat(props.textFormat)
     };
+    this.setDate = this::this.setDate;
   }
 
   componentDidMount() {
@@ -56,6 +57,7 @@ class DatePickerEditor extends React.Component {
       $element.datepicker('show');
     }
   }
+
   componentWillReceiveProps(props) {
     const $datePicker = $(findDOMNode(this.refs.input));
     if (props.min !== this.props.min) {
@@ -129,7 +131,7 @@ class DatePickerEditor extends React.Component {
         {...utils.omit(this.props, ['value', 'onBlur'])}
         ref="input"
         type="text"
-        onChange={this::this.setDate}
+        onChange={this.setDate}
       />
     );
   }

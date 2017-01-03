@@ -32,7 +32,7 @@ const GridCollectionModel = function (options) {
   this._id = 1;
   this._filtersHandler = options.filtersHandler;
   if (options.validation) {
-    console.warn('Property "validation" is deprecated, use "validator" instead');
+    utils.warn('Property "validation" is deprecated, use "validator" instead');
   }
   this._validator = options.validator || options.validation || new Validator();
   this._requiredFields = options.requiredFields || [];

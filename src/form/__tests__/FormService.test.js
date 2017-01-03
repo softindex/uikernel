@@ -13,7 +13,6 @@ function getInitSettings() {
   jest.resetModules();
   return {
     fields: ['name', 'surname', 'phone', 'age', 'gender'],
-    submitAll: true,
     partialErrorChecking: true,
     model: require('formModel')
   };
@@ -396,6 +395,18 @@ describe('validateForm', () => {
 
     await validationPromise;
     expect(form.getAll().errors.isEmpty()).toBe(true);
+  });
+
+  it('validation dependencies', async() => {
+    form.model.getValidationDependency = () => {
+      return ['age'];
+    };
+
+    await form.set({name: 'John'}, true);
+    expect(form.model.isValidRecord.mock.calls[1][0]).toEqual({
+      age: null,
+      name: 'John'
+    });
   });
 });
 

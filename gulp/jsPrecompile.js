@@ -10,12 +10,13 @@ import gulp from 'gulp';
 import babel from 'gulp-babel';
 import changed from 'gulp-changed';
 import count from 'gulp-count';
+import {argv} from 'yargs';
 
 function jsPrecompile() {
   return gulp.src(['src/**/*.js'])
     .pipe(changed('lib', {hasChanged: changed.compareLastModifiedTime}))
     .pipe(count('babel transplit ## files'))
-    .pipe(babel())
+    .pipe(babel({sourceMaps: argv.map ? 'inline' : false}))
     .pipe(gulp.dest('lib'));
 }
 

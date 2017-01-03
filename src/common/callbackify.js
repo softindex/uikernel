@@ -22,13 +22,16 @@ export default function (func) {
         functionsNames.push(funcName);
       }
 
-      func.apply(this, args.slice(0, -1))
-        .then(data => {
-          cb(null, data);
-        })
-        .catch(err => {
-          cb(err);
-        });
+      const result = func.apply(this, args);
+      if (result && result.then) {
+        result
+          .then(data => {
+            cb(null, data);
+          })
+          .catch(err => {
+            cb(err);
+          });
+      }
     } else {
       return func.apply(this, args);
     }
