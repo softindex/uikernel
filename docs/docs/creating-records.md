@@ -20,7 +20,7 @@ var CreateFormComponent = React.createClass({
     componentDidMount() {
       this.form.init({
         fields: ['name', 'surname', 'phone', 'age', 'gender'],
-        model: UIKernel.Adapters.Grid.toFormCreate(model, { // pass it default field values
+        model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // pass it default field values
           name: '',
           surname: '',
           phone: '',
@@ -158,7 +158,7 @@ Here, we're using the `UIKernel.Services.Form` service.
 
 We create instance of form service and initialize our form by calling `initForm` in `componentDidMount`. The argument passed to `init` is an object with settings.
 The `fields` property contains an array of form field names.
-In the `model` property, we call `UIKernel.Adapters.Grid.toFormCreate` to create a model, which uses the grid model for creating new records.
+In the `model` property, we call `UIKernel.Adapters.Grid.ToFormCreate` to create a model, which uses the grid model for creating new records.
 We pass it our grid model and an object of default field values as arguments.
 `partialErrorChecking: true` means that the form fields will be validated in response to user input.
 

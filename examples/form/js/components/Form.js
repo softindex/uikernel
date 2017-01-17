@@ -26,7 +26,7 @@ var Form =  React.createClass({
   componentDidMount: function () {
     this.form.init({
       fields: ['name', 'age'], // Fields we need
-      model: UIKernel.Adapters.Grid.toFormUpdate(model, 2), // We're going to change record with ID = 2
+      model: new UIKernel.Adapters.Grid.ToFormUpdate(model, 2), // We're going to change record with ID = 2
     });
     this.form.addChangeListener(this.onFormChange);
   },

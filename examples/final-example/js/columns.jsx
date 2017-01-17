@@ -19,7 +19,7 @@ var columns = {
     onClickRefs: {
       create: function(event, recordId, record, grid) { // ref="create" click handler
         var createPopup = Popup.open(RecordForm, {
-          model: UIKernel.Adapters.Grid.toFormCreate(grid.getModel(), {
+          model: new UIKernel.Adapters.Grid.ToFormCreate(grid.getModel(), {
             name: '',
             surname: '',
             phone: '',
@@ -35,7 +35,7 @@ var columns = {
       },
       edit: function(event, recordId, record, grid) { // ref="edit" click handler
         var editPopup = Popup.open(RecordForm, {
-          model: UIKernel.Adapters.Grid.toFormUpdate(grid.getModel(), recordId),
+          model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),
           mode: 'edit',
           changes: grid.getRecordChanges(recordId),
           onSubmit() {

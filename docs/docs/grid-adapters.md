@@ -11,7 +11,7 @@ next: grid-export.html
 Adapter that uses a Grid model([Abstract Grid Model](/docs/grid-interface.html)) for creating new records.
 
 {% highlight javascript %}
- UIKernel.Adapters.Grid.toFormCreate(AbstractGridModel model, Object initialData)
+new UIKernel.Adapters.Grid.ToFormCreate(AbstractGridModel model, Object initialData)
 {% endhighlight %}
 
 ### submit
@@ -31,7 +31,7 @@ Check out [Usage Example](creating-records.html).
 Adapter that uses a Grid model([AbstractGridModel](/docs/grid-interface.html)) for updating records.
 
 {% highlight javascript %}
- UIKernel.Adapters.Grid.toFormUpdate(AbstractGridModel model, any id)
+new UIKernel.Adapters.Grid.ToFormUpdate(AbstractGridModel model, any id)
 {% endhighlight %}
 
 ### submit

@@ -27,10 +27,6 @@ class GridToFormCreate extends Events {
     };
   }
 
-  static create(model, initialData) {
-    return new GridToFormCreate(model, initialData);
-  }
-
   /**
    * Get data
    *
@@ -74,4 +70,4 @@ class GridToFormCreate extends Events {
   }
 }
 
-export default GridToFormCreate.create;
+export default GridToFormCreate;

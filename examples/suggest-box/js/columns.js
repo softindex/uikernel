@@ -15,7 +15,7 @@ var columns = {
     onClickRefs: {
       edit: (function (e, recordId, record, grid) {
         var editPopup = popup.open(Form, {
-          model: UIKernel.Adapters.Grid.toFormUpdate(grid.getModel(), recordId),
+          model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),
           changes: grid.getRecordChanges(recordId),
           onSubmit: function onSubmit() {
             editPopup.close();

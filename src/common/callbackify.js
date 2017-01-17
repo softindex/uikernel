@@ -16,7 +16,7 @@ export default function (func) {
     const lastArgumentIndex = args.length - 1;
     const cb = args[lastArgumentIndex];
 
-    if (typeof cb === 'function') {
+    if (typeof cb === 'function' && cb.name !== 'toPomiseCallback') {
       if (!functionsNames.includes(funcName)) {
         utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
         functionsNames.push(funcName);

@@ -15,7 +15,7 @@ var CreateForm = React.createClass({
   componentDidMount() {
     this.form.init({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
-      model: UIKernel.Adapters.Grid.toFormCreate(model, { // pass it default field values
+      model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // pass it default field values
         name: '',
         surname: '',
         phone: '',

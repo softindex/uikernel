@@ -31,10 +31,6 @@ class GridToFormUpdate extends Events {
     this._onUpdateHandlers = [];
   }
 
-  static create(model, id) {
-    return new GridToFormUpdate(model, id);
-  }
-
   /**
    * Get data
    *
@@ -147,4 +143,4 @@ class GridToFormUpdate extends Events {
   }
 }
 
-export default GridToFormUpdate.create;
+export default GridToFormUpdate;

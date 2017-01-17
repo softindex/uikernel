@@ -15,7 +15,7 @@ const toPromise = function (func, hideWarning) {
   return function (...mainArguments) {
     let promise;
     const callbackPromise = new Promise((resolve, reject) => {
-      mainArguments.push((err, data) => {
+      mainArguments.push(function toPomiseCallback(err, data) {
         if (err) {
           return reject(err);
         }

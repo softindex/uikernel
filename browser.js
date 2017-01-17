@@ -37,8 +37,8 @@ const Module = {
   },
   Adapters: {
     Grid: {
-      toFormUpdate: require('./lib/form/adapters/gridToFormUpdate'),
-      toFormCreate: require('./lib/form/adapters/gridToFormCreate')
+      ToFormUpdate: require('./lib/form/adapters/GridToFormUpdate'),
+      ToFormCreate: require('./lib/form/adapters/GridToFormCreate')
     }
   },
   Editors: {
