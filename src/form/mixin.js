@@ -8,6 +8,7 @@
 
 import utils from '../common/utils';
 import callbackify from '../common/callbackify';
+import toPromise from '../common/toPromise';
 import Validator from '../common/validation/Validator/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 
@@ -57,47 +58,35 @@ const FormMixin = {
    * @param {Validator}         [settings.warningsValidator]            Warningss validator for fields
    * @param {Function}          [cb]                                    CallBack function
    */
-  initForm: function (settings, cb) {
-    const ctx = this;
-    settings.model.getData = callbackify(::settings.model.getData);
-    settings.model.submit = callbackify(::settings.model.submit);
+  initForm: callbackify(async function (settings) {
+    this._initState(settings);
 
-    ctx._initState(settings);
+    if (!this.state._formMixin.data) {
+      let data;
+      let err;
+      try {
+        data = await toPromise(settings.model::settings.model.getData)(settings.fields);
+      } catch (e) {
+        err = e;
+      }
 
-    function done() {
-      ctx.state._formMixin.model.on('update', ctx._handleModelChange);
-      ctx.setState(ctx.state, function () {
-        ctx._validateForm(function () {
-          if (cb) {
-            // Don't send validation errors
-            cb();
-          }
-        });
-      });
+      if (this._isUnmounted) {
+        return;
+      }
+
+      if (err) {
+        this.state._formMixin.globalError = err;
+        await toPromise(this::this.setState, true)(this.state);
+        throw err;
+      }
+
+      this.state._formMixin.data = data;
     }
 
-    if (!ctx.state._formMixin.data) {
-      settings.model.getData(settings.fields, function (err, data) {
-        if (ctx._isUnmounted) {
-          return;
-        }
-        if (err) {
-          ctx.state._formMixin.globalError = err;
-          ctx.setState(ctx.state, function () {
-            if (cb) {
-              return cb(err);
-            }
-            throw err;
-          });
-          return;
-        }
-        ctx.state._formMixin.data = data;
-        done();
-      });
-    } else {
-      done();
-    }
-  },
+    this.state._formMixin.model.on('update', this._handleModelChange);
+    await toPromise(this::this.setState, true)(this.state);
+    await toPromise(this.validateForm, true)();
+  }, true),
 
   /**
    * Check is data loaded
@@ -371,7 +360,7 @@ const FormMixin = {
    *
    * @param {Function}  [cb]  CallBack function
    */
-  submit: function (cb) {
+  submit: callbackify(async function () {
     if (this._isNotInitialized()) {
       return;
     }
@@ -390,48 +379,52 @@ const FormMixin = {
     this.setState(this.state);
 
     // Send changes to model
-    this.state._formMixin.model.submit(changes, function (err, data) {
-      if (this._isUnmounted) {
-        return;
-      }
+    let data;
+    let err;
+    try {
+      data = await toPromise(this::this.state._formMixin.model.submit)(changes);
+    } catch (e) {
+      err = e;
+    }
 
-      this.state._formMixin.submitting = false;
+    if (this._isUnmounted) {
+      return;
+    }
 
-      const newChanges = this._getChanges();
-      const actualChanges = utils.isEqual(changes, newChanges);
-      const validationError = err instanceof ValidationErrors;
+    this.state._formMixin.submitting = false;
 
-      // Replacing empty error to null
-      if (validationError && err.isEmpty()) {
-        err = null;
-      }
+    const newChanges = this._getChanges();
+    const actualChanges = utils.isEqual(changes, newChanges);
+    const validationError = err instanceof ValidationErrors;
 
-      if (err) {
-        if (validationError) {
-          if (actualChanges) {
-            this.state._formMixin.errors = err;
-          }
-        } else {
-          this.state._formMixin.globalError = err;
+    // Replacing empty error to null
+    if (validationError && err.isEmpty()) {
+      err = null;
+    }
+
+    if (err) {
+      if (validationError) {
+        if (actualChanges) {
+          this.state._formMixin.errors = err;
         }
-      } else if (actualChanges) {
-        this.state._formMixin.errors = new ValidationErrors();
-        this.state._formMixin.changes = {};
       } else {
-        utils.forEach(changes, function (value, field) {
-          if (utils.isEqual(value, newChanges[field])) {
-            delete this.state._formMixin.changes[field];
-          }
-        }, this);
+        this.state._formMixin.globalError = err;
       }
-
-      this.setState(this.state, function () {
-        if (typeof cb === 'function') {
-          cb(err, data);
+    } else if (actualChanges) {
+      this.state._formMixin.errors = new ValidationErrors();
+      this.state._formMixin.changes = {};
+    } else {
+      utils.forEach(changes, function (value, field) {
+        if (utils.isEqual(value, newChanges[field])) {
+          delete this.state._formMixin.changes[field];
         }
-      });
-    }.bind(this));
-  },
+      }, this);
+    }
+
+    await toPromise(this::this.setState, true)(this.state);
+
+    return data;
+  }, true),
 
   clearFieldChanges: function (field, cb) {
     if (this._isNotInitialized()) {
@@ -563,19 +556,21 @@ const FormMixin = {
 
   _runValidator: function (validator, getData, output, cb) {
     const data = getData();
-    callbackify(::validator.isValidRecord)(data, function (err, validErrors) {
-      if (this._isUnmounted || !utils.isEqual(data, getData())) {
-        return;
-      }
-
-      if (err) {
-        this.state._formMixin[output].clear();
-      } else {
+    validator.isValidRecord(data)
+      .then(validErrors => {
+        if (this._isUnmounted || !utils.isEqual(data, getData())) {
+          return;
+        }
         this.state._formMixin[output] = validErrors;
-      }
-
-      cb(err);
-    }.bind(this));
+        cb();
+      })
+      .catch(err => {
+        if (this._isUnmounted || !utils.isEqual(data, getData())) {
+          return;
+        }
+        this.state._formMixin[output].clear();
+        cb(err);
+      });
   },
 
   _getData: function () {

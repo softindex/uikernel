@@ -9,14 +9,14 @@
 import utils from '../common/utils';
 
 const functionsNames = [];
-export default function (func) {
+export default function (func, hideWarning = false) {
   const funcName = func.name;
 
   return function (...args) {
     const lastArgumentIndex = args.length - 1;
     const cb = args[lastArgumentIndex];
 
-    if (typeof cb === 'function' && cb.name !== 'toPomiseCallback') {
+    if (typeof cb === 'function' && cb.name !== 'toPomiseCallback' && !hideWarning) {
       if (!functionsNames.includes(funcName)) {
         utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
         functionsNames.push(funcName);
