@@ -29,26 +29,6 @@ class FormXhrModel extends EventsModel {
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  submit = callbackify(async function (changes) {
-    let body = await toPromise(this._xhr.bind(this))({
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      uri: this._apiUrl,
-      body: JSON.stringify(changes)
-    });
-
-    body = JSON.parse(body);
-
-    if (body.error) {
-      throw ValidationErrors.createFromJSON(body.error);
-    }
-
-    this.trigger('update', body.data);
-    return body.data;
-  });
-
   /**
    * Get all dependent fields, that are required for validation
    *
@@ -59,15 +39,6 @@ class FormXhrModel extends EventsModel {
     return this._validator.getValidationDependency(fields);
   }
 
-  /**
-   * Validation check
-   *
-   * @param {Object}      record
-   * @param {Function}    cb      CallBack function
-   */
-  isValidRecord = callbackify(function (record) {
-    return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
-  });
 }
 
 FormXhrModel.prototype.getData = callbackify(async function (fields) {
@@ -81,6 +52,36 @@ FormXhrModel.prototype.getData = callbackify(async function (fields) {
   });
 
   return JSON.parse(response);
+});
+
+FormXhrModel.prototype.submit = callbackify(async function (changes) {
+  let body = await toPromise(this._xhr.bind(this))({
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json'
+    },
+    uri: this._apiUrl,
+    body: JSON.stringify(changes)
+  });
+
+  body = JSON.parse(body);
+
+  if (body.error) {
+    throw ValidationErrors.createFromJSON(body.error);
+  }
+
+  this.trigger('update', body.data);
+  return body.data;
+});
+
+/**
+ * Validation check
+ *
+ * @param {Object}      record
+ * @param {Function}    cb      CallBack function
+ */
+FormXhrModel.prototype.isValidRecord = callbackify(function (record) {
+  return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
 });
 
 export default FormXhrModel;

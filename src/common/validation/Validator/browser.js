@@ -25,41 +25,41 @@ class ClientValidator extends Validator {
     super();
     this._settings.serverValidationUrl = serverValidationUrl;
     this._settings.xhr = xhr || defaultXhr;
-    this.isValidRecord = callbackify(this.isValidRecord);
   }
 
   static create(serverValidationUrl, xhr) {
     return new ClientValidator(serverValidationUrl, xhr);
   }
 
-  async isValidRecord(record) {
-    if (!this._settings.serverValidationUrl) {
-      return super.isValidRecord(record);
-    }
-
-    let xhrResult;
-    try {
-      xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
-        method: 'POST',
-        headers: {'Content-type': 'application/json'},
-        body: JSON.stringify(record),
-        uri: this._settings.serverValidationUrl
-      });
-    } catch (err) {
-      if (err.statusCode === 413) {
-        // When request exceeds server limits and
-        // client validators are able to find errors,
-        // we need to return these errors
-        const validationErrors = await toPromise(super.isValidRecord).call(this, record);
-        if (!validationErrors.isEmpty()) {
-          return validationErrors;
-        }
-      }
-      throw err;
-    }
-
-    return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
-  }
 }
+
+ClientValidator.prototype.isValidRecord = callbackify(async function(record) {
+  if (!this._settings.serverValidationUrl) {
+    return await this::Validator.prototype.isValidRecord(record);
+  }
+
+  let xhrResult;
+  try {
+    xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
+      method: 'POST',
+      headers: {'Content-type': 'application/json'},
+      body: JSON.stringify(record),
+      uri: this._settings.serverValidationUrl
+    });
+  } catch (err) {
+    if (err.statusCode === 413) {
+      // When request exceeds server limits and
+      // client validators are able to find errors,
+      // we need to return these errors
+      const validationErrors = await this::Validator.prototype.isValidRecord(record);
+      if (!validationErrors.isEmpty()) {
+        return validationErrors;
+      }
+    }
+    throw err;
+  }
+
+  return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
+});
 
 export default ClientValidator;
