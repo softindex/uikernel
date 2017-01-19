@@ -608,7 +608,7 @@ const GridDataMixin = {
   },
 
   _onRecordCreated: function (recordId) {
-    this.updateTable(() => {
+    this.updateTable().then(() => {
       if (this._isRecordLoaded(recordId)) {
         this._checkWarnings(this._getRowID(recordId));
       }

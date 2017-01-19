@@ -379,7 +379,9 @@ and escape "${columnId}" field in render function by yourself`
         cb();
       }
     } else {
-      this.updateTable(cb);
+      this.updateTable
+        .then(cb.bind(null, null))
+        .catch(cb);
     }
   }
 };

@@ -94,7 +94,7 @@ function assertValidViewColumns(columns, viewColumns) {
  */
 export default callbackify(async(gridModel, columns, viewColumns, exporter, settings) => {
   assertValidViewColumns(columns, viewColumns);
-  const result = await toPromise(gridModel.read.bind(gridModel))({
+  const result = await gridModel.read({
     fields: getFields(columns, viewColumns),
     sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
     limit: settings.limit,
