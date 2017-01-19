@@ -26,9 +26,6 @@ class Validator {
       asyncGroupValidators: [],
       asyncDependenies: []
     };
-
-    this.isValidRecord = this.isValidRecord.bind(this);
-    this.getValidationDependency = this.getValidationDependency.bind(this);
   }
 
   static create() {

@@ -314,6 +314,8 @@ const FormMixin = {
     this._validateForm(function (err) {
       if (typeof cb === 'function') {
         return cb(err);
+      } else if (err) {
+        console.error(err);
       }
     });
   },
@@ -519,6 +521,9 @@ const FormMixin = {
       let field;
 
       if (this._isUnmounted) {
+        if (err) {
+          console.error(err);
+        }
         return;
       }
 
@@ -566,6 +571,7 @@ const FormMixin = {
       })
       .catch(err => {
         if (this._isUnmounted || !utils.isEqual(data, getData())) {
+          console.error(err);
           return;
         }
         this.state._formMixin[output].clear();
