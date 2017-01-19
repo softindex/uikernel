@@ -382,7 +382,7 @@ const FormMixin = {
     let data;
     let err;
     try {
-      data = await toPromise(this::this.state._formMixin.model.submit)(changes);
+      data = await toPromise(this.state._formMixin.model::this.state._formMixin.model.submit)(changes);
     } catch (e) {
       err = e;
     }
