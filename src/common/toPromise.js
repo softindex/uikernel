@@ -29,6 +29,7 @@ const toPromise = function (func, hideWarning) {
         return promise;
       }
       utils.warn('The return value is not a function');
+      return callbackPromise;
     } else {
       if (!hideWarning) {
         if (!functionsNames.includes(funcName)) {

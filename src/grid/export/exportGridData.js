@@ -103,5 +103,5 @@ export default callbackify(async(gridModel, columns, viewColumns, exporter, sett
 
   const data = formatData(result.records, result.totals, columns, viewColumns);
 
-  return await toPromise(exporter)(data);
+  return await exporter(data);
 });
