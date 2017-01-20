@@ -368,20 +368,15 @@ and escape "${columnId}" field in render function by yourself`
         this._getBindParam(column)) ? 'dgrid-warning' : ''}`);
   },
 
-  _updateRow: function (row, cb) {
+  async _updateRow(row) {
     if (!this.state.data) {
       return;
     }
 
     if (this.state.data[row]) {
       this._renderBody();
-      if (cb) {
-        cb();
-      }
     } else {
-      this.updateTable
-        .then(cb.bind(null, null))
-        .catch(cb);
+      await this.updateTable(); // TODO Check is it need
     }
   }
 };
