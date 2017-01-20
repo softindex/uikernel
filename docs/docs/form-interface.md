@@ -15,11 +15,11 @@ Model for handling form requests.
  getData(string[] fields, function callback)
 {% endhighlight %}
 
-Returns all requested fields.
+Return all requested fields
 
 ### Example
 {% highlight javascript %}
-form.getData(['search'], function (err, data) {
+form.getData(['search'], (err, data) => {
     console.log(data);//{ search: "query" }
 });
 {% endhighlight %}
@@ -42,8 +42,8 @@ Process form data
 string[] getValidationDependency(string[] fields)
 {% endhighlight %}
 
-Returns fields that need to be sent additionally to validate fields `field`. Such a method necessity
-is caused with the ability to create group validators.
+Return fields that need to be sent additionally to validate a field. This method is required for creating group 
+validators.
 
 ----
 
@@ -53,7 +53,7 @@ is caused with the ability to create group validators.
 isValidRecord(Object record, function callback)
 {% endhighlight %}
 
-Validates records.
+Validate records
 
 ---
 

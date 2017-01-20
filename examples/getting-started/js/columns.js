@@ -6,23 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   name: {
     name: 'First Name',
-    render: ['name', function (record) {
-      return record.name;
-    }]
+    render: ['name', record => record.name]
   },
   surname: {
     name: 'Last Name',
-    render: ['surname', function (record) {
-      return record.surname;
-    }]
+    render: ['surname', record => record.surname]
   },
   age: {
     name: 'Age',
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   }
 };

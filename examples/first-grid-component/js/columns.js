@@ -6,38 +6,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   name: {
     name: 'First Name', // columns title
-    render: ['name', function (record) { // method to render a cell
-      return _.escape(record.name);
-    }]
+    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
   },
   surname: {
     name: 'Last Name',
-    render: ['surname', function (record) {
-      return _.escape(record.surname);
-    }]
+    render: ['surname', record => _.escape(record.surname)]
   },
   phone: {
     name: 'Phone',
-    render: ['phone', function (record) {
-      return _.escape(record.phone);
-    }]
+    render: ['phone', record => _.escape(record.phone)]
   },
   age: {
     name: 'Age',
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   },
   gender: {
     name: 'Gender',
-    render: ['gender', function (record) {
+    render: ['gender', (record) => {
       switch (record.gender) {
-        case 1: return 'Male';
-        case 2: return 'Female';
-        default: return 'Undefined';
+        case 1:
+          return 'Male';
+        case 2:
+          return 'Female';
+        default:
+          return 'Undefined';
       }
     }]
   }

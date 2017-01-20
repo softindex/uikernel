@@ -6,16 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       date: '2003-05-01'
     };
-  },
-  handleChanges: function (newDate) {
+    this.handleChanges = this.handleChanges.bind(this);
+  }
+
+  handleChanges(newDate) {
     this.setState({date: newDate});
-  },
-  render: function () {
+  }
+
+  render() {
     return (
       <div className="container">
         <span>Date: {this.state.date}</span>
@@ -28,8 +32,8 @@ var MainComponent = React.createClass({
           min="2003-01-01"
           max="2003-12-31"
           value={this.state.date}
-          />
+        />
       </div>
     );
   }
-});
+}

@@ -6,20 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var model = (function () {
-
-  var _names = ['Pace', 'Evangeline', 'Roach', 'Thornton', 'Concepcion', 'Francine', 'Kelsey', 'Deanna', 'Bates', 'Acosta', 'Stacey', 'Adams', 'Rodriguez', 'Nona', 'Humphrey', 'Mitchell', 'Murray', 'Sonya', 'Addie', 'Angelica'];
-  var _surnames = ['White', 'Terrell', 'Potts', 'English', 'Sanders', 'Poole', 'Bates', 'Snow', 'Simon', 'Kaufman', 'Kelly', 'Maxwell', 'Weaver', 'Frost', 'Carter', 'Dunn', 'Schneider', 'Steele', 'Thornton', 'Conway'];
-  var _genders = [1, 2];
+const model = (function () {
+  const _names = ['Pace', 'Evangeline', 'Roach', 'Thornton', 'Concepcion', 'Francine', 'Kelsey', 'Deanna', 'Bates', 'Acosta', 'Stacey', 'Adams', 'Rodriguez', 'Nona', 'Humphrey', 'Mitchell', 'Murray', 'Sonya', 'Addie', 'Angelica'];
+  const _surnames = ['White', 'Terrell', 'Potts', 'English', 'Sanders', 'Poole', 'Bates', 'Snow', 'Simon', 'Kaufman', 'Kelly', 'Maxwell', 'Weaver', 'Frost', 'Carter', 'Dunn', 'Schneider', 'Steele', 'Thornton', 'Conway'];
+  const _genders = [1, 2];
 
   function _getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
   }
 
-  var data = [];
+  const data = [];
 
   for (var i = 0; i < 20; i++) {
-    var phone = _getRandomNumber(0, 99);
+    let phone = _getRandomNumber(0, 99);
 
     data.push([i + 1, {
       id: i + 1,
@@ -33,6 +32,6 @@ var model = (function () {
 
   return new UIKernel.Models.Grid.Collection({
     data: data,
-    validation: validation
+    validator
   });
 })();

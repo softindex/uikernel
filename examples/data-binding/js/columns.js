@@ -6,45 +6,42 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   name: {
-    name: 'First Name', // columns title
-    editor: function () {
-      return <input type="text" {...this.props} />; // text editor
-    },
-    render: ['name', function (record) { // method to render a cell
-      return _.escape(record.name);
-    }]
-  },
-  surname: {
-    name: 'Last Name',
-    editor: function () {
-      return <input type="text" {...this.props}/>;
-    },
-    render: ['surname', function (record) {
-      return _.escape(record.surname);
-    }]
-  },
-  phone: {
-    name: 'Phone',
+    name: 'First Name', // column title
+    sortCycle: ['asc', 'desc', 'default'], // sort cycle
     editor: function () {
       return <input type="text" {...this.props}/>; // text editor
     },
-    render: ['phone', function (record) {
-      return _.escape(record.phone);
-    }]
+    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
+  },
+  surname: {
+    name: 'Last Name',
+    sortCycle: ['asc', 'desc', 'default'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
+    render: ['surname', record => _.escape(record.surname)]
+  },
+  phone: {
+    name: 'Phone',
+    sortCycle: ['asc', 'desc', 'default'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
+    render: ['phone', record => _.escape(record.phone)]
   },
   age: {
     name: 'Age',
+    sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <input type="number" {...this.props}/>; // number editor
     },
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   },
   gender: {
     name: 'Gender',
+    sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <UIKernel.Editors.Select // select editor
         {...this.props}
@@ -52,13 +49,16 @@ var columns = {
           [1, 'Male'],
           [2, 'Female']
         ]}
-        />;
+      />;
     },
-    render: ['gender', function (record) {
+    render: ['gender', (record) => {
       switch (record.gender) {
-        case 1: return 'Male';
-        case 2: return 'Female';
-        default: return 'Undefined';
+        case 1:
+          return 'Male';
+        case 2:
+          return 'Female';
+        default:
+          return 'Undefined';
       }
     }]
   }

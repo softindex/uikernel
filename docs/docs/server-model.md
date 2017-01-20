@@ -1,57 +1,63 @@
 ---
-title: Создание модели
+title: Creating a model
 id: server-model
 prev: server-validation.html
 next: editors.html
 ---
 
-Мы используем [MySQL](https://github.com/mysqljs/mysql) и [Squel](https://hiddentao.com/squel/) для формирования запросов.<br>
-Реализуем метод `read`:
+Our model will have the following methods: `read`, `getRecord`, `update`, `create`, `delete`, `isValidRecord`and `getValidationDependency`.
+
+Here, we're going to use [MySQL](https://github.com/mysqljs/mysql) and [Squel](https://hiddentao.com/squel/).
+
+First, let's define `read`. 
 
 `userGrid/model.js`:
 {% highlight javascript %}
 read: function (settings) {
-        var data = {};
-        var query = squel.select()
-            .field('SQL_CALC_FOUND_ROWS *')
-            .from('getting_started')
-            .limit(settings.limit || 10)
-            .offset(settings.offset || 0);
+    var data = {};
+    var query = squel.select()
+      .field('SQL_CALC_FOUND_ROWS *')
+      .from('getting_started')
+      .limit(settings.limit || 10)
+      .offset(settings.offset || 0);
 
-        if (settings.sort) {
-            var sort = settings.sort[0];
-            query.order(sort[0], sort[1] === 'asc');
-        }
-        query.order('name', true);
+    if (settings.sort) {
+      var sort = settings.sort[0];
+      query.order(sort[0], sort[1] === 'asc');
+    }
 
-        if (settings.filters) {
-            if (settings.filters.search) {
-                var pattern = `%${settings.filters.search}%`;
-                query.where('name LIKE ? OR surname LIKE ?', pattern, pattern);
-            }
-            if (settings.filters.age) {
-                query.where('age = ?', settings.filters.age);
-            }
-            if (settings.filters.gender) {
-                query.where('gender = ?', settings.filters.gender);
-            }
-        }
+    if (settings.filters) {
+      if (settings.filters.search) {
+        var pattern = `%${settings.filters.search}%`;
+        query.where('name LIKE ? OR surname LIKE ?', pattern, pattern);
+      }
 
-        return MySQL.query(query)
-            .then(function (result) {
-                data.records = result.map(function (elem) {
-                    return [elem.id, elem]; //формируем массив данных
-                });
-                return MySQL.query('SELECT FOUND_ROWS() as count')
-            })
-            .then(function (result) {
-                return result[0].count;
-            });
+      if (settings.filters.age) {
+        query.where('age = ?', settings.filters.age);
+      }
+
+      if (settings.filters.gender) {
+        query.where('gender = ?', settings.filters.gender);
+      }
+    }
+
+    return mysql.query(query)
+      .then(function (result) {
+        data.records = result.map(function (elem) {
+          return [elem.id, elem];
+        });
+        return mysql.query('SELECT FOUND_ROWS() as count')
+      })
+      .then(function (result) {
+        data.count = result[0].count;
+        return data;
+      })
 }
 {% endhighlight %}
 
-Параметры запроса приходят в объекте `settings`. Они используются для фильтров и пагинации.
-Важно обратить внимание на эту часть:
+The `read` method returns an object with two properties: `records` and `count`(the number of returned records).
+  
+Pay attention to this part:
 {% highlight javascript %}
 data.records = result.map(function (elem) {
                     return [elem.id, elem];
@@ -59,9 +65,11 @@ data.records = result.map(function (elem) {
                 return MySQL.query('SELECT FOUND_ROWS() as count')
 {% endhighlight %}
 
-Данные которые мы отсылаем на клиент должны находится в свойстве `records`.
-Это должен быть массив состоящий из масивов, которые первым елементом содержат индитификатор, а вторым данные для отображения.
-Например:
+The value of `records` is an array consisting of arrays that store a record id as their first element and 
+a record as the second one. 
+
+For example:
+
 {% highlight javascript %}
 [
    [1, {id:1, name: "Sonya", surname: "Weaver", phone: "555-0159", age: 59, gender: 1}],
@@ -69,17 +77,20 @@ data.records = result.map(function (elem) {
    [3, {id:3, name: "Rodriguez", surname: "Terrell", phone: "555-0146", age: 40, gender: 2}]
 ]
 {% endhighlight %}
-Так же, мы используем свойство `count`, для передачи количества всех записей.
-Подробнее о формате ответов на запросы можно почитать [здесь](/docs/grid-interface.html)
 
-Реализуем метод валидации:
+
+Let's define methods for validation:
+
 {% highlight javascript %}
-isValidRecord: validator.isValidRecord
+isValidRecord: validator.isValidRecord.bind(validator),
+
+getValidationDependency: validator.getValidationDependency.bind(validator)
 {% endhighlight %}
 
-Метод для получения поля по id:
+Next, we'll define `getRecord`:
+
 {% highlight javascript %}
-getRecord: function (id, cols) {
+getRecord: function (id, fields) {
         var query = squel.select()
             .from('getting_started')
             .where('id = ?', id);
@@ -91,74 +102,83 @@ getRecord: function (id, cols) {
 }
 {% endhighlight %}
 
-Реализуем метод `create`:
+The `getRecord` method returns a single record. 
+
+Here's the code for `create`:
+
 {% highlight javascript %}
 create: function (data) {
-// Валидатор UIKernel не умеет проверять наличее полей, потому назначим значения по умолчанию
-        data = Object.assign({
-            name: '',
-            surname: '',
-            age: '',
-            phone: '',
-            gender: ''
-        }, data);
+    // UIKernel validator doesn't check the presence of fields , so we assign default values
+    data = Object.assign({
+      name: '',
+      surname: '',
+      age: '',
+      phone: '',
+      gender: ''
+    }, data);
 
-        var query = squel.insert()
-            .into("getting_started")
-            .setFields(data);
+    var query = squel.insert()
+      .into("getting_started")
+      .setFields(data);
 
-        return this.isValidRecordAsync(data)
-            .then(function (validationErrors) {
-                if (validationErrors.isEmpty()) {// Если валидация успешна, записываем данные в базу
-                    return MySQL.query(query);
-                }
-                else return Promise.reject(validationErrors);// если валидация не успешна, возвращаем объект валидации
-            })
-            .then(function (result) {
-                return result.insertId; //после успешного создания записи, возвращаем её id
-            });
-}
+    return this.isValidRecord(data)
+      .then(function (validationErrors) {
+        if (validationErrors.isEmpty()) {
+          return mysql.query(query); // insert a record in a table if data is valid
+        }
+        
+        return Promise.reject(validationErrors); // return validation errors if data is invalid
+      })
+      .then(function (result) {
+        return result.insertId;
+      })
+  }
 {% endhighlight %}
+ 
+If data is valid, `create` returns the id of the inserted record. Otherwise, it returns validation errors.
 
-Если от сервера прийдёт объект валидации, то форма создания записи подсветит поля что не прошли проверку.
+Let's define the `update` method:
 
-Реализуем метод `update`:
 {% highlight javascript %}
-update: function (records) {
-        var self = this;
-        var promises = records.map(function (record) {
-            var recordId = record[0];
-            var values = record[1];
-            var query = squel.update()
-                .table('getting_started')
-                .setFields(values)
-                .where('id = ?', recordId);
+  update: function (records) {
+    var promises = records.map(function (record) {
+      var recordId = record[0];
+      var values = record[1];
+      var query = squel.update()
+        .table('getting_started')
+        .setFields(values)
+        .where('id = ?', recordId);
 
-            return self.isValidRecordAsync(values)
-                .then(function (validationErrors) {
-                    if (validationErrors.isEmpty()) {// Если валидация успешна, обновляем данные в базе
-                        return MySQL.query(query)
-                            .then(function () {
-                                return self.getRecord(recordId);//возвращаем объекты которые были изменены
-                            })
-                            .then(function (record) {
-                                return [record.id, record]
-                            })
-                    }
-                    else return [recordId, validationErrors];// если валидация не успешна, возвращаем объект валидации
-                });
+      return this.isValidRecord(values)
+        .then(function (validationErrors) {
+          if (validationErrors.isEmpty()) {
+            return mysql.query(query)
+              .then(function () {
+                return this.getRecord(recordId);
+              }.bind(this))
+              .then(function (record) {
+                 return [record.id, record]
+              })
+          }
+
+          return [recordId, validationErrors];
+        }.bind(this))
+        .catch(function (err) {
+          console.log(err);
         });
+    }, this);
 
-        return Promise.all(promises)//Массив содержащий объекты валидации и изменения записей базы
-    },
+    return Promise.all(promises)
+  }
 {% endhighlight %}
 
-Метод `update` должен возвращать объекты валидации и изменения записей базы.
-Валидации используются для отображения неправильно заполненых полей при изменении данных.
-Объекты изменений нужны для обновления клиентской модели.
-Формат данных ответа сервера такой же как и при вызове метода `read`.
+This method returns validation errors and updated records. The return value format is the same as for the `read` method.
 
-Реализуем метод `delete`:
+Validation is used to highlight the form fields which were filled wrongly.
+Updated records are used for updating of the grid.
+
+Finally, let's define `delete`:
+
 {% highlight javascript %}
  delete: function (id) {
         var query = squel.delete()
@@ -167,5 +187,5 @@ update: function (records) {
         return MySQL.query(query)
     }
 {% endhighlight %}
-
-Формат ответа метода `delete` произвольный. Зависит от реализации `delete` клиентской модели.
+  
+The return value of `delete` can be different. It depends on the definition of this method in the client model.

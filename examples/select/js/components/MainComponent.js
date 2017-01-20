@@ -6,24 +6,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var options = [
-  [null, ''], [1, 'Option 1'], [2, 'Option 2'], [3, 'Option 3'], [4, 'Option 4'], [5, 'Option 5']
-];
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
+    this.state = {
       value: 2,
       label: 'Option 2'
     };
-  },
-  handleChange: function (newValue) {
+    this.options = [[null, ''], [1, 'Option 1'], [2, 'Option 2'], [3, 'Option 3'], [4, 'Option 4'], [5, 'Option 5']];
+    this.handleChange = this.handleChange.bind(this);
+    this.handleLabelChange = this.handleLabelChange.bind(this);
+  }
+
+  handleChange(newValue) {
     this.setState({value: newValue});
-  },
-  handleLabelChange: function (newLabel) {
+  }
+
+  handleLabelChange(newLabel) {
     this.setState({label: newLabel})
-  },
-  render: function () {
+  }
+
+  render() {
     return (
       <div className="container">
         <span>Selected: {this.state.label}</span>
@@ -33,12 +37,12 @@ var MainComponent = React.createClass({
           onChange={this.handleChange}
           onLabelChange={this.handleLabelChange}
           value={this.state.value}
-          options={options}
-          />
+          options={this.options}
+        />
       </div>
     );
   }
-});
+}
 
 
 

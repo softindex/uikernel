@@ -18,7 +18,7 @@ export default function (func, hideWarning = false) {
 
     if (typeof cb === 'function' && cb.name !== 'toPomiseCallback' && !hideWarning) {
       if (!functionsNames.includes(funcName)) {
-        utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
+        utils.warn(`You are using callback in: '${funcName}'. Use promise instead`);
         functionsNames.push(funcName);
       }
 

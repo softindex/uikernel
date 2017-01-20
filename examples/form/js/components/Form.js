@@ -6,36 +6,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var Form =  React.createClass({
-  getInitialState: function() {
-    this.form = new UIKernel.Services.Form();
-    return null;
-  },
-  onFormChange(newFormState) {
-    if (!_.isEqual(this.props.state.data, newFormState.data)) {
-      this.form.submit()
-        .catch(err =>{
-          if (err && !(err instanceof UIKernel.Models.ValidationErrors)) { // If error is not a validation one
-            alert('Error');
-          }
-        });
-    }
-    this.props.stateHandler(newFormState);
-  },
+class Form extends React.Component {
+  constructor(props) {
+    super(props);
+    this.form = new UIKernel.Form();
+    this.onFormChange = this.onFormChange.bind(this);
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     this.form.init({
       fields: ['name', 'age'], // Fields we need
       model: new UIKernel.Adapters.Grid.ToFormUpdate(model, 2), // We're going to change record with ID = 2
     });
     this.form.addChangeListener(this.onFormChange);
-  },
+  }
 
   componentWillUnmount() {
     this.form.removeChangeListener(this.onFormChange);
-  },
+  }
 
-  render: function () {
+  onFormChange(newFormState) {
+    if (!_.isEqual(this.props.state.data, newFormState.data)) {
+      this.form.submit()
+        .catch((err) => {
+          if (err && !(err instanceof UIKernel.Models.ValidationErrors)) { // If error is not a validation one
+            alert('Error');
+          }
+        });
+    }
+
+    this.props.onChange(newFormState);
+  }
+
+  render() {
     if (!this.props.state.isLoaded) {
       return <span>Loading...</span>;
     }
@@ -47,7 +50,7 @@ var Form =  React.createClass({
         </div>
         <div className="body">
           <form className="form-horizontal change-second-field-form">
-            <div className={'form-group'+ (this.props.state.errors.name ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.errors.hasError('name') ? ' error' : '')}>
               <label className="col-sm-2 control-label">Name</label>
               <div className="col-sm-6">
                 <input
@@ -55,13 +58,13 @@ var Form =  React.createClass({
                   className="form-control"
                   onChange={this.form.updateField.bind(this.form, 'name')}
                   value={this.props.state.data.name}
-                  />
+                />
               </div>
               <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.errors.name}</div>
+                <div className="validation-error">{this.props.state.errors.getFieldErrors('name')}</div>
               </div>
             </div>
-            <div className={'form-group'+ (this.props.state.errors.age ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.errors.hasError('age') ? ' error' : '')}>
               <label className="col-sm-2 control-label">Age</label>
               <div className="col-sm-6">
                 <input
@@ -69,10 +72,10 @@ var Form =  React.createClass({
                   className="form-control"
                   onChange={this.form.updateField.bind(this.form, 'age')}
                   value={this.props.state.data.age}
-                  />
+                />
               </div>
               <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.errors.age}</div>
+                <div className="validation-error">{this.props.state.errors.getFieldErrors('age')}</div>
               </div>
             </div>
           </form>
@@ -80,4 +83,4 @@ var Form =  React.createClass({
       </div>
     );
   }
-});
+}

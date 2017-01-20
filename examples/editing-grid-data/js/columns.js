@@ -6,16 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   name: {
-    name: 'First Name', // columns title
+    name: 'First Name', // column title
     sortCycle: ['asc', 'desc', 'default'], // sort cycle
     editor: function () {
       return <input type="text" {...this.props}/>; // text editor
     },
-    render: ['name', function (record) { // method to render a cell
-      return _.escape(record.name);
-    }]
+    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
   },
   surname: {
     name: 'Last Name',
@@ -23,9 +21,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['surname', function (record) {
-      return _.escape(record.surname);
-    }]
+    render: ['surname', record => _.escape(record.surname)]
   },
   phone: {
     name: 'Phone',
@@ -33,9 +29,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['phone', function (record) {
-      return _.escape(record.phone);
-    }]
+    render: ['phone', record => _.escape(record.phone)]
   },
   age: {
     name: 'Age',
@@ -43,9 +37,7 @@ var columns = {
     editor: function () {
       return <input type="number" {...this.props}/>; // number editor
     },
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   },
   gender: {
     name: 'Gender',
@@ -59,11 +51,14 @@ var columns = {
         ]}
       />;
     },
-    render: ['gender', function (record) {
+    render: ['gender', (record) => {
       switch (record.gender) {
-        case 1: return 'Male';
-        case 2: return 'Female';
-        default: return 'Undefined';
+        case 1:
+          return 'Male';
+        case 2:
+          return 'Female';
+        default:
+          return 'Undefined';
       }
     }]
   }

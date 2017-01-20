@@ -6,22 +6,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       model: model // let's store model in the state
     };
-  },
-  onSave: function () {
+    this.saveChanges = this.saveChanges.bind(this);
+    this.clearChanges = this.clearChanges.bind(this);
+  }
+
+  saveChanges() {
     this.refs.grid.save()
       .catch(function () {
         alert('Error');
       });
-  },
-  onClear: function () {
+  }
+
+  clearChanges() {
     this.refs.grid.clearAllChanges();
-  },
-  render: function () {
+  }
+
+  render() {
     return (
       <div className="container">
         <div className="row">
@@ -32,7 +38,7 @@ var MainComponent = React.createClass({
               cols={columns} // columns configuration
               viewCount={10}
               realtime={true}
-              />
+            />
           </div>
           <div className="col-sm-6">
             <h3>Grid without autosave</h3>
@@ -41,13 +47,13 @@ var MainComponent = React.createClass({
               model={this.state.model}
               cols={columns}
               viewCount={10}
-              />
-            <a className="btn btn-success" onClick={this.onClear}>Clear</a>
+            />
+            <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
             {' '}
-            <a className="btn btn-primary" onClick={this.onSave}>Save</a>
+            <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
           </div>
         </div>
       </div>
     );
   }
-});
+}

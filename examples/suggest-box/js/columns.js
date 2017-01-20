@@ -6,18 +6,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   tools: {
     width: '40px',
-    render: [function () {
-      return '<button ref="edit" class="btn btn-outline btn-success btn-xs"><i class="fa fa-pencil"></i></button>';
-    }],
+    render: [() => '<button ref="edit" class="btn btn-outline btn-success btn-xs"><i class="fa fa-pencil"></i></button>'],
     onClickRefs: {
       edit: (function (e, recordId, record, grid) {
         var editPopup = popup.open(Form, {
           model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),
           changes: grid.getRecordChanges(recordId),
-          onSubmit: function onSubmit() {
+          onSubmit: () => {
             editPopup.close();
             grid.clearRecordChanges(recordId);
           }
@@ -31,9 +29,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['name', function (record) {
-      return _.escape(record.name);
-    }]
+    render: ['name', record => _.escape(record.name)]
   },
   country: {
     name: 'Country',
@@ -47,8 +43,6 @@ var columns = {
         />
       );
     },
-    render: ['country', 'countryName', function (record) {
-      return record.countryName;
-    }]
+    render: ['country', 'countryName', record => record.countryName]
   }
 };

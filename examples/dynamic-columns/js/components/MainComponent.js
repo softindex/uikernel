@@ -6,9 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () { // add cols - state to our initial states
-    return {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       model: model,
       cols: {
         // display name, surname, phone by default
@@ -20,18 +21,19 @@ var MainComponent = React.createClass({
         gender: false
       }
     };
-  },
+    this.openColumnsForm = this.openColumnsForm.bind(this);
+  }
 
-  openColumnsForm: function openColumnsForm() {
+  openColumnsForm() {
     //open modal with our information (you can use your own modal)
-    var columnsWindow = popup.open(Form, {
+    const columnsWindow = popup.open(Form, {
       cols: this.state.cols,
-      onChange: function onChange(cols) {
+      onChange: (cols) => {
         columnsWindow.close();
-        this.setState({cols: cols});
-      }.bind(this)
+        this.setState({cols});
+      }
     }, "opened");
-  },
+  }
 
   render() {
     return (
@@ -44,8 +46,8 @@ var MainComponent = React.createClass({
           model={this.state.model}
           viewColumns={this.state.cols}
           viewCount={20}
-          />
+        />
       </div>
     );
   }
-});
+}

@@ -6,14 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
-      model: model // let's store model in the state
-    };
-  },
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {model};
+  }
 
-  render: function () {
+  render() {
     return (
       <div>
         <UIKernel.Grid
@@ -23,4 +22,4 @@ var MainComponent = React.createClass({
       </div>
     );
   }
-});
+}

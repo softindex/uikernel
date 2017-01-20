@@ -56,6 +56,7 @@ const GridComponent = React.createClass({
         on: React.PropTypes.func.isRequired,
         off: React.PropTypes.func.isRequired
       }),
+      cols: React.PropTypes.object,
       viewColumns: React.PropTypes.oneOfType([
         React.PropTypes.arrayOf(React.PropTypes.string),
         React.PropTypes.object
@@ -68,8 +69,11 @@ const GridComponent = React.createClass({
       onChangeViewCount: React.PropTypes.func,
       onError: React.PropTypes.func,
       onPageLoad: React.PropTypes.func,
+      autoSubmit: React.PropTypes.bool,
       height: React.PropTypes.number,
+      onSelectedChange: React.PropTypes.func,
       onSorting: React.PropTypes.func,
+      multipleSorting: React.PropTypes.bool,
       defaultSort: (props, propName) => {
         if (!props.defaultSort) {
           return;
@@ -79,7 +83,7 @@ const GridComponent = React.createClass({
           return validProp;
         }
         if (props.hasOwnProperty('sort')) {
-          return Error('You can not set "defaultSort" when specified "sort" prop');
+          return Error('You can not set "defaultSort" when the "sort" prop is specified');
         }
       },
       sort: (props, propName) => {
@@ -91,7 +95,7 @@ const GridComponent = React.createClass({
           return validProp;
         }
         if (!props.onSorting) {
-          return Error('You need to define prop "onSorting" when set "sort"');
+          return Error('You need to define the "onSorting" prop when "sort" is set');
         }
       },
       saveFullRecord: React.PropTypes.bool,

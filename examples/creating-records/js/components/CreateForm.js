@@ -6,115 +6,127 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var CreateForm = React.createClass({
-  getInitialState: function () {
+class CreateForm extends React.Component {
+  constructor(props) {
+    super(props);
     this.form = new UIKernel.Form();
-    return this.form.getAll();
-  },
+    this.onFormChange = this.onFormChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
   componentDidMount() {
     this.form.init({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
-      model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // pass it default field values
-        name: '',
-        surname: '',
-        phone: '',
-        age: '',
+      model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // default field values
         gender: 1
       }),
       submitAll: true,
       partialErrorChecking: true
     });
     this.form.addChangeListener(this.onFormChange);
-  },
+  }
 
   componentWillUnmount() {
     this.form.removeChangeListener(this.onFormChange);
-  },
+  }
 
   onFormChange(newFormState) {
-    this.setState(newFormState);
-  },
+    this.props.onChange(newFormState);
+  }
 
-  save: function (e) { // save record handler
+  handleSubmit(e) {
     e.preventDefault();
-    this.form.submit()
+    this.form.submit() // create a new record
       .then((recordId) => {
         this.props.onSubmit(recordId)
+      })
+      .catch((err) => {
+        console.log(err);
       });
-  },
+  }
 
-  render: function () {
-    if (!this.state.isLoaded) {
+  render() {
+    if (!this.props.state.isLoaded) {
       return <span>Loading...</span>;
     }
 
     return (
       <div>
-        {this.state.globalError ? this.state.globalError.message : ''}
-        <form className="form-horizontal edit-form" onSubmit={this.save}>
-          <div
-            className={"form-group" + (this.state.changes.name ? ' changed' : '') + (this.state.errors.name ? ' error' : '')}>
+        {this.props.state.globalError ? this.props.state.globalError.message : ''}
+        <form className="form-horizontal edit-form" onSubmit={this.handleSubmit}>
+          <div className={"form-group" + (this.props.state.changes.name ? ' changed' : '') +
+          (this.props.state.errors.hasError('name') ? ' error' : '')}>
             <label className="col-sm-3 control-label">First Name</label>
             <div className="col-sm-9">
               <input
                 type="text"
                 placeholder="Alyx"
                 className="form-control"
-                onChange={this.form.updateField.bind(this.form,'name')}
+                onChange={this.form.updateField.bind(this.form, 'name')}
                 onFocus={this.form.clearError.bind(this.form, 'name')}
                 onBlur={this.form.validateForm}
-                value={this.state.data.name}
+                value={this.props.state.data.name}
               />
+              {this.props.state.errors.hasError('name') &&
+              <small className="control-label">{this.props.state.errors.getFieldErrors('name')}</small>}
             </div>
           </div>
           <div
-            className={"form-group" + (this.state.changes.surname ? ' changed' : '') + (this.state.errors.surname ? ' error' : '')}>
+            className={"form-group" + (this.props.state.changes.surname ? ' changed' : '') +
+            (this.props.state.errors.hasError('surname') ? ' error' : '')}>
             <label className="col-sm-3 control-label">Last Name</label>
             <div className="col-sm-9">
               <input
                 type="text"
                 placeholder="Vance"
                 className="form-control"
-                onChange={this.form.updateField.bind(this.form,'surname')}
+                onChange={this.form.updateField.bind(this.form, 'surname')}
                 onFocus={this.form.clearError.bind(this.form, 'surname')}
                 onBlur={this.form.validateForm}
-                value={this.state.data.surname}
+                value={this.props.state.data.surname}
               />
+              {this.props.state.errors.hasError('surname') &&
+              <small className="control-label">{this.props.state.errors.getFieldErrors('surname')}</small>}
             </div>
           </div>
           <div
-            className={"form-group" + (this.state.changes.phone ? ' changed' : '') + (this.state.errors.phone ? ' error' : '')}>
+            className={"form-group" + (this.props.state.changes.phone ? ' changed' : '') +
+            (this.props.state.errors.hasError('phone') ? ' error' : '')}>
             <label className="col-sm-3 control-label">Phone</label>
             <div className="col-sm-9">
               <input
                 type="text"
                 placeholder="555-0100"
                 className="form-control"
-                onChange={this.form.updateField.bind(this.form,'phone')}
+                onChange={this.form.updateField.bind(this.form, 'phone')}
                 onFocus={this.form.clearError.bind(this.form, 'phone')}
                 onBlur={this.form.validateForm}
-                value={this.state.data.phone}
+                value={this.props.state.data.phone}
               />
+              {this.props.state.errors.hasError('phone') &&
+              <small className="control-label">{this.props.state.errors.getFieldErrors('phone')}</small>}
             </div>
           </div>
           <div
-            className={"form-group" + (this.state.changes.age ? ' changed' : '') + (this.state.errors.age ? ' error' : '')}>
+            className={"form-group" + (this.props.state.changes.age ? ' changed' : '') +
+            (this.props.state.errors.hasError('age') ? ' error' : '')}>
             <label className="col-sm-3 control-label">Age</label>
             <div className="col-sm-9">
               <input
                 type="number"
                 placeholder="18"
                 className="form-control"
-                onChange={this.form.updateField.bind(this.form,'age')}
+                onChange={this.form.updateField.bind(this.form, 'age')}
                 onFocus={this.form.clearError.bind(this.form, 'age')}
                 onBlur={this.form.validateForm}
-                value={this.state.data.age}
+                value={this.props.state.data.age}
               />
+              {this.props.state.errors.hasError('age') &&
+              <small className="control-label">{this.props.state.errors.getFieldErrors('age')}</small>}
             </div>
           </div>
           <div
-            className={"form-group" + (this.state.changes.gender ? ' changed' : '') + (this.state.errors.gender ? ' error' : '')}>
+            className={"form-group" + (this.props.state.changes.gender ? ' changed' : '')}>
             <label className="col-sm-3 control-label">Gender</label>
             <div className="col-sm-9">
               <UIKernel.Editors.Select
@@ -123,10 +135,10 @@ var CreateForm = React.createClass({
                   [2, 'Female']
                 ]}
                 className="form-control"
-                onChange={this.form.updateField.bind(this.form,'gender')}
+                onChange={this.form.updateField.bind(this.form, 'gender')}
                 onFocus={this.form.clearError.bind(this.form, 'gender')}
                 onBlur={this.form.validateForm}
-                value={this.state.data.gender}
+                value={this.props.state.data.gender}
               />
             </div>
           </div>
@@ -145,4 +157,4 @@ var CreateForm = React.createClass({
       </div>
     );
   }
-});
+}

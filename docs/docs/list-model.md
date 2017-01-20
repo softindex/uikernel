@@ -27,7 +27,7 @@ Get options for a Select or SuggestBox editor.
 
 ### Example
 {% highlight javascript %}
-list.read('name', function (err, res) {
+list.read('name', (err, res) => {
     console.log(res);
     /*
     [
@@ -35,7 +35,6 @@ list.read('name', function (err, res) {
       [2,'Bob']
     ]
     */
-})
 });
 {% endhighlight %}
 
@@ -47,4 +46,4 @@ list.read('name', function (err, res) {
  getLabel(number id, function callback)
 {% endhighlight %}
 
-Get an option name using ID. The callback function will return the result as a string.
+Get an option name using ID. The callback function returns the result as a string.

@@ -32,7 +32,7 @@ const toPromise = function (func, hideWarning) {
     } else {
       if (!hideWarning) {
         if (!functionsNames.includes(funcName)) {
-          utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
+          utils.warn(`You are using callback in: '${funcName}'. Use promise instead`);
           functionsNames.push(funcName);
         }
       }

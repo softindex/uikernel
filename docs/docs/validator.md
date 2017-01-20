@@ -13,7 +13,7 @@ UIKernel provides a way to validate data, so that the user can be notified of in
 UIKernel.createValidator()
 {% endhighlight %}
 
-Returns a builder that allows to define validation rules.
+Return a builder that allows to define validation rules.
 
 ---
 
@@ -34,7 +34,7 @@ Add synchronous field validation.
 Validator fields(string[] fields, function validatorFunction(Object record, ValidationErrors errors))
 {% endhighlight %}
 
-Specify multiple synchronous validators for a group of fields. If any errors occur, the function returns an error.
+Specify multiple synchronous validators for a group of fields. If any errors occur, the callback returns an error.
 
 ---
 
@@ -44,7 +44,7 @@ Specify multiple synchronous validators for a group of fields. If any errors occ
 Validator asyncDependence(string[] fields)
 {% endhighlight %}
 
-Specifies server validation dependencies in a client validator.
+Specify server validation dependencies in a client validator.
 
 ---
 
@@ -77,7 +77,7 @@ A set of basic validation rules is provided:
 // Check if value is not empty string, null and undefined
 UIKernel.Validators.notNull(string errorMessage)
 
-// Check if value is not empty string, array and object. Not null, undefined, 0
+// Check if value is not an empty string, array or object and not null, undefined, 0
 UIKernel.Validators.notEmpty(string errorMessage)
 
 // Check if value is boolean
@@ -114,9 +114,9 @@ UIKernel.Validators.set.notNull(Array set, string errorMessage)
 
 ## Custom Validation Rules
 
-You can also create your own validation rules. For example:
+You can also define your own validation rules. For example:
 {% highlight javascript %}
-function (value) {
+(value) => {
   if (value % 2 === 0) {
     return 'Numbers can be odd only';
   }
@@ -129,19 +129,19 @@ function (value) {
 
 {% highlight javascript %}
 var validator = UIKernel.createValidator()
-  // Check if country's present
+  // Check if country isn't empty
   .field('country', Validators.notNull('Invalid country.'))
-  // Check if email is valid using regular expressin
+  // Check if email is valid using regular expression
   .field('email', Validators.regExp.notNull(
     /^.*@.*$/,
     'Your email is invalid'
   ))
-  // Check data isn't less than '2014-10-01'
+  // Check if data isn't less than '2014-10-01'
   .field('timestamp', Validators.date.notNull(
     '2014-10-01', null,
     'Timestamp must exceed 2014-10-01'
   ))
-  // Check if the age matches 15-90 range
+  // Check if age matches 15-90 range
   .field('age', Validators.number.notNull(15, 90,
     'You do not have the right age'
   ))
@@ -149,12 +149,12 @@ var validator = UIKernel.createValidator()
   .field('credit', Validators.float(30.5, null,
     'You can not take the credit is less than 30.5'
   ))
-   // Check if interests were in the set
+   // Check if interests belong to set
    .field('interests', Validators.set.notNull(['ART', 'SPORT', 'ANIMALS', 'GAMES'], 'An incorrect interest'))
   // Check if user agrees with terms of use
   .field( 'agree', Validators.boolean.notNull(true, 'Select that you agree with the rules'))
-  // Check if a number is odd
-  .field('someField', function (value) {
+  // Check if number is odd
+  .field('someField', (value) => {
     if (value % 2 === 0) {
       return 'Numbers can be odd only';
     }
@@ -172,7 +172,7 @@ var validator = UIKernel.createValidator()
  string[] getValidationDependency(string[] fields)
 {% endhighlight %}
 
-Get all dependent fields validation needs
+Get all fields required for validation
 
 ---
 
@@ -186,7 +186,7 @@ Check record validity
 
 ## Example
 {% highlight javascript %}
-validator.isValidRecord(record, function (err, errors) {
+validator.isValidRecord(record, (err, errors) => {
   if (errors.isEmpty()) {
     throw errors;
   }
