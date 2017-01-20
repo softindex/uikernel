@@ -427,6 +427,9 @@ const FormMixin = {
 
     await toPromise(this::this.setState, true)(this.state);
 
+    if (err) {
+      throw err;
+    }
     return data;
   }, true),
 
