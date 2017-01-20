@@ -315,7 +315,9 @@ const FormMixin = {
       if (typeof cb === 'function') {
         return cb(err);
       } else if (err) {
-        console.error(err);
+        if (!(err instanceof ValidationErrors)) {
+          console.error(err);
+        }
       }
     });
   },
