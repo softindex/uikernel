@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
 import callbackify from '../../common/callbackify';
 import ArgumentsError from '../../common/ArgumentsError';
 import utils from '../../common/utils';

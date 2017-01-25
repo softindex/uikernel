@@ -284,7 +284,7 @@ const FormMixin = {
    * @param {*}                values   Event or data
    * @param {Function}         [cb]       CallBack
    */
-  updateField: function (fields, values, cb) {
+  updateField: function (fields, values) {
     if (this._isNotInitialized()) {
       return;
     }
@@ -298,7 +298,7 @@ const FormMixin = {
 
     this.set(utils.zipObject(fields, values));
     if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler, cb);
+      this.submit(this.state._formMixin.autoSubmitHandler);
     }
   },
 
@@ -427,6 +427,9 @@ const FormMixin = {
 
     await toPromise(this::this.setState, true)(this.state);
 
+    if (err) {
+      throw err;
+    }
     return data;
   }, true),
 
