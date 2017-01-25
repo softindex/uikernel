@@ -51,7 +51,7 @@ class ValidationErrors {
     if (!this._fields[field]) {
       this._fields[field] = [];
     }
-    if (!this._fields[field].includes(errorText)) {
+    if (this._fields[field].indexOf(errorText) === -1) {
       this._fields[field].push(errorText);
     }
     return this;

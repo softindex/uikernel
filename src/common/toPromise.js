@@ -31,7 +31,7 @@ const toPromise = function (func, hideWarning) {
       utils.warn('The return value is not a function');
     } else {
       if (!hideWarning) {
-        if (!functionsNames.includes(funcName)) {
+        if (functionsNames.indexOf(funcName) === -1) {
           utils.warn(`You are used callback in: '${funcName}'. Use promise instead`);
           functionsNames.push(funcName);
         }

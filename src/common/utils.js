@@ -21,7 +21,7 @@ function baseClone(obj, isDeep) {
     for (const el of obj) {
       cloned.push(isDeep ? baseClone(el, true) : el);
     }
-  } else if (es6types.includes(obj.toString())) {
+  } else if (es6types.indexOf(obj.toString()) !== -1) {
     cloned = new obj.constructor(obj);
   } else {
     cloned = {};
@@ -43,7 +43,7 @@ exports.isIntersection = function (a, b) {
     b = c;
   }
   for (const el of a) {
-    if (b.includes(el)) {
+    if (b.indexOf(el) !== -1) {
       return true;
     }
   }
@@ -300,7 +300,7 @@ exports.omit = function (obj, predicate) {
   for (const [field, value] of Object.entries(obj)) {
     if (
       (typeof predicate === 'string' && predicate !== field) ||
-      (Array.isArray(predicate) && !predicate.includes(field)) ||
+      (Array.isArray(predicate) && predicate.indexOf(field) === -1) ||
       (typeof predicate === 'function' && !predicate(value, field))
     ) {
       result[field] = value;
