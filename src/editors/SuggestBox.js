@@ -124,7 +124,7 @@ class SuggestBoxEditor extends React.Component {
       return this._setLabelTo('', true);
     }
 
-    model.getLabel(id)
+    toPromise(model.getLabel.bind(model))(id)
       .then((label) => {
         if (!this._isMounted) {
           return;
