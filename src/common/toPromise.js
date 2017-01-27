@@ -15,7 +15,7 @@ const toPromise = function (func, hideWarning) {
   return function (...mainArguments) {
     let promise;
     const callbackPromise = new Promise((resolve, reject) => {
-      mainArguments.push(function toPomiseCallback(err, data) {
+      mainArguments.push(function toPromiseCallback(err, data) {
         if (err) {
           return reject(err);
         }
@@ -28,7 +28,8 @@ const toPromise = function (func, hideWarning) {
       if (promise.then && promise.catch) {
         return promise;
       }
-      utils.warn('The return value is not a function');
+      utils.warn('The return value is not a Promise');
+      return callbackPromise;
     } else {
       if (!hideWarning) {
         if (!functionsNames.includes(funcName)) {

@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
 import callbackify from '../../common/callbackify';
 import ArgumentsError from '../../common/ArgumentsError';
 import utils from '../../common/utils';
@@ -103,5 +102,5 @@ export default callbackify(async(gridModel, columns, viewColumns, exporter, sett
 
   const data = formatData(result.records, result.totals, columns, viewColumns);
 
-  return await toPromise(exporter)(data);
+  return await exporter(data);
 });

@@ -514,7 +514,6 @@ const GridDataMixin = {
    * Load model data
    *
    * @param {Object}      settings    Request parameters
-   * @param {Function}    cb          CallBack function
    * @private
    */
   _loadData: async function (settings) {
