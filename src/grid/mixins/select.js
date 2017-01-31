@@ -34,7 +34,7 @@ const GridSelectMixin = {
    * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
   selectRecord: function (recordId, ignoreBlackList) {
-    const row = JSON.stringify(recordId);
+    const row = utils.toEncodedString(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.unselectRecord(recordId, true);
@@ -65,7 +65,7 @@ const GridSelectMixin = {
    * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
   unselectRecord: function (recordId, ignoreBlackList) {
-    const row = JSON.stringify(recordId);
+    const row = utils.toEncodedString(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.selectRecord(recordId, true);

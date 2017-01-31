@@ -441,7 +441,7 @@ const GridDataMixin = {
     let row;
 
     for (i = 0; i < arr.length; i++) {
-      row = JSON.stringify(arr[i][0]);
+      row = utils.toEncodedString(arr[i][0]);
       records[row] = arr[i][1];
       info[row] = {
         id: arr[i][0],
@@ -489,7 +489,7 @@ const GridDataMixin = {
 
   _isRecordLoaded: function (recordId) {
     // TODO Can be optimized
-    const row = JSON.stringify(recordId);
+    const row = utils.toEncodedString(recordId);
     return this.state.data.hasOwnProperty(row);
   },
 
@@ -501,7 +501,7 @@ const GridDataMixin = {
    * @private
    */
   _getRowID: function (recordId) {
-    const row = JSON.stringify(recordId);
+    const row = utils.toEncodedString(recordId);
 
     if (!this.state.data.hasOwnProperty(row)) {
       throw Error('Record with the ID is not contained in the table.');

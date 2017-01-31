@@ -24,6 +24,7 @@ const FormMixin = {
       this._handleModelChange = this._handleModelChange.bind(this);
       this._getData = this._getData.bind(this);
       this._getChanges = this._getChanges.bind(this);
+      this.validateForm = this.validateForm.bind(this);
     }
 
     return {

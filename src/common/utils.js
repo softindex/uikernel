@@ -437,3 +437,7 @@ exports.getStack = function () {
 exports.warn = function (message) {
   console.warn(message, '\n', exports.getStack());
 };
+
+exports.toEncodedString = function (value) {
+  return encodeURIComponent(JSON.stringify(value));
+};
