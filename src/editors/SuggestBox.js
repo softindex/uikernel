@@ -240,7 +240,10 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _selectOption(option) {
-    option = option || {};
+    option = option || {
+      id: null,
+      label: ''
+    };
     this.props.onChange(option.id, option);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option.label);
@@ -475,7 +478,7 @@ class SuggestBoxEditor extends React.Component {
               >
                 {
                   Array.isArray(option.label) ? option.label.map((label, columnKey) => <div
-                    key={columnKey}>{label}</div>) : <div>{option.label}</div>
+                      key={columnKey}>{label}</div>) : <div>{option.label}</div>
                 }
               </li>
             );
