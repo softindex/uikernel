@@ -121,7 +121,7 @@ const FormMixin = {
    * @return {boolean}
    */
   hasChanges: function (field) {
-    if (this._isNotInitialized()) {
+    if (field === null || this._isNotInitialized()) {
       return false;
     }
 
