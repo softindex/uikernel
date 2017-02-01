@@ -240,6 +240,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _selectOption(option) {
+    option = option || {};
     this.props.onChange(option.id, option);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option.label);
@@ -352,7 +353,11 @@ class SuggestBoxEditor extends React.Component {
       }
     } else {
       if (!$target.parents(`.${classes.searchBlock}`).length) {
-        this._setLabelTo(this.state.lastValidLabel);
+        if (!findDOMNode(this.refs.input).value) {
+          this._selectOption(null);
+        } else {
+          this._setLabelTo(this.state.lastValidLabel);
+        }
       }
       if (!this._isParentOf(e.target)) {
         this._closeList(true);
@@ -395,7 +400,7 @@ class SuggestBoxEditor extends React.Component {
         e.preventDefault();
       }
       if (this.state.selectedOptionKey === null) {
-        this._setLabelTo(this.state.lastValidLabel);
+        this._selectOption(null);
       } else {
         this._selectOption(this.state.options[this.state.selectedOptionKey]);
       }
@@ -403,7 +408,11 @@ class SuggestBoxEditor extends React.Component {
       break;
     case ESCAPE_KEY:
       e.preventDefault();
-      this._setLabelTo(this.state.lastValidLabel);
+      if (!e.target.value) {
+        this._selectOption(null);
+      } else {
+        this._setLabelTo(this.state.lastValidLabel);
+      }
       this._closeList();
       break;
     }
