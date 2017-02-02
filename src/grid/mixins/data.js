@@ -551,22 +551,16 @@ const GridDataMixin = {
     return additionalIds;
   },
 
-  _removeRecord: function (recordId, cb) {
-    this._removeTR(recordId);
-    this.unselectRecord(recordId, true);
-    delete this.state.data[recordId];
-    delete this.state.recordsInfo[recordId];
-    delete this.state.changes[recordId];
-    delete this.state.warnings[recordId];
-    delete this.state.errors[recordId];
-    delete this.state.editor[recordId];
-    this.setState({
-      data: this.state.data,
-      changes: this.state.changes,
-      warnings: this.state.warnings,
-      errors: this.state.errors,
-      editor: this.state.editor
-    }, cb ? cb.bind(this) : null);
+  _removeRecord: function (rowId, cb) {
+    this._removeTR(rowId);
+    // this.unselectRecord(recordId, true); // TODO Make unselectRecord by rowId method
+    delete this.state.data[rowId];
+    delete this.state.recordsInfo[rowId];
+    delete this.state.changes[rowId];
+    delete this.state.warnings[rowId];
+    delete this.state.errors[rowId];
+    delete this.state.editor[rowId];
+    this.setState(this.state, cb ? cb.bind(this) : null);
   },
 
   _checkWarnings: async function (row) {

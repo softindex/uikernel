@@ -281,23 +281,9 @@ and escape "${columnId}" field in render function by yourself`
     }, this);
   },
 
-  /**
-   * Get cell DOM element
-   *
-   * @param {number}  recordId   Record ID
-   * @param {number}  colId      Column ID
-   * @returns {HTMLElement} Cell DOM element
-   * @private
-   */
-  _getCellElement: function (recordId, colId) {
-    return findDOMNode(this.refs.body)
-      .find(`tr[key=${recordId}]`)
-      .find(`td[key=${colId}]`);
-  },
-
-  _removeTR: function (recordId) {
+  _removeTR: function (rowId) {
     $(findDOMNode(this.refs.body))
-      .find(`tr[key=${recordId}]`)
+      .find(`tr[key="${rowId}"]`)
       .remove();
   },
 
@@ -351,20 +337,20 @@ and escape "${columnId}" field in render function by yourself`
     );
   },
 
-  _updateField: function (row, column) {
+  _updateField: function (rowId, column) {
     $(findDOMNode(this.refs.body))
-      .find(`tr[key=${row}]`)
+      .find(`tr[key="${rowId}"]`)
       .find(`td[key=${column}]`)
-      .html(this._getCellHTML(column, this._getRecord(row)))
+      .html(this._getCellHTML(column, this._getRecord(rowId)))
       .removeClass('dgrid-changed dgrid-error dgrid-warning')
       .addClass(`${this._isChanged(
-        row,
+        rowId,
         this._getBindParam(column)) ? 'dgrid-changed' : ''}`)
       .addClass(`${this._hasError(
-        row,
+        rowId,
         this._getBindParam(column)) ? 'dgrid-error' : ''}`)
       .addClass(`${this._hasWarning(
-        row,
+        rowId,
         this._getBindParam(column)) ? 'dgrid-warning' : ''}`);
   },
 

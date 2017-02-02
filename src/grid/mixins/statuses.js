@@ -70,28 +70,28 @@ const GridStatusesMixin = {
    */
   removeRecordStatus: function (recordId, status) {
     const bit = this._getStatusBit(status);
-    const row = utils.toEncodedString(recordId);
+    const rowId = utils.toEncodedString(recordId);
 
     // Cancel method execution if record has no statuses
-    if (!this.state.statuses[row]) {
+    if (!this.state.statuses[rowId]) {
       return;
     }
 
     // Remove status if record has it
-    if (this.state.statuses[row].sum & bit) {
-      this.state.statuses[row].sum ^= bit;
-      if (!this.state.statuses[row].sum) {
+    if (this.state.statuses[rowId].sum & bit) {
+      this.state.statuses[rowId].sum ^= bit;
+      if (!this.state.statuses[rowId].sum) {
         // Remove table record if it's extra
-        if (!this._isMainRow(row)) {
-          this._removeRecord(row);
+        if (!this._isMainRow(rowId)) {
+          this._removeRecord(rowId);
         }
-        delete this.state.statuses[row];
+        delete this.state.statuses[rowId];
       }
     }
 
     // Remove element's class
     $(findDOMNode(this.refs.body))
-      .find(`tr[key=${row}]`)
+      .find(`tr[key="${rowId}"]`)
       .removeClass(status);
   },
 
