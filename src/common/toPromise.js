@@ -10,8 +10,18 @@ import utils from '../common/utils';
 
 const functionsNames = [];
 
-const toPromise = function (func, hideWarning) {
+function toPromise(func, hideWarning) {
   const funcName = func.name;
+
+  function warn(text) {
+    if (!hideWarning) {
+      if (!functionsNames.includes(funcName)) {
+        utils.warn(text);
+        functionsNames.push(funcName);
+      }
+    }
+  }
+
   return function (...mainArguments) {
     let promise;
     const callbackPromise = new Promise((resolve, reject) => {
@@ -28,18 +38,20 @@ const toPromise = function (func, hideWarning) {
       if (promise.then && promise.catch) {
         return promise;
       }
-      utils.warn('The return value is not a Promise');
+      warn(
+        `The return value is not a Promise in '${funcName}'.\n` +
+        `Arguments: ${JSON.stringify(mainArguments)}\n` +
+        `Returns: ${JSON.stringify(promise)}`
+      );
       return callbackPromise;
     } else {
-      if (!hideWarning) {
-        if (!functionsNames.includes(funcName)) {
-          utils.warn(`You are used callback in: '${funcName}'. Use promise instead.\n${JSON.stringify(mainArguments)}`);
-          functionsNames.push(funcName);
-        }
-      }
+      warn(
+        `You are used callback in: '${funcName}'. Use promise instead.\n` +
+        `Arguments: ${JSON.stringify(mainArguments)}`
+      );
       return callbackPromise;
     }
   };
-};
+}
 
 export default toPromise;
