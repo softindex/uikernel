@@ -16,7 +16,7 @@ export default function (func, hideWarning = false) {
     const lastArgumentIndex = args.length - 1;
     const cb = args[lastArgumentIndex];
 
-    if (typeof cb === 'function' && cb.name !== 'toPromiseCallback') {
+    if (typeof cb === 'function' && !cb.__ignoreUIKernelWarning) {
       if (!functionsNames.includes(funcName) && !hideWarning) {
         utils.warn(`You are used callback in: '${funcName}'. Use promise instead.\n${JSON.stringify(args)}`);
         functionsNames.push(funcName);

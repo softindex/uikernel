@@ -25,12 +25,14 @@ function toPromise(func, hideWarning) {
   return function (...mainArguments) {
     let promise;
     const callbackPromise = new Promise((resolve, reject) => {
-      mainArguments.push(function toPromiseCallback(err, data) {
+      function toPromiseCallback(err, data) {
         if (err) {
           return reject(err);
         }
         resolve(data);
-      });
+      }
+      toPromiseCallback.__ignoreUIKernelWarning = true;
+      mainArguments.push(toPromiseCallback);
       promise = func(...mainArguments);
     });
 
