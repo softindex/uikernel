@@ -80,7 +80,7 @@ function GridExpressApi() {
       toPromise(model.update.bind(model))(req.body)
         .then(data => {
           data = data.reduce((result, record) => {
-            if (record[1] instanceof ValidationErrors) {
+            if (record[1] instanceof ValidationErrors || record[1] instanceof Error) {
               result.errors.push(record);
             } else {
               result.changes.push(record);
