@@ -11,6 +11,7 @@ import toPromise from '../../toPromise';
 import defaultXhr from '../../defaultXhr';
 import ValidationErrors from '../ValidationErrors';
 import Validator from './common';
+import {JSONparse} from '../../utils';
 
 class ClientValidator extends Validator {
   /**
@@ -59,7 +60,7 @@ ClientValidator.prototype.isValidRecord = callbackify(async function(record) {
     throw err;
   }
 
-  return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
+  return ValidationErrors.createFromJSON(JSONparse(xhrResult));
 });
 
 export default ClientValidator;

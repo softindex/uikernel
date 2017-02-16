@@ -7,6 +7,7 @@
  */
 
 import toPromise from '../common/toPromise';
+import {JSONparse} from '../common/utils';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import express from 'express';
 
@@ -19,7 +20,7 @@ function FormExpressApi() {
 
   ctx.middlewares = {
     getData: [(req, res, next) => {
-      const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
+      const fields = req.query.fields ? JSONparse(req.query.fields) : null;
       const model = ctx._getModel(req, res);
       toPromise(model.getData.bind(model))(fields)
         .then(data => {

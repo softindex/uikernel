@@ -8,6 +8,7 @@
 
 import toPromise from '../../common/toPromise';
 import callbackify from '../../common/callbackify';
+import {JSONparse} from '../../common/utils';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import Validator from '../../common/validation/Validator/common';
 import defaultXhr from '../../common/defaultXhr';
@@ -53,7 +54,7 @@ GridXhrModel.prototype.create = callbackify(async function (record) {
     body: JSON.stringify(record)
   });
 
-  body = JSON.parse(body);
+  body = JSONparse(body);
 
   if (body.error) {
     throw ValidationErrors.createFromJSON(body.error);
@@ -100,7 +101,7 @@ GridXhrModel.prototype.read = callbackify(async function (settings) {
     uri: url.format(parsedUrl)
   });
 
-  return JSON.parse(response);
+  return JSONparse(response);
 });
 
 /**
@@ -121,7 +122,7 @@ GridXhrModel.prototype.getRecord = callbackify(async function (id, fields) {
     uri: url.format(parsedUrl)
   });
 
-  return JSON.parse(body);
+  return JSONparse(body);
 });
 
 /**
@@ -141,7 +142,7 @@ GridXhrModel.prototype.update = callbackify(async function (changes) {
     body: JSON.stringify(changes)
   });
 
-  body = JSON.parse(body);
+  body = JSONparse(body);
 
   if (body.changes.length) {
     this.trigger('update', body.changes);

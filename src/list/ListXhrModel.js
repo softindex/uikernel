@@ -8,6 +8,7 @@
 
 import callbackify from '../common/callbackify';
 import toPromise from '../common/toPromise';
+import {JSONparse} from '../common/utils';
 import defaultXhr from '../common/defaultXhr';
 import url from 'url';
 
@@ -49,7 +50,7 @@ ListXMLHttpRequestModel.prototype.read = callbackify(async function (search) {
     uri: url.format(parsedUrl)
   });
 
-  return JSON.parse(body);
+  return JSONparse(body);
 });
 
 /**
@@ -69,7 +70,7 @@ ListXMLHttpRequestModel.prototype.getLabel = callbackify(async function (id) {
     uri: url.format(parsedUrl)
   });
 
-  body = JSON.parse(body);
+  body = JSONparse(body);
 
   return body;
 });

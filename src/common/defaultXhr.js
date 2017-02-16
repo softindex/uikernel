@@ -8,6 +8,7 @@
 
 import variables from './variables';
 import xhr from 'xhr';
+import {JSONparse} from './utils';
 
 const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
   xhr(settings, (err, response, body) => {
@@ -19,7 +20,7 @@ const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
       }
       if (body) {
         try {
-          const parsedBody = JSON.parse(body);
+          const parsedBody = JSONparse(body, 'defaultXhr');
           err.message = parsedBody.message || body;
         } catch (e) {
           err.message = body;

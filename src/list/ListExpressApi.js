@@ -8,6 +8,7 @@
 
 import toPromise from '../common/toPromise';
 import express from 'express';
+import {JSONparse} from '../common/utils';
 
 /**
  * Form Express API for List model interaction
@@ -29,7 +30,7 @@ function ListExpressApi() {
       });
     }],
     getLabel: [(req, res, next) => {
-      const id = JSON.parse(req.params.id);
+      const id = JSONparse(req.params.id);
       builderContext._getLabel(id, req, builderContext._getModel(req, res), (err, response) => {
         builderContext._result(err, response, req, res, next);
       });

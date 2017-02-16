@@ -7,6 +7,7 @@
  */
 
 import toPromise from '../common/toPromise';
+import {JSONparse} from '../common/utils';
 import callbackify from '../common/callbackify';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import Validator from '../common/validation/Validator/common';
@@ -51,7 +52,7 @@ FormXhrModel.prototype.getData = callbackify(async function (fields) {
     uri: url.format(parsedUrl)
   });
 
-  return JSON.parse(response);
+  return JSONparse(response);
 });
 
 FormXhrModel.prototype.submit = callbackify(async function (changes) {
@@ -64,7 +65,7 @@ FormXhrModel.prototype.submit = callbackify(async function (changes) {
     body: JSON.stringify(changes)
   });
 
-  body = JSON.parse(body);
+  body = JSONparse(body);
 
   if (body.error) {
     throw ValidationErrors.createFromJSON(body.error);

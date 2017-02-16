@@ -441,3 +441,14 @@ exports.warn = function (message) {
 exports.toEncodedString = function (value) {
   return encodeURIComponent(JSON.stringify(value));
 };
+
+exports.JSONparse = function (value, errMessage = '') {
+  let result;
+  try {
+    result = JSON.parse(value);
+  } catch (err) {
+    err.message = `${errMessage} JSON parse error in ${JSON.stringify(value)}`;
+    throw err;
+  }
+  return result;
+};

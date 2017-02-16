@@ -9,6 +9,7 @@
 import express from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import toPromise from '../../common/toPromise';
+import {JSONparse} from '../../common/utils';
 
 /**
  * Form Express API for Grid model interaction
@@ -33,16 +34,16 @@ function GridExpressApi() {
         settings.offset = parseInt(req.query.offset);
       }
       if (req.query.sort) {
-        settings.sort = JSON.parse(req.query.sort);
+        settings.sort = JSONparse(req.query.sort);
       }
       if (req.query.fields) {
-        settings.fields = JSON.parse(req.query.fields);
+        settings.fields = JSONparse(req.query.fields);
       }
       if (req.query.extra) {
-        settings.extra = JSON.parse(req.query.extra);
+        settings.extra = JSONparse(req.query.extra);
       }
       if (req.query.filters) {
-        settings.filters = JSON.parse(req.query.filters);
+        settings.filters = JSONparse(req.query.filters);
       }
       const model = builderContext._getModel(req, res);
       toPromise(model.read.bind(model))(settings)
@@ -64,8 +65,8 @@ function GridExpressApi() {
         });
     }],
     getRecord: [(req, res, next) => {
-      const cols = req.query.cols ? JSON.parse(req.query.cols) : null;
-      const recordId = req.params.recordId ? JSON.parse(req.params.recordId) : null;
+      const cols = req.query.cols ? JSONparse(req.query.cols) : null;
+      const recordId = req.params.recordId ? JSONparse(req.params.recordId) : null;
       const model = builderContext._getModel(req, res);
       toPromise(model.getRecord.bind(model))(recordId, cols)
         .then(response => {
