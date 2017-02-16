@@ -6,14 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../common/utils';
-import {findDOMNode} from 'react-dom';
 import React from 'react';
+import DatePicker from 'react-datepicker';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 
 class DatePickerEditor extends React.Component {
   static propTypes = {
     format: PropTypes.string,
+    className: PropTypes.string,
     textFormat: PropTypes.string,
     min: PropTypes.any,
     max: PropTypes.any,
@@ -24,116 +25,34 @@ class DatePickerEditor extends React.Component {
   };
 
   static defaultProps = {
-    textFormat: 'yyyy-mm-dd'
+    textFormat: 'YYYY-MM-DD'
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      format: props.format ? this.getFormat(props.format) : null,
-      textFormat: this.getFormat(props.textFormat)
-    };
-    this.setDate = this::this.setDate;
-  }
-
   componentDidMount() {
-    const $element = $(findDOMNode(this.refs.input))
-      .datepicker({
-        minDate: this.props.min ? utils.toDate(this.props.min) : null,
-        maxDate: this.props.max ? utils.toDate(this.props.max) : null,
-        dateFormat: this.state.textFormat,
-        onSelect: this.setDate,
-        onClose: this.props.onBlur
-      });
-
-    // Remove jQueryUI DatePicker key commands
-    $.datepicker._doKeyDown = () => {
-    };
-
-    if (this.props.value) {
-      $element.val($.datepicker.formatDate(this.state.textFormat, utils.toDate(this.props.value)));
-    }
-
-    if (this.props.show) {
-      $element.datepicker('show');
-    }
+    this.refs.picker.setOpen(this.props.show);
   }
 
-  componentWillReceiveProps(props) {
-    const $datePicker = $(findDOMNode(this.refs.input));
-    if (props.min !== this.props.min) {
-      $datePicker.datepicker('option', 'minDate', props.min ? utils.toDate(props.min) : null);
-    }
-    if (props.max !== this.props.max) {
-      $datePicker.datepicker('option', 'maxDate', props.max ? utils.toDate(props.max) : null);
-    }
-    if (props.textFormat !== this.props.textFormat) {
-      this.state.textFormat = props.textFormat;
-      $datePicker.datepicker('option', 'dateFormat', this.getFormat(props.textFormat));
-    }
-    if (props.value !== this.props.value) {
-      let text = '';
-      if (props.value) {
-        text = $.datepicker.formatDate(this.state.textFormat, utils.toDate(props.value));
-      }
-      findDOMNode(this.refs.input).value = text;
-    }
+  componentDidUpdate() {
+    this.refs.picker.setOpen(this.props.show);
   }
 
-  /**
-   * Save date changes
-   */
-  setDate() {
-    const inputElement = findDOMNode(this.refs.input);
-    const value = inputElement.value;
-    let date;
-
-    // Try to parse input text
-    try {
-      date = $.datepicker.parseDate(this.state.textFormat, value);
-    } catch (e) {
-      this.props.onChange(null);
-      inputElement.value = value;
-      return;
-    }
-
-    // Make an inverse convert for parse check
-    // (removes partial dates parse bug)
-    if ($.datepicker.formatDate(this.state.textFormat, date) !== value) {
-      return this.props.onChange(null);
-    }
-
-    if (this.state.format) {
-      this.props.onChange(
-        $.datepicker.formatDate(this.state.format, date)
-      );
-    } else {
-      this.props.onChange(date);
-    }
-  }
-
-  focus() {
-    findDOMNode(this.refs.input).focus();
-  }
-
-  /**
-   * Change usual date format to jQuery UI one
-   *
-   * @param   {string}    format      DateFormat
-   * @returns {string}    jQuery  UI DateFormat
-   */
-  getFormat(format) {
-    return format.replace('yyyy', 'yy');
+  onChange(date) {
+    this.props.onChange(date.format(this.props.format));
   }
 
   render() {
     return (
-      <input
-        {...utils.omit(this.props, ['value', 'onBlur', 'textFormat', 'show'])}
-        ref="input"
-        type="text"
-        onChange={this.setDate}
-      />
+    <DatePicker
+      ref="picker"
+      className={this.props.className}
+      dateFormat={this.props.textFormat}
+      selected={this.props.value && moment(this.props.value)}
+      onChange={::this.onChange}
+      onBlur={this.props.onBlur}
+      minDate={this.props.min && moment(this.props.min)}
+      maxDate={this.props.max && moment(this.props.max)}
+      todayButton={'Today'}
+    />
     );
   }
 }
