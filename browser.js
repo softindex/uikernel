@@ -6,7 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-require('babel-polyfill');
+if (!global._babelPolyfill) {
+  require('babel-polyfill');
+}
+
 require('./lib/common/setImmediate');
 const variables = require('./lib/common/variables');
 
