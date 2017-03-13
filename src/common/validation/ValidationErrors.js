@@ -134,6 +134,11 @@ class ValidationErrors {
   clone() {
     return ValidationErrors.createFromJSON(this.toJSON());
   }
+
+  getErrors() {
+    return Object.entries(this._fields);
+  }
+
 }
 
 export default ValidationErrors;
