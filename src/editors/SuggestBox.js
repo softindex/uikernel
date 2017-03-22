@@ -160,7 +160,7 @@ class SuggestBoxEditor extends React.Component {
     return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '');
   }
 
-  _openList(searchPattern, cb) {
+  async _openList(searchPattern, selectFirstOption = false) {
     if (this.props.disabled || this.state.isOpened) {
       return;
     }
@@ -199,17 +199,27 @@ class SuggestBoxEditor extends React.Component {
           left: offsetLeft
         });
 
-      this._updateList(searchPattern, () => {
-        const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
-          return utils.isEqual(option.id, this.props.value);
+      this._updateList(searchPattern)
+        .then(() => {
+          if (!this.state.options.length) {
+            return;
+          }
+
+          let selectedOptionKey;
+
+          if (!selectFirstOption) {
+            selectedOptionKey = utils.findIndex(this.state.options, (option) => {
+              return utils.isEqual(option.id, this.props.value);
+            });
+          } else {
+            selectedOptionKey = this.state.options[0].type !== 'group' ? 0 : 1;
+            this._selectOption(this.state.options[selectedOptionKey]);
+          }
+
+          if (selectedOptionKey !== -1) {
+            this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
+          }
         });
-        if (selectedOptionKey) {
-          this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
-        }
-        if (typeof cb === 'function') {
-          cb();
-        }
-      });
     });
   }
 
@@ -246,7 +256,8 @@ class SuggestBoxEditor extends React.Component {
   _selectOption(option) {
     option = option || {
       id: null,
-      label: ''
+      label: '',
+      metadata: {}
     };
     this.props.onChange(option.id, option);
     if (this.props.onLabelChange) {
@@ -265,9 +276,7 @@ class SuggestBoxEditor extends React.Component {
     if (this.state.isOpened) {
       this._focusOptionAndScrollIntoView(key);
     } else {
-      this._openList(null, function () {
-        this._focusOptionAndScrollIntoView(key);
-      });
+      this._openList(null).then(() => this._focusOptionAndScrollIntoView(key));
     }
   }
 
@@ -280,6 +289,10 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _focusNextOption() {
+    if (!this.state.options.length) {
+      return;
+    }
+
     if (this.state.selectedOptionKey === null) {
       this.state.selectedOptionKey = 0;
       return this._focusOption(this.state.selectedOptionKey);
@@ -390,7 +403,7 @@ class SuggestBoxEditor extends React.Component {
     case ARROW_DOWN_KEY:
       e.preventDefault();
       if (!this.state.isOpened) {
-        return this._openList();
+        return this._openList('', true);
       }
       this._focusNextOption();
       break;
@@ -401,11 +414,9 @@ class SuggestBoxEditor extends React.Component {
       }
       this._focusPrevOption();
       break;
-    case TAB_KEY:
     case ENTER_KEY:
-      if (e.keyCode === ENTER_KEY) {
-        e.preventDefault();
-      }
+      e.preventDefault();
+
       if (this.state.selectedOptionKey === null) {
         this._selectOption(null);
       } else {
@@ -413,8 +424,11 @@ class SuggestBoxEditor extends React.Component {
       }
       this._closeList();
       break;
+    case TAB_KEY:
     case ESCAPE_KEY:
-      e.preventDefault();
+      if (e.keyCode === ESCAPE_KEY) {
+        e.preventDefault();
+      }
       if (!e.target.value) {
         this._selectOption(null);
       } else {
