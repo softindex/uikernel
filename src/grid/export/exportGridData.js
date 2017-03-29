@@ -23,14 +23,12 @@ function formatColumns(columns, viewColumns) {
   return formattedColumns;
 }
 
-function formatRecord(record, columns) {
-  let columnId;
-  let column;
-  const formattedRecord = utils.clone(record);
+function formatRecord(record, columns, viewColumns) {
+  const formattedRecord = {};
 
-  for (columnId in columns) {
-    column = columns[columnId];
-    formattedRecord[columnId] = column.render[column.render.length - 1](record);
+  for (const viewColumn of viewColumns) {
+    const column = columns[viewColumn];
+    formattedRecord[viewColumn] = column.render[column.render.length - 1](record);
   }
 
   return formattedRecord;
@@ -39,10 +37,10 @@ function formatRecord(record, columns) {
 function formatData(records, totals, columns, viewColumns) {
   const formatted = {
     columns: formatColumns(columns, viewColumns),
-    records: records.map(record => utils.pick(formatRecord(record[1], columns), viewColumns))
+    records: records.map(record => formatRecord(record[1], columns, viewColumns))
   };
   if (totals) {
-    formatted.totals = utils.pick(formatRecord(totals, columns), viewColumns, '');
+    formatted.totals = formatRecord(totals, columns, viewColumns);
   }
   return formatted;
 }
