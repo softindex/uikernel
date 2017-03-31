@@ -34,7 +34,7 @@ Add synchronous field validation.
 Validator fields(string[] fields, function validatorFunction(Object record, ValidationErrors errors))
 {% endhighlight %}
 
-Specify multiple synchronous validators for a group of fields. If any errors occur, the callback returns an error.
+Specify multiple synchronous validators for a group of fields. If any errors occur, the callback add error to errors object.
 
 ---
 
@@ -65,7 +65,7 @@ Validator asyncFields(string[] fields, function validator)
 {% endhighlight %}
 
 Add an asynchronous validator to fields. The callback has three parameters: a record object, the `ValidationErrors` object,
-and a callback. If any errors occur during the asynchronous function execution, the callback will return the `Error` object.
+and a callback. If any errors occur during the asynchronous function execution, the callback will add error to errors object.
 
 ---
 
