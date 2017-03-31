@@ -6,42 +6,43 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var Form = React.createClass({
-
-  getInitialState: function () {
-    this.form = new UIKernel.Services.Form();
-
-    return {
+class Form extends React.Component {
+  constructor(props) {
+    super(props);
+    this.form = new UIKernel.Form();
+    this.state = {
       form: this.form.getAll()
     };
-  },
+    this.onFormChange = this.onFormChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     this.form.init({
       model: this.props.model, // Get FormModel from props
       fields: ['name', 'country', 'countryName'],
       changes: this.props.changes
     });
     this.form.addChangeListener(this.onFormChange);
-  },
+  }
 
   componentWillUnmount() {
     this.form.removeChangeListener(this.onFormChange);
-  },
+  }
 
   onFormChange(newFormState) {
     this.setState({form: newFormState});
-  },
+  }
 
-  save: function (e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.form.submit()
-    .then(() => {
-      this.props.onSubmit();
-    });
-  },
+      .then(() => {
+        this.props.onSubmit();
+      });
+  }
 
-  render: function () {
+  render() {
     if (!this.state.form.isLoaded) {
       return <span>Loading...</span>;
     }
@@ -60,7 +61,7 @@ var Form = React.createClass({
             <form>
               <table className="table my-form">
                 <tr
-                  className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.errors.country ? ' error' : '')}
+                  className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.errors.hasError('country') ? ' error' : '')}
                 >
                   <td>Country:</td>
                   <td>
@@ -77,13 +78,12 @@ var Form = React.createClass({
             </form>
           </div>
           <div className="modal-footer">
-            <button type="submit" className="btn btn-primary" onClick={this.save}>Save</button>
+            <button type="submit" className="btn btn-primary" onClick={this.handleSubmit}>Save</button>
             <button type="button" className="btn btn-white" onClick={this.form.clearChanges}>Discard</button>
             <button type="button" className="btn btn-white" data-dismiss="modal">Cancel</button>
-
           </div>
         </div>
       </div>
     );
   }
-});
+}

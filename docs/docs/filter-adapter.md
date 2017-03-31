@@ -13,6 +13,6 @@ Use applyFilters to make the model work with a default set of filters.
 AbstractGridModel applyFilters(AbstractGridModel model, Object filters)
 {% endhighlight %}
 
-Set default filters to the GridModel.
+Set default filters for a grid model.
 
 Check out [Usage Example](applying-filters.html).

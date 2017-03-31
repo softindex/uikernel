@@ -7,7 +7,6 @@
  */
 
 var RecordForm = React.createClass({
-
   getInitialState: function () {
     this.form = new UIKernel.Form();
 
@@ -74,7 +73,7 @@ var RecordForm = React.createClass({
                 </div>
               </div>
               <div className={"form-group" + (this.state.form.changes.name ? ' bg-warning' : '') +
-              (this.state.form.errors.name ? ' bg-danger' : '')}>
+              (this.state.form.errors.hasError('name') ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">First Name</label>
                 <div className="col-sm-9">
                   <input
@@ -88,7 +87,7 @@ var RecordForm = React.createClass({
                 </div>
               </div>
               <div className={"form-group" + (this.state.form.changes.surname ? ' bg-warning' : '') +
-              (this.state.form.errors.surname ? ' bg-danger' : '')}>
+              (this.state.form.errors.hasError('surname') ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Last Name</label>
                 <div className="col-sm-9">
                   <input
@@ -102,7 +101,7 @@ var RecordForm = React.createClass({
                 </div>
               </div>
               <div className={"form-group" + (this.state.form.changes.phone ? ' bg-warning' : '') +
-              (this.state.form.errors.phone ? ' bg-danger' : '')}>
+              (this.state.form.errors.hasError('phone') ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Phone</label>
                 <div className="col-sm-9">
                   <input
@@ -116,7 +115,7 @@ var RecordForm = React.createClass({
                 </div>
               </div>
               <div className={"form-group" + (this.state.form.changes.age ? ' bg-warning' : '') +
-              (this.state.form.errors.age ? ' bg-danger' : '')}>
+              (this.state.form.errors.hasError('age') ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Age</label>
                 <div className="col-sm-9">
                   <input
@@ -130,7 +129,7 @@ var RecordForm = React.createClass({
                 </div>
               </div>
               <div className={"form-group" + (this.state.form.changes.gender ? ' bg-warning' : '') +
-              (this.state.form.errors.email ? ' bg-danger' : '')}>
+              (this.state.form.errors.hasError('email') ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Gender</label>
                 <div className="col-sm-9">
                   <UIKernel.Editors.Select

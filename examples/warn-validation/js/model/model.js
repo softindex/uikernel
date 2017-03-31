@@ -34,7 +34,7 @@ var model = (function ( ) {
   return new UIKernel.Models.Grid.Collection({
     data: data,
     filtersHandler: function (data, filters) {
-      return data.filter(function (record) {
+      return data.filter((record) => {
         var data = record[1];
 
         if (filters.search) {

@@ -6,18 +6,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var FiltersForm = React.createClass({
+class FiltersForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.defaultFilters = {
+      search: '',
+      age: null,
+      gender: 0
+    };
+    this.state = {
+      filters: {...this.defaultFilters}
+    };
+    this.clearFilters = this.clearFilters.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
+  }
 
-  updateValue: function (field, value) {
-    if (value.target) {
-      value = value.target.value
-    }
+  clearFilters() {
+    this.setState({filters: {...this.defaultFilters}});
+    this.props.onSubmit(this.defaultFilters);
+  }
 
-    this.props.onSubmit({
-      ...this.props.state,
-      [field]: value
-    });
-  },
+  updateFilter(filter, value) {
+    const filters = {...this.state.filters};
+    filters[filter] = value.target ? value.target.value : value;
+
+    this.setState({filters}, () => this.props.onSubmit(filters));
+  }
 
   render() {
     return (
@@ -28,8 +42,8 @@ var FiltersForm = React.createClass({
             <input
               type="text" // text editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'search')}
-              value={this.props.state.search}
+              onChange={this.updateFilter.bind(null, 'search')}
+              value={this.state.filters.search}
             />
           </div>
         </div>
@@ -39,8 +53,8 @@ var FiltersForm = React.createClass({
             <input
               type="number" // number editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'age')}
-              value={this.props.state.age}
+              onChange={this.updateFilter.bind(null, 'age')}
+              value={this.state.filters.age}
             />
           </div>
         </div>
@@ -49,19 +63,19 @@ var FiltersForm = React.createClass({
           <div className="col-sm-9">
             <UIKernel.Editors.Select // select editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'gender')}
+              onChange={this.updateFilter.bind(null, 'gender')}
               options={[
                 [0, ''],
                 [1, 'Male'],
                 [2, 'Female']
               ]}
-              value={this.props.state.gender}
+              value={this.state.filters.gender}
             />
           </div>
         </div>
         <div className="form-group">
           <div className="col-sm-offset-3 col-sm-9">
-            <a className="btn btn-success" onClick={this.props.clearFilters}>
+            <a className="btn btn-success" onClick={this.clearFilters}>
               Clear
             </a>
           </div>
@@ -69,4 +83,4 @@ var FiltersForm = React.createClass({
       </form>
     );
   }
-});
+}

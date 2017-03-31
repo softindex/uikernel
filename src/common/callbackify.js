@@ -18,7 +18,7 @@ export default function (func, hideWarning = false) {
 
     if (typeof cb === 'function' && !cb.__ignoreUIKernelWarning) {
       if (!functionsNames.includes(funcName) && !hideWarning) {
-        utils.warn(`You are used callback in: '${funcName}'. Use promise instead.\n${JSON.stringify(args)}`);
+        utils.warn(`You are using callback in: '${funcName}'. Use promise instead.\n${JSON.stringify(args)}`);
         functionsNames.push(funcName);
       }
 

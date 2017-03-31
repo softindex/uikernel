@@ -6,60 +6,64 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var FiltersForm = (function () {
-  var defaultFilters = {
-    search: '',
-    age: null,
-    gender: 0
-  };
+class FiltersForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.defaultFilters = {
+      search: '',
+      age: null,
+      gender: 0
+    };
+    this.state = {
+      filters: {...this.defaultFilters}
+    };
+    this.clearFilters = this.clearFilters.bind(this);
+    this.updateFilter = this.updateFilter.bind(this);
+  }
 
-  return React.createClass({
-    getInitialState: function () {
-      return {
-        filters: _.clone(defaultFilters)
-      }
-    },
+  clearFilters() {
+    this.setState({filters: {...this.defaultFilters}});
+    this.props.onSubmit(this.defaultFilters);
+  }
 
-    onClear: function () {
-      this.setState({filters: _.clone(defaultFilters)});
-      this.props.onSubmit(defaultFilters);
-    },
+  updateFilter(filter, value) {
+    const filters = {...this.state.filters};
+    filters[filter] = value.target ? value.target.value : value;
 
-    updateValue: function (field, value) {
-      if (value.target) {
-        value = value.target.value
-      }
+    this.setState({filters}, () => this.props.onSubmit(filters));
+  }
 
-      this.state.filters[field] = value;
-      this.props.onSubmit(this.state.filters);
-    },
-
-    render() {
-      return (
-        <form className="filters-form row">
-          <div className="col-sm-7">
-            <label className="control-label">Search</label>
+  render() {
+    return (
+      <form className="filters-form form-horizontal">
+        <div className="form-group">
+          <label className="col-sm-3 control-label">Search</label>
+          <div className="col-sm-9">
             <input
               type="text" // text editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'search')}
+              onChange={this.updateFilter.bind(null, 'search')}
               value={this.state.filters.search}
             />
           </div>
-          <div className="col-sm-2">
-            <label className="control-label">Age</label>
+        </div>
+        <div className="form-group">
+          <label className="col-sm-3 control-label">Age</label>
+          <div className="col-sm-9">
             <input
               type="number" // number editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'age')}
+              onChange={this.updateFilter.bind(null, 'age')}
               value={this.state.filters.age}
             />
           </div>
-          <div className="col-sm-2">
-            <label className="control-label">Gender</label>
+        </div>
+        <div className="form-group">
+          <label className="col-sm-3 control-label">Gender</label>
+          <div className="col-sm-9">
             <UIKernel.Editors.Select // select editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'gender')}
+              onChange={this.updateFilter.bind(null, 'gender')}
               options={[
                 [0, ''],
                 [1, 'Male'],
@@ -68,14 +72,15 @@ var FiltersForm = (function () {
               value={this.state.filters.gender}
             />
           </div>
-          <div className="col-sm-1">
-            <label className="control-label">&nbsp;</label>
-            <a className="btn btn-success show" onClick={this.onClear}>
+        </div>
+        <div className="form-group">
+          <div className="col-sm-offset-3 col-sm-9">
+            <a className="btn btn-success" onClick={this.clearFilters}>
               Clear
             </a>
           </div>
-        </form>
-      );
-    }
-  });
-})();
+        </div>
+      </form>
+    );
+  }
+}

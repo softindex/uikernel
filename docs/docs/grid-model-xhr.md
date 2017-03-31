@@ -5,7 +5,7 @@ prev: grid-interface.html
 next: grid-model-collection.html
 ---
 
-Grid Model Xhr is a model that interacts with the server API.
+Grid Xhr Model is a model that interacts with the server API.
 
 *Grid Xhr Model extends [AbstractGridModel](/docs/grid-interface.html){:target="_blank"}*
 

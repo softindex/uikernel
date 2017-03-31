@@ -10,25 +10,26 @@ next: form-interface.html
 ## Constructor
 
 {% highlight javascript %}
-getInitialState: function () {
-    this.form = new UIKernel.Services.Form();
-  }
+constructor(props) {
+  super(props);
+  this.form = new UIKernel.Services.Form();
+}
 {% endhighlight %}
 
 ### initForm
 
 {% highlight javascript %}
 componentDidMount() {
-    this.form.initForm(object settings);
-    this.form.addChangeListener(function handler); //subscribe on form change
-  },
+  this.form.initForm(object settings);
+  this.form.addChangeListener(function handler); //subscribe on form change
+},
 
-  componentWillUnmount() {
-      this.form.removeChangeListener(function handler); //unsubscribe
-  },
+componentWillUnmount() {
+  this.form.removeChangeListener(function handler); //unsubscribe
+},
 {% endhighlight %}
 
-Initialize form
+Initialize a form
 
 **Settings object**
 
@@ -75,8 +76,7 @@ updateField(string fields, * values)
 updateField(string[] fields, * values)
 {% endhighlight %}
 
-Update form value. Is used as the Editors onSubmit handler.
-Values param gets event or data.
+Update form field. This method accepts either an event or data as a parameter.
 
 ----
 
@@ -87,7 +87,7 @@ validateField(string fields, * values)
 validateField(string[] fields, * values)
 {% endhighlight %}
 
-Update form value and validate form
+Update field value and validate form
 
 ----
 

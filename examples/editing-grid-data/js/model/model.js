@@ -6,20 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var model = (function ( ) {
-
-  var _names = ["Pace", "Evangeline", "Roach", "Thornton", "Concepcion", "Francine", "Kelsey", "Deanna", "Bates", "Acosta", "Stacey", "Adams", "Rodriguez", "Nona", "Humphrey", "Mitchell", "Murray", "Sonya", "Addie", "Angelica"];
-  var _surnames = ["White", "Terrell", "Potts", "English", "Sanders", "Poole", "Bates", "Snow", "Simon", "Kaufman", "Kelly", "Maxwell", "Weaver", "Frost", "Carter", "Dunn", "Schneider", "Steele", "Thornton", "Conway"];
-  var _genders = [1, 2];
+const model = (function () {
+  const _names = ["Pace", "Evangeline", "Roach", "Thornton", "Concepcion", "Francine", "Kelsey", "Deanna", "Bates", "Acosta", "Stacey", "Adams", "Rodriguez", "Nona", "Humphrey", "Mitchell", "Murray", "Sonya", "Addie", "Angelica"];
+  const _surnames = ["White", "Terrell", "Potts", "English", "Sanders", "Poole", "Bates", "Snow", "Simon", "Kaufman", "Kelly", "Maxwell", "Weaver", "Frost", "Carter", "Dunn", "Schneider", "Steele", "Thornton", "Conway"];
+  const _genders = [1, 2];
 
   function _getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
   }
 
-  var data = [];
+  const data = [];
 
   for (var i = 0; i < 200; i++) {
-    var phone = _getRandomNumber(0, 99);
+    let phone = _getRandomNumber(0, 99);
 
     data.push([i + 1, {
       "id": i + 1,
@@ -34,11 +33,11 @@ var model = (function ( ) {
   return new UIKernel.Models.Grid.Collection({
     data: data,
     filtersHandler: function (data, filters) {
-      return data.filter(function (record) {
-        var data = record[1];
+      return data.filter((record) => {
+        const data = record[1];
 
         if (filters.search) {
-          var found = (
+          const found = (
             data.name.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
             data.surname.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
             data.phone.indexOf(filters.search) >= 0
@@ -60,7 +59,7 @@ var model = (function ( ) {
         return true;
       });
     },
-    validation: Validation
+    validator
   });
 
 })();

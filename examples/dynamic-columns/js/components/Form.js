@@ -6,13 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var FormCheckbox = React.createClass({
-  onChangeHandler: function () {
+class FormCheckbox extends React.Component {
+  onChangeHandler() {
     this.props.onChange(!this.props.value); // Change state of our value
-  },
+  }
 
-  render: function () {
-    var id = 'col-' + this.props.id;
+  render() {
+    const id = 'col-' + this.props.id;
+
     return (
       <div className="row">
         <div className="col-lg-3">
@@ -20,7 +21,7 @@ var FormCheckbox = React.createClass({
             id={id}
             type="checkbox"
             checked={this.props.value}
-            onChange={this.onChangeHandler}
+            onChange={this.onChangeHandler.bind(this)}
           />
         </div>
         <div className="col-lg-9">
@@ -29,26 +30,28 @@ var FormCheckbox = React.createClass({
       </div>
     );
   }
-});
+}
 
-var Form = React.createClass({
-  getInitialState: function () {
-    return {
-      model: this.model,
-      cols: _.clone(this.props.cols) // Take a copy of all columns
+class Form extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      cols: _.clone(this.props.cols) // Copy all columns
     };
-  },
+    this.applyChanges = this.applyChanges.bind(this);
+    this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
+  }
 
-  applyChanges: function () {
+  applyChanges() {
     this.props.onChange(_.clone(this.state.cols));
-  },
+  }
 
-  onChangeCheckbox: function (key, value) { // Change out checkbox by key
-    this.state.cols[key] = value;
+  onChangeCheckbox(key, value) {
+    this.state.cols[key] = value; // Change checkbox value
     this.forceUpdate(); // and update it
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div className="modal-dialog">
         <div className="modal-content animated fadeIn">
@@ -81,4 +84,4 @@ var Form = React.createClass({
       </div>
     );
   }
-});
+}

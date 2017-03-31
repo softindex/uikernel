@@ -6,24 +6,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state =  {
       model: model
     };
-  },
-  save: function () {
+    this.saveChanges = this.saveChanges.bind(this);
+    this.clearChanges = this.clearChanges.bind(this);
+  }
+
+  saveChanges() {
     this.refs.grid.save()
       .catch(() => {
         alert('Error');
       });
-  },
+  }
 
-  clear: function () {
+  clearChanges() {
     this.refs.grid.clearAllChanges();
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div>
         <UIKernel.Grid
@@ -32,10 +37,10 @@ var MainComponent = React.createClass({
           model={this.state.model}
           viewCount={10}
         />
-        <a className="btn btn-success" onClick={this.save}>Save</a>
+        <a className="btn btn-success" onClick={this.saveChanges}>Save</a>
         {' '}
-        <a className="btn btn-success" onClick={this.clear}>Clear</a>
+        <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
       </div>
     );
   }
-});
+}

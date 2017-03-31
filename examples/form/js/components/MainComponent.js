@@ -6,18 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       form: {}
     };
-  },
+    this.updateFormState =this.updateFormState.bind(this);
+  }
 
-  onFormStateHandler: function (newFormState) {
+  updateFormState(newFormState) {
     this.setState({form: newFormState});
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div className="container">
         <div className="row">
@@ -35,7 +37,7 @@ var MainComponent = React.createClass({
                 />
                 <Form
                   state={this.state.form}
-                  stateHandler={this.onFormStateHandler}
+                  onChange={this.updateFormState}
                 />
               </div>
             </div>
@@ -44,4 +46,4 @@ var MainComponent = React.createClass({
       </div>
     );
   }
-});
+}

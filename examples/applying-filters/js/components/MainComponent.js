@@ -6,20 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
-      model: model // let's store model in the state
-    };
-  },
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {model};
+    this.applyFilters = this.applyFilters.bind(this);
+  }
 
-  onChangeFiltersHandler: function (filters) {
+  applyFilters(filters) {
     this.setState({
       model: UIKernel.applyGridFilters(model, filters)
     });
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div>
         <div className="panel panel-primary">
@@ -27,22 +27,20 @@ var MainComponent = React.createClass({
             <h3 className="panel-title">Filters</h3>
           </div>
           <div className="panel-body">
-            <FiltersForm
-              onSubmit={this.onChangeFiltersHandler}
-            />
+            <FiltersForm onSubmit={this.applyFilters}/>
           </div>
         </div>
         <div className="panel panel-info">
           <div className="panel-heading">
             <h3 className="panel-title">Records</h3>
           </div>
-            <UIKernel.Grid
-              model={this.state.model} // Grid model
-              cols={columns} // columns configuration
-              viewCount={10} // 10 records limit to display by default
-            />
+          <UIKernel.Grid
+            model={this.state.model} // Grid model
+            cols={columns} // columns configuration
+            viewCount={10} // display 10 records per page
+          />
         </div>
       </div>
     );
   }
-});
+}

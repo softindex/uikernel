@@ -1,25 +1,40 @@
 ---
-title: Настройка роутов
+title: Routes definition
 id: server-routes
 prev: server-side.html
 next: server-validation.html
 ---
 
-В нашем приложении будет только один модуль `userGrid`, он отвечает за работу с данными которые будут передаватся в клиентскую модель.
-Опишем роуты этого модуля, UIKernel предоставляет возможность генерировать роуты(если вы используете Express), что мы и сделаем.
+First, let's define tha main router of our app.
+
+`router.js`:
+{% highlight javascript %}
+var express = require('express');
+var userGridRouter = require('./modules/userGrid/router');
+
+// get an instance of the express Router
+var router = new express.Router();
+// use router from userGrid module to handle all requests that end in '/userGrid'
+router.use('/userGrid', userGridRouter);
+
+module.exports = router;
+{% endhighlight %}
+
+
+Next, we'll define routes for the module named `userGrid`. It will be responsible for work with data passed to the client model.
+UIKernel allows to generate routes if you use Express. So we're going to generate routes for this module.    
 
 `userGrid/router.js`:
 {% highlight javascript %}
-//Подключаем UIKernel и серверную модель
 var UIKernel = require('uikernel');
-var model = require('./model');
+var model = require('./model'); // we'll define the model in the next step of our tutorial
 
-//Сгенерируем роуты.
+//generate routes
 var router = UIKernel.gridExpressApi()
     .model(model)
-    .getRouter(); //"getRouter" возвращает express.Router объект
+    .getRouter(); //"getRouter" returns express.Router object
 
-//UIKernel не генерирует delete метод, нам прийдётся реализовать его
+// UIKernel doesn't generate the delete method, so we'll define it
 router.delete('/:recordId', function (req, res, next) {
     model.delete(req.params.recordId)
     .then(function () {
@@ -30,10 +45,12 @@ router.delete('/:recordId', function (req, res, next) {
     })
 });
 
-module.exports = router; //Роутер модуля передаётся в главный роутер приложения
+module.exports = router; // this router is passed to the main router of our app
 {% endhighlight %}
 
-Обратите внимание на объект который передаётся в `.model()`
+Pay attention to the argument passed to `model()`. 
+It must be an object with the methods described [here](/docs/grid-interface.html)
+
 {% highlight javascript %}
 var router = UIKernel.gridExpressApi()
     .model(model)// <--
@@ -41,9 +58,7 @@ var router = UIKernel.gridExpressApi()
 });
 {% endhighlight %}
 
-Этот обьект должен реализовывать методы описанные в [Grid Model](/docs/grid-interface.html)<br>
-Подробнее об `gridExpressApi` можно почитать [здесь](/docs/grid-express-api.html)
+The usage of `gridExpressApi` is optional.
+You can define a router by yourself, but it must be able to handle the following [requests](/docs/grid-express-api.html).
 
-Использование `gridExpressApi` не является обязательным.
-Вы можете реализовать роутинг любым удобным способом, главное что бы он обрабатывал необходимые для клиентской модели [роуты](/docs/grid-express-api.html) .
-
+Read more about `gridExpressApi` [here](/docs/grid-express-api.html)

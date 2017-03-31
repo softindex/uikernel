@@ -48,7 +48,7 @@ function toPromise(func, hideWarning) {
       return callbackPromise;
     } else {
       warn(
-        `You are used callback in: '${funcName}'. Use promise instead.\n` +
+        `You are using callback in: '${funcName}'. Use promise instead.\n` +
         `Arguments: ${JSON.stringify(mainArguments)}`
       );
       return callbackPromise;

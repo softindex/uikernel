@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var model = new UIKernel.Models.Grid.Collection({
-  data: data,
+const model = new UIKernel.Models.Grid.Collection({
+  data,
   filtersHandler: function (data, filters) {
-    return data.filter(function (record) {
-      var data = record[1];
+    return data.filter((record) => {
+      const data = record[1];
 
       if (filters.search) {
-        var found = (
+        const found = (
           data.name.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
           data.surname.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
           data.phone.indexOf(filters.search) >= 0

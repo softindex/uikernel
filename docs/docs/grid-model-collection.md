@@ -21,7 +21,7 @@ UIKernel.Models.Grid.Collection(Object settings)
 |-----------------------------------|--------------------------------|--------------------------------------|
 | Array[]                           | **data**                       | Data array                           |
 | Object                            | filtersHandler                 | Filtration                           |
-| [Validator](/docs/validator.html) | validation                     | Validation                           |
+| [Validator](/docs/validator.html) | validator                      | Validation                           |
 | string[]                          | requiredFields                 | Required fields                      |
 | boolean                           | validateOnCreate               | Validate grid on adding a new record |
 

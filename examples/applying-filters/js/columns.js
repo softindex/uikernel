@@ -6,43 +6,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   name: {
     name: 'First Name', // columns title
     sortCycle: ['asc', 'desc', 'default'], // sort cycle
-    render: ['name', function (record) { // method to render a cell
-      return _.escape(record.name);
-    }]
+    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
   },
   surname: {
     name: 'Last Name',
     sortCycle: ['asc', 'desc', 'default'],
-    render: ['surname', function (record) {
-      return _.escape(record.surname);
-    }]
+    render: ['surname', record => _.escape(record.surname)]
   },
   phone: {
     name: 'Phone',
     sortCycle: ['asc', 'desc', 'default'],
-    render: ['phone', function (record) {
-      return _.escape(record.phone);
-    }]
+    render: ['phone', record => _.escape(record.phone)]
   },
   age: {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   },
   gender: {
     name: 'Gender',
     sortCycle: ['asc', 'desc', 'default'],
-    render: ['gender', function (record) {
+    render: ['gender', (record) => {
       switch (record.gender) {
-        case 1: return 'Male';
-        case 2: return 'Female';
-        default: return 'Undefined';
+        case 1:
+          return 'Male';
+        case 2:
+          return 'Female';
+        default:
+          return 'Undefined';
       }
     }]
   }

@@ -15,59 +15,59 @@ When we modify records in one of the grids, another grid updates too.
 
 {% highlight javascript %}
 `columns.js`
-var columns = {
+const columns = {
   name: {
-    name: 'First Name', // columns title
+    name: 'First Name', // column title
+    sortCycle: ['asc', 'desc', 'default'], // sort cycle
     editor: function () {
-      return <input type="text" {...this.props} />; // text editor
+      return <input type="text" {...this.props}/>; // text editor
     },
-    render: ['name', function (record) { // method to render a cell
-      return _.escape(record.name);
-    }]
+    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
   },
   surname: {
     name: 'Last Name',
+    sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['surname', function (record) {
-      return _.escape(record.surname);
-    }]
+    render: ['surname', record => _.escape(record.surname)]
   },
   phone: {
     name: 'Phone',
+    sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['phone', function (record) {
-      return _.escape(record.phone);
-    }]
+    render: ['phone', record => _.escape(record.phone)]
   },
   age: {
     name: 'Age',
+    sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <input type="number" {...this.props}/>; // number editor
     },
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   },
   gender: {
     name: 'Gender',
+    sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <UIKernel.Editors.Select // select editor
         {...this.props}
         options={[
           [1, 'Male'],
-          [0, 'Female']
+          [2, 'Female']
         ]}
-        />;
+      />;
     },
-    render: ['gender', function (record) {
+    render: ['gender', (record) => {
       switch (record.gender) {
-        case 1: return 'Male';
-        case 2: return 'Female';
-        default: return 'Undefined';
+        case 1:
+          return 'Male';
+        case 2:
+          return 'Female';
+        default:
+          return 'Undefined';
       }
     }]
   }
@@ -78,7 +78,7 @@ var columns = {
 
 `validation.js`:
 {% highlight javascript %}
-var Validation = UIKernel.createValidator()
+const Validation = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
@@ -90,13 +90,13 @@ var Validation = UIKernel.createValidator()
 
 `model.js`:
 {% highlight javascript %}
-var model = (function () {
+const model = (function () {
   // Generate some data for our model
   // ...
 
   return new UIKernel.Models.Grid.Collection({
     data: data,
-    validation: validation
+    validator
   });
 )}();
 {% endhighlight %}
@@ -107,52 +107,57 @@ We pass the `realtime` prop to one of grids so that its changes could be saved a
 
 `MainComponent.js`:
 {% highlight javascript %}
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
       model: model // let's store model in the state
     };
-  },
-  onSave: function () {
-    this.refs.grid.save(function (err) {
-      if (err) {
+    this.saveChanges = this.saveChanges.bind(this);
+    this.clearChanges = this.clearChanges.bind(this);
+  }
+
+  saveChanges() {
+    this.refs.grid.save()
+      .catch(function () {
         alert('Error');
-      }
-    });
-  },
-  onClear: function () {
+      });
+  }
+
+  clearChanges() {
     this.refs.grid.clearAllChanges();
-  },
-  render: function () {
+  }
+
+  render() {
     return (
       <div className="container">
         <div className="row">
           <div className="col-sm-6">
-            <h3>Grid with auto-saving</h3>
+            <h3>Grid with autosave</h3>
             <UIKernel.Grid
               model={this.state.model} // Grid model
               cols={columns} // columns configuration
               viewCount={10}
-              realtime={true}// add auto-saving
-              />
+              realtime={true}
+            />
           </div>
           <div className="col-sm-6">
-            <h3>Grid without autosaving</h3>
+            <h3>Grid without autosave</h3>
             <UIKernel.Grid
               ref="grid"
               model={this.state.model}
               cols={columns}
               viewCount={10}
-              />
-            <a className="btn btn-success" onClick={this.onClear}>Clear</a>
+            />
+            <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
             {' '}
-            <a className="btn btn-primary" onClick={this.onSave}>Save</a>
+            <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
           </div>
         </div>
       </div>
     );
   }
-});
+}
 {% endhighlight %}
 
 `main.js`:

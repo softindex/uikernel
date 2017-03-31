@@ -6,19 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   tools: {
     width: 50,
-    render: [function () {
-      return '<a href="javascript:void(0)" ref="del">[X]</a>';
-    }],
+    render: [() => '<a href="javascript:void(0)" ref="del">[X]</a>'],
     onClickRefs: {
-      del: function (event, recordId, record, grid) { // ref="del" click handler
-        grid.getModel().delete(recordId, function (err) {
-          if (!err) {
+      del: (event, recordId, record, grid) => { // ref="del" click handler
+        grid.getModel()
+          .delete(recordId)
+          .then(() => {
             grid.updateTable();
-          }
-        });
+          });
       }
     }
   },
@@ -28,9 +26,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>; // text editor
     },
-    render: ['name', function (record) { // method to render a cell
-      return _.escape(record.name);
-    }]
+    render: ['name', (record) => _.escape(record.name)]
   },
   surname: {
     name: 'Last Name',
@@ -38,9 +34,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['surname', function (record) {
-      return _.escape(record.surname);
-    }]
+    render: ['surname', (record) => _.escape(record.surname)]
   },
   phone: {
     name: 'Phone',
@@ -48,9 +42,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['phone', function (record) {
-      return _.escape(record.phone);
-    }]
+    render: ['phone', (record) => _.escape(record.phone)]
   },
   age: {
     name: 'Age',
@@ -58,27 +50,28 @@ var columns = {
     editor: function () {
       return <input type="number" {...this.props}/>; // number editor
     },
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', (record) => record.age]
   },
   gender: {
     name: 'Gender',
     sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
       return <UIKernel.Editors.Select // select editor
-      {...this.props}
+        {...this.props}
         options={[
           [1, 'Male'],
           [2, 'Female']
         ]}
       />;
     },
-    render: ['gender', function (record) {
+    render: ['gender', (record) => {
       switch (record.gender) {
-        case 1: return 'Male';
-        case 2: return 'Female';
-        default: return 'Undefined';
+        case 1:
+          return 'Male';
+        case 2:
+          return 'Female';
+        default:
+          return 'Undefined';
       }
     }]
   }

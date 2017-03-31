@@ -34,7 +34,7 @@ var model = (function () {
   var model = new UIKernel.Models.Grid.Collection({
     data: data,
     filtersHandler: function (data, filters) {
-      return filters ? data.filter(function (item) {
+      return filters ? data.filter((item) => {
         item = item[1];
 
         var search = (filters.search || '').toLowerCase();
@@ -59,7 +59,7 @@ var model = (function () {
         return isSuitable;
       }) : data;
     },
-    validation: Validation,
+    validator: validator,
     requiredFields: ["name", "surname", "phone", "age", "gender"]
   });
 

@@ -7,11 +7,11 @@ next: grid-columns.html
 
 Grid is a simple component for managing:
 
-* [Sorting and pagination](/examples/sorting-and-pagination/){:target="_blank"};
-* [Table cells inplace-editing](/examples/editing-grid-data/){:target="_blank"};
-* [Bulk operations](/examples/bulk-operations/){:target="_blank"};
-* Record selection;
-* Automatic synchronization of multiple forms and grids with a shared model;
+* [Sorting and pagination](/examples/sorting-and-pagination/){:target="_blank"}
+* [Table cells inplace-editing](/examples/editing-grid-data/){:target="_blank"}
+* [Bulk operations](/examples/bulk-operations/){:target="_blank"}
+* Record selection
+* Automatic synchronization of multiple forms and grids with a shared model
 * and more
 
 ---
@@ -50,7 +50,7 @@ Grid is a simple component for managing:
 set(recordId, Object data, function callback)
 {% endhighlight %}
 
-Change table record
+Change grid record
 
 ---
 
@@ -60,7 +60,7 @@ Change table record
 getRecord(recordId)
 {% endhighlight %}
 
-Get record data
+Get a record
 
 ---
 
@@ -100,7 +100,7 @@ Get validation errors
 getModel(recordId)
 {% endhighlight %}
 
-Get table model
+Get grid model
 
 ---
 
@@ -130,7 +130,7 @@ Clear record changes
 clearAllChanges()
 {% endhighlight %}
 
-Clear all table changes
+Clear all grid changes
 
 ---
 
@@ -140,7 +140,7 @@ Clear all table changes
 reset()
 {% endhighlight %}
 
-Reset to initial table state
+Reset grid state to its initial state
 
 ---
 
@@ -150,7 +150,7 @@ Reset to initial table state
 handleChangeViewCount(event)
 {% endhighlight %}
 
-Change event handler of displayed rows count in a table
+Change event handler of displayed rows count in a grid
 
 ---
 
@@ -340,7 +340,7 @@ Remove records status
 setSelectedRecords(Array selectedIds, [boolean blackListMode])
 {% endhighlight %}
 
-Select only these records
+Select only specific records
 
 ---
 

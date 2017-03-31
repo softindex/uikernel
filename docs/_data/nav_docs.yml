@@ -25,7 +25,7 @@
     - id: server-validation
       title: Validation
     - id: server-model
-      title: Server Models
+      title: Server Model
 - title: Editors
   items:
   - id: editors

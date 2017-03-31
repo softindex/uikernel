@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var model = new UIKernel.Models.Grid.Collection({
+const model = new UIKernel.Models.Grid.Collection({
   data: [
     [1, {
       name: 'Pace',

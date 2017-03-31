@@ -15,6 +15,7 @@ const countries = (function () {
   return {
     async read(search) {
       search = search.toLowerCase();
+
       return records
         .filter((record) => record[1].toLowerCase().indexOf(search) >= 0)
         .map((record) => {
@@ -26,11 +27,12 @@ const countries = (function () {
     },
 
     async getLabel(id) {
-      for (var i = 0; i < records.length; i++) {
-        if (records[i][0] === id) {
-          return records[i][1];
+      for (let [recordId, recordName] of records) {
+        if (id === recordId) {
+          return recordName;
         }
       }
+
       throw new Error('Invalid record id.');
     }
   };

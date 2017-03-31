@@ -34,7 +34,7 @@ model(Object gridModel)
 model(function(Object req, Object res))
 {% endhighlight %}
 
-Specify a Grid model, which can be an instance or a constructor
+Specify a Grid model. It can be an instance or a constructor
 
 ----
 

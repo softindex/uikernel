@@ -40,7 +40,6 @@ Next, create a directory with the following structure:
     main.js
 index.html
 {% endhighlight %}
----
 
 All files in `js/components` and `js/models` as well as the `css/main.css` file are empty, we'll add some code into them later.
 
@@ -67,18 +66,18 @@ Our `index.html` file should look like this:
 <script src="../libs/js/uikernel.js"></script>
 
 <!-- Validation -->
-<script src="js/model/validation.js"></script>
+<script src="js/model/validation.js" type="text/babel"></script>
 
 <!-- Grid model -->
-<script src="js/model/model.js"></script>
+<script src="js/model/model.js" type="text/babel"></script>
 
 <!-- Grid columns -->
 <script src="js/columns.js" type="text/babel"></script>
 
-<!-- Filters form component -->
+<!-- FiltersForm component -->
 <script src="js/components/FiltersForm.js" type="text/babel"></script>
 
-<!-- Create form component -->
+<!-- CreateForm component -->
 <script src="js/components/CreateForm.js" type="text/babel"></script>
 
 <!-- Our main component -->

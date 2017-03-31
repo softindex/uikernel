@@ -6,31 +6,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
-      model: model // let's store model in the state
-    };
-  },
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {model};
+    this.applyFilters = this.applyFilters.bind(this);
+    this.saveChanges = this.saveChanges.bind(this);
+    this.clearChanges = this.clearChanges.bind(this);
+  }
 
-  applyFilters: function (filters) {
+  applyFilters(filters) {
     this.setState({
       model: UIKernel.applyGridFilters(model, filters)
     });
-  },
+  }
 
-  onSave: function () {
+  saveChanges() {
     this.refs.grid.save()
       .catch(() => {
         alert('Error');
       });
-  },
+  }
 
-  onClear: function () {
+  clearChanges() {
     this.refs.grid.clearAllChanges();
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div>
         <div className="panel panel-primary">
@@ -38,9 +40,7 @@ var MainComponent = React.createClass({
             <h3 className="panel-title">Filters</h3>
           </div>
           <div className="panel-body">
-            <FiltersForm
-              onSubmit={this.applyFilters}
-            />
+            <FiltersForm onSubmit={this.applyFilters}/>
           </div>
         </div>
         <div className="panel panel-info">
@@ -51,14 +51,14 @@ var MainComponent = React.createClass({
             ref="grid"
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
-            viewCount={10} // 10 records limit to display by default
+            viewCount={10} // display 10 records per page
           />
           <div className="panel-footer">
-            <a className="btn btn-success" onClick={this.onClear}>
+            <a className="btn btn-success" onClick={this.clearChanges}>
               Clear
             </a>
             {' '}
-            <a className="btn btn-primary" onClick={this.onSave}>
+            <a className="btn btn-primary" onClick={this.saveChanges}>
               Save
             </a>
           </div>
@@ -66,4 +66,4 @@ var MainComponent = React.createClass({
       </div>
     );
   }
-});
+}

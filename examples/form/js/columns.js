@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   id: {
     name : 'ID',
     width: '40',
@@ -14,9 +14,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['id', function (record) {
-      return record.id;
-    }]
+    render: ['id', record => record.id]
   },
   name: {
     name: 'Name', // columns title
@@ -24,9 +22,7 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['name', function (record) { // method to render a cell
-      return record.name;
-    }]
+    render: ['name', record => record.name]
   },
   age: {
     name: 'Age',
@@ -34,8 +30,6 @@ var columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   }
 };

@@ -48,7 +48,6 @@ DatePicker is a ReactJS component that allows the user to select a date.
 | Date | min | Minimum date value |
 | Date | max | Maximum date value |
 | function | onBlur | Element lost focus handler |
-| function | onFocus | Element focus handler |
 | boolean | show | Show on init flag |
 | string | textFormat | Displayed field value format |
 
@@ -66,13 +65,10 @@ SuggestBox is a ReactJS component that can be used to quickly create a drop-down
 |------------------------------|--------------------|-----------------------------------------------------------|
 |                              | **value**          | Field value                                               |
 | function                     | **onChange**       | Selection change handler                                  |
-| number                       | debounce           | Search timeout, ms                                        |
 | boolean                      | disabled           | Disabled flag                                             |
 | [ListModel](list-model.html) | model              | Model object should have the 'read' method                |
-| function                     | onBlur             | Element lost focus value                                  |
-| function                     | onChangeLabel      | Label change handler                                      |
+| function                     | onLabelChange      | Label change handler                                      |
 | function                     | onMetadataChange   | Meta data change handler                                  |
-| boolean                      | select             | Select button visibility flag                             |
 | string                       | label              | Text label                                                |
 | string                       | defaultLabel       | Default text label                                        |
 | element                      | notFoundElement    | Element to be displayed when there are no search results  |

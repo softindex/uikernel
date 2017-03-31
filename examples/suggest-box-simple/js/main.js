@@ -6,5 +6,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const validator = UIKernel.createValidator()
-  .field('country', UIKernel.Validators.notNull('Invalid country.'));
+ReactDOM.render(<MainComponent/>, document.body);

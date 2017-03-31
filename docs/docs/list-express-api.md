@@ -21,11 +21,11 @@ It can schematically be displayed like this:
 ### model
 
 {% highlight javascript %}
-model(Object gridModel)
+model(Object listModel)
 model(function(Object req, Object res))
 {% endhighlight %}
 
-Specify a list model. It can be an instance or a constructor
+Specify a list model. The model can be an instance or a constructor.
 
 ----
 
@@ -35,7 +35,7 @@ Specify a list model. It can be an instance or a constructor
 result(function func(Error err, Object data))
 {% endhighlight %}
 
-Specify a function to call when you have a response
+Specify  a function for handling of responses.
 
 ----
 
@@ -45,7 +45,7 @@ Specify a function to call when you have a response
 getRouter()
 {% endhighlight %}
 
-Creates a router object
+Create a router object
 
 ----
 
@@ -63,11 +63,11 @@ Or use a constructor for that:
 
 {% highlight javascript %}
 UIKernel.listExpressApi()
-  .model(function (req, res) {
+  .model((req, res) => {
     return new CitiesList(req.params.countryId);
   })
   .getRouter();
 {% endhighlight %}
 
-> You can also customize your API with some additional methods,
-> or perform a similar behaviour using other frameworks of course.
+> You can also customize your API by adding other methods
+> or define API using other frameworks.

@@ -19,37 +19,38 @@ Open up `getting-started/index.html`. It has the following contents:
 
 {% highlight html %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <title>First grid component</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="css/uikernel/main.css" rel="stylesheet" type="text/css"/>
+  <meta charset="UTF-8">
+  <title>Getting Started</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+  <link href="../libs/css/base/main.css" rel="stylesheet" type="text/css"/>
+  <link href="css/main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    <div class="container" id="example"></div>
+<div class="container" id="example"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-dom.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
-    <script src="../libs/js/uikernel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.8/react-dom.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
+<script src="../libs/js/uikernel.js"></script>
 
-    <!-- Grid model -->
-    <script src="js/model.js"></script>
+<!-- Grid model -->
+<script src="js/model.js" type="text/babel"></script>
 
-    <!-- Grid columns -->
-    <script src="js/columns.js"></script>
+<!-- Grid columns -->
+<script src="js/columns.js" type="text/babel"></script>
 
-    <!-- Main file to render -->
-    <script src="js/main.js" type="text/babel"></script>
+<!-- Main file to render -->
+<script src="js/main.js" type="text/babel"></script>
 </body>
 </html>
 {% endhighlight %}
 
 Here, we've included the required libraries - React, JQuery and UIKernel.
 
-The file `getting-started/js/main.js` is the main React entry point, where we render our first `UIKernel.Grid`.
+The file `getting-started/js/main.js` is the main React entry point where we render our first `UIKernel.Grid`.
 
 `main.js`:
 {% highlight html %}
@@ -61,40 +62,34 @@ ReactDOM.render(
 , document.getElementById('example'));
 {% endhighlight %}
 
-As you can see, the `UIKernel.Grid` component has two props: `cols` and `model`. It's a good practice to separate logic,
+As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. It's a good practice to separate logic,
 so we've defined these props in the `getting-started/js/columns.js` and `getting-started/js/model.js` files.
 
 Columns data is listed as an object.
 
 `columns.js`:
 {% highlight javascript %}
-var columns = {
+const columns = {
   name: {
     name: 'First Name',
-    render: ['name', function (record) {
-      return record.name;
-    }]
+    render: ['name', record => record.name]
   },
   surname: {
     name: 'Last Name',
-    render: ['surname', function (record) {
-      return record.surname;
-    }]
+    render: ['surname', record => record.surname]
   },
   age: {
     name: 'Age',
-    render: ['age', function (record) {
-      return record.age;
-    }]
+    render: ['age', record => record.age]
   }
 };
 {% endhighlight %}
 
-To create a grid model, we use [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
+To create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
 `model.js`:
 {% highlight javascript %}
-var model = new UIKernel.Models.Grid.Collection({
+const model = new UIKernel.Models.Grid.Collection({
   data: [
     [1, {
       name: 'Pace',
@@ -121,7 +116,7 @@ And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"}
 
 If you want to use UIKernel with
 [browserify](http://browserify.org/){:target="_blank"},
-[webpack](https://webpack.github.io/){:target="_blank"}, or another CommonJS-compatible module system, just use the
+[webpack](https://webpack.github.io/){:target="_blank"}, or other CommonJS-compatible module system, just use the
 [uikernel npm package](https://www.npmjs.com/package/uikernel){:target="_blank"}.
 
 ## Next Steps
