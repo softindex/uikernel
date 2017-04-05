@@ -77,6 +77,9 @@ exports.indexOf = function (arr, item) {
 };
 
 exports.throttle = function (func) {
+  let worked = false;
+  let nextArguments;
+  let nextResolve;
   return function () {
     if (typeof arguments[arguments.length - 1] === 'function') {
       return throttleCallback(func).apply(this, arguments);
@@ -86,24 +89,10 @@ exports.throttle = function (func) {
   };
 
   function throttleCallback(func) {
-    let worked = false;
-    let nextArguments;
-
     return function run() {
       const ctx = this; // Function context
       const cb = arguments[arguments.length - 1];
       const argumentsArray = [].slice.call(arguments);
-
-      function nextWorker() {
-        worked = false;
-        if (nextArguments) {
-          const args = nextArguments;
-          nextArguments = null;
-          run.apply(ctx, args);
-          return true;
-        }
-        return false;
-      }
 
       if (worked) {
         // Set as the next call
@@ -125,14 +114,21 @@ exports.throttle = function (func) {
       } else {
         func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
       }
+
+      function nextWorker() {
+        worked = false;
+        if (nextArguments) {
+          const args = nextArguments;
+          nextArguments = null;
+          run.apply(ctx, args);
+          return true;
+        }
+        return false;
+      }
     };
   }
 
   function throttlePromise(func) {
-    let worked = false;
-    let nextArguments;
-    let nextResolve;
-
     /**
      * @throws {ThrottleError} Too many function call
      */
@@ -200,6 +196,7 @@ exports.decorate = function (obj, decor) {
       }
     }
   }
+
   Decorator.prototype = obj;
   Decorator.prototype.constructor = Decorator;
   return new Decorator();
