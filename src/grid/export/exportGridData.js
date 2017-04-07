@@ -8,7 +8,6 @@
 
 import callbackify from '../../common/callbackify';
 import ArgumentsError from '../../common/ArgumentsError';
-import utils from '../../common/utils';
 
 function formatColumns(columns, viewColumns) {
   const formattedColumns = {};
