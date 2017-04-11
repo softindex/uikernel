@@ -135,10 +135,14 @@ class ValidationErrors {
     return ValidationErrors.createFromJSON(this.toJSON());
   }
 
+  /**
+   * Get errors iterator
+   *
+   * @return {[string, string[]][]}
+   */
   getErrors() {
     return Object.entries(this._fields);
   }
-
 }
 
 export default ValidationErrors;
