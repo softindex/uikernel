@@ -251,12 +251,11 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
-    findDOMNode(this.refs.input).select();
   }
 
-  _focusOption(key, shouldSelectOption) {
-    if (shouldSelectOption === true) {
-      this._selectOption(this.state.options[key]);
+  _focusOption(key, shouldSetLabel) {
+    if (shouldSetLabel === true) {
+      this._setLabelTo(this.state.options[key].label);
     }
     if (this.state.isOpened) {
       this._focusOptionAndScrollIntoView(key);
