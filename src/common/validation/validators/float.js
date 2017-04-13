@@ -18,8 +18,7 @@ function baseValidator(notNull, min, max, error, value) {
   }
 
   if (
-    !value && value !== 0 ||
-    isNaN(Number(value)) ||
+    typeof value !== 'number' ||
     typeof min === 'number' && value < min ||
     typeof max === 'number' && value > max
   ) {
