@@ -19,6 +19,7 @@ function baseValidator(notNull, min, max, error, value) {
 
   if (
     typeof value !== 'number' ||
+    isNaN(value) ||
     parseInt(value, 10).toString() !== value.toString() ||
     typeof min === 'number' && value < min ||
     typeof max === 'number' && value > max

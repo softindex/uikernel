@@ -8,13 +8,186 @@
 
 import floatValidator from '../float';
 
-const testValidator = floatValidator(null, null, 'test');
-describe('Float validator', () => {
-  it('"  "   is not valid', () => {
-    expect(testValidator(' ')).not.toEqual(undefined);
+describe('Without range and can be empty', () => {
+  const validator = floatValidator(null, null, 'test');
+
+  it('"1" should not be valid', () => {
+    expect(validator('1')).not.toEqual(undefined);
   });
 
-  it('Nan is not valid', () => {
-    expect(testValidator(NaN)).not.toEqual(undefined);
+  it('"" should not be valid', () => {
+    expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('" " should not be valid', () => {
+    expect(validator(' ')).not.toEqual(undefined);
+  });
+
+  it('NaN should not be valid', () => {
+    expect(validator(NaN)).not.toEqual(undefined);
+  });
+
+  it('null should be valid', () => {
+    expect(validator(null)).toEqual(undefined);
+  });
+
+  it('undefined should be valid', () => {
+    expect(validator(undefined)).toEqual(undefined);
+  });
+
+  it('0 should be valid', () => {
+    expect(validator(0)).toEqual(undefined);
+  });
+
+  it('1 should be valid', () => {
+    expect(validator(1)).toEqual(undefined);
+  });
+
+  it('-1 should be valid', () => {
+    expect(validator(-1)).toEqual(undefined);
+  });
+
+  it('1.123 should be valid', () => {
+    expect(validator(1.123)).toEqual(undefined);
+  });
+
+  it('-1.123 should be valid', () => {
+    expect(validator(-1.123)).toEqual(undefined);
+  });
+});
+
+describe('Without range and can not be empty', () => {
+  const validator = floatValidator.notNull(null, null, 'test');
+
+  it('"1" should not be valid', () => {
+    expect(validator('1')).not.toEqual(undefined);
+  });
+
+  it('"" should not be valid', () => {
+    expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('" " should not be valid', () => {
+    expect(validator(' ')).not.toEqual(undefined);
+  });
+
+  it('NaN should not be valid', () => {
+    expect(validator(NaN)).not.toEqual(undefined);
+  });
+
+  it('null should not be valid', () => {
+    expect(validator(null)).not.toEqual(undefined);
+  });
+
+  it('undefined should not be valid', () => {
+    expect(validator(undefined)).not.toEqual(undefined);
+  });
+
+  it('0 should be valid', () => {
+    expect(validator(0)).toEqual(undefined);
+  });
+
+  it('1 should be valid', () => {
+    expect(validator(1)).toEqual(undefined);
+  });
+
+  it('-1 should be valid', () => {
+    expect(validator(-1)).toEqual(undefined);
+  });
+
+  it('1.123 should be valid', () => {
+    expect(validator(1.123)).toEqual(undefined);
+  });
+
+  it('-1.123 should be valid', () => {
+    expect(validator(-1.123)).toEqual(undefined);
+  });
+});
+
+describe('With range [-1, 1] and can be empty', () => {
+  const validator = floatValidator(-1, 1, 'test');
+
+  it('"1" should not be valid', () => {
+    expect(validator('1')).not.toEqual(undefined);
+  });
+
+  it('"" should not be valid', () => {
+    expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('" " should not be valid', () => {
+    expect(validator(' ')).not.toEqual(undefined);
+  });
+
+  it('NaN should not be valid', () => {
+    expect(validator(NaN)).not.toEqual(undefined);
+  });
+
+  it('null should be valid', () => {
+    expect(validator(null)).toEqual(undefined);
+  });
+
+  it('undefined should be valid', () => {
+    expect(validator(undefined)).toEqual(undefined);
+  });
+
+  it('0 should be valid', () => {
+    expect(validator(0)).toEqual(undefined);
+  });
+
+  it('1 should be valid', () => {
+    expect(validator(1)).toEqual(undefined);
+  });
+
+  it('1.123 should not be valid', () => {
+    expect(validator(1.123)).not.toEqual(undefined);
+  });
+
+  it('-1.123 should not be valid', () => {
+    expect(validator(-1.123)).not.toEqual(undefined);
+  });
+});
+
+describe('With range [-1, 1] and can not be empty', () => {
+  const validator = floatValidator.notNull(-1, 1, 'test');
+
+  it('"1" should not be valid', () => {
+    expect(validator('1')).not.toEqual(undefined);
+  });
+
+  it('"" should not be valid', () => {
+    expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('" " should not be valid', () => {
+    expect(validator(' ')).not.toEqual(undefined);
+  });
+
+  it('NaN should not be valid', () => {
+    expect(validator(NaN)).not.toEqual(undefined);
+  });
+
+  it('null should not be valid', () => {
+    expect(validator(null)).not.toEqual(undefined);
+  });
+
+  it('undefined should not be valid', () => {
+    expect(validator(undefined)).not.toEqual(undefined);
+  });
+
+  it('0 should be valid', () => {
+    expect(validator(0)).toEqual(undefined);
+  });
+
+  it('1 should be valid', () => {
+    expect(validator(1)).toEqual(undefined);
+  });
+
+  it('1.123 should not be valid', () => {
+    expect(validator(1.123)).not.toEqual(undefined);
+  });
+
+  it('-1.123 should not be valid', () => {
+    expect(validator(-1.123)).not.toEqual(undefined);
   });
 });
