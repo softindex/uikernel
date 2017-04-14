@@ -20,7 +20,7 @@ const model = new UIKernel.Models.Grid.Collection({
         );
 
         if (!found) {
-          return false
+          return false;
         }
       }
 

@@ -47,9 +47,15 @@ class Form extends React.Component {
   }
 
   onChangeCheckbox(key, value) {
-    this.state.cols[key] = value; // Change checkbox value
-    this.forceUpdate(); // and update it
+    // Change checkbox value
+    this.setState({
+      cols: {
+        ...this.state.cols,
+        [key]: value
+      }
+    });
   }
+
 
   render() {
     return (

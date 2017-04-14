@@ -25,7 +25,7 @@ const columns = {
   age: {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
-    render: ['age', recod => record.age]
+    render: ['age', record => record.age]
   },
   gender: {
     name: 'Gender',

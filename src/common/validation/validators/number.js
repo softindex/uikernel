@@ -18,7 +18,7 @@ function baseValidator(notNull, min, max, error, value) {
   }
 
   if (
-    !value && value !== 0 ||
+    typeof value !== 'number' ||
     parseInt(value, 10).toString() !== value.toString() ||
     typeof min === 'number' && value < min ||
     typeof max === 'number' && value > max
