@@ -81,7 +81,9 @@ class FormService {
     this._setState();
 
     try {
-      await this.validateForm();
+      if (!settings._partialErrorChecking) {
+        await this.validateForm();
+      }
     } catch (e) {
       if (!(e instanceof ThrottleError)) {
         throw e;

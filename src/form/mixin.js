@@ -86,7 +86,9 @@ const FormMixin = {
 
     this.state._formMixin.model.on('update', this._handleModelChange);
     await toPromise(this::this.setState, true)(this.state);
-    await toPromise(this.validateForm, true)();
+    if (!settings.partialErrorChecking) {
+      await toPromise(this.validateForm, true)();
+    }
   }, true),
 
   /**
@@ -569,7 +571,8 @@ const FormMixin = {
     const data = getData();
     validator.isValidRecord(data)
       .then(validErrors => {
-        if (this._isUnmounted || !utils.isEqual(data, getData())) {
+        const newData = getData();
+        if (this._isUnmounted || !utils.isEqual(data, newData)) {
           return;
         }
         this.state._formMixin[output] = validErrors;
