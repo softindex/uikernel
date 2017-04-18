@@ -38,7 +38,7 @@ class NumberEditor extends React.Component {
         this.state.value = target.valueAsNumber;
       }
     } else {
-      this.state.value = NaN;
+      this.state.value = target.value;
     }
     this.props.onChange(this.state.value);
   }
