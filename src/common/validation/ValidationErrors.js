@@ -20,13 +20,15 @@ class ValidationErrors {
   /**
    * Convert JSON to ValidationErrors object
    *
-   * @param   {Object}      jsonObject
+   * @param   {{:string[]}}      jsonObject
    * @return  {ValidationErrors}
    * @static
    */
   static createFromJSON = function (jsonObject) {
     const validationErrors = new ValidationErrors();
-    validationErrors._fields = jsonObject ? utils.clone(jsonObject) : {};
+    for (const [key, value] of Object.entries(jsonObject)) {
+      value.forEach(errMessage => validationErrors.add(key, errMessage));
+    }
     return validationErrors;
   };
 
@@ -49,7 +51,8 @@ class ValidationErrors {
    */
   add(field, errorText) {
     if (!this._fields[field]) {
-      this._fields[field] = [];
+      this._fields[field] = [errorText];
+      return this;
     }
     if (!this._fields[field].includes(errorText)) {
       this._fields[field].push(errorText);
