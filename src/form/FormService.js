@@ -104,15 +104,14 @@ class FormService {
       };
     }
 
-    return {
+    const data = {
       isLoaded,
-      data: this._getData(),
-      originalData: this._data,
-      changes: this._getChangesFields(),
-      errors: this._getValidationErrors(),
+      fields: this._getFields(),
       globalError: this._globalError,
       isSubmitting: this.isSubmitting
     };
+
+    return data;
   }
 
   /**
@@ -352,6 +351,20 @@ class FormService {
     if (!errorsWithPartialChecking.isEmpty()) {
       return errorsWithPartialChecking;
     }
+  }
+
+  _getFields() {
+    const fields = this.fields;
+    const data = this._getData();
+    const changes = this._getChangesFields();
+    const errors = this._getValidationErrors();
+    return fields.reduce((newFields, fieldName) => {
+      newFields[fieldName] = {};
+      newFields[fieldName].value = data[fieldName];
+      newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
+      newFields[fieldName].errors = errors ? errors.getFieldErrors(fieldName) : null;
+      return newFields;
+    }, {});
   }
 
   /**

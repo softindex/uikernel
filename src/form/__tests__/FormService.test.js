@@ -9,19 +9,19 @@
 import Form from '../FormService';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 
-function getInitSettings() {
+function getInitSettings(mockMethods) {
   jest.resetModules();
   return {
-    fields: ['name', 'surname', 'phone', 'age', 'gender'],
+    fields: ['name', 'surname', 'phone', 'age'],
     partialErrorChecking: true,
-    model: require('formModel')
+    model: {...require('formModel'), ...mockMethods}
   };
 }
 
 let form;
 let stateHandler;
 
-beforeEach(async() => {
+beforeEach(async () => {
   form = new Form();
   await form.init(getInitSettings());
   stateHandler = jest.fn();
@@ -31,7 +31,7 @@ beforeEach(async() => {
 describe('init form', () => {
   const initSettings = getInitSettings();
 
-  it('settings dosn\'t have model property', async() => {
+  it('settings dosn\'t have model property', async () => {
     const form = new Form();
     try {
       await form.init({});
@@ -40,7 +40,7 @@ describe('init form', () => {
     }
   });
 
-  it('init', async() => {
+  it('init', async () => {
     const form = new Form();
     const result = await form.init(initSettings);
     expect(result).toBeUndefined();
@@ -49,7 +49,13 @@ describe('init form', () => {
 });
 
 describe('get all', () => {
-  const initSettings = getInitSettings();
+  async function isValidRecord() {
+    return ValidationErrors.createFromJSON({
+      surname: ['Surname is required'],
+      age: ['Age must be greater then 100']
+    });
+  }
+  const initSettings = getInitSettings({isValidRecord});
   const form = new Form();
   const defaultState = {
     isLoaded: false,
@@ -65,18 +71,40 @@ describe('get all', () => {
     expect(form.getAll()).toEqual(defaultState);
   });
 
-  it('after init', async() => {
+  it('after init', async () => {
+    const fields = {
+      name: {
+        value: 'newName',
+        isChanged: true,
+        errors: null
+      },
+      surname: {
+        value: undefined,
+        isChanged: false,
+        errors: ['Surname is required']
+      },
+      phone: {
+        value: 123456,
+        isChanged: true,
+        errors: null
+      },
+      age: {
+        value: 45,
+        isChanged: false,
+        errors: ['Age must be greater then 100']
+      }
+    };
+    initSettings.data = {name: 'Name', age: 45};
+    initSettings.changes = {name: 'newName', phone: 123456};
     await form.init(initSettings);
-    expect(form.getAll()).not.toEqual(defaultState);
+    expect(form.getAll().fields).toEqual(fields);
   });
 });
 
 describe('updateField', () => {
   it('valid record', async () => {
     await form.updateField('name', 'John');
-    expect(form.getAll().changes).toEqual({
-      name: 'John'
-    });
+    expect(form.getAll().fields.name.isChanged).toBeTruthy();
   });
 });
 
@@ -140,7 +168,7 @@ describe('Listeners', () => {
 });
 
 describe('clearError', () => {
-  it('clear error', async() => {
+  it('clear error', async () => {
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({name: 'Error'});
     };
@@ -148,16 +176,15 @@ describe('clearError', () => {
     await form.set({name: 'John'}, true);
     form.clearError('name');
 
-    expect(form.getAll().errors.isEmpty()).toBe(true);
+    expect(form.getAll().fields.name.errors).toBeFalsy();
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set changes, validation, clear error
   });
 
   it('clear & validating conflict', async () => {
-    const expectedValidation = ValidationErrors.createFromJSON({age: 'Error'});
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({
-        name: 'Error',
-        age: 'Error'
+        name: ['Error'],
+        age: ['Error']
       });
     };
 
@@ -165,8 +192,7 @@ describe('clearError', () => {
     form.clearError('name');
 
     await validatePromise;
-
-    expect(form.getAll().errors).toEqual(expectedValidation);
+    expect(form.getAll().fields.age.errors.length).toBe(1);
   });
 });
 
@@ -180,7 +206,7 @@ describe('validateField', () => {
   });
 });
 
-describe('set', async() => {
+describe('set', async () => {
   const initSettings = getInitSettings();
   const form = new Form();
   const stateHandler = jest.fn();
@@ -189,7 +215,7 @@ describe('set', async() => {
     expect(await form.set({name: 'newName'})).toBeUndefined();
   });
 
-  it('after loaded', async() => {
+  it('after loaded', async () => {
     await form.init(initSettings);
     form.addChangeListener(stateHandler);
     form.validateForm = jest.fn();
@@ -204,8 +230,8 @@ describe('set', async() => {
   });
 });
 
-describe('submitData', async() => {
-  it('it\'s set & submit', async() => {
+describe('submitData', async () => {
+  it('it\'s set & submit', async () => {
     form.set = jest.fn();
     form.submit = jest.fn();
 
@@ -217,8 +243,8 @@ describe('submitData', async() => {
 });
 
 describe('submit', () => {
-  it('validation error', async() => {
-    const validationError = ValidationErrors.createFromJSON({name: 'Error'});
+  it('validation error', async () => {
+    const validationError = ValidationErrors.createFromJSON({name: ['Error']});
     form.model.submit = async function () {
       throw validationError;
     };
@@ -229,30 +255,30 @@ describe('submit', () => {
       expect(err).toEqual(validationError);
     }
 
-    expect(form.getAll().errors).toEqual(validationError);
+    expect(form.getAll().fields.name.errors.length).toBe(1);
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
 
-  it('not actual changes', async() => {
+  it('not actual changes', async () => {
     await form.set({name: 'John', age: 21});
     const submitPromise = form.submit();
     await form.set({name: 'Sophia'});
     await submitPromise;
 
-    expect(form.getAll().changes).toEqual({name: 'Sophia'});
+    expect(form.getAll().fields.name.isChanged).toBeTruthy();
     expect(stateHandler).toHaveBeenCalledTimes(4); // Set values, submitting, set values, submit result
   });
 
-  it('clear errors and changes after submit', async() => {
+  it('clear errors and changes after submit', async () => {
     await form.set({name: 'John'});
     await form.submit();
 
-    expect(form.getAll().changes).toEqual({});
-    expect(form.getAll().errors.isEmpty()).toBe(true);
+    expect(form.getAll().fields.name.isChanged).toBeFalsy();
+    expect(form.getAll().fields.name.errors).toBeFalsy();
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set values, submitting, submit result
   });
 
-  it('global error', async() => {
+  it('global error', async () => {
     const globalError = new Error('Global error');
     form.model.submit = async function () {
       throw globalError;
@@ -268,7 +294,7 @@ describe('submit', () => {
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
 
-  it('isSubmitting = true', async() => {
+  it('isSubmitting = true', async () => {
     form.model.submit = jest.fn();
     form.submit();
     const result = await form.submit();
@@ -277,19 +303,19 @@ describe('submit', () => {
 });
 
 describe('clearFieldChanges', () => {
-  it('delete changes', async() => {
+  it('delete changes', async () => {
     await form.set({name: 'newName'});
     form.clearFieldChanges('name');
-    expect(form.getAll().changes).toEqual({});
+    expect(form.getAll().fields.name.isChanged).toBeFalsy();
   });
 
-  it('errors clear field', async() => {
+  it('errors clear field', async () => {
     await form.set({name: 'Error'}, true);
     form.clearFieldChanges('name');
-    expect(form.getAll().errors.isEmpty()).toBe(true);
+    expect(form.getAll().fields.name.errors).toBeFalsy();
   });
 
-  it('set state', async() => {
+  it('set state', async () => {
     stateHandler.mockClear();
     form.clearFieldChanges('name');
     expect(stateHandler).toHaveBeenCalledTimes(1);
@@ -297,31 +323,20 @@ describe('clearFieldChanges', () => {
 });
 
 describe('clearChanges', () => {
-  it('clear changed', async() => {
+  it('clear changed', async () => {
     await form.set({name: 'Error'});
     await form.validateForm();
     stateHandler.mockClear();
     form.clearChanges();
-    const state = form.getAll();
     expect(stateHandler).toHaveBeenCalledTimes(1);
-    expect({
-      errors: state.errors,
-      changes: state.changes,
-      globalError: state.globalError,
-      partialErrorChecking: form.getPartialErrorChecking().partialErrorChecking
-    })
-      .toEqual({
-        errors: new ValidationErrors(),
-        changes: {},
-        globalError: false,
-        partialErrorChecking: form.getPartialErrorChecking().partialErrorCheckingDefault
-      });
+    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.isChanged).toBeFalsy();
   });
 });
 
 describe('validateForm', () => {
-  it('validation error correction', async() => {
-    const validationError = ValidationErrors.createFromJSON({name: 'Name is required'});
+  it('validation error correction', async () => {
+    const validationError = ValidationErrors.createFromJSON({name: ['Name is required']});
     form.model.isValidRecord = async function (record) {
       if (!record.name) {
         return validationError;
@@ -331,25 +346,25 @@ describe('validateForm', () => {
 
     // Not valid name
     await form.set({name: ''}, true);
-    expect(form.getAll().errors).toEqual(validationError);
+    expect(form.getAll().fields.name.errors.length).toBeTruthy();
 
     // Valid name
     await form.set({name: 'John'}, true);
-    expect(form.getAll().errors.isEmpty()).toBe(true);
+    expect(form.getAll().fields.name.errors).toBeFalsy();
   });
 
-  it('simple validation error', async() => {
-    const expectedValidation = ValidationErrors.createFromJSON({name: 'Error'});
+  it('simple validation error', async () => {
+    const expectedValidation = ValidationErrors.createFromJSON({name: ['Error']});
     form.model.isValidRecord = async function () {
       return expectedValidation;
     };
 
     await form.set({name: 'John'}, true);
 
-    expect(form.getAll().errors).toEqual(expectedValidation);
+    expect(form.getAll().fields.name.errors.length).toBeTruthy();
   });
 
-  it('global validation error', async() => {
+  it('global validation error', async () => {
     const globalError = new Error('Global error');
     form.model.isValidRecord = async function () {
       throw globalError;
@@ -359,33 +374,32 @@ describe('validateForm', () => {
 
     const state = form.getAll();
     expect(state.globalError).toBe(globalError);
-    expect(state.errors.isEmpty()).toBe(true);
+    expect(form.getAll().fields.name.errors).toBeFalsy();
   });
 
-  it('set state', async() => {
+  it('set state', async () => {
     await form.set({name: 'newName'});
     stateHandler.mockClear();
     await form.validateForm();
     expect(stateHandler).toHaveBeenCalledTimes(1);
   });
 
-  it('partial error checking', async() => {
-    const expectedValidation = ValidationErrors.createFromJSON({name: 'Error'});
+  it('partial error checking', async () => {
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({
-        name: 'Error',
-        age: 'Error'
+        name: ['Error'],
+        age: ['Error']
       });
     };
 
     form.setPartialErrorChecking(true);
     await form.set({name: 'John'}, true);
 
-    expect(form.getAll().errors).toEqual(expectedValidation);
+    expect(form.getAll().fields.name.errors.length).toBeTruthy();
   });
 
-  it('cancel not actual validation', async() => {
-    const validationError = ValidationErrors.createFromJSON({name: 'Error'});
+  it('cancel not actual validation', async () => {
+    const validationError = ValidationErrors.createFromJSON({name: ['Error']});
     form.model.isValidRecord = async function () {
       return validationError;
     };
@@ -394,10 +408,10 @@ describe('validateForm', () => {
     form.set({name: 'Sophia'}); // Cancel previous validation
 
     await validationPromise;
-    expect(form.getAll().errors.isEmpty()).toBe(true);
+    expect(form.getAll().fields.name.errors).toBeFalsy();
   });
 
-  it('validation dependencies', async() => {
+  it('validation dependencies', async () => {
     form.model.getValidationDependency = () => {
       return ['age'];
     };
@@ -410,7 +424,7 @@ describe('validateForm', () => {
   });
 });
 
-describe('before init', async() => {
+describe('before init', async () => {
   getInitSettings();
   const form = new Form();
   const func = [
@@ -423,8 +437,8 @@ describe('before init', async() => {
     form.submitData.bind(form)
   ];
 
-  it('before init', async() => {
-    const promises = func.map(async(elem) => {
+  it('before init', async () => {
+    const promises = func.map(async (elem) => {
       const result = await elem();
       expect(result).toBeUndefined();
       return;
