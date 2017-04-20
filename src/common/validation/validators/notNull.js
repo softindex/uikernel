@@ -15,7 +15,7 @@ import utils from '../../utils';
  * @returns {Function}
  */
 export default error => value => {
-  if (!utils.isDefined(value)) {
+  if (!utils.isDefined(value) || value === '') {
     return error;
   }
 };
