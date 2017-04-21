@@ -54,6 +54,18 @@ describe('Without range and can be empty', () => {
   it('-1.123 should be valid', () => {
     expect(validator(-1.123)).toEqual(undefined);
   });
+
+  it('{} should not be valid', () => {
+    expect(validator({})).not.toEqual(undefined);
+  });
+
+  it('[] should not be valid', () => {
+    expect(validator([])).not.toEqual(undefined);
+  });
+
+  it('Infinity should not be valid', () => {
+    expect(validator(Infinity)).not.toEqual(undefined);
+  });
 });
 
 describe('Without range and can not be empty', () => {
@@ -102,6 +114,18 @@ describe('Without range and can not be empty', () => {
   it('-1.123 should be valid', () => {
     expect(validator(-1.123)).toEqual(undefined);
   });
+
+  it('{} should not be valid', () => {
+    expect(validator({})).not.toEqual(undefined);
+  });
+
+  it('[] should not be valid', () => {
+    expect(validator([])).not.toEqual(undefined);
+  });
+
+  it('Infinity should not be valid', () => {
+    expect(validator(Infinity)).not.toEqual(undefined);
+  });
 });
 
 describe('With range [-1, 1] and can be empty', () => {
@@ -146,6 +170,18 @@ describe('With range [-1, 1] and can be empty', () => {
   it('-1.123 should not be valid', () => {
     expect(validator(-1.123)).not.toEqual(undefined);
   });
+
+  it('{} should not be valid', () => {
+    expect(validator({})).not.toEqual(undefined);
+  });
+
+  it('[] should not be valid', () => {
+    expect(validator([])).not.toEqual(undefined);
+  });
+
+  it('Infinity should not be valid', () => {
+    expect(validator(Infinity)).not.toEqual(undefined);
+  });
 });
 
 describe('With range [-1, 1] and can not be empty', () => {
@@ -189,5 +225,24 @@ describe('With range [-1, 1] and can not be empty', () => {
 
   it('-1.123 should not be valid', () => {
     expect(validator(-1.123)).not.toEqual(undefined);
+  });
+
+  it('{} should not be valid', () => {
+    expect(validator({})).not.toEqual(undefined);
+  });
+
+  it('[] should not be valid', () => {
+    expect(validator([])).not.toEqual(undefined);
+  });
+
+  it('Infinity should not be valid', () => {
+    expect(validator(Infinity)).not.toEqual(undefined);
+  });
+});
+
+describe('Error message is not defined', () => {
+  const validator = floatValidator(null, null);
+  it('Should be return default message', () => {
+    expect(validator(NaN)).toEqual('Invalid float');
   });
 });

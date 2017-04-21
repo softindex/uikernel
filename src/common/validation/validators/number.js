@@ -9,7 +9,7 @@
 import utils from '../../utils';
 
 function baseValidator(notNull, min, max, error, value) {
-  error = error || 'Not number';
+  error = error || 'Invalid number';
   if (!utils.isDefined(value)) {
     if (notNull) {
       return error;

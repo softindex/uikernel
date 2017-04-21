@@ -11,11 +11,21 @@ import utils from '../../utils';
 /**
  * Create NULL validator
  *
- * @param {string} error Error message
+ * @param {string} [error = "Can not be empty"] Error message
  * @returns {Function}
  */
-export default error => value => {
-  if (!utils.isDefined(value) || value === '') {
-    return error;
+export default error => {
+  error = error || 'Can not be empty';
+  return value => {
+    if (
+      !utils.isDefined(value) ||
+      value === '' ||
+      (typeof value === 'number' && (
+        isNaN(value) ||
+        !isFinite(value)
+      ))
+    ) {
+      return error;
+    }
   }
 };

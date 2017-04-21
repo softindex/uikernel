@@ -6,3 +6,4 @@ npm-debug.log
 examples/libs/js/uikernel.js
 lib
 dist
+coverage
