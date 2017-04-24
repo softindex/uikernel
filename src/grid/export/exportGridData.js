@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {mapAsync} from '../../common/utils';
 import callbackify from '../../common/callbackify';
 import ArgumentsError from '../../common/ArgumentsError';
 
@@ -33,10 +34,10 @@ function formatRecord(record, columns, viewColumns) {
   return formattedRecord;
 }
 
-function formatData(records, totals, columns, viewColumns) {
+async function formatData(records, totals, columns, viewColumns) {
   const formatted = {
     columns: formatColumns(columns, viewColumns),
-    records: records.map(record => formatRecord(record[1], columns, viewColumns))
+    records: await mapAsync(records, 100, record => formatRecord(record[1], columns, viewColumns))
   };
   if (totals) {
     formatted.totals = formatRecord(totals, columns, viewColumns);
@@ -96,8 +97,6 @@ export default callbackify(async(gridModel, columns, viewColumns, exporter, sett
     limit: settings.limit,
     offset: settings.offset
   });
-
-  const data = formatData(result.records, result.totals, columns, viewColumns);
-
+  const data = await formatData(result.records, result.totals, columns, viewColumns);
   return await exporter(data);
 });

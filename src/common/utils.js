@@ -441,3 +441,47 @@ exports.warn = function (message) {
 exports.toEncodedString = function (value) {
   return encodeURIComponent(JSON.stringify(value));
 };
+
+exports.mapAsync = async function mapAsync(array, operationPerLoop, functionBody) {
+  const result = [];
+  await forEachAsync(array, operationPerLoop, (elem, i, array) => {
+    result.push(functionBody(elem, i, array));
+  });
+  return result;
+};
+
+exports.forEachAsync = forEachAsync;
+
+function forEachAsync(array, operationPerLoop, functionBody) {
+  if (!(array && operationPerLoop && functionBody)) {
+    throw Error('All arguments must be specified');
+  }
+
+  return new Promise((resolve) => {
+    let globalIndex = 0;
+    step();
+
+    function step() {
+      const startTime = Date.now();
+
+      setImmediate(() => {
+        for (let i = 0; i < operationPerLoop; i++) {
+          functionBody(array[globalIndex], globalIndex, array);
+
+          globalIndex++;
+          if (globalIndex === array.length) {
+            resolve();
+            return;
+          }
+        }
+
+        const runTime = Date.now() - startTime;
+        if (runTime > 100) {
+          console.trace(`Event loop blocked by ${runTime}ms. Try decrease 'operationPerLoop' param.`);
+        }
+
+        step();
+      });
+    }
+  });
+}

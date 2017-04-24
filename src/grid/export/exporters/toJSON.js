@@ -7,14 +7,15 @@
  */
 
 import callbackify from '../../../common/callbackify';
+import JSONStreamStringify from 'json-stream-stringify';
 
 const toJSON = callbackify(async function toJSON(data) {
   return {
     mime: 'application/json',
-    data: {
+    dataStream: JSONStreamStringify({
       records: data.records,
       totals: data.totals
-    }
+    })
   };
 });
 
