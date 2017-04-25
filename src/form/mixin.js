@@ -11,6 +11,7 @@ import callbackify from '../common/callbackify';
 import toPromise from '../common/toPromise';
 import Validator from '../common/validation/Validator/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
+import ThrottleError from '../common/ThrottleError';
 
 /**
  * Grid form mixin
@@ -367,11 +368,11 @@ const FormMixin = {
    */
   submit: callbackify(async function () {
     if (this._isNotInitialized()) {
-      return;
+      throw new ThrottleError('Component not initialized');
     }
 
     if (!this.state._formMixin.autoSubmit && this.isSubmitting()) {
-      return;
+      throw new ThrottleError('Form already sent');
     }
 
     this.state._formMixin.submitting = true;
@@ -381,19 +382,19 @@ const FormMixin = {
     this.state._formMixin.globalError = null;
     this.state._formMixin.partialErrorChecking = false;
 
-    this.setState(this.state);
+    this.setState({_formMixin: this.state._formMixin});
 
     // Send changes to model
     let data;
     let err;
     try {
-      data = await toPromise(this.state._formMixin.model::this.state._formMixin.model.submit)(changes);
+      data = await toPromise(::this.state._formMixin.model.submit)(changes);
     } catch (e) {
       err = e;
     }
 
     if (this._isUnmounted) {
-      return;
+      throw new ThrottleError('Component is unmounted');
     }
 
     this.state._formMixin.submitting = false;
@@ -426,7 +427,7 @@ const FormMixin = {
       }, this);
     }
 
-    await toPromise(this::this.setState, true)(this.state);
+    await toPromise(::this.setState, true)({_formMixin: this.state._formMixin});
 
     if (err) {
       throw err;
