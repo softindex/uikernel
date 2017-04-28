@@ -80,13 +80,13 @@ class FormService {
     this.model.on('update', this._onModelChange);
     this._setState();
 
-    try {
-      if (!settings._partialErrorChecking) {
+    if (!settings._partialErrorChecking) {
+      try {
         await this.validateForm();
-      }
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
       }
     }
   }

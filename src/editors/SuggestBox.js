@@ -216,7 +216,9 @@ class SuggestBoxEditor extends React.Component {
   _onInputFocus(e) {
     this._openList();
     findDOMNode(this.refs.input).select();
-    this.props.onFocus && this.props.onFocus(e);
+    if (this.props.onFocus) {
+      this.props.onFocus(e);
+    }
   }
 
   _closeList(shouldBlur) {
