@@ -9,7 +9,7 @@
 import utils from '../../utils';
 
 function baseValidator(notNull, regExp, error, value) {
-  error = error || 'Not valid';
+  error = error || 'Invalid value';
   if (!utils.isDefined(value) || value === '') {
     if (notNull) {
       return error;
@@ -17,8 +17,7 @@ function baseValidator(notNull, regExp, error, value) {
     return;
   }
 
-  const type = typeof value;
-  if ((type !== 'string' && type !== 'number') || !regExp.test(value)) {
+  if (typeof value !== 'string' || !regExp.test(value)) {
     return error;
   }
 }

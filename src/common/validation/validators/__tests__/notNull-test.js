@@ -66,6 +66,14 @@ describe('notNull validator', () => {
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
   });
+
+  it('"1a" should be valid', () => {
+    expect(validator('ab')).toEqual(undefined);
+  });
+
+  it('"1ab" should be valid', () => {
+    expect(validator('abc')).toEqual(undefined);
+  });
 });
 
 describe('Error message is not defined', () => {

@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import numberValidator from '../number';
+import floatValidator from '../float';
 
 describe('Without range and can be empty', () => {
-  const validator = numberValidator(null, null, 'test');
+  const validator = floatValidator(null, null, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).not.toEqual(undefined);
@@ -47,12 +47,12 @@ describe('Without range and can be empty', () => {
     expect(validator(-1)).toEqual(undefined);
   });
 
-  it('1.123 should not be valid', () => {
-    expect(validator(1.123)).not.toEqual(undefined);
+  it('1.123 should be valid', () => {
+    expect(validator(1.123)).toEqual(undefined);
   });
 
-  it('-1.123 should not be valid', () => {
-    expect(validator(-1.123)).not.toEqual(undefined);
+  it('-1.123 should be valid', () => {
+    expect(validator(-1.123)).toEqual(undefined);
   });
 
   it('{} should not be valid', () => {
@@ -65,11 +65,19 @@ describe('Without range and can be empty', () => {
 
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
+  });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
   });
 });
 
 describe('Without range and can not be empty', () => {
-  const validator = numberValidator.notNull(null, null, 'test');
+  const validator = floatValidator.notNull(null, null, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).not.toEqual(undefined);
@@ -107,12 +115,12 @@ describe('Without range and can not be empty', () => {
     expect(validator(-1)).toEqual(undefined);
   });
 
-  it('1.123 should not be valid', () => {
-    expect(validator(1.123)).not.toEqual(undefined);
+  it('1.123 should be valid', () => {
+    expect(validator(1.123)).toEqual(undefined);
   });
 
-  it('-1.123 should not be valid', () => {
-    expect(validator(-1.123)).not.toEqual(undefined);
+  it('-1.123 should be valid', () => {
+    expect(validator(-1.123)).toEqual(undefined);
   });
 
   it('{} should not be valid', () => {
@@ -126,10 +134,18 @@ describe('Without range and can not be empty', () => {
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
   });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
+  });
 });
 
 describe('With range [-1, 1] and can be empty', () => {
-  const validator = numberValidator(-1, 1, 'test');
+  const validator = floatValidator(-1, 1, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).not.toEqual(undefined);
@@ -182,10 +198,18 @@ describe('With range [-1, 1] and can be empty', () => {
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
   });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
+  });
 });
 
 describe('With range [-1, 1] and can not be empty', () => {
-  const validator = numberValidator.notNull(-1, 1, 'test');
+  const validator = floatValidator.notNull(-1, 1, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).not.toEqual(undefined);
@@ -238,11 +262,19 @@ describe('With range [-1, 1] and can not be empty', () => {
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
   });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
+  });
 });
 
 describe('Error message is not defined', () => {
-  const validator = numberValidator(null, null);
+  const validator = floatValidator(null, null);
   it('Should be return default message', () => {
-    expect(validator(NaN)).toEqual('Invalid number');
+    expect(validator(NaN)).toEqual('Invalid float');
   });
 });

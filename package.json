@@ -59,7 +59,7 @@
   },
   "jest": {
     "testRegex": "/__tests__/",
-    "testPathDirs": [
+    "roots": [
       "<rootDir>/src"
     ]
   }
