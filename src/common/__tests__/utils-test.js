@@ -29,34 +29,29 @@ describe('Throttle promise', () => {
     expect(lastResponse).toBe(3);
   });
 
-  it('Should handle last if called simultaneously', async () => {
+  it('Should handle last if called simultaneously', () => {
     const request = utils.throttle(makeRequest);
 
-    const firstRequest = request(1);
-    const secondRequest = request(2);
+    // First request throws error
+    const firstRequest = request(1)
+      .catch(error => {
+        expect(error).toBeInstanceOf(ThrottleError);
+      });
+
+    // Second request throws error
+    const secondRequest = request(2)
+      .catch(error => {
+        expect(error).toBeInstanceOf(ThrottleError);
+      });
+
+    // Last request return value
     const lastRequest = request(3);
+    lastRequest
+      .then(data => {
+        expect(data).toBe(3);
+      });
 
-    // First throws error
-    let error;
-    try {
-      await firstRequest;
-    } catch (err) {
-      error = err;
-    }
-    expect(error).toBeInstanceOf(ThrottleError);
-
-    // Second throws error
-    error = null;
-    try {
-      await secondRequest;
-    } catch (err) {
-      error = err;
-    }
-
-    expect(error).toBeInstanceOf(ThrottleError);
-
-    // Last return value
-    expect(await lastRequest).toBe(3);
+    return Promise.all([firstRequest, secondRequest, lastRequest])
   });
 });
 
