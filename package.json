@@ -64,6 +64,7 @@
     "testRegex": "/__tests__/",
     "roots": [
       "<rootDir>/src"
-    ]
+    ],
+    "collectCoverageFrom" : ["src/**/*.js"]
   }
 }

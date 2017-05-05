@@ -28,6 +28,7 @@ class FormService {
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
     this.updateField = this.updateField.bind(this);
+    this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
     this._getChanges = this._getChanges.bind(this);
   }
@@ -106,9 +107,15 @@ class FormService {
       };
     }
 
+    const data = this._getData();
+    const changes = this._getChangesFields();
+
     return {
       isLoaded,
-      fields: this._getFields(),
+      data,
+      originalData: this._data,
+      changes,
+      fields: this._getFields(data, changes),
       globalError: this._globalError,
       isSubmitting: this.isSubmitting
     };
@@ -305,10 +312,7 @@ class FormService {
   }
 
   getPartialErrorChecking() {
-    return {
-      _partialErrorChecking: this._partialErrorChecking,
-      _partialErrorCheckingDefault: this._partialErrorCheckingDefault
-    };
+    return this._partialErrorChecking;
   }
 
   async validateForm() {
@@ -340,10 +344,8 @@ class FormService {
     }
   }
 
-  _getFields() {
+  _getFields(data, changes) {
     const fields = this.fields;
-    const data = this._getData();
-    const changes = this._getChangesFields();
     const errors = this._getValidationErrors();
     return fields.reduce((newFields, fieldName) => {
       newFields[fieldName] = {};
