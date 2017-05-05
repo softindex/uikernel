@@ -28,7 +28,7 @@ class NumberEditor extends React.Component {
   }
   _onChangeHandler(e) {
     const target = e.target;
-    if (target.validity.valid) {
+    if (target.validity.valid || parseFloat(target.value)) {
       if (isNaN(parseFloat(target.value))) { // Empty input
         this.state.value = null;
       } else {
