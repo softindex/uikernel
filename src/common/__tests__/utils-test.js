@@ -51,7 +51,7 @@ describe('Throttle promise', () => {
         expect(data).toBe(3);
       });
 
-    return Promise.all([firstRequest, secondRequest, lastRequest])
+    return Promise.all([firstRequest, secondRequest, lastRequest]);
   });
 });
 
