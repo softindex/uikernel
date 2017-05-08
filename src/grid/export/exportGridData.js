@@ -88,7 +88,7 @@ function assertValidViewColumns(columns, viewColumns) {
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-export default callbackify(async(gridModel, columns, viewColumns, exporter, settings) => {
+export default callbackify(async (gridModel, columns, viewColumns, exporter, settings) => {
   assertValidViewColumns(columns, viewColumns);
   const result = await gridModel.read({
     fields: getFields(columns, viewColumns),
