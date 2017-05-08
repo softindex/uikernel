@@ -23,10 +23,10 @@ Columns list is specified as an object with column string IDs as keys and column
     /**
      * Function returns editor React component.
      *
-     * @param   {Object}           props    Default props
+     * @param   {Object}           record    Record content
      * @return  {ReactComponent}
     **/
-    editor: function (props) { },
+    editor: function (record) { },
 
     render: [
       {string}, ...,                // Fields, used for rendering

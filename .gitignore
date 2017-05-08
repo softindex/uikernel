@@ -1,8 +1,8 @@
 node_modules
 .idea
-jsdoc
-/dist
-lib
 _site
 .publish
 npm-debug.log
+examples/libs/js/uikernel.js
+lib
+dist

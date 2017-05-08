@@ -1,140 +1,141 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+import ValidationErrors from '../ValidationErrors';
+import ArgumentsError from '../../ArgumentsError';
+import utils from '../../utils';
+import toPromise from '../../toPromise';
+import callbackify from '../../callbackify';
 
-var suspend = require('suspend');
-var ValidationErrors = require('../ValidationErrors');
-var utils = require('../../utils');
+class Validator {
+  /**
+   * Validation check model
+   *
+   * @constructor
+   */
+  constructor() {
+    this._settings = {
+      validators: {},
+      groupValidators: [],
+      asyncValidators: {},
+      asyncGroupValidators: [],
+      asyncDependenies: []
+    };
+  }
 
-/**
- * Validation check model
- *
- * @constructor
- */
-var Validator = function () {
-  if (!(this instanceof Validator)) {
+  static create() {
     return new Validator();
   }
 
-  this._settings = {
-    validators: {},
-    groupValidators: [],
-    asyncValidators: {},
-    asyncGroupValidators: []
-  };
-};
-
-/**
- * Add field sync validators
- *
- * @param {string}  field   Field name
- * @returns {Validator} validator
- */
-Validator.prototype.field = function (field) {
-  if (!this._settings.validators[field]) {
-    this._settings.validators[field] = [];
+  /**
+   * Add field sync validators
+   *
+   * @param {string}      field       Field name
+   * @param {...Function} validators  Field validators
+   * @returns {Validator} validator
+   */
+  field(field, ...validators) {
+    if (!this._settings.validators[field]) {
+      this._settings.validators[field] = [];
+    }
+    this._settings.validators[field] = this._settings.validators[field].concat(validators);
+    return this;
   }
-  this._settings.validators[field] = this._settings.validators[field].concat(
-    [].slice.call(arguments, 1)
-  );
-  return this;
-};
 
-/**
- * Specify multiple sync validators for fields group
- *
- * @param {Array}      fields              Fields array
- * @param {Function}   validatorFunction   Validator function
- * @returns {Validator} validator
- */
-Validator.prototype.fields = function (fields, validatorFunction) {
-  this._settings.groupValidators.push({
-    fields: fields,
-    fn: validatorFunction
-  });
-  return this;
-};
-
-/**
- * Point which fields server validation needs
- *
- * @param {Array}   fields   Fields array
- * @returns {Validator} validator
- */
-Validator.prototype.asyncDependence = function (fields) {
-  return this.fields(fields);
-};
-
-/**
- * Add field async validators
- *
- * @param {string}     field               Field name
- * @param {Function}   validatorFunction   Validator function
- * @returns {Validator} validator
- */
-Validator.prototype.asyncField = function (field, validatorFunction) {
-  if (!this._settings.asyncValidators[field]) {
-    this._settings.asyncValidators[field] = [];
+  /**
+   * Specify multiple sync validators for fields group
+   *
+   * @param {Array}      fields              Fields array
+   * @param {Function}   validatorFunction   Validator function
+   * @returns {Validator} validator
+   */
+  fields(fields, validatorFunction) {
+    this._settings.groupValidators.push({
+      fields: fields,
+      fn: validatorFunction
+    });
+    return this;
   }
-  this._settings.asyncValidators[field].push(validatorFunction);
-  return this;
-};
 
-/**
- * Specify multiple async validators for fields group
- *
- * @param {Array}      fields              Fields array
- * @param {Function}   validatorFunction   Validator function
- * @returns {Validator} validator
- */
-Validator.prototype.asyncFields = function (fields, validatorFunction) {
-  this._settings.asyncGroupValidators.push({
-    fields: fields,
-    fn: validatorFunction
-  });
-  return this;
-};
+  /**
+   * Point which fields server validation needs
+   *
+   * @param {Array}   fields   Fields array
+   * @returns {Validator} validator
+   */
+  asyncDependence(fields) {
+    this._settings.asyncDependenies.push(fields);
+    return this;
+  }
 
-/**
- * Get all dependent fields validation needs
- *
- * @param {Array}   fields    Fields array
- * @returns {Array} fields
- */
-Validator.prototype.getValidationDependency = function (fields) {
-  var result = [];
-  var length;
-  var groups = utils.pluck(
-    this._settings.groupValidators.concat(this._settings.asyncGroupValidators),
-    'fields'
-  );
+  /**
+   * Add field async validators
+   *
+   * @param {string}     field               Field name
+   * @param {Function}   validatorFunction   Validator function
+   * @returns {Validator} validator
+   */
+  asyncField(field, validatorFunction) {
+    if (!this._settings.asyncValidators[field]) {
+      this._settings.asyncValidators[field] = [];
+    }
+    this._settings.asyncValidators[field].push(validatorFunction);
+    return this;
+  }
 
-  while (length !== result.length) {
-    length = result.length;
+  /**
+   * Specify multiple async validators for fields group
+   *
+   * @param {Array}      fields              Fields array
+   * @param {Function}   validatorFunction   Validator function
+   * @returns {Validator} validator
+   */
+  asyncFields(fields, validatorFunction) {
+    this._settings.asyncGroupValidators.push({
+      fields: fields,
+      fn: validatorFunction
+    });
+    return this;
+  }
 
-    for (var i = 0; i < groups.length; i++) {
-      if (!utils.isIntersection(groups[i], fields) && !utils.isIntersection(groups[i], result)) {
-        continue;
-      }
-      for (var j = 0; j < groups[i].length; j++) {
-        var field = groups[i][j];
-        if (fields.indexOf(field) >= 0 || result.indexOf(field) >= 0) {
+  /**
+   * Get all dependent fields validation needs
+   *
+   * @param {Array}   fields    Fields array
+   * @returns {Array} fields
+   */
+  getValidationDependency(fields) {
+    const result = [];
+    let length;
+    const groups = utils.pluck(
+      this._settings.groupValidators.concat(this._settings.asyncGroupValidators),
+      'fields'
+    ).concat(this._settings.asyncDependenies);
+
+    while (length !== result.length) {
+      length = result.length;
+
+      for (let i = 0; i < groups.length; i++) {
+        if (!utils.isIntersection(groups[i], fields) && !utils.isIntersection(groups[i], result)) {
           continue;
         }
-        result.push(field);
+        for (let j = 0; j < groups[i].length; j++) {
+          const field = groups[i][j];
+          if (fields.indexOf(field) >= 0 || result.indexOf(field) >= 0) {
+            continue;
+          }
+          result.push(field);
+        }
       }
     }
+    return result;
   }
-  return result;
-};
+}
 
 /**
  * Check client record validity
@@ -142,62 +143,60 @@ Validator.prototype.getValidationDependency = function (fields) {
  * @param {Object}  record   Record
  * @returns {ValidationErrors|null} Record validity
  */
-Validator.prototype.isValidRecord = suspend.async(function * (record) {
-  var fields = Object.keys(record);
-  var errors = new ValidationErrors();
-  var yieldStack = [];
-  var i;
-  var j;
-  var error;
-  var field;
-  var validators;
-  var asyncValidators;
-  var groupValidator;
-  var asyncGroupValidator;
+Validator.prototype.isValidRecord = callbackify(async function (record) {
+  const fields = Object.keys(record);
+  const errors = new ValidationErrors();
+  const awaitStack = [];
+  const promises = [];
+
+  const dependentFields = this.getValidationDependency(fields);
+  if (dependentFields.length) {
+    throw new ArgumentsError('Not enough fields for validator: ' + dependentFields.join(', '));
+  }
 
   // Add sync and async validators
-  for (i in record) {
-    validators = this._settings.validators[i];
+  for (const [field, value] of Object.entries(record)) {
+    const validators = this._settings.validators[field];
     if (validators) {
-      for (j = 0; j < validators.length; j++) {
-        error = validators[j](record[i]);
+      for (const validator of validators) {
+        const error = validator(value);
         if (error) {
-          errors.add(i, error);
+          errors.add(field, error);
         }
       }
     }
 
-    asyncValidators = this._settings.asyncValidators[i];
+    const asyncValidators = this._settings.asyncValidators[field];
     if (asyncValidators) {
-      for (j = 0; j < asyncValidators.length; j++) {
-        yieldStack.push(i);
-        asyncValidators[j](record[i], suspend.fork());
+      for (const asyncValidator of asyncValidators) {
+        awaitStack.push(field);
+        promises.push(
+          await toPromise(asyncValidator)(value)
+        );
       }
     }
   }
 
   // Add sync and async group validators
-  for (i = 0; i < this._settings.groupValidators.length; i++) {
-    groupValidator = this._settings.groupValidators[i];
+  for (const groupValidator of this._settings.groupValidators) {
     if (utils.isIntersection(groupValidator.fields, fields)) {
-      if (groupValidator.fn) {
-        groupValidator.fn(record, errors);
-      }
+      groupValidator.fn(record, errors);
     }
   }
 
-  for (i = 0; i < this._settings.asyncGroupValidators.length; i++) {
-    asyncGroupValidator = this._settings.asyncGroupValidators[i];
+  for (const asyncGroupValidator of this._settings.asyncGroupValidators) {
     if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
-      yieldStack.push(null);
-      asyncGroupValidator.fn(record, errors, suspend.fork());
+      awaitStack.push(null);
+      promises.push(
+        await toPromise(asyncGroupValidator.fn)(record, errors)
+      );
     }
   }
 
-  var asyncErrors = yield suspend.join();
+  const asyncErrors = await Promise.all(promises);
   while (asyncErrors.length) {
-    error = asyncErrors.pop();
-    field = yieldStack.pop();
+    const error = asyncErrors.pop();
+    const field = awaitStack.pop();
 
     if (error && field) {
       errors.add(field, error);
@@ -207,4 +206,4 @@ Validator.prototype.isValidRecord = suspend.async(function * (record) {
   return errors;
 });
 
-module.exports = Validator;
+export default Validator;

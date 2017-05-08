@@ -1,50 +1,44 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+import callbackify from '../common/callbackify';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import EventsModel from '../common/Events';
 
-var EventsModel = require('../common/Events');
-var ValidationErrors = require('../common/validation/ValidationErrors');
-
-/**
- * Abstract form model
- *
- * @constructor
- */
-var AbstractFormModel = function () {
-  EventsModel.call(this);
-};
-AbstractFormModel.prototype = new EventsModel();
-AbstractFormModel.prototype.constructor = AbstractFormModel;
+class AbstractFormModel extends EventsModel {
+  /**
+   * Abstract form model
+   *
+   * @constructor
+   */
+  constructor() {
+    super();
+  }
+ 
+}
 
 /**
  * Get data
  *
  * @param {Array} fields     Required fields
- * @param {Function} cb      CallBack function
+ * @returns {Object}  Promise
  * @abstract
  */
-AbstractFormModel.prototype.getData = function (fields, cb) {
-  cb(null, {});
-};
+AbstractFormModel.prototype.getData = callbackify((/*fields*/) => Promise.resolve({}));
 
 /**
  * Process form data
  *
  * @param   {Object}      changes     Form data
- * @param   {Function}    cb          CallBack function
+ * @returns {Object}  Promise
  * @abstract
  */
-AbstractFormModel.prototype.submit = function (changes, cb) {
-  cb(null);
-};
+AbstractFormModel.prototype.submit = callbackify((/*changes*/) => Promise.resolve());
 
 /**
  * Get all dependent fields, that are required for validation
@@ -53,19 +47,15 @@ AbstractFormModel.prototype.submit = function (changes, cb) {
  * @returns {Array}  Dependencies
  * @abstract
  */
-AbstractFormModel.prototype.getValidationDependency = function () {
-  return [];
-};
+AbstractFormModel.prototype.getValidationDependency = callbackify(() => Promise.resolve([]));
 
 /**
  * Record validity check
  *
  * @param {Object}      record  Record object
- * @param {Function}    cb      CallBack function
+ * @returns {Object}  Promise
  * @abstract
  */
-AbstractFormModel.prototype.isValidRecord = function (record, cb) {
-  cb(null, new ValidationErrors());
-};
+AbstractFormModel.prototype.isValidRecord = callbackify((/*record*/) => Promise.resolve(new ValidationErrors()));
 
-module.exports = AbstractFormModel;
+export default AbstractFormModel;

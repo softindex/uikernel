@@ -17,6 +17,15 @@
       title: Removing records
     - id: creating-records
       title: Creating records
+  - id: server-side
+    title: Server Tutorial
+    subitems:
+    - id: server-routes
+      title: Routing
+    - id: server-validation
+      title: Validation
+    - id: server-model
+      title: Server Model
 - title: Editors
   items:
   - id: editors
@@ -49,12 +58,14 @@
     title: Filters
   - id: grid-adapters
     title: Form Adapters
-  - id: express-grid-api
+  - id: grid-export
+    title: Export
+  - id: grid-express-api
     title: Express API
 - title: Form
   items:
-  - id: form-mixin
-    title: Mixin
+  - id: form-service
+    title: Service
   - id: form-interface
     title: Model Interface
     subitems:

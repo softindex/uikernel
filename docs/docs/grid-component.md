@@ -7,33 +7,38 @@ next: grid-columns.html
 
 Grid is a simple component for managing:
 
-* [Sorting and pagination](/examples/sorting-and-pagination/){:target="_blank"};
-* [Table cells inplace-editing](/examples/editing-grid-data/){:target="_blank"};
-* [Bulk operations](/examples/bulk-operations/){:target="_blank"};
-* Record selection;
-* Automatic synchronization of multiple forms and grids with a shared model;
+* [Sorting and pagination](/examples/sorting-and-pagination/){:target="_blank"}
+* [Table cells inplace-editing](/examples/editing-grid-data/){:target="_blank"}
+* [Bulk operations](/examples/bulk-operations/){:target="_blank"}
+* Record selection
+* Automatic synchronization of multiple forms and grids with a shared model
 * and more
 
 ---
 
 ## Properties
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| string | **model** | Model name |
-| Object | **cols** | Columns list |
-| string[] | viewColumns | Visible columns list |
-| string | height | Table height if you need grid to be scrollable |
-| boolean | saveFullRecord | Pass all record fields (not just changed) flag |
-| boolean | realtime | Grid dynamic save flag |
-| number | viewCount | One page records count |
-| number[] | viewVariants | One page records count choices |
-| Function | onSelectedChange | Custom records selection change handler |
-| boolean | multipleSorting | Multiple sorting flag |
-| string | className | Class name |
-| Object \| Object[] | defaultSort | Default sorting |
-| Object \| Object[] | sort | Sorting |
-| Function | onSorting | Sorting handler |
+| Type                | Name                      | Description                                     |
+|---------------------|---------------------------|-------------------------------------------------|
+| string | **model**  | Model name                |                                                 |
+| Object | **cols**   | Columns list              |                                                 |
+| string[] \| Object  | viewColumns               | Visible columns list                            |
+| string              | height                    | Table height if you need grid to be scrollable  |
+| boolean             | saveFullRecord            | Pass all record fields (not just changed) flag  |
+| boolean             | autoSubmit                | Grid dynamic save flag                          |
+| number              | defaultViewCount          | Default records count per page                  |
+| number              | viewCount                 | Records count per page                          |
+| number[]            | viewVariants              | Records count choices per page                  |
+| Function            | onChangeViewCount         | Records count per page change handler           |
+| Function            | onSelectedChange          | Custom records selection change handler         |
+| boolean             | multipleSorting           | Multiple sorting flag                           |
+| string              | className                 | Class name                                      |
+| Object \| Object[]  | defaultSort               | Default sorting                                 |
+| Object \| Object[]  | sort                      | Sorting                                         |
+| Function            | onSorting                 | Sorting handler                                 |
+| Function            | onPageLoad                | Page load handler                               |
+| Function            | onError                   | Error handler                                   |
+| boolean             | partialErrorChecking=false| Activate partial gradual grid validation        |
 
 ---
 
@@ -45,7 +50,7 @@ Grid is a simple component for managing:
 set(recordId, Object data, function callback)
 {% endhighlight %}
 
-Change table record
+Change grid record
 
 ---
 
@@ -55,7 +60,7 @@ Change table record
 getRecord(recordId)
 {% endhighlight %}
 
-Get record data
+Get a record
 
 ---
 
@@ -66,6 +71,16 @@ getRecordChanges(recordId)
 {% endhighlight %}
 
 Get record changes object
+
+---
+
+### getRecordErrors
+
+{% highlight javascript %}
+getRecordChanges(recordId)
+{% endhighlight %}
+
+Get record errors object
 
 ---
 
@@ -85,7 +100,7 @@ Get validation errors
 getModel(recordId)
 {% endhighlight %}
 
-Get table model
+Get grid model
 
 ---
 
@@ -115,7 +130,7 @@ Clear record changes
 clearAllChanges()
 {% endhighlight %}
 
-Clear all table changes
+Clear all grid changes
 
 ---
 
@@ -125,7 +140,7 @@ Clear all table changes
 reset()
 {% endhighlight %}
 
-Reset to initial table state
+Reset grid state to its initial state
 
 ---
 
@@ -135,7 +150,7 @@ Reset to initial table state
 handleChangeViewCount(event)
 {% endhighlight %}
 
-Change event handler of displayed rows count in a table
+Change event handler of displayed rows count in a grid
 
 ---
 
@@ -289,10 +304,10 @@ Remove record status
 
 ---
 
-### isStatus
+### hasRecordStatus
 
 {% highlight javascript %}
-isStatus(recordId, string status)
+hasRecordStatus(recordId, string status)
 {% endhighlight %}
 
 Check record status presence
@@ -316,6 +331,106 @@ removeRecordStatusAll(string status)
 {% endhighlight %}
 
 Remove records status
+
+---
+
+### setSelectedRecords
+
+{% highlight javascript %}
+setSelectedRecords(Array selectedIds, [boolean blackListMode])
+{% endhighlight %}
+
+Select only specific records
+
+---
+
+### selectRecord
+
+{% highlight javascript %}
+selectRecord(recordId, ignoreBlackList)
+{% endhighlight %}
+
+Select a record
+
+---
+
+### unselectRecord
+
+{% highlight javascript %}
+unselectRecord(recordId, ignoreBlackList)
+{% endhighlight %}
+
+Unselect a record
+
+---
+
+### isSelected
+
+{% highlight javascript %}
+isSelected(recordId)
+{% endhighlight %}
+
+Check if a record is selected
+
+---
+
+### toggleSelected
+
+{% highlight javascript %}
+toggleSelected(recordId)
+{% endhighlight %}
+
+Switch "select"
+
+---
+
+### toggleSelectAll
+
+{% highlight javascript %}
+toggleSelectAll()
+{% endhighlight %}
+
+Switch records selection mode
+
+---
+
+### selectAll
+
+{% highlight javascript %}
+selectAll()
+{% endhighlight %}
+
+Select all records
+
+---
+
+### unselectAll
+
+{% highlight javascript %}
+unselectAll()
+{% endhighlight %}
+
+Unselect all records. Switches records selection mode to "whitelist"
+
+---
+
+### isSelectBlackMode
+
+{% highlight javascript %}
+isSelectBlackMode()
+{% endhighlight %}
+
+Get current records selection mode
+
+---
+
+### getAllSelected
+
+{% highlight javascript %}
+getAllSelected()
+{% endhighlight %}
+
+Get all selected records
 
 ---
 

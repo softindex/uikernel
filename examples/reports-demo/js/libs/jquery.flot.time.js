@@ -1,11 +1,11 @@
-/**
- * Copyright (с) 2015, SoftIndex LLC.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
+/* Pretty handling of time axes.
+
+ Copyright (c) 2007-2014 IOLA and Ole Laursen.
+ Licensed under the MIT license.
+
+ Set axis.mode to "time" to enable. See the section "Time series data" in
+ API.txt for details.
+
  */
 
 (function($) {
@@ -158,7 +158,7 @@
 			return makeUtcWrapper(new Date(ts));
 		}
 	}
-	
+
 	// map of app. size of time units in milliseconds
 
 	var timeUnitSize = {
@@ -176,9 +176,9 @@
 
 	var baseSpec = [
 		[1, "second"], [2, "second"], [5, "second"], [10, "second"],
-		[30, "second"], 
+		[30, "second"],
 		[1, "minute"], [2, "minute"], [5, "minute"], [10, "minute"],
-		[30, "minute"], 
+		[30, "minute"],
 		[1, "hour"], [2, "hour"], [4, "hour"],
 		[8, "hour"], [12, "hour"],
 		[1, "day"], [2, "day"], [3, "day"],
