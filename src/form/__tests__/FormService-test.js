@@ -197,12 +197,10 @@ describe('clearError', () => {
 });
 
 describe('validateField', () => {
-  it('updateField and validateForm run', () => {
-    form.updateField = jest.fn();
-    form.validateForm = jest.fn();
+  it('set run', () => {
+    form.set = jest.fn();
     form.validateField('name', 'newName');
-    expect(form.updateField).toHaveBeenCalledTimes(1);
-    expect(form.validateForm).toHaveBeenCalledTimes(1);
+    expect(form.set).toHaveBeenCalledTimes(1);
   });
 });
 
