@@ -283,34 +283,23 @@ const FormMixin = {
    * Update form value. Is used as the Editors onSubmit handler.
    * Causes component redraw.
    *
-   * @param {string|string[]}  fields  Parameters
-   * @param {*}                values   Event or data
-   * @param {Function}         [cb]       CallBack
+   * @param {string}           field   Parameter
+   * @param {*}                value   Event or data
+   * @param {Function}         [cb]    CallBack
    */
-  updateField: function (fields, values) {
+  updateField: function (field, value) {
     if (this._isNotInitialized()) {
       return;
     }
-
-    values = utils.parseValueFromEvent(values);
-
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-      values = [values];
-    }
-
-    this.set(utils.zipObject(fields, values));
-    if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler);
-    }
+    this.set({
+      [field]: utils.parseValueFromEvent(value)
+    });
   },
 
-  validateField: function (fields, values, cb) {
-    if (this.state._formMixin.autoSubmit) {
-      throw Error('Use updateField method to update value in autoSubmit mode');
-    }
-    this.updateField(fields, values);
-    this.validateForm(cb);
+  validateField: function (fields, value, cb) {
+    this.set({
+      [field]: utils.parseValueFromEvent(value)
+    }, true, cb);
   },
 
   validateForm: function (cb) {
@@ -351,6 +340,10 @@ const FormMixin = {
     }
 
     this.setState(this.state, typeof cb === 'function' ? cb : null);
+
+    if (this.state._formMixin.autoSubmit) {
+      this.submit(this.state._formMixin.autoSubmitHandler);
+    }
   },
 
   submitData: function (data, cb) {

@@ -120,21 +120,17 @@ class FormService {
    * Update form value. Is used as the Editors onSubmit handler.
    * Causes component redraw.
    *
-   * @param {string|string[]}  fields  Parameters
-   * @param {*}                values   Event or data
+   * @param {string}  field  Parameter
+   * @param {*}       value  Event or data
    */
-  async updateField(fields, values) {
+  async updateField(field, value) {
     if (this._isNotInitialized) {
       return;
     }
 
-    values = utils.parseValueFromEvent(values);
-
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-      values = [values];
-    }
-    await this.set(utils.zipObject(fields, values));
+    await this.set({
+      [field]: utils.parseValueFromEvent(value)
+    });
   }
 
   addChangeListener(func) {
@@ -175,15 +171,10 @@ class FormService {
     this._setState();
   }
 
-  validateField(fields, values) {
-    this.updateField(fields, values);
-    try {
-      this.validateForm();
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
-      }
-    }
+  validateField(field, value) {
+    this.set({
+      [field]: utils.parseValueFromEvent(value)
+    }, true);
   }
 
   /**
