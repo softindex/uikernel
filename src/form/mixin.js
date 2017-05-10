@@ -280,12 +280,11 @@ const FormMixin = {
   },
 
   /**
-   * Update form value. Is used as the Editors onSubmit handler.
+   * Update form value. Is used as the Editors onChange handler.
    * Causes component redraw.
    *
    * @param {string}           field   Parameter
    * @param {*}                value   Event or data
-   * @param {Function}         [cb]    CallBack
    */
   updateField: function (field, value) {
     if (this._isNotInitialized()) {
@@ -296,7 +295,7 @@ const FormMixin = {
     });
   },
 
-  validateField: function (fields, value, cb) {
+  validateField: function (field, value, cb) {
     this.set({
       [field]: utils.parseValueFromEvent(value)
     }, true, cb);
@@ -334,16 +333,17 @@ const FormMixin = {
     const state = this.state._formMixin;
     state.changes = utils.getRecordChanges(state.model, state.data, state.changes, data);
 
+    if (this.state._formMixin.autoSubmit) {
+      this.submit(this.state._formMixin.autoSubmitHandler, cb);
+      return;
+    }
+
     if (validate) {
       this.validateForm(cb);
       return;
     }
 
     this.setState(this.state, typeof cb === 'function' ? cb : null);
-
-    if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler);
-    }
   },
 
   submitData: function (data, cb) {

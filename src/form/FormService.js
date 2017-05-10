@@ -106,28 +106,22 @@ class FormService {
       };
     }
 
-    const data = {
+    return {
       isLoaded,
       fields: this._getFields(),
       globalError: this._globalError,
       isSubmitting: this.isSubmitting
     };
-
-    return data;
   }
 
   /**
-   * Update form value. Is used as the Editors onSubmit handler.
+   * Update form value. Is used as the Editors onChange handler.
    * Causes component redraw.
    *
    * @param {string}  field  Parameter
    * @param {*}       value  Event or data
    */
   async updateField(field, value) {
-    if (this._isNotInitialized) {
-      return;
-    }
-
     await this.set({
       [field]: utils.parseValueFromEvent(value)
     });
@@ -171,8 +165,8 @@ class FormService {
     this._setState();
   }
 
-  validateField(field, value) {
-    this.set({
+  async validateField(field, value) {
+    await this.set({
       [field]: utils.parseValueFromEvent(value)
     }, true);
   }
