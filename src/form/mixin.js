@@ -334,7 +334,7 @@ const FormMixin = {
     state.changes = utils.getRecordChanges(state.model, state.data, state.changes, data);
 
     if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler, cb);
+      this.submit(this.state._formMixin.autoSubmitHandler);
       return;
     }
 
