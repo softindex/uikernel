@@ -8,19 +8,23 @@
 
 import notEmptyValidator from '../notEmpty.js';
 
-describe('not Empty validator', () => {
+describe('notEmpty validator', () => {
   const validator = notEmptyValidator('test');
 
   it('"1" should be valid', () => {
     expect(validator('1')).toEqual(undefined);
   });
 
-  it('\\r\\n\\t should be valid', () => {
-    expect(validator('\r\n\t')).toEqual(undefined);
+  it('"" should not be valid', () => {
+    expect(validator('')).not.toEqual(undefined);
   });
 
-  it('"  " should  be valid', () => {
-    expect(validator(' ')).toEqual(undefined);
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
+  });
+
+  it('"  " should not be valid', () => {
+    expect(validator(' ')).not.toEqual(undefined);
   });
 
   it('NaN should not be valid', () => {
@@ -64,7 +68,7 @@ describe('not Empty validator', () => {
   });
 
   it('Infinity should not be valid', () => {
-    expect(validator(Infinity)).toEqual(undefined);
+    expect(validator(Infinity)).not.toEqual(undefined);
   });
 
   it('"1a" should be valid', () => {
@@ -82,4 +86,3 @@ describe('Error message is not defined', () => {
     expect(validator(NaN)).toEqual('Can not be empty');
   });
 });
-

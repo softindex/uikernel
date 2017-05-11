@@ -19,6 +19,10 @@ describe('notNull validator', () => {
     expect(validator('')).not.toEqual(undefined);
   });
 
+  it('\\r\\n\\t should be valid', () => {
+    expect(validator('\r\n\t')).toEqual(undefined);
+  });
+
   it('" " should be valid', () => {
     expect(validator(' ')).toEqual(undefined);
   });

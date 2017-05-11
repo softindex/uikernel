@@ -19,6 +19,10 @@ describe('Without range and can be empty', () => {
     expect(validator('')).not.toEqual(undefined);
   });
 
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
+  });
+
   it('" " should not be valid', () => {
     expect(validator(' ')).not.toEqual(undefined);
   });
@@ -85,6 +89,10 @@ describe('Without range and can not be empty', () => {
 
   it('"" should not be valid', () => {
     expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
   });
 
   it('" " should not be valid', () => {
@@ -155,6 +163,10 @@ describe('With range [-1, 1] and can be empty', () => {
     expect(validator('')).not.toEqual(undefined);
   });
 
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
+  });
+
   it('" " should not be valid', () => {
     expect(validator(' ')).not.toEqual(undefined);
   });
@@ -217,6 +229,10 @@ describe('With range [-1, 1] and can not be empty', () => {
 
   it('"" should not be valid', () => {
     expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
   });
 
   it('" " should not be valid', () => {

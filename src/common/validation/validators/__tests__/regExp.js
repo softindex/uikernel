@@ -19,6 +19,10 @@ describe('Can be empty', () => {
     expect(validator('')).toEqual(undefined);
   });
 
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
+  });
+
   it('" " should not be valid', () => {
     expect(validator(' ')).not.toEqual(undefined);
   });
@@ -85,6 +89,10 @@ describe('Can not be empty', () => {
 
   it('"" should not be valid', () => {
     expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
   });
 
   it('" " should not be valid', () => {
