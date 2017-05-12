@@ -570,18 +570,15 @@ const FormMixin = {
     validator.isValidRecord(data)
       .then(validErrors => {
         const newData = getData();
-        if (this._isUnmounted || !utils.isEqual(data, newData)) {
-          return;
+        if (!this._isUnmounted && utils.isEqual(data, newData)) {
+          this.state._formMixin[output] = validErrors;
         }
-        this.state._formMixin[output] = validErrors;
         cb();
       })
       .catch(err => {
-        if (this._isUnmounted || !utils.isEqual(data, getData())) {
-          console.error(err);
-          return;
+        if (!this._isUnmounted && utils.isEqual(data, getData())) {
+          this.state._formMixin[output].clear();
         }
-        this.state._formMixin[output].clear();
         cb(err);
       });
   },
