@@ -8,12 +8,10 @@
  * @providesModule UIKernel
  */
 
-'use strict';
-
 var del = require('del');
 
-function jsClear(done) {
-  del(['lib', 'dist', '_site'], done);
+function jsClear() {
+  return del(['lib', 'dist', '_site']);
 }
 
 module.exports = jsClear;

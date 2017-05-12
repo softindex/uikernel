@@ -28,6 +28,7 @@ var gridMixinSelect = require('./mixins/select');
 var RESET_MODEL = 1 << 0;
 var RESET_VIEW_COLUMNS = 1 << 1;
 var RESET_SORT = 1 << 2;
+var RESET_VIEW_COUNT = 1 << 3;
 
 var GridComponent = React.createClass({
   propTypes: {
@@ -67,13 +68,16 @@ var GridComponent = React.createClass({
     if (!utils.isEqual(this.props.sort, nextProps.sort)) {
       reset |= RESET_SORT;
     }
+    if (this.props.viewCount !== nextProps.viewCount) {
+      reset |= RESET_VIEW_COUNT;
+    }
 
     if (!reset) {
       return;
     }
 
     this.setState({}, function () {
-      if (reset & RESET_SORT || reset & RESET_MODEL) {
+      if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
         if (reset & RESET_MODEL) {
           this.state.data = null;
           if (oldProps.model) {
@@ -82,7 +86,7 @@ var GridComponent = React.createClass({
           if (this.props.model) {
             this.props.model.on('update', this._setData);
           }
-          this._reset();
+          this._setPage(0);
         }
         this.updateTable();
       } else if (reset & RESET_VIEW_COLUMNS) {
@@ -90,19 +94,13 @@ var GridComponent = React.createClass({
       }
     });
   },
-  render: function () {
-    var component = this;
+  renderScrollableGrid: function (gridClassNames) {
     var header = this._formHeader();
-    var gridClassNames = ['data-grid'];
-
-    if (this.props.className) {
-      gridClassNames.push(this.props.className);
-    }
-
     return (
       <div className={gridClassNames.join(' ')}>
-        <table cellSpacing="0" className="dgrid-header">
-          <colgroup>{header.colGroup}</colgroup>
+        <div className="wrapper-dgrid-header">
+          <table cellSpacing="0" className="dgrid-header">
+            <colgroup>{header.colGroup}</colgroup>
             {header.cols.map(function (row, colKey) {
               return (
                 <tr key={colKey}>
@@ -112,46 +110,103 @@ var GridComponent = React.createClass({
                         key={rowKey}
                         className={col.className}
                         onClick={
-                          col.sort ?
-                            component._sortCol.bind(component, col.field) :
-                            null
-                          }
+                            col.sort ?
+                              this._sortCol.bind(this, col.field) :
+                              this._handleHeaderCellClick.bind(this, col)
+                            }
                         colSpan={col.cols}
                         rowSpan={col.rows}
                         dangerouslySetInnerHTML={{
-                          __html: col.name || ''
-                        }}
+                            __html: this._getHeaderCellHTML(col.name)
+                          }}
                       />
                     );
-                  })}
+                  }.bind(this))}
                 </tr>
               );
-            })}
-        </table>
+            }.bind(this))}
+          </table>
+        </div>
         <div
           style={{maxHeight: this.props.height}}
-          className={[
-            'dgrid-body-wrapper',
-            this.props.height ? 'dgrid-scrollable' : null
-          ].join(' ')}
+          className='dgrid-body-wrapper dgrid-scrollable'
         >
           <div className="dgrid-body">
             <div className="dgrid-loader" ref="loader"></div>
             <table
               cellSpacing="0"
-              className="dgrid-body-table"
               ref="body"
-              onClick={this.handleBodyClick}
+              onClick={this._handleBodyClick}
             >
               <colgroup>{header.colGroup}</colgroup>
-              <tbody ref="tbody"/>
+              <tbody className="dgrid-body-table" ref="tbody"/>
             </table>
           </div>
         </div>
-        {this._renderTotals()}
+        <div className="wrapper-totals">
+          {this._renderTotals(this.props.height)}
+        </div>
         {this._renderPagination()}
       </div>
     );
+  },
+  renderGrid: function (gridClassNames) {
+    var header = this._formHeader();
+    gridClassNames = gridClassNames.concat('dgrid-not-scrollable');
+    return (
+      <div className={gridClassNames.join(' ')}>
+        <div className="dgrid-loader" ref="loader"></div>
+        <table
+          cellSpacing="0"
+          className="dgrid-body-table"
+          ref="body"
+          onClick={this._handleBodyClick}
+        >
+          <thead>
+            {header.cols.map(function (row, colKey) {
+              return (
+                <tr key={colKey}>
+                  {row.map(function (col, rowKey) {
+                    return (
+                      <th
+                        key={rowKey}
+                        className={col.className}
+                        onClick={
+                            col.sort ?
+                              this._sortCol.bind(this, col.field) :
+                              this._handleHeaderCellClick.bind(this, col)
+                            }
+                        colSpan={col.cols}
+                        rowSpan={col.rows}
+                        dangerouslySetInnerHTML={{
+                            __html: this._getHeaderCellHTML(col.name)
+                          }}
+                      />
+                    );
+                  }.bind(this))}
+                </tr>
+              );
+            }.bind(this))}
+          </thead>
+          <tbody className="dgrid-body-table" ref="tbody"/>
+          {this._renderTotals(this.props.height)}
+        </table>
+        {this._renderPagination()}
+      </div>
+    );
+  },
+  render: function () {
+    var gridClassNames = ['data-grid'];
+
+    if (this.props.className) {
+      gridClassNames.push(this.props.className);
+    }
+
+    if (!this.props.height) {
+      return this.renderGrid(gridClassNames);
+    }
+
+    return this.renderScrollableGrid(gridClassNames);
   }
 });
 

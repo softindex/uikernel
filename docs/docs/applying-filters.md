@@ -5,7 +5,7 @@ prev: sorting-and-pagination.html
 next: editing-grid-data.html
 ---
 * [Live demo](/examples/applying-filters/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/applying-filters){:target="_blank"}
+* [Code]({{ site.github }}/examples/applying-filters){:target="_blank"}
 
 Sometimes you may wish to add filtering to your grid.
 There are only a few things we need to do here: create a form, teach our model to work with filters, and render the form.
@@ -88,9 +88,8 @@ var FiltersForm = (function () {
 ---
 We add an object of filters to the `FiltersForm` component as its state.
 
-In `updateValue`, we change the value of filters and call `onSubmit`,
-which is passed to `FiltersForm` through props and has `onChangeFiltersHandler` set as a callback.
-`onChangeFiltersHandler` will call `applyGridFilters`, which accepts a model and filters as parameters and returns a new model.
+In `updateValue`, we change the value of filters and call `onChangeFiltersHandler` passed to `FiltersForm` via props.
+`onChangeFiltersHandler` calls `applyGridFilters`, which accepts a model and filters as parameters and returns a new model.
 We'll define `onChangeFiltersHandler` in `MainComponent` a bit later.
 
 In `onClear`, we assign filters their initial value and call the callback from  `MainComponent`.

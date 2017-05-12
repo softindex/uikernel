@@ -19,7 +19,7 @@ var GridUIMixin = {
    *
    * @param {Event} event
    */
-  handleBodyClick: function (event) {
+  _handleBodyClick: function (event) {
     var $target = $(event.target);
     var $refParent = $target.parents('[ref]');
     var element;
@@ -30,8 +30,8 @@ var GridUIMixin = {
       element = $target.parents('td.dgrid-cell').get(0);
     }
 
-    if (element) {
-      this.handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
+    if (element && !$refParent.attr('disabled')) {
+      this._handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
     }
   },
 
@@ -42,7 +42,7 @@ var GridUIMixin = {
    * @param {HTMLElement}     element     Cell DOM element
    * @param {string}          ref         Click handler name in the table configuration
    */
-  handleCellClick: function (event, element, ref) {
+  _handleCellClick: function (event, element, ref) {
     var colId = $(element).attr('key');
     var row = $(element).parent().attr('key');
     var columnConfig = this.props.cols[colId];
@@ -62,6 +62,24 @@ var GridUIMixin = {
     }
   },
 
+  _handleHeaderCellClick: function (col, event) {
+    var $target = $(event.target);
+    var $refParent = $target.parents('[ref]');
+    var ref = $refParent.attr('ref') || event.target.getAttribute('ref');
+    var handler;
+
+    if (ref && col.onClickRefs) {
+      handler = col.onClickRefs[ref];
+      if (handler) {
+        return handler(event, this);
+      }
+    }
+
+    if (col.onClick) {
+      col.onClick(event, this);
+    }
+  },
+
   /**
    * Fetch server data
    */
@@ -72,9 +90,11 @@ var GridUIMixin = {
       return;
     }
 
+    var viewCount = this.getViewCount();
+
     this._loadData({
-      limit: this.state.viewCount,
-      offset: this.state.page * this.state.viewCount,
+      limit: viewCount,
+      offset: this.state.page * viewCount,
       sort: this._sortingToArray(),
       fields: this._getFieldsToRender(),
       extra: this._getAdditionalIds()
@@ -96,7 +116,7 @@ var GridUIMixin = {
 
       // If required page is not included in the range of existing pages,
       // request existing in a moment page
-      page = this._checkPage(this.state.page, this.state.viewCount, obj.count);
+      page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
       if (page !== this.state.page) {
         this.state.page = page;
         this.updateTable(cb);
@@ -134,6 +154,14 @@ var GridUIMixin = {
     } else {
       $(this.refs.loader.getDOMNode()).removeClass('dgrid-loader');
     }
+  },
+
+  _getHeaderCellHTML: function (columnName) {
+    var cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
+    if (cellHtml === undefined) {
+      return '';
+    }
+    return cellHtml;
   },
 
   /**
@@ -253,12 +281,12 @@ var GridUIMixin = {
       .remove();
   },
 
-  _renderTotals: function () {
-    var header = this._formHeader();
+  _renderTotals: function (isScrollable) {
     var totalsDisplayed = false;
     var i;
     var className;
     var totalsRowHTML = '';
+    var header = this._formHeader();
 
     // If data for result line display exists, form it
     if (this.state.totals) {
@@ -283,12 +311,24 @@ var GridUIMixin = {
       }
     }
 
-    return totalsDisplayed ? (
-      <table cellSpacing="0" className="dgrid-totals">
-        <colgroup>{header.colGroup}</colgroup>
+    if (!totalsDisplayed) {
+      return null;
+    }
+
+    if (isScrollable) {
+      return (
+        <table cellSpacing="0" className="dgrid-totals">
+          <colgroup>{header.colGroup}</colgroup>
+          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
+        </table>
+      );
+    }
+
+    return (
+      <tfoot className="dgrid-totals">
         <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}></tr>
-      </table>
-    ) : null;
+      </tfoot>
+    );
   },
 
   _updateField: function (row, column) {
@@ -306,6 +346,10 @@ var GridUIMixin = {
   },
 
   _updateRow: function (row, cb) {
+    if (!this.state.data) {
+      return;
+    }
+
     if (this.state.data[row]) {
       this._renderBody();
       if (cb) {

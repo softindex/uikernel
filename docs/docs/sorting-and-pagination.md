@@ -5,9 +5,9 @@ prev: first-grid-component.html
 next: applying-filters.html
 ---
 * [Live demo](/examples/sorting-and-pagination/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/sorting-and-pagination){:target="_blank"}
+* [Code]({{ site.github }}/examples/sorting-and-pagination){:target="_blank"}
 
-We have the list of data displayed all nicely. Now let's add our grid some functionality, such as sorting and pagination.
+Let's add our grid some functionality, such as sorting and pagination.
 
 To create pagination, we'll pass our `UIKernel.Grid` the `viewCount` property. In this example, we’re going to display 10 records per page.
 

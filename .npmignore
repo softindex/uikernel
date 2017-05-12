@@ -3,12 +3,14 @@ src
 vendor
 themes
 gulp
+examples
 .idea
 .editorconfig
 .eslintrc
 .gitignore
 .jscsrc
 .npmignore
+.publish
 gulpfile.js
 bower.json
 npm-debug.log

@@ -13,10 +13,25 @@
 var React = require('react');
 
 var GridPaginationMixin = {
+  propTypes: {
+    page: React.PropTypes.number,
+    defaultViewCount: React.PropTypes.number,
+    viewCount: React.PropTypes.number,
+    viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
+    onChangeViewCount: React.PropTypes.func
+  },
+
+  getDefaultProps: function () {
+    return {
+      page: 0,
+      defaultViewCount: 0
+    };
+  },
+
   getInitialState: function () {
     return {
-      page: this.props.page || 0,
-      viewCount: this.props.viewCount || 0,
+      page: this.props.page,
+      viewCount: this.props.defaultViewCount,
       count: 0
     };
   },
@@ -27,7 +42,12 @@ var GridPaginationMixin = {
    * @param {Event} event
    */
   handleChangeViewCount: function (event) {
-    this.setViewCount(event.target.value);
+    var count = this.props.viewVariants[event.target.value];
+    if (this._isViewCountPropsMode()) {
+      this.props.onChangeViewCount(count);
+      return;
+    }
+    this.setViewCount(count);
   },
 
   /**
@@ -71,6 +91,15 @@ var GridPaginationMixin = {
   },
 
   /**
+   * Refresh table handler
+   *
+   */
+  handleRefreshTable: function (event) {
+    event.preventDefault();
+    this.updateTable();
+  },
+
+  /**
    * Get current page index number
    *
    * @return {number}
@@ -99,6 +128,10 @@ var GridPaginationMixin = {
    * @param {number} viewCount
    */
   setViewCount: function (viewCount) {
+    if (this._isViewCountPropsMode()) {
+      throw Error('You can not use function "setViewCount" when set prop "viewCount"');
+    }
+
     this.state.viewCount = viewCount;
     this.state.page = this._checkPage(this.state.page, viewCount, this.state.count);
     this.updateTable();
@@ -113,6 +146,13 @@ var GridPaginationMixin = {
     return Math.ceil(this.state.count / this.state.viewCount);
   },
 
+  getViewCount: function () {
+    if (this._isViewCountPropsMode()) {
+      return this.props.viewCount;
+    }
+    return this.state.viewCount;
+  },
+
   _setPage: function (page) {
     this.state.page = this._checkPage(page, this.state.viewCount, this.state.count);
   },
@@ -122,16 +162,23 @@ var GridPaginationMixin = {
     return page < 0 || !page ? 0 : page;
   },
 
+  _isViewCountPropsMode: function () {
+    return this.props.hasOwnProperty('viewCount');
+  },
+
   _renderPagination: function () {
-    return this.props.viewCount ? (
+    var viewCount = this.getViewCount();
+    return viewCount ? (
       <div className="dgrid-footer">
         {this.props.viewVariants ? [
           <div key="0">Page Size</div>,
           <div key="1">
-            <select value={this.state.viewCount}
-              onChange={this.handleChangeViewCount}>
+            <select
+              value={this.props.viewVariants.indexOf(viewCount)}
+              onChange={this.handleChangeViewCount}
+            >
                 {this.props.viewVariants.map(function (option, key) {
-                  return <option key={key} value={option}>{option}</option>;
+                  return <option key={key} value={key}>{option}</option>;
                 }, this)}
             </select>
           </div>
@@ -141,10 +188,10 @@ var GridPaginationMixin = {
         {this.state.count ? (function () {
           return (
             <div>
-              {(this.state.page * this.state.viewCount) + 1}
+              {(this.state.page * viewCount) + 1}
               {' - '}
               {Math.min(
-                (this.state.page + 1) * this.state.viewCount,
+                (this.state.page + 1) * viewCount,
                 this.state.count
               )}
               {' of '}
@@ -154,6 +201,7 @@ var GridPaginationMixin = {
         }).call(this) : null}
         <a href="#" className="btn-next-page" onClick={this.handleNextPage}></a>
         <a href="#" className="btn-last-page" onClick={this.handleLastPage}></a>
+        <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}></a>
       </div>
     ) : null;
   }

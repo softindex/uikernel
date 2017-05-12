@@ -19,6 +19,7 @@ var ValidationErrors = require('../common/validation/ValidationErrors');
  */
 var FormMixin = {
   getInitialState: function () {
+    this._validateForm = utils.throttle(this._validateForm);
     return {
       _formMixin: null
     };
@@ -74,6 +75,7 @@ var FormMixin = {
             }
             throw err;
           });
+          return;
         }
         ctx.state._formMixin.data = data;
         done();
@@ -270,25 +272,21 @@ var FormMixin = {
       return;
     }
 
-    utils.assign(this.state._formMixin.changes, data);
+    var state = this.state._formMixin;
 
-    var dependent = utils.pick(
-      this.state._formMixin.data,
-      this.state._formMixin.model.getValidationDependency(
-        Object.keys(this.state._formMixin.changes)
-      )
-    );
+    utils.assign(state.changes, data);
 
-    utils.assign(this.state._formMixin.changes, dependent);
-
-    for (var i in this.state._formMixin.changes) {
-      if (
-        utils.isEqual(this.state._formMixin.data[i], this.state._formMixin.changes[i]) &&
-        !dependent.hasOwnProperty(i)
-      ) {
-        delete this.state._formMixin.changes[i];
+    for (var i in state.changes) {
+      if (utils.isEqual(state.data[i], state.changes[i])) {
+        delete state.changes[i];
       }
     }
+
+    utils.assign(state.changes, utils.pick(
+      state.data,
+      state.model.getValidationDependency(Object.keys(state.changes))
+    ));
+
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
@@ -414,7 +412,7 @@ var FormMixin = {
     return !this.state || !this.state._formMixin;
   },
 
-  _validateForm: utils.throttle(function (cb, stop) {
+  _validateForm: function (cb, stop) {
     if (this._isNotInitialized()) {
       return stop();
     }
@@ -442,13 +440,13 @@ var FormMixin = {
       }
 
       this.setState(this.state, function () {
-        if (!validErrors.isEmpty()) {
+        if (!err && !validErrors.isEmpty()) {
           return cb(validErrors);
         }
         cb(err);
       });
     }.bind(this));
-  }),
+  },
 
   _getData: function () {
     if (!this.state._formMixin.data) {

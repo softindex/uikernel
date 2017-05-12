@@ -26,10 +26,14 @@ var GridSelectMixin = {
   /**
    * Select only these records
    *
-   * @param {Array} selectedIds  Record IDs
+   * @param {Array}   selectedIds       Record IDs
+   * @param {boolean} [blackListMode]   Is black list mode
    */
-  setSelectedRecords: function (selectedIds) {
+  setSelectedRecords: function (selectedIds, blackListMode) {
     this.state.selected = utils.clone(selectedIds);
+    if (typeof blackListMode === 'boolean') {
+      this.state.selectBlackListMode = blackListMode;
+    }
 
     // TODO You can do without a full page reload
     this.updateTable();

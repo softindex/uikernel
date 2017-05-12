@@ -24,14 +24,14 @@ var buildSite = require('./gulp/buildSite');
 
 gulp.task('default', ['precompile']);
 
-gulp.task('jsDocs', ['jsDocs:clear'], generateJSDoc);
-gulp.task('jsDocs:clear', ['bundle'], jsDocsClear);
+gulp.task('jsdoc', ['jsdoc:clear', 'license'], generateJSDoc);
+gulp.task('jsdoc:clear', jsDocsClear);
 
 gulp.task('bundle', ['precompile'], jsBundle);
-gulp.task('precompile', ['license'], jsPrecompile);
+gulp.task('precompile', ['license', 'clear'], jsPrecompile);
 gulp.task('license', ['detectErrors'], addLicense);
-gulp.task('detectErrors', ['clear'], jsDetectErrors);
+gulp.task('detectErrors', jsDetectErrors);
 gulp.task('clear', jsClear);
 gulp.task('deploySite', ['buildSite'], deploySite);
-gulp.task('buildSite', ['bundle', 'archive'], buildSite);
-gulp.task('archive', archive);
+gulp.task('buildSite', ['archive'], buildSite);
+gulp.task('archive', ['bundle'], archive);

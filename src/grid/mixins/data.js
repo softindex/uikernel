@@ -21,11 +21,14 @@ var GridDataMixin = {
       update: React.PropTypes.func,
       isValidRecord: React.PropTypes.func,
       getValidationDependency: React.PropTypes.func,
-      errorHandler: React.PropTypes.func
+      onError: React.PropTypes.func,
+      onPageLoad: React.PropTypes.func
     }),
     saveFullRecord: React.PropTypes.bool
   },
   getInitialState: function () {
+    this._loadData = utils.throttle(this._loadData);
+    this._validateRow = utils.throttle(this._validateRow);
     return {
       data: null,
       changes: {},
@@ -226,19 +229,11 @@ var GridDataMixin = {
    * Reset to initial table state
    */
   reset: function () {
-    this._reset();
-    this.updateTable();
-  },
-
-  /**
-   * Reset to initial table state
-   * @private
-   */
-  _reset: function () {
+    this._setPage(0);
     if (!this._isSortingPropsMode()) {
       this._resetSorting();
     }
-    this._setPage(0);
+    this.updateTable();
   },
 
   /**
@@ -338,26 +333,32 @@ var GridDataMixin = {
    * This method marks changed fields
    *
    * @param {string}      row         Row ID
-   * @param {Object}      changes     Changed data
+   * @param {Object}      data        Changed data
    * @private
    */
-  _setRowChanges: function (row, changes) {
-    if (!this.state.changes[row]) {
-      this.state.changes[row] = {};
-    }
-    utils.assign(this.state.changes[row], changes, utils.pick(
-      this.state.data[row],
-      this.props.model.getValidationDependency(
-        Object.keys(this.state.changes[row])
-      )
-    ));
-    if (!this.state.changes[row]) {
-      delete this.state.changes[row];
+  _setRowChanges: function (row, data) {
+    var changes = this.state.changes;
+
+    if (!changes[row]) {
+      changes[row] = {};
     }
 
-    utils.forEach(changes, function (value, field) {
-      this._renderBinds(row, field);
-    }, this);
+    utils.assign(changes[row], data);
+
+    // Mark dependent fields as changed
+    utils.assign(changes[row], utils.pick(
+      this.state.data[row],
+      this.props.model.getValidationDependency(Object.keys(changes[row]))
+    ));
+
+    if (utils.isEmpty(changes[row])) {
+      delete changes[row];
+    } else {
+      // Redraw the changes in the row
+      utils.forEach(changes[row], function (value, field) {
+        this._renderBinds(row, field);
+      }, this);
+    }
   },
 
   /**
@@ -484,14 +485,17 @@ var GridDataMixin = {
    * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: utils.throttle(function (settings, cb) {
+  _loadData: function (settings, cb) {
     this.props.model.read(settings, function (err, data) {
-      if (err && this.props.errorHandler) {
-        this.props.errorHandler(err);
+      if (err && this.props.onError) {
+        this.props.onError(err);
+      }
+      if (this.props.onPageLoad) {
+        this.props.onPageLoad(data);
       }
       cb(err, data);
     }.bind(this));
-  }),
+  },
 
   /**
    * Find record IDs that need to be displayed additionally
@@ -504,7 +508,7 @@ var GridDataMixin = {
     var id;
     for (var row in this.state.changes) {
       id = this.state.recordsInfo[row].id;
-      if (additionalIds.indexOf(id) >= 0) {
+      if (additionalIds.indexOf(id) < 0) {
         additionalIds.push(id);
       }
     }
@@ -527,7 +531,7 @@ var GridDataMixin = {
     }, cb ? cb.bind(this) : null);
   },
 
-  _validateRow: utils.throttle(function (row, cb) {
+  _validateRow: function (row, cb) {
     var record = this._getRecord(row);
 
     this.props.model.isValidRecord(record, function (err, validErrors) {
@@ -543,7 +547,7 @@ var GridDataMixin = {
       }
       cb(err);
     }.bind(this));
-  })
+  }
 };
 
 module.exports = GridDataMixin;

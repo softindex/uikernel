@@ -10,6 +10,8 @@
 
 'use strict';
 
+var Events = require('../../common/Events');
+
 /**
  * Adapter allows to use Grid model as a model for new form record creation
  *
@@ -22,11 +24,16 @@ var GridToFormCreate = function (model, initialData) {
     return new GridToFormCreate(model, initialData);
   }
 
+  Events.call(this);
+
   this._adapter = {
     model: model,
     initialData: initialData || {}
   };
 };
+
+GridToFormCreate.prototype = Object.create(Events.prototype);
+GridToFormCreate.prototype.constructor = GridToFormCreate;
 
 /**
  * Get data
@@ -67,9 +74,5 @@ GridToFormCreate.prototype.isValidRecord = function (record, cb) {
 GridToFormCreate.prototype.getValidationDependency = function (fields) {
   return this._adapter.model.getValidationDependency(fields);
 };
-
-// Simplification that allows us not to inherit EventsModel
-GridToFormCreate.prototype.on = function () {};
-GridToFormCreate.prototype.off = function () {};
 
 module.exports = GridToFormCreate;

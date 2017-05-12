@@ -5,7 +5,7 @@ prev: getting-started.html
 next: first-grid-component.html
 ---
 * [Live demo](/examples/creating-records/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/creating-records){:target="_blank"}
+* [Code]({{ site.github }}/examples/creating-records){:target="_blank"}
 
 This tutorial demonstrates how to build forms and editable grids with UIKernel. The steps for this tutorial are as follows:
 
@@ -17,16 +17,7 @@ This tutorial demonstrates how to build forms and editable grids with UIKernel. 
 6. Create a from for adding records to our grid
 
 
-To get started, we will need to install the [UIKernel package](https://www.npmjs.com/package/uikernel){:target="_blank"}.
-In the command line, run the following command:
-
-{% highlight html %}
-npm install uikernel
-{% endhighlight %}
-
-This will create a `node_modules` folder in which will be UIKernel.
-
-Then [download](/download.html) CSS & Images.
+To get started, we will need to [install](/download.html) UIKernel.
 
 Next, create a directory with the following structure:
 
@@ -34,7 +25,6 @@ Next, create a directory with the following structure:
 |-- css
     |-- uikernel
         * css and images we've downloaded
-    bootstrap.min.css
     main.css
 |-- js
     |-- components
@@ -43,7 +33,7 @@ Next, create a directory with the following structure:
         MainComponent.jsx
     |-- libs
         uikernel.js
-    |-- model
+    |-- models
         model.js
         validation.js
     columns.jsx
@@ -51,6 +41,8 @@ Next, create a directory with the following structure:
 index.html
 {% endhighlight %}
 ---
+
+All files in `js/components` and `js/models` as well as the `css/main.css` file are empty, we'll add some code into them later.
 
 Our `index.html` file should look like this:
 
@@ -60,7 +52,7 @@ Our `index.html` file should look like this:
 <head>
     <meta charset="utf-8"/>
     <title>Example</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
     <link href="css/uikernel/main.css" rel="stylesheet" type="text/css"/>
     <link href="css/main.css" rel="stylesheet" type="text/css"/>
 </head>

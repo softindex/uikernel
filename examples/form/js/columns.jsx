@@ -13,6 +13,9 @@ var columns = {
     name : 'ID',
     width: '40',
     sortCycle: ['asc', 'desc'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['id', function (record) {
       return record.id;
     }]
@@ -20,6 +23,9 @@ var columns = {
   name: {
     name: 'Name', // columns title
     sortCycle: ['asc', 'desc', 'default'], // sort cycle
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['name', function (record) { // method to render a cell
       return record.name;
     }]
@@ -27,6 +33,9 @@ var columns = {
   age: {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['age', function (record) {
       return record.age;
     }]

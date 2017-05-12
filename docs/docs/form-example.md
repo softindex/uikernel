@@ -5,12 +5,12 @@ prev: bulk-operations.html
 next: data-binding.html
 ---
 
-Example of simple form creating that edits 2nd table record.
+In this example, we'll be building a simple form for editing the 2nd record in the grid.
 
 * [Live demo](/examples/form/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/form){:target="_blank"}
+* [Code]({{ site.github }}/examples/form){:target="_blank"}
 
-Let's describe fields we need
+Let's create the columns for our grid first.
 
 `columns.jsx`
 
@@ -20,6 +20,9 @@ var columns = {
     name : 'ID',
     width: '40',
     sortCycle: ['asc', 'desc'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['id', function (record) {
       return record.id;
     }]
@@ -27,6 +30,9 @@ var columns = {
   name: {
     name: 'Name', // columns title
     sortCycle: ['asc', 'desc', 'default'], // sort cycle
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['name', function (record) { // method to render a cell
       return record.name;
     }]
@@ -34,6 +40,9 @@ var columns = {
   age: {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
+    editor: function () {
+      return <input type="text" {...this.props}/>;
+    },
     render: ['age', function (record) {
       return record.age;
     }]
@@ -43,19 +52,20 @@ var columns = {
 
 ---
 
-And add validation for these fields
+Next, we'll define validation.
 
 `validation.js`
 
 {% highlight javascript %}
 var Validation = UIKernel.createValidator()
-  .field('name', UIKernel.Validators.regExp(/^\w{2,30}$/, 'Invalid first name.'))
-  .field('age', UIKernel.Validators.number(15, 90, 'Age must be between 15 and 90'));
+  .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
+  .field('age', UIKernel.Validators.number.notNull(15, 90, 'Age must be between 15 and 90'));
 {% endhighlight %}
 
 ---
 
-Now pass data and validation to the model
+
+Now pass data and validation to the model.
 
 `model.js`
 
@@ -72,7 +82,7 @@ var model = new UIKernel.Models.Grid.Collection({
 
 ---
 
-Now we can create simple editing form
+Create a form.
 
 `FormComponent.jsx`
 
@@ -149,7 +159,7 @@ var FormComponent =  React.createClass({
 
 ---
 
-Create MainComponent and place FormComponent in it
+Add `FormComponent` within `MainComponent`.
 
 `MainComponent.jsx`
 
@@ -169,6 +179,7 @@ var MainComponent = React.createClass({
                   ref="grid"
                   model={model}
                   cols={columns}
+                  realtime={true}
                 />
                 <FormComponent />
               </div>
@@ -180,4 +191,11 @@ var MainComponent = React.createClass({
   }
 });
 {% endhighlight %}
+---
 
+Finally, let's render `MainComponent`.
+
+`main.jsx`:
+{% highlight javascript %}
+React.render(<MainComponent/>, document.getElementById("example"));
+{% endhighlight %}

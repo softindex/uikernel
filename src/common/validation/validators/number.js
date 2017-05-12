@@ -10,6 +10,26 @@
 
 'use strict';
 
+var utils = require('../../utils');
+
+function validator(notNull, min, max, error, value) {
+  if (!utils.isDefined(value)) {
+    if (notNull) {
+      return error;
+    }
+    return;
+  }
+
+  if (
+    !value && value !== 0 ||
+    parseInt(value, 10).toString() !== value.toString() ||
+    typeof min === 'number' && value < min ||
+    typeof max === 'number' && value > max
+  ) {
+    return error;
+  }
+}
+
 /**
  * Create range Number validator
  *
@@ -19,14 +39,9 @@
  * @returns {Function}
  */
 module.exports = function (min, max, error) {
-  return function (value) {
-    if (
-      !value && value !== 0 ||
-      parseInt(value, 10).toString() !== value.toString() ||
-      typeof min === 'number' && value < min ||
-      typeof max === 'number' && value > max
-    ) {
-      return error;
-    }
-  };
+  return validator.bind(null, false, min, max, error);
+};
+
+module.exports.notNull = function (min, max, error) {
+  return validator.bind(null, true, min, max, error);
 };

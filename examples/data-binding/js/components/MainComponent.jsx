@@ -29,7 +29,7 @@ var MainComponent = React.createClass({
       <div className="container">
         <div className="row">
           <div className="col-sm-6">
-            <h3>Grid with autosaving</h3>
+            <h3>Grid with autosave</h3>
             <UIKernel.Grid
               model={this.state.model} // Grid model
               cols={columns} // columns configuration
@@ -38,7 +38,7 @@ var MainComponent = React.createClass({
               />
           </div>
           <div className="col-sm-6">
-            <h3>Grid without autosaving</h3>
+            <h3>Grid without autosave</h3>
             <UIKernel.Grid
               ref="grid"
               model={this.state.model}

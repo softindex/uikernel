@@ -30,6 +30,9 @@ var Validator = function () {
     asyncValidators: {},
     asyncGroupValidators: []
   };
+
+  this.isValidRecord = this.isValidRecord.bind(this);
+  this.getValidationDependency = this.getValidationDependency.bind(this);
 };
 
 /**
@@ -142,7 +145,7 @@ Validator.prototype.getValidationDependency = function (fields) {
  * @param {Object}  record   Record
  * @returns {ValidationErrors|null} Record validity
  */
-Validator.prototype.isValidRecord = suspend.async(function * (record) {
+Validator.prototype.isValidRecord = suspend.callback(function * (record) {
   var fields = Object.keys(record);
   var errors = new ValidationErrors();
   var yieldStack = [];

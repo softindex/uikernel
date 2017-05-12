@@ -18,22 +18,22 @@ Grid is a simple component for managing:
 
 ## Properties
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| string | **model** | Model name |
-| Object | **cols** | Columns list |
-| string[] | viewColumns | Visible columns list |
-| string | height | Table height if you need grid to be scrollable |
-| boolean | saveFullRecord | Pass all record fields (not just changed) flag |
-| boolean | realtime | Grid dynamic save flag |
-| number | viewCount | One page records count |
-| number[] | viewVariants | One page records count choices |
-| Function | onSelectedChange | Custom records selection change handler |
-| boolean | multipleSorting | Multiple sorting flag |
-| string | className | Class name |
-| Object \| Object[] | defaultSort | Default sorting |
-| Object \| Object[] | sort | Sorting |
-| Function | onSorting | Sorting handler |
+| Type                | Name              | Description                                     |
+|---------------------|-------------------|-------------------------------------------------|
+| string | **model**  | Model name        |                                                 |
+| Object | **cols**   | Columns list      |                                                 |
+| string[] \| Object  | viewColumns       | Visible columns list                            |
+| string              | height            | Table height if you need grid to be scrollable  |
+| boolean             | saveFullRecord    | Pass all record fields (not just changed) flag  |
+| boolean             | realtime          | Grid dynamic save flag                          |
+| number              | viewCount         | One page records count                          |
+| number[]            | viewVariants      | One page records count choices                  |
+| Function            | onSelectedChange  | Custom records selection change handler         |
+| boolean             | multipleSorting   | Multiple sorting flag                           |
+| string              | className         | Class name                                      |
+| Object \| Object[]  | defaultSort       | Default sorting                                 |
+| Object \| Object[]  | sort              | Sorting                                         |
+| Function            | onSorting         | Sorting handler                                 |
 
 ---
 
@@ -66,6 +66,16 @@ getRecordChanges(recordId)
 {% endhighlight %}
 
 Get record changes object
+
+---
+
+### getRecordErrors
+
+{% highlight javascript %}
+getRecordChanges(recordId)
+{% endhighlight %}
+
+Get record errors object
 
 ---
 
@@ -289,10 +299,10 @@ Remove record status
 
 ---
 
-### isStatus
+### hasRecordStatus
 
 {% highlight javascript %}
-isStatus(recordId, string status)
+hasRecordStatus(recordId, string status)
 {% endhighlight %}
 
 Check record status presence
@@ -316,6 +326,106 @@ removeRecordStatusAll(string status)
 {% endhighlight %}
 
 Remove records status
+
+---
+
+### setSelectedRecords
+
+{% highlight javascript %}
+setSelectedRecords(Array selectedIds, [boolean blackListMode])
+{% endhighlight %}
+
+Select only these records
+
+---
+
+### selectRecord
+
+{% highlight javascript %}
+selectRecord(recordId, ignoreBlackList)
+{% endhighlight %}
+
+Select a record
+
+---
+
+### unselectRecord
+
+{% highlight javascript %}
+unselectRecord(recordId, ignoreBlackList)
+{% endhighlight %}
+
+Unselect a record
+
+---
+
+### isSelected
+
+{% highlight javascript %}
+isSelected(recordId)
+{% endhighlight %}
+
+Check if a record is selected
+
+---
+
+### toggleSelected
+
+{% highlight javascript %}
+toggleSelected(recordId)
+{% endhighlight %}
+
+Switch "select"
+
+---
+
+### toggleSelectAll
+
+{% highlight javascript %}
+toggleSelectAll()
+{% endhighlight %}
+
+Switch records selection mode
+
+---
+
+### selectAll
+
+{% highlight javascript %}
+selectAll()
+{% endhighlight %}
+
+Select all records
+
+---
+
+### unselectAll
+
+{% highlight javascript %}
+unselectAll()
+{% endhighlight %}
+
+Unselect all records. Switches records selection mode to "whitelist"
+
+---
+
+### isSelectBlackMode
+
+{% highlight javascript %}
+isSelectBlackMode()
+{% endhighlight %}
+
+Get current records selection mode
+
+---
+
+### getAllSelected
+
+{% highlight javascript %}
+getAllSelected()
+{% endhighlight %}
+
+Get all selected records
 
 ---
 
