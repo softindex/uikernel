@@ -16,7 +16,7 @@ function ArgumentsError(message) {
   if (Error.captureStackTrace) {
     Error.captureStackTrace(this, ArgumentsError);
   } else {
-    this.stack = (new Error()).stack;
+    this.stack = new Error().stack;
   }
 }
 
