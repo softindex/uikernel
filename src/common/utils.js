@@ -428,19 +428,20 @@ exports.getRecordChanges = function (model, data, changes, newChanges) {
 };
 
 exports.getStack = function () {
-  //we add here try..catch because in IE Error.stack is available only
+  // We add here try..catch because in IE Error.stack is available only
   // for thrown errors: https://msdn.microsoft.com/ru-ru/library/windows/apps/hh699850.aspx
   try {
     throw new Error();
   } catch (e) {
-    if (e.stack) {        //Error.stack is unavailable in old browsers
+    if (e.stack) {        // Error.stack is unavailable in old browsers
       return e.stack
         .split('\n')
-        .slice(2)         //here we delete rows 'Error' and 'at getStack(utils.js:427)'
+        .slice(2)         // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
         .join('\n');
     }
-    return '';
   }
+
+  return '';
 };
 
 exports.warn = function (message) {
