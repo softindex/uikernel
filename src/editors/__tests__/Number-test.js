@@ -2,33 +2,40 @@ import React from 'react';
 import {mount} from 'enzyme';
 import Number from '../Number';
 
-function getOnChangeHandler(value) {
+function getOnChangeHandler(eventValue, eventIsValid) {
   const onChange = jest.fn();
   const renderedComponent = mount(
     <Number value={null} onChange={onChange}/>
   );
 
   const input = renderedComponent.find('input');
-  input.simulate('change', {target: {value}});
+  input.simulate('change', {
+    target: {
+      value: eventValue,
+      validity: {
+        valid: eventIsValid
+      }
+    }
+  });
 
   return onChange;
 }
 
 describe('NumberEditor type converting', () => {
-  it('Invalid value should returns as string', () => {
-    expect(getOnChangeHandler('text')).toHaveBeenCalledWith('text');
-  });
-
-  it('Integer value should returns as number', () => {
-    expect(getOnChangeHandler('3')).toHaveBeenCalledWith(3);
-  });
-
-  it('Float value should returns as number', () => {
-    expect(getOnChangeHandler('3.1')).toHaveBeenCalledWith(3.1);
+  it('Invalid value should returns as empty string', () => {
+    expect(getOnChangeHandler('', false)).toHaveBeenCalledWith('');
   });
 
   it('Empty value should returns as null', () => {
-    expect(getOnChangeHandler('')).toHaveBeenCalledWith(null);
+    expect(getOnChangeHandler('', true)).toHaveBeenCalledWith(null);
+  });
+
+  it('Integer value should returns as number', () => {
+    expect(getOnChangeHandler('3', true)).toHaveBeenCalledWith(3);
+  });
+
+  it('Float value should returns as number', () => {
+    expect(getOnChangeHandler('3.1', true)).toHaveBeenCalledWith(3.1);
   });
 });
 

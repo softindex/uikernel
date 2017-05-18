@@ -6,12 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import floatValidator from '../common/validation/validators/float';
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
-
-const isInvalidFloat = floatValidator(null, null, true);
 
 class NumberEditor extends React.Component {
   static propTypes = {
@@ -36,10 +33,10 @@ class NumberEditor extends React.Component {
     const target = e.target;
     const valueAsNumber = parseFloat(target.value);
 
-    if (target.value === '') {
-      this.state.value = null;
-    } else if (isInvalidFloat(valueAsNumber)) {
+    if (!target.validity.valid) {
       this.state.value = target.value;
+    } else if (target.value === '') {
+      this.state.value = null;
     } else {
       this.state.value = valueAsNumber;
     }
