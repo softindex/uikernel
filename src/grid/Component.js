@@ -138,7 +138,7 @@ const GridComponent = React.createClass({
       editor: {},
       colsWithEscapeErrors: {},
       selectBlackListMode: false,
-      selected: []
+      selected: this.props.selectedColumns
     };
   },
   componentDidMount: function () {
