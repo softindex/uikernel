@@ -80,11 +80,13 @@ class FormService {
     this.model.on('update', this._onModelChange);
     this._setState();
 
-    try {
-      await this.validateForm();
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
+    if (!settings._partialErrorChecking) {
+      try {
+        await this.validateForm();
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
       }
     }
   }
@@ -104,35 +106,25 @@ class FormService {
       };
     }
 
-    const data = {
+    return {
       isLoaded,
       fields: this._getFields(),
       globalError: this._globalError,
       isSubmitting: this.isSubmitting
     };
-
-    return data;
   }
 
   /**
-   * Update form value. Is used as the Editors onSubmit handler.
+   * Update form value. Is used as the Editors onChange handler.
    * Causes component redraw.
    *
-   * @param {string|string[]}  fields  Parameters
-   * @param {*}                values   Event or data
+   * @param {string}  field  Parameter
+   * @param {*}       value  Event or data
    */
-  async updateField(fields, values) {
-    if (this._isNotInitialized) {
-      return;
-    }
-
-    values = utils.parseValueFromEvent(values);
-
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-      values = [values];
-    }
-    await this.set(utils.zipObject(fields, values));
+  async updateField(field, value) {
+    await this.set({
+      [field]: utils.parseValueFromEvent(value)
+    });
   }
 
   addChangeListener(func) {
@@ -173,15 +165,10 @@ class FormService {
     this._setState();
   }
 
-  validateField(fields, values) {
-    this.updateField(fields, values);
-    try {
-      this.validateForm();
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
-      }
-    }
+  async validateField(field, value) {
+    await this.set({
+      [field]: utils.parseValueFromEvent(value)
+    }, true);
   }
 
   /**

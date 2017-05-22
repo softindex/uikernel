@@ -49,7 +49,8 @@ class SuggestBoxEditor extends React.Component {
     defaultLabel: React.PropTypes.string,
     label: React.PropTypes.string,
     notFoundElement: React.PropTypes.element,
-    loadingElement: React.PropTypes.element
+    loadingElement: React.PropTypes.element,
+    onFocus: React.PropTypes.func
   };
 
   static defaultProps = {
@@ -212,9 +213,12 @@ class SuggestBoxEditor extends React.Component {
     });
   }
 
-  _onInputFocus() {
+  _onInputFocus(e) {
     this._openList();
     findDOMNode(this.refs.input).select();
+    if (this.props.onFocus) {
+      this.props.onFocus(e);
+    }
   }
 
   _closeList(shouldBlur) {
@@ -504,7 +508,7 @@ class SuggestBoxEditor extends React.Component {
       <div className='__suggestBox'>
         <div className={classes.searchBlock}>
           <input
-            {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange'])}
+            {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange', 'onFocus'])}
             ref='input'
             type='text'
             onClick={this._openList.bind(this, '')}

@@ -17,7 +17,13 @@ import utils from '../../utils';
 export default function (error) {
   error = error || 'Can not be empty';
   return function (value) {
-    if (utils.isEmpty(value)) {
+    if (
+      utils.isEmpty(value) ||
+      (typeof value === 'number' && (
+        isNaN(value) ||
+        !isFinite(value)
+      ))
+    ) {
       return error;
     }
   };

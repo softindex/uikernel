@@ -77,6 +77,9 @@ exports.indexOf = function (arr, item) {
 };
 
 exports.throttle = function (func) {
+  let worked = false;
+  let nextArguments;
+  let nextResolve;
   return function () {
     if (typeof arguments[arguments.length - 1] === 'function') {
       return throttleCallback(func).apply(this, arguments);
@@ -86,24 +89,10 @@ exports.throttle = function (func) {
   };
 
   function throttleCallback(func) {
-    let worked = false;
-    let nextArguments;
-
     return function run() {
       const ctx = this; // Function context
       const cb = arguments[arguments.length - 1];
       const argumentsArray = [].slice.call(arguments);
-
-      function nextWorker() {
-        worked = false;
-        if (nextArguments) {
-          const args = nextArguments;
-          nextArguments = null;
-          run.apply(ctx, args);
-          return true;
-        }
-        return false;
-      }
 
       if (worked) {
         // Set as the next call
@@ -125,14 +114,21 @@ exports.throttle = function (func) {
       } else {
         func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
       }
+
+      function nextWorker() {
+        worked = false;
+        if (nextArguments) {
+          const args = nextArguments;
+          nextArguments = null;
+          run.apply(ctx, args);
+          return true;
+        }
+        return false;
+      }
     };
   }
 
   function throttlePromise(func) {
-    let worked = false;
-    let nextArguments;
-    let nextResolve;
-
     /**
      * @throws {ThrottleError} Too many function call
      */
@@ -200,6 +196,7 @@ exports.decorate = function (obj, decor) {
       }
     }
   }
+
   Decorator.prototype = obj;
   Decorator.prototype.constructor = Decorator;
   return new Decorator();
@@ -259,6 +256,9 @@ exports.isEmpty = function (value) {
   }
   if (typeof value === 'object') {
     return Object.keys(value).length === 0;
+  }
+  if (typeof value === 'string') {
+    return value.trim().length === 0;
   }
   return false;
 };
@@ -428,10 +428,20 @@ exports.getRecordChanges = function (model, data, changes, newChanges) {
 };
 
 exports.getStack = function () {
-  return new Error().stack
-    .split('\n')
-    .slice(2) // Error message, getStack
-    .join('\n');
+  // We add here try..catch because in IE Error.stack is available only
+  // for thrown errors: https://msdn.microsoft.com/ru-ru/library/windows/apps/hh699850.aspx
+  try {
+    throw new Error();
+  } catch (e) {
+    if (e.stack) {        // Error.stack is unavailable in old browsers
+      return e.stack
+        .split('\n')
+        .slice(2)         // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
+        .join('\n');
+    }
+  }
+
+  return '';
 };
 
 exports.warn = function (message) {

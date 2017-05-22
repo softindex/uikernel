@@ -19,6 +19,10 @@ describe('Without range and can be empty', () => {
     expect(validator('')).not.toEqual(undefined);
   });
 
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
+  });
+
   it('" " should not be valid', () => {
     expect(validator(' ')).not.toEqual(undefined);
   });
@@ -65,6 +69,14 @@ describe('Without range and can be empty', () => {
 
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
+  });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
   });
 });
 
@@ -79,6 +91,10 @@ describe('Without range and can not be empty', () => {
     expect(validator('')).not.toEqual(undefined);
   });
 
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
+  });
+
   it('" " should not be valid', () => {
     expect(validator(' ')).not.toEqual(undefined);
   });
@@ -126,6 +142,14 @@ describe('Without range and can not be empty', () => {
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
   });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
+  });
 });
 
 describe('With range [-1, 1] and can be empty', () => {
@@ -137,6 +161,10 @@ describe('With range [-1, 1] and can be empty', () => {
 
   it('"" should not be valid', () => {
     expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
   });
 
   it('" " should not be valid', () => {
@@ -182,6 +210,14 @@ describe('With range [-1, 1] and can be empty', () => {
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
   });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
+  });
 });
 
 describe('With range [-1, 1] and can not be empty', () => {
@@ -193,6 +229,10 @@ describe('With range [-1, 1] and can not be empty', () => {
 
   it('"" should not be valid', () => {
     expect(validator('')).not.toEqual(undefined);
+  });
+
+  it('\\r\\n\\t should not be valid', () => {
+    expect(validator('\r\n\t')).not.toEqual(undefined);
   });
 
   it('" " should not be valid', () => {
@@ -237,6 +277,14 @@ describe('With range [-1, 1] and can not be empty', () => {
 
   it('Infinity should not be valid', () => {
     expect(validator(Infinity)).not.toEqual(undefined);
+  });
+
+  it('"1a" should not be valid', () => {
+    expect(validator('ab')).not.toEqual(undefined);
+  });
+
+  it('"1ab" should not be valid', () => {
+    expect(validator('abc')).not.toEqual(undefined);
   });
 });
 

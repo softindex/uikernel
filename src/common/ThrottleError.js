@@ -6,9 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-function ThrottleError(message) {
-  this.message = message || 'Too many function call';
-  Error.captureStackTrace(this, ThrottleError);
+
+function ThrottleError() {
+  Error.call(this);
+
+  this.name = 'ThrottleError';
+  this.message = 'Too many function call';
+
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this, ThrottleError);
+  } else {
+    this.stack = new Error().stack;
+  }
 }
 
 ThrottleError.prototype = Object.create(Error.prototype);
