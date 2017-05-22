@@ -62,7 +62,7 @@ const GridComponent = React.createClass({
         React.PropTypes.arrayOf(React.PropTypes.string),
         React.PropTypes.object
       ]),
-      selectedColumns: React.PropTypes.array,
+      selected: React.PropTypes.array,
       // sort: React.PropTypes.object,
       page: React.PropTypes.number,
       defaultViewCount: React.PropTypes.number,
@@ -112,7 +112,7 @@ const GridComponent = React.createClass({
     page: 0,
     defaultViewCount: 0,
     partialErrorChecking: false,
-    selectedColumns: []
+    selected: []
   }),
   getInitialState: function () {
     this._loadData = utils.throttle(this._loadData);
@@ -138,7 +138,7 @@ const GridComponent = React.createClass({
       editor: {},
       colsWithEscapeErrors: {},
       selectBlackListMode: false,
-      selected: this.props.selectedColumns
+      selected: this.props.selected
     };
   },
   componentDidMount: function () {
@@ -172,7 +172,7 @@ const GridComponent = React.createClass({
     if (this.props.viewCount !== nextProps.viewCount) {
       reset |= RESET_VIEW_COUNT;
     }
-    if (!utils.isEqual(this.props.selectedColumns, nextProps.selectedColumns)) {
+    if (!utils.isEqual(this.props.selected, nextProps.selected)) {
       reset |= RESET_SELECTED_COLUMNS;
     }
 
@@ -181,8 +181,8 @@ const GridComponent = React.createClass({
     }
 
     this.setState({}, function () {
-      if (nextProps.selectedColumns) {
-        this.state.selected = nextProps.selectedColumns;
+      if (nextProps.selected) {
+        this.state.selected = nextProps.selected;
       }
       if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT || reset & RESET_SELECTED_COLUMNS) {
         if (reset & RESET_MODEL) {
