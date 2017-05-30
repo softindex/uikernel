@@ -43,6 +43,9 @@ const GridEditorMixin = {
         const data = {};
         data[field] = nextValue;
         this._setRowChanges(row, data);
+      },
+      set: (fields, data) => {
+        this._setRowChanges(row, data);
       }
     };
 
