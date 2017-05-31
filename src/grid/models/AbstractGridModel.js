@@ -1,17 +1,14 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
-
-var EventsModel = require('../../common/Events');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
+import callbackify from '../../common/callbackify';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import EventsModel from '../../common/Events';
 
 /**
  * Grid model abstraction
@@ -19,7 +16,7 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
  * @constructor
  * @extends EventsModel
  */
-var AbstractGridModel = function () {
+const AbstractGridModel = function () {
   EventsModel.call(this);
 };
 AbstractGridModel.prototype = new EventsModel();
@@ -32,9 +29,7 @@ AbstractGridModel.prototype.constructor = AbstractGridModel;
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.create = function (record, cb) {
-  cb(null);
-};
+AbstractGridModel.prototype.create = callbackify((/*record*/) => Promise.resolve());
 
 /**
  * Get records list
@@ -49,13 +44,11 @@ AbstractGridModel.prototype.create = function (record, cb) {
  * @param {Function}    cb                      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.read = function (settings, cb) {
-  cb(null, {
-    records: [],   // Primary records
-    ids: [],    // Extra records
-    extraRecords: 0    // In all records count
-  });
-};
+AbstractGridModel.prototype.read = callbackify((/*settings*/) => Promise.resolve({
+  records: [],   // Primary records
+  ids: [],    // Extra records
+  extraRecords: 0    // In all records count
+}));
 
 /**
  * Get the particular record
@@ -65,9 +58,7 @@ AbstractGridModel.prototype.read = function (settings, cb) {
  * @param {Function}  cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.getRecord = function (id, fields, cb) {
-  cb(null);
-};
+AbstractGridModel.prototype.getRecord = callbackify((/*id, fields*/) => Promise.resolve());
 
 /**
  * Apply record changes
@@ -76,9 +67,7 @@ AbstractGridModel.prototype.getRecord = function (id, fields, cb) {
  * @param {Function}    cb          CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.update = function (changes, cb) {
-  cb(null, []);
-};
+AbstractGridModel.prototype.update = callbackify((/*changes*/) => Promise.resolve([]));
 
 /**
  * Get all dependent fields, that are required for validation
@@ -87,9 +76,7 @@ AbstractGridModel.prototype.update = function (changes, cb) {
  * @returns {Array}  Dependencies
  * @abstract
  */
-AbstractGridModel.prototype.getValidationDependency = function () {
-  return [];
-};
+AbstractGridModel.prototype.getValidationDependency = () => [];
 
 /**
  * Validation check
@@ -98,8 +85,6 @@ AbstractGridModel.prototype.getValidationDependency = function () {
  * @param {Function}    cb      CallBack function
  * @abstract
  */
-AbstractGridModel.prototype.isValidRecord = function (record, cb) {
-  cb(null, new ValidationErrors());
-};
+AbstractGridModel.prototype.isValidRecord = callbackify((/*record*/) => Promise.resolve(new ValidationErrors()));
 
-module.exports = AbstractGridModel;
+export default AbstractGridModel;

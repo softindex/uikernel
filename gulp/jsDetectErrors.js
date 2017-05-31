@@ -1,25 +1,27 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+import gulp from 'gulp';
+import eslint from 'gulp-eslint';
+import gulpIf from 'gulp-if';
 
-var gulp = require('gulp');
-var jsxcs = require('gulp-jsxcs');
-var eslint = require('gulp-eslint');
-
-function jsDetectErrors() {
-  return gulp.src(['gulpfile.js', 'main.js', 'browser.js', 'src/**/*.js', 'src/**/*.jsx', 'gulp/**/*.js'])
-    .pipe(jsxcs())
-    .pipe(eslint())
-    .pipe(eslint.format())
-    .pipe(eslint.failOnError());
+/**
+ * Has ESLint fixed the file contents
+ */
+function isFixed(file) {
+  return file.eslint != null && file.eslint.fixed;
 }
 
-module.exports = jsDetectErrors;
+function jsDetectErrors() {
+  return gulp.src(['*.js', 'src/**/*.js', 'gulp/**/*.js'], {base: '.'})
+    .pipe(eslint({fix: true}))
+    .pipe(eslint.format())
+    .pipe(gulpIf(isFixed, gulp.dest('.')));
+}
+
+export default jsDetectErrors;

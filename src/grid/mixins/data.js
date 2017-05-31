@@ -1,41 +1,17 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+import callbackify from '../../common/callbackify';
+import toPromise from '../../common/toPromise';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import utils from '../../common/utils';
 
-var React = require('react');
-var utils = require('../../common/utils');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
-
-var GridDataMixin = {
-  propTypes: {
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func,
-      update: React.PropTypes.func,
-      isValidRecord: React.PropTypes.func,
-      getValidationDependency: React.PropTypes.func,
-      errorHandler: React.PropTypes.func
-    }),
-    saveFullRecord: React.PropTypes.bool
-  },
-  getInitialState: function () {
-    return {
-      data: null,
-      changes: {},
-      errors: {},
-      totals: {},
-      recordsInfo: {},
-      mainIds: []
-    };
-  },
-
+const GridDataMixin = {
   /**
    * Change table record
    * This method marks changed fields and validates them
@@ -44,9 +20,16 @@ var GridDataMixin = {
    * @param {Object}    data        Changed data
    * @param {Function}  cb          CallBack function
    */
-  set: function (recordId, data, cb) {
-    var row = this._getRowID(recordId);
+  set: function (recordId, data, cb) {//TODO cb does't used
+    const row = this._getRowID(recordId);
     this._setRowChanges(row, utils.cloneDeep(data), cb);
+
+    if (this.props.autoSubmit || this.props.realtime) {
+      if (this.props.realtime) {
+        console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
+      }
+      this.save(this.props.onRealtimeSubmit);
+    }
   },
 
   /**
@@ -56,7 +39,7 @@ var GridDataMixin = {
    * @return {Object}
    */
   getRecord: function (recordId) {
-    var row = this._getRowID(recordId);
+    const row = this._getRowID(recordId);
     return utils.cloneDeep(this._getRecord(row));
   },
 
@@ -67,11 +50,36 @@ var GridDataMixin = {
    * @return  {Object}
    */
   getRecordChanges: function (recordId) {
-    var row = this._getRowID(recordId);
-    if (this.state.changes.hasOwnProperty(row)) {
-      return utils.cloneDeep(this.state.changes[row]);
+    const row = this._getRowID(recordId);
+    return this._getRecordChanges(row);
+  },
+
+  /**
+   * Get record warnings object
+   *
+   * @param   {*} recordId  Record ID
+   * @return  {ValidationErrors}
+   * @private
+   */
+  getRecordWarnings: function (recordId) {
+    const row = this._getRowID(recordId);
+    return this.state.warnings[row] || new ValidationErrors();
+  },
+
+  /**
+   * Get validation warnings
+   *
+   * @return {Array|null}
+   */
+  getWarnings: function () {
+    const result = [];
+    for (const i in this.state.warnings) {
+      result.push([
+        this.state.recordsInfo[i].id,
+        this.state.warnings[i]
+      ]);
     }
-    return {};
+    return result.length ? result : null;
   },
 
   /**
@@ -82,7 +90,7 @@ var GridDataMixin = {
    * @private
    */
   getRecordErrors: function (recordId) {
-    var row = this._getRowID(recordId);
+    const row = this._getRowID(recordId);
     return this._getRecordErrors(row);
   },
 
@@ -92,9 +100,8 @@ var GridDataMixin = {
    * @return {Array|null}
    */
   getErrors: function () {
-    var result = [];
-    var i;
-    for (i in this.state.errors) {
+    const result = [];
+    for (const i in this.state.errors) {
       result.push([
         this.state.recordsInfo[i].id,
         this.state.errors[i]
@@ -117,78 +124,70 @@ var GridDataMixin = {
    *
    * @param {Function} cb CallBack function
    */
-  save: function (cb) {
-    var errors = this.getErrors();
+  save: callbackify(async function () {
+    const errors = this.getErrors();
 
     // Collect all valid changes
-    var changes = utils.reduce(this.state.changes, function (result, rowChanges, row) {
+    const changes = utils.reduce(this.state.changes, (result, rowChanges, row) => {
       if (!errors || !errors[row]) {
         if (this.props.saveFullRecord) {
           result[row] = this._getRecord(row);
         } else {
           result[row] = {};
-          utils.assign(result[row], rowChanges, utils.pick(
+          Object.assign(result[row], rowChanges, utils.pick(
             this.state.data[row],
             this.props.model.getValidationDependency(Object.keys(result[row]))
           ));
         }
       }
       return result;
-    }.bind(this), {});
+    }, {});
 
     // Cancel new record display
     this.removeRecordStatusAll('new');
 
     // Pass changes to table model processing
-    this.props.model.update(this._dataObjectToArray(changes), function (err, data) {
-      if (!this.isMounted()) {
+    const data = await toPromise(this.props.model.update.bind(this.props.model))(this._dataObjectToArray(changes));
+    if (!this._isMounted) {
+      return;
+    }
+
+    this.state.partialErrorChecking = false;
+
+    data.forEach((record) => {
+      const row = this._getRowID(record[0]);
+
+      // Skip records that are user changed while data processing
+      if (!utils.isEqual(this.state.changes[row], changes[row])) {
         return;
       }
 
-      if (err) {
-        return cb(err);
+      // Process validation errors
+      if (record[1] instanceof ValidationErrors) {
+        this.state.errors[row] = record[1];
+        return;
       }
 
-      data.forEach(function (record) {
-        var row = this._getRowID(record[0]);
-
-        // Skip records that are user changed while data processing
-        if (!utils.isEqual(this.state.changes[row], changes[row])) {
-          return;
+      // Cancel changed data status of the parameters, that are changed
+      utils.forEach(changes[row], function (value, field) {
+        if (utils.isEqual(value, this.state.changes[row][field])) {
+          delete this.state.changes[row][field];
         }
+      }, this);
 
-        // Process validation errors
-        if (record[1] instanceof ValidationErrors) {
-          this.state.errors[row] = record[1];
-          // Redraw error fields
-          record[1].getFailedFields().forEach(function (field) {
-            this._renderBinds(row, field);
-          }, this);
-          return;
+      // Clear changed data row if it's empty
+      if (utils.isEmpty(this.state.changes[row])) {
+        delete this.state.changes[row];
+        if (!this._isMainRow(row)) {
+          this._removeRecord(row);
         }
-
-        // Cancel changed data status of the parameters, that are changed
-        utils.forEach(changes[row], function (value, field) {
-          if (utils.isEqual(value, this.state.changes[row][field])) {
-            delete this.state.changes[row][field];
-            this._renderBinds(row, field);
-          }
-        }, this);
-
-        // Clear changed data row if it's empty
-        if (utils.isEmpty(this.state.changes[row])) {
-          delete this.state.changes[row];
-          if (!this._isMainRow(row)) {
-            this._removeRecord(row);
-          }
-        }
-      }.bind(this));
-
-      if (typeof cb === 'function') {
-        cb(null, data);
       }
-    }.bind(this));
-  },
+    });
+
+    this._renderBody();
+
+    return data;
+  }),
 
   /**
    * Clear record changes
@@ -196,9 +195,10 @@ var GridDataMixin = {
    * @param {*} recordId Record ID
    */
   clearRecordChanges: function (recordId) {
-    var row = this._getRowID(recordId);
+    const row = this._getRowID(recordId);
 
     delete this.state.changes[row];
+    delete this.state.warnings[row];
     delete this.state.errors[row];
 
     this._updateRow(row);
@@ -208,7 +208,7 @@ var GridDataMixin = {
    * Clear all table changes
    */
   clearAllChanges: function () {
-    var i;
+    let i;
     for (i in this.state.data) {
       if (!this._isMainRow(i)) {
         delete this.state.data[i];
@@ -217,7 +217,9 @@ var GridDataMixin = {
     }
     this.state.changes = {};
     this.state.statuses = {};
+    this.state.warnings = {};
     this.state.errors = {};
+    this.state.partialErrorChecking = this.props.partialErrorChecking;
 
     this._renderBody();
   },
@@ -226,19 +228,24 @@ var GridDataMixin = {
    * Reset to initial table state
    */
   reset: function () {
-    this._reset();
+    this._setPage(0);
+    if (!this._isSortingPropsMode()) {
+      this._resetSorting();
+    }
     this.updateTable();
   },
 
   /**
-   * Reset to initial table state
-   * @private
+   * Get record changes object
+   *
+   * @param   {string}        row     Row ID
+   * @return  {Object}
    */
-  _reset: function () {
-    if (!this._isSortingPropsMode()) {
-      this._resetSorting();
+  _getRecordChanges: function (row) {
+    if (this.state.changes.hasOwnProperty(row)) {
+      return utils.cloneDeep(this.state.changes[row]);
     }
-    this._setPage(0);
+    return {};
   },
 
   /**
@@ -249,21 +256,31 @@ var GridDataMixin = {
    * @private
    */
   _setRecordData: function (recordId, data) {
-    // TODO done through _dataArrayToObject
-    var field;
-    var row;
-
-    try {
-      row = this._getRowID(recordId);
-    } catch (e) {
+    if (!this._isRecordLoaded(recordId)) {
       return;
     }
+
+    // TODO done through _dataArrayToObject
+    let field;
+    const row = this._getRowID(recordId);
 
     // Apply and redraw all record changes
     for (field in data) {
       this.state.data[row][field] = utils.cloneDeep(data[field]);
       this._renderBinds(row, field);
     }
+  },
+
+  /**
+   * Table row has warning flag
+   *
+   * @param   {string}        row     Row ID
+   * @param   {Array|string}  fields
+   * @returns {boolean}
+   * @private
+   */
+  _hasWarning: function (row, fields) {
+    return this._checkFieldInValidation(row, fields, this.state.warnings);
   },
 
   /**
@@ -275,9 +292,26 @@ var GridDataMixin = {
    * @private
    */
   _hasError: function (row, fields) {
-    var i;
+    return this._checkFieldInValidation(row, fields, this.state.errors);
+  },
 
-    if (!this.state.errors[row]) {
+  /**
+   * Table row has error in "validation" object
+   *
+   * @param   {string}        row
+   * @param   {Array|string}  fields
+   * @param   {Validation}    validation
+   * @returns {boolean}
+   * @private
+   */
+  _checkFieldInValidation: function (row, fields, validation) {
+    let i;
+
+    if (!validation[row]) {
+      return false;
+    }
+
+    if (this.state.partialErrorChecking && !this.state.changes.hasOwnProperty(row)) {
       return false;
     }
 
@@ -286,7 +320,7 @@ var GridDataMixin = {
     }
 
     for (i = 0; i < fields.length; i++) {
-      if (this.state.errors[row].hasError(fields[i])) {
+      if (validation[row].hasError(fields[i])) {
         return true;
       }
     }
@@ -302,7 +336,7 @@ var GridDataMixin = {
    * @private
    */
   _isChanged: function (row, fields) {
-    var i;
+    let i;
     if (!this.state.changes[row]) {
       return false;
     }
@@ -323,7 +357,7 @@ var GridDataMixin = {
   },
 
   /**
-   * Get table row changes object
+   * Get table row errors object
    *
    * @param   {string} row  Row ID
    * @return  {ValidationErrors}
@@ -338,26 +372,26 @@ var GridDataMixin = {
    * This method marks changed fields
    *
    * @param {string}      row         Row ID
-   * @param {Object}      changes     Changed data
+   * @param {Object}      data        Changed data
    * @private
    */
-  _setRowChanges: function (row, changes) {
-    if (!this.state.changes[row]) {
-      this.state.changes[row] = {};
-    }
-    utils.assign(this.state.changes[row], changes, utils.pick(
-      this.state.data[row],
-      this.props.model.getValidationDependency(
-        Object.keys(this.state.changes[row])
-      )
-    ));
-    if (!this.state.changes[row]) {
-      delete this.state.changes[row];
+  _setRowChanges: function (row, data) {
+    const changes = this.state.changes;
+
+    if (!changes[row]) {
+      changes[row] = {};
     }
 
-    utils.forEach(changes, function (value, field) {
-      this._renderBinds(row, field);
-    }, this);
+    changes[row] = utils.getRecordChanges(this.props.model, this.state.data[row], changes[row], data);
+
+    if (utils.isEmpty(changes[row])) {
+      delete changes[row];
+    } else {
+      // Redraw the changes in the row
+      utils.forEach(changes[row], function (value, field) {
+        this._renderBinds(row, field);
+      }, this);
+    }
   },
 
   /**
@@ -369,7 +403,7 @@ var GridDataMixin = {
    */
   _getRecord: function (row) {
     if (this.state.data[row]) {
-      return utils.assign({}, this.state.data[row], this.state.changes[row]);
+      return Object.assign({}, this.state.data[row], this.state.changes[row]);
     }
     return null;
   },
@@ -381,7 +415,7 @@ var GridDataMixin = {
    * @private
    */
   _setData: function (changes) {
-    var i;
+    let i;
 
     // Apply all changes
     for (i = 0; i < changes.length; i++) {
@@ -407,14 +441,14 @@ var GridDataMixin = {
    * @returns {Object}    Object result
    * @private
    */
-  _dataArrayToObject: function (arr) {
-    var i;
-    var records = {};
-    var info = {};
-    var row;
+  _dataArrayToObject: arr => {
+    let i;
+    const records = {};
+    const info = {};
+    let row;
 
     for (i = 0; i < arr.length; i++) {
-      row = utils.hash(arr[i][0].toString());
+      row = utils.toEncodedString(arr[i][0]);
       records[row] = arr[i][1];
       info[row] = {
         id: arr[i][0],
@@ -436,8 +470,8 @@ var GridDataMixin = {
    * @private
    */
   _dataObjectToArray: function (obj) {
-    var i;
-    var arr = [];
+    let i;
+    const arr = [];
 
     for (i in obj) {
       arr.push([
@@ -460,6 +494,12 @@ var GridDataMixin = {
     return this.state.mainIds.indexOf(row) >= 0;
   },
 
+  _isRecordLoaded: function (recordId) {
+    // TODO Can be optimized
+    const row = utils.toEncodedString(recordId);
+    return this.state.data.hasOwnProperty(row);
+  },
+
   /**
    * Get table row ID having record ID
    *
@@ -468,7 +508,7 @@ var GridDataMixin = {
    * @private
    */
   _getRowID: function (recordId) {
-    var row = utils.hash(recordId);
+    const row = utils.toEncodedString(recordId);
 
     if (!this.state.data.hasOwnProperty(row)) {
       throw Error('Record with the ID is not contained in the table.');
@@ -481,17 +521,24 @@ var GridDataMixin = {
    * Load model data
    *
    * @param {Object}      settings    Request parameters
-   * @param {Function}    cb          CallBack function
    * @private
    */
-  _loadData: utils.throttle(function (settings, cb) {
-    this.props.model.read(settings, function (err, data) {
-      if (err && this.props.errorHandler) {
-        this.props.errorHandler(err);
+  _loadData: async function (settings) {
+    let data;
+    try {
+      data = await this.props.model.read(settings);
+    } catch (err) {
+      if (err && this.props.onError) {
+        this.props.onError(err);
       }
-      cb(err, data);
-    }.bind(this));
-  }),
+      throw err;
+    }
+
+    if (this.props.onPageLoad) {
+      this.props.onPageLoad(data);
+    }
+    return data;
+  },
 
   /**
    * Find record IDs that need to be displayed additionally
@@ -500,50 +547,74 @@ var GridDataMixin = {
    * @private
    */
   _getAdditionalIds: function () {
-    var additionalIds = utils.union(this._getRecordsWithStatus(), this._getAllSelected());
-    var id;
-    for (var row in this.state.changes) {
+    const additionalIds = this._getRecordsWithStatus();
+    let id;
+    for (const row in this.state.changes) {
       id = this.state.recordsInfo[row].id;
-      if (additionalIds.indexOf(id) >= 0) {
+      if (additionalIds.indexOf(id) < 0) {
         additionalIds.push(id);
       }
     }
     return additionalIds;
   },
 
-  _removeRecord: function (recordId, cb) {
-    this._removeTR(recordId);
-    this.unselectRecord(recordId, true);
-    delete this.state.data[recordId];
-    delete this.state.recordsInfo[recordId];
-    delete this.state.changes[recordId];
-    delete this.state.errors[recordId];
-    delete this.state.editor[recordId];
-    this.setState({
-      data: this.state.data,
-      changes: this.state.changes,
-      errors: this.state.errors,
-      editor: this.state.editor
-    }, cb ? cb.bind(this) : null);
+  _removeRecord: function (rowId, cb) {
+    this._removeTR(rowId);
+    // this.unselectRecord(recordId, true); // TODO Make unselectRecord by rowId method
+    delete this.state.data[rowId];
+    delete this.state.recordsInfo[rowId];
+    delete this.state.changes[rowId];
+    delete this.state.warnings[rowId];
+    delete this.state.errors[rowId];
+    delete this.state.editor[rowId];
+    this.setState(this.state, cb ? cb.bind(this) : null);
   },
 
-  _validateRow: utils.throttle(function (row, cb) {
-    var record = this._getRecord(row);
+  _checkWarnings: async function (row) {
+    if (!this.props.warningsValidator) {
+      return;
+    }
+    return this._checkValidatorErrors(row, this.props.warningsValidator, this._getRecord, this.state.warnings);
+  },
 
-    this.props.model.isValidRecord(record, function (err, validErrors) {
-      if (!err && utils.isEqual(record, this._getRecord(row))) {
-        if (validErrors.isEmpty()) {
-          delete this.state.errors[row];
-        } else {
-          this.state.errors[row] = validErrors;
-        }
-        Object.keys(record).forEach(function (field) {
-          this._renderBinds(row, field);
-        }, this);
+  _validateRow: function (row) {
+    return this._checkValidatorErrors(row, this.props.model, this._getRecordChanges, this.state.errors);
+  },
+
+  /**
+   * Check errors in "validator" object
+   *
+   * @param {string}        row         Row ID
+   * @param {Validator}     validator   Validator object
+   * @param {Function}      getData     Data provider function
+   * @param {{}}            result      Validation result object
+   * @private
+   */
+  _checkValidatorErrors: async function (row, validator, getData, result) {
+    const record = getData(row);
+
+    const validErrors = await validator.isValidRecord(record);
+
+    if (utils.isEqual(record, getData(row))) {
+      if (validErrors.isEmpty()) {
+        delete result[row];
+      } else {
+        result[row] = validErrors;
       }
-      cb(err);
-    }.bind(this));
-  })
+
+      Object.keys(record).forEach((field) => {
+        this._renderBinds(row, field);
+      });
+    }
+  },
+
+  _onRecordCreated: function (recordId) {
+    this.updateTable().then(() => {
+      if (this._isRecordLoaded(recordId)) {
+        this._checkWarnings(this._getRowID(recordId));
+      }
+    });
+  }
 };
 
-module.exports = GridDataMixin;
+export default GridDataMixin;

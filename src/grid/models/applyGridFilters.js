@@ -1,16 +1,14 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../../common/utils');
+import toPromise from '../../common/toPromise';
+import callbackify from '../../common/callbackify';
+import utils from '../../common/utils';
 
 /**
  * Defines filter values while reading Grid model data
@@ -20,11 +18,11 @@ var utils = require('../../common/utils');
  */
 function applyGridFilters(model, filters) {
   return utils.decorate(model, {
-    read: function (options, cb) {
+    read: callbackify(options => {
       options.filters = filters;
-      model.read(options, cb);
-    }
+      return toPromise(model.read.bind(model))(options);
+    })
   });
 }
 
-module.exports = applyGridFilters;
+export default applyGridFilters;

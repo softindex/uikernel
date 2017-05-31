@@ -25,6 +25,19 @@ A model used by one-to-many editors like SuggestBox and Select.
 
 Get options for a Select or SuggestBox editor.
 
+### Example
+{% highlight javascript %}
+list.read('name', (err, res) => {
+    console.log(res);
+    /*
+    [
+      [1,'Alex'],
+      [2,'Bob']
+    ]
+    */
+});
+{% endhighlight %}
+
 ---
 
 ### getLabel
@@ -33,4 +46,4 @@ Get options for a Select or SuggestBox editor.
  getLabel(number id, function callback)
 {% endhighlight %}
 
-Get an option name using ID. The callback function will return the result as a string.
+Get an option name using ID. The callback function returns the result as a string.

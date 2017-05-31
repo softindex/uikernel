@@ -5,8 +5,8 @@ prev: editors.html
 next: list-model.html
 ---
 
-Some editors return string names. While working with IDs in user interfaces,
-it's often needed to synchronize them with string names; e.g. a country id for updating the database and a country name for displaying it to the user.
+While working with IDs in user interfaces, it's often needed to synchronize them with string names; 
+e.g. a country id for updating the database and a country name for displaying it to the user.
 
 UIKernel provides editors that support automatic synchronization. They are `SuggestBox` and `Select`.
 

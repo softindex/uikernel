@@ -18,6 +18,5 @@ UIKernel.FormXhrModel(Object settings)
 | Type                              | Name                  | Description                 |
 |-----------------------------------|-----------------------|-----------------------------|
 | string                            | **api**               | API address                 |
-| [Validator](/docs/validator.html) | commonValidator       | General validator           |
-| boolean                           | serverValidation=true | Check async validation flag |
+| [Validator](/docs/validator.html) | validator             | Validator                   |
 | Function                          | xhr                   | XHR interface               |

@@ -1,20 +1,18 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
-
-var url = require('url');
-var AbstractGridModel = require('./AbstractGridModel');
-var defaultXhr = require('../../common/defaultXhr');
-var Validator = require('../../common/validation/Validator/common');
-var ValidationErrors = require('../../common/validation/ValidationErrors');
+import toPromise from '../../common/toPromise';
+import callbackify from '../../common/callbackify';
+import ValidationErrors from '../../common/validation/ValidationErrors';
+import Validator from '../../common/validation/Validator/common';
+import defaultXhr from '../../common/defaultXhr';
+import AbstractGridModel from './AbstractGridModel';
+import url from 'url';
 
 /**
  * Grid model, that works with API via XHR
@@ -25,7 +23,7 @@ var ValidationErrors = require('../../common/validation/ValidationErrors');
  * @param {Function}  [settings.xhr]                    XHR interface
  * @constructor
  */
-var GridXhrModel = function (settings) {
+const GridXhrModel = function (settings) {
   AbstractGridModel.call(this);
 
   if (!settings.api) {
@@ -47,28 +45,24 @@ GridXhrModel.prototype.constructor = GridXhrModel;
  * @param {Object}      record  Record object
  * @param {Function}    cb      CallBack function
  */
-GridXhrModel.prototype.create = function (record, cb) {
-  this._xhr({
+GridXhrModel.prototype.create = callbackify(async function (record) {
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'POST',
     headers: {'Content-type': 'application/json'},
     uri: this._apiUrl,
     body: JSON.stringify(record)
-  }, function (err, resp, body) {
-    if (err) {
-      return cb(err);
-    }
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
-    if (body.error) {
-      return cb(ValidationErrors.createFromJSON(body.error));
-    }
-    this.trigger('create', body.data);
-    cb(null, body.data);
-  }.bind(this));
-};
+  });
+
+  body = JSON.parse(body);
+
+  if (body.error) {
+    throw ValidationErrors.createFromJSON(body.error);
+  }
+
+  this.trigger('create', body.data);
+
+  return body.data;
+});
 
 /**
  * Get records list
@@ -82,8 +76,8 @@ GridXhrModel.prototype.create = function (record, cb) {
  * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
  * @param {Function}    cb                      CallBack function
  */
-GridXhrModel.prototype.read = function (settings, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+GridXhrModel.prototype.read = callbackify(async function (settings) {
+  const parsedUrl = url.parse(this._apiUrl, true);
 
   parsedUrl.query.fields = JSON.stringify(settings.fields);
   parsedUrl.query.offset = settings.offset || 0;
@@ -101,26 +95,13 @@ GridXhrModel.prototype.read = function (settings, cb) {
   }
   delete parsedUrl.search;
 
-  this._xhr({
+  const response = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     uri: url.format(parsedUrl)
-  }, function (err, resp, response) {
-    var body;
-
-    if (err) {
-      return cb(err);
-    }
-
-    // Parse response
-    try {
-      body = JSON.parse(response);
-    } catch (e) {
-      cb(e);
-    }
-
-    cb(null, body);
   });
-};
+
+  return JSON.parse(response);
+});
 
 /**
  * Get the particular record
@@ -129,24 +110,19 @@ GridXhrModel.prototype.read = function (settings, cb) {
  * @param {Array}           fields  Required fields
  * @param {Function}        cb      CallBack function
  */
-GridXhrModel.prototype.getRecord = function (id, fields, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+GridXhrModel.prototype.getRecord = callbackify(async function (id, fields) {
+  const parsedUrl = url.parse(this._apiUrl, true);
   parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
   parsedUrl.pathname = url.resolve(parsedUrl.pathname, JSON.stringify(id));
   delete parsedUrl.search;
 
-  this._xhr({
+  const body = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     uri: url.format(parsedUrl)
-  }, function (err, resp, body) {
-    if (typeof cb === 'function') {
-      if (err) {
-        return cb(err);
-      }
-      cb(null, JSON.parse(body));
-    }
   });
-};
+
+  return JSON.parse(body);
+});
 
 /**
  * Apply record changes
@@ -155,36 +131,28 @@ GridXhrModel.prototype.getRecord = function (id, fields, cb) {
  * @param {Function}    cb          CallBack function
  * @abstract
  */
-GridXhrModel.prototype.update = function (changes, cb) {
-  this._xhr({
+GridXhrModel.prototype.update = callbackify(async function (changes) {
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'PUT',
     headers: {
       'Content-type': 'application/json'
     },
     uri: this._apiUrl,
     body: JSON.stringify(changes)
-  }, function (err, resp, body) {
-    if (err) {
-      return cb(err);
-    }
+  });
 
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
+  body = JSON.parse(body);
 
-    if (body.changes.length) {
-      this.trigger('update', body.changes);
-    }
+  if (body.changes.length) {
+    this.trigger('update', body.changes);
+  }
 
-    body.errors.forEach(function (error) {
-      error[1] = ValidationErrors.createFromJSON(error[1]);
-    });
+  body.errors.forEach(error => {
+    error[1] = ValidationErrors.createFromJSON(error[1]);
+  });
 
-    cb(null, body.changes.concat(body.errors));
-  }.bind(this));
-};
+  return body.changes.concat(body.errors);
+});
 
 /**
  * Get all dependent fields, that are required for validation
@@ -202,8 +170,8 @@ GridXhrModel.prototype.getValidationDependency = function (fields) {
  * @param {Object}      record
  * @param {Function}    cb      CallBack function
  */
-GridXhrModel.prototype.isValidRecord = function (record, cb) {
-  this._validator.isValidRecord(record, cb);
-};
+GridXhrModel.prototype.isValidRecord = callbackify(function (record) {
+  return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
+});
 
-module.exports = GridXhrModel;
+export default GridXhrModel;
