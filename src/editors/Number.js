@@ -34,11 +34,11 @@ class NumberEditor extends React.Component {
 
   _onChangeHandler(e) {
     const target = e.target;
-    const valueAsNumber = parseFloat(target.value); //not use target.valueAsNumber for IE compatibility
-    if (target.value === '' && target.validity.valid) { //check on validity.valid because string can be invalid
+    const valueAsNumber = parseFloat(target.value); // Edge doesn't support "target.valueAsNumber"
+    if (target.value === '' && target.validity.valid) { // Invalid number set empty string and valid=false to event
       this.state.value = null;
     } else if (isInvalidFloat(valueAsNumber)) {
-      this.state.value = target.value;
+      this.state.value = '';
     } else {
       this.state.value = valueAsNumber;
     }
