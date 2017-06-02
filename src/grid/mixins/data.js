@@ -614,6 +614,16 @@ const GridDataMixin = {
         this._checkWarnings(this._getRowID(recordId));
       }
     });
+  },
+
+  _onRecordsCreated: function (recordsId) {
+    this.updateTable().then(() => {
+      recordsId.forEach(recordId => {
+        if (this._isRecordLoaded(recordId)) {
+          this._checkWarnings(this._getRowID(recordId));
+        }
+      });
+    });
   }
 };
 
