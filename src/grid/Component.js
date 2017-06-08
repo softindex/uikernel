@@ -117,7 +117,7 @@ const GridComponent = React.createClass({
   getInitialState: function () {
     this._loadData = utils.throttle(this._loadData);
     this._validateRow = utils.throttle(this._validateRow);
-    this._checkWarnings = utils.throttle(this._checkWarnings);
+    this._checkWarnings = this._checkWarnings; // TODO: need to implement throttling for checkWarnings with multiple records
     return {
       page: this.props.page,
       viewCount: this.props.defaultViewCount,
