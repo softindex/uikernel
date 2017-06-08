@@ -1,26 +1,27 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-var model = new UIKernel.Models.Grid.Collection({
-  data: data,
+const model = new UIKernel.Models.Grid.Collection({
+  data,
   filtersHandler: function (data, filters) {
-    return data.filter(function (record) {
-      var data = record[1];
+    return data.filter((record) => {
+      const data = record[1];
 
       if (filters.search) {
-        var found = (
-          data.name.indexOf(filters.search) >= 0 ||
-          data.surname.indexOf(filters.search) >= 0 ||
+        const found = (
+          data.name.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
+          data.surname.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
           data.phone.indexOf(filters.search) >= 0
         );
-        if (!found) return false;
+
+        if (!found) {
+          return false;
+        }
       }
 
       if (filters.gender && data.gender !== filters.gender) {

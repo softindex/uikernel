@@ -1,14 +1,30 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+import utils from '../../utils';
+
+function baseValidator(notNull, min, max, error, value) {
+  error = error || 'Invalid date';
+  if (!utils.isDefined(value)) {
+    if (notNull) {
+      return error;
+    }
+    return;
+  }
+
+  value = utils.toDate(value);
+  if (min && utils.toDate(min) > value) {
+    return error;
+  }
+  if (max && utils.toDate(max) < value) {
+    return error;
+  }
+}
 
 /**
  * Create date validator
@@ -18,14 +34,7 @@
  * @param {string}  error   Error message
  * @returns {Function} Validator
  */
-module.exports = function (min, max, error) {
-  return function (value) {
-    value = new Date(value);
-    if (min && new Date(min) > value) {
-      return error;
-    }
-    if (max && new Date(max) < value) {
-      return error;
-    }
-  };
-};
+const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
+validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
+
+export default validator;
