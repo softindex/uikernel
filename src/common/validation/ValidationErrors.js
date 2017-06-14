@@ -139,6 +139,16 @@ class ValidationErrors {
   }
 
   /**
+   * Merge object
+   *
+   * @return {ValidationErrors}
+   */
+  merge(error) {
+    this._fields = {...this._fields, ...error.toJSON()};
+    return this;
+  }
+
+  /**
    * Get errors iterator
    *
    * @return {[string, string[]][]}

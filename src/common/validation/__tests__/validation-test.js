@@ -58,6 +58,11 @@ describe('ValidationError', () => {
     expect(validationError.clone()).not.toBe(validationError);
     expect(validationError.clone().toJSON()).toEqual({test: ['error']});
   });
+
+  it('merge', () => {
+    const errorToMerge = ValidationError.createFromJSON({test2: ['error2']});
+    expect(validationError.merge(errorToMerge).toJSON()).toEqual({test: ['error'], test2: ['error2']});
+  });
 });
 
 describe('validators', () => {
