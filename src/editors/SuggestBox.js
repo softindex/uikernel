@@ -62,7 +62,7 @@ class SuggestBoxEditor extends React.Component {
 
   constructor(props) {
     super(props);
-    this._loadData = utils.throttle(this._loadData);
+    this._loadData = utils.throttle(::this._loadData);
     this.state = {
       isOpened: false,
       options: [],
@@ -156,7 +156,7 @@ class SuggestBoxEditor extends React.Component {
     this._scrollListTo();
   }
 
-  async _loadData(searchPattern) {
+  _loadData(searchPattern) {
     return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '');
   }
 
