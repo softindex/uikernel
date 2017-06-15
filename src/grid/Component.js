@@ -145,6 +145,7 @@ const GridComponent = React.createClass({
     this._isMounted = true;
     if (this.props.model) {
       this.props.model.on('create', this._onRecordCreated);
+      this.props.model.on('createRecords', this._onRecordsCreated);
       this.props.model.on('update', this._setData);
     }
     this.updateTable();
@@ -153,6 +154,7 @@ const GridComponent = React.createClass({
     this._isMounted = false;
     if (this.props.model) {
       this.props.model.off('create', this._onRecordCreated);
+      this.props.model.off('createRecords', this._onRecordsCreated);
       this.props.model.off('update', this._setData);
     }
   },
@@ -189,10 +191,12 @@ const GridComponent = React.createClass({
           this.state.data = null;
           if (oldProps.model) {
             oldProps.model.off('create', this._onRecordCreated);
+            oldProps.model.off('createRecords', this._onRecordsCreated);
             oldProps.model.off('update', this._setData);
           }
           if (this.props.model) {
             this.props.model.on('create', this._onRecordCreated);
+            oldProps.model.on('createRecords', this._onRecordsCreated);
             this.props.model.on('update', this._setData);
           }
           this._setPage(0);
