@@ -62,7 +62,7 @@ class SuggestBoxEditor extends React.Component {
 
   constructor(props) {
     super(props);
-    this._loadData = utils.throttle(::this._loadData);
+    this._loadData = utils.throttle(this._loadData);
     this.state = {
       isOpened: false,
       options: [],

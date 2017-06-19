@@ -153,7 +153,7 @@ exports.throttle = function (func) {
           .then(result => {
             worked = false;
             if (nextArguments) {
-              nextResolve(run(...nextArguments));
+              nextResolve(run.apply(this, nextArguments));
               nextArguments = null;
 
               const error = new ThrottleError();
