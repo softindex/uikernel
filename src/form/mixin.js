@@ -241,7 +241,7 @@ const FormMixin = {
       // Look through all form fields
       for (field in this.state._formMixin.data) {
         // If field is unchanged, remove errors, that regard to this field
-        if (!this.state._formMixin.changes.hasOwnProperty(field)) {
+        if (!this.state._formMixin.changes.hasOwnProperty(field) || utils.isEqual(this.state.changes[field], this.state.data[field])) {
           errors.clearField(field);
         }
       }
