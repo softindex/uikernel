@@ -368,7 +368,7 @@ const FormMixin = {
    */
   submit: callbackify(async function () {
     if (this._isNotInitialized()) {
-      throw new ThrottleError('Component not initialized');
+      throw new Error('Component not initialized');
     }
 
     if (!this.state._formMixin.autoSubmit && this.isSubmitting()) {
@@ -394,7 +394,7 @@ const FormMixin = {
     }
 
     if (this._isUnmounted) {
-      throw new ThrottleError('Component is unmounted');
+      throw new Error('Component is unmounted');
     }
 
     this.state._formMixin.submitting = false;
