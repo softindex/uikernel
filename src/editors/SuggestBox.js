@@ -199,7 +199,7 @@ class SuggestBoxEditor extends React.Component {
           left: offsetLeft
         });
 
-      this._updateList(searchPattern)
+      this._updateList(searchPattern) // TODO Handle errors
         .then(() => {
           if (!this.state.options.length) {
             return;
