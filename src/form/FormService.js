@@ -28,6 +28,7 @@ class FormService {
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
     this.updateField = this.updateField.bind(this);
+    this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
     this._getChanges = this._getChanges.bind(this);
   }
