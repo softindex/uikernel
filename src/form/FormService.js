@@ -41,9 +41,9 @@ class FormService {
    * @param {Object}            [settings.data]                         Preset data
    * @param {Object}            [settings.changes                       Preset changes
    * @param {bool}              [settings.submitAll=false]              Send all form for validity check
-   * @param {bool}              [settings._partialErrorChecking=false]   Activate partial gradual form validation
+   * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
    * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
-   * @param {Validator}         [settings.warningsValidator]            Warningss validator for fields
+   * @param {Validator}         [settings.warningsValidator]            Warnings validator for fields
    */
   async init(settings) {
     if (!settings.model) {
@@ -53,8 +53,8 @@ class FormService {
     this._data = settings.data || null;
     this._changes = settings.changes || {};
     this.showDependentFields = settings.showDependentFields || false;
-    this._partialErrorChecking = settings._partialErrorChecking; // Current mode
-    this._partialErrorCheckingDefault = settings._partialErrorChecking; // Default mode
+    this._partialErrorChecking = settings.partialErrorChecking; // Current mode
+    this._partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
     this.model = settings.model; // FormModel
     this.fields = settings.fields;
     this.submitAll = settings.submitAll;
@@ -80,7 +80,7 @@ class FormService {
     this.model.on('update', this._onModelChange);
     this._setState();
 
-    if (!settings._partialErrorChecking) {
+    if (!settings.partialErrorChecking) {
       try {
         await this.validateForm();
       } catch (e) {
@@ -396,7 +396,7 @@ class FormService {
     // Look through all form fields
     for (const field in this._data) {
       // If field is unchanged, remove errors, that regard to this field
-      if (!this._changes.hasOwnProperty(field)) {
+      if (!this._changes.hasOwnProperty(field)|| utils.isEqual(this._changes[field], this._data[field])) {
         errors.clearField(field);
       }
     }

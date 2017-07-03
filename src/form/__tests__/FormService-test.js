@@ -13,7 +13,7 @@ function getInitSettings(mockMethods) {
   jest.resetModules();
   return {
     fields: ['name', 'surname', 'phone', 'age'],
-    partialErrorChecking: true,
+    partialErrorChecking: false,
     model: {...require('formModel'), ...mockMethods}
   };
 }
@@ -45,6 +45,34 @@ describe('init form', () => {
     const result = await form.init(initSettings);
     expect(result).toBeUndefined();
     expect(initSettings.model.on).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('settings', () => {
+  const initSettings = getInitSettings();
+
+  it('partialErrorChecking = true', async () => {
+    const form = new Form();
+    const settings = {...initSettings};
+    settings.partialErrorChecking = true;
+    await form.init(settings);
+
+    form.model.isValidRecord = async () => ValidationErrors.createFromJSON({age: ['Error']});
+
+    await form.validateForm();
+
+    expect(form.getAll().fields.age.errors).toBeNull();
+  });
+
+  it('partialErrorChecking = false', async () => {
+    const form = new Form();
+    await form.init(initSettings);
+
+    form.model.isValidRecord = async () => ValidationErrors.createFromJSON({age: ['Error']});
+
+    await form.validateForm();
+
+    expect(form.getAll().fields.age.errors.length).toBe(1);
   });
 });
 
