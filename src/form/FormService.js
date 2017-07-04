@@ -28,6 +28,7 @@ class FormService {
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
     this.updateField = this.updateField.bind(this);
+    this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
     this._getChanges = this._getChanges.bind(this);
   }
@@ -345,11 +346,13 @@ class FormService {
     const data = this._getData();
     const changes = this._getChangesFields();
     const errors = this._getValidationErrors();
+    const warnings = this._getValidationWarnings();
     return fields.reduce((newFields, fieldName) => {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
       newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
       newFields[fieldName].errors = errors ? errors.getFieldErrors(fieldName) : null;
+      newFields[fieldName].warnings = warnings ? warnings.getFieldErrors(fieldName) : null;
       return newFields;
     }, {});
   }
@@ -385,8 +388,7 @@ class FormService {
    * @returns {ValidationErrors} Form errors
    */
   _getValidationErrors() {
-    const errors = ValidationErrors.merge(this._errors, this._warnings);
-
+    const errors = this._errors;
     // If gradual validation is on, we need
     // to remove unchanged records from errors object
     if (!this._partialErrorChecking) {
@@ -402,6 +404,24 @@ class FormService {
     }
 
     return errors;
+  }
+
+  /**
+   * Get form warnings
+   *
+   * @returns {ValidationErrors} Form warnings
+   */
+  _getValidationWarnings() {
+    const warnings = this._warnings;
+    // Look through all form fields
+    for (const field in this._data) {
+      // If field is unchanged, remove errors, that regard to this field
+      if (!this._changes.hasOwnProperty(field)) {
+        warnings.clearField(field);
+      }
+    }
+
+    return warnings;
   }
 
   _setState() {
