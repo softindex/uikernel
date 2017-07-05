@@ -27,6 +27,7 @@ class FormService {
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
+    this.clearValidations = this.clearValidations.bind(this);
     this.updateField = this.updateField.bind(this);
     this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
@@ -358,10 +359,14 @@ class FormService {
 
     this._setState();
 
-   // const errorsWithPartialChecking = this._getValidationErrors();
     const errorsWithPartialChecking = this._applyPartialErrorChecking(this._errors);
+    const warningsWithPartialChecking = this._applyPartialErrorChecking(this._warnings);
+
     if (!errorsWithPartialChecking.isEmpty()) {
-      return errorsWithPartialChecking;
+      return {
+        errors: errorsWithPartialChecking,
+        warnings: warningsWithPartialChecking
+      };
     }
   }
 
@@ -404,31 +409,6 @@ class FormService {
       }
     }
     return changes;
-  }
-
-  /**
-   * Get form errors
-   *
-   * @returns {ValidationErrors} Form errors
-   */
-  _getValidationErrors() {
-    const errors = ValidationErrors.merge(this._errors, this._warnings);
-
-    // If gradual validation is on, we need
-    // to remove unchanged records from errors object
-    if (!this._partialErrorChecking) {
-      return errors;
-    }
-
-    // Look through all form fields
-    for (const field in this._data) {
-      // If field is unchanged, remove errors, that regard to this field
-      if (!this._changes.hasOwnProperty(field)) {
-        errors.clearField(field);
-      }
-    }
-
-    return errors;
   }
 
   /**
