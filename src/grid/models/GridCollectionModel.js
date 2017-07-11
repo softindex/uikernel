@@ -240,7 +240,7 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
 
   const result = await Promise.all(promises);
 
-  if (completed === changes.length) {
+  if (completed === changes.length && appliedChanges.length) {
     this.trigger('update', appliedChanges);
   }
 
