@@ -11,4 +11,4 @@ var validator = UIKernel.createValidator()
   .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
   .field('age', UIKernel.Validators.regExp.notNull(/^[^0]\d{0,2}$/, 'Invalid age.'))
-  .field('gender', UIKernel.Validators.regExp.notNull(/^[12]$/, 'Invalid gender.'));
+  .field('gender', UIKernel.Validators.enum.notNull([1, 2], 'Invalid gender.'));

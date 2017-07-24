@@ -12,7 +12,7 @@ next: form-interface.html
 {% highlight javascript %}
 constructor(props) {
   super(props);
-  this.form = new UIKernel.Services.Form();
+  this.form = new UIKernel.Form();
 }
 {% endhighlight %}
 

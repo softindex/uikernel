@@ -61,7 +61,7 @@ var RecordForm = React.createClass({
               <span className="sr-only">Close</span>
             </button>
             <h4 className="modal-title">
-              {this.props.mode === "edit" ? "Edit " + this.state.form.data.name + ' ' + this.state.form.data.surname : "Create"}
+              {this.props.mode === "edit" ? "Edit " + this.state.form.fields.name.value + ' ' + this.state.form.fields.surname.value : "Create"}
             </h4>
           </div>
           <div className="modal-body">
@@ -72,22 +72,22 @@ var RecordForm = React.createClass({
                     className="text-danger">{this.state.form.globalError ? this.state.form.globalError.message : ''}</b>
                 </div>
               </div>
-              <div className={"form-group" + (this.state.form.changes.name ? ' bg-warning' : '') +
-              (this.state.form.errors.hasError('name') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.fields.name.isChanged ? ' bg-warning' : '') +
+              (this.state.form.fields.name.errors ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">First Name</label>
                 <div className="col-sm-9">
                   <input
                     type="text"
                     className="form-control"
                     onChange={this.form.updateField.bind(this.form, 'name')}
-                    onFocus={this.form.clearError.bind(this.form,'name')}
+                    onFocus={this.form.clearError.bind(this.form, 'name')}
                     onBlur={this.form.validateForm}
-                    value={this.state.form.data.name}
+                    value={this.state.form.fields.name.value}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.state.form.changes.surname ? ' bg-warning' : '') +
-              (this.state.form.errors.hasError('surname') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.fields.surname.isChanged ? ' bg-warning' : '') +
+              (this.state.form.fields.surname.errors ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Last Name</label>
                 <div className="col-sm-9">
                   <input
@@ -96,12 +96,12 @@ var RecordForm = React.createClass({
                     onChange={this.form.updateField.bind(this.form, 'surname')}
                     onFocus={this.form.clearError.bind(this.form,'surname')}
                     onBlur={this.form.validateForm}
-                    value={this.state.form.data.surname}
+                    value={this.state.form.fields.surname.value}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.state.form.changes.phone ? ' bg-warning' : '') +
-              (this.state.form.errors.hasError('phone') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.fields.phone.isChanged ? ' bg-warning' : '') +
+              (this.state.form.fields.phone.errors ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Phone</label>
                 <div className="col-sm-9">
                   <input
@@ -110,12 +110,12 @@ var RecordForm = React.createClass({
                     onChange={this.form.updateField.bind(this.form, 'phone')}
                     onFocus={this.form.clearError.bind(this.form,'phone')}
                     onBlur={this.form.validateForm}
-                    value={this.state.form.data.phone}
+                    value={this.state.form.fields.phone.value}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.state.form.changes.age ? ' bg-warning' : '') +
-              (this.state.form.errors.hasError('age') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.fields.age.isChanged ? ' bg-warning' : '') +
+              (this.state.form.fields.age.errors ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Age</label>
                 <div className="col-sm-9">
                   <input
@@ -124,12 +124,12 @@ var RecordForm = React.createClass({
                     onChange={this.form.updateField.bind(this.form, 'age')}
                     onFocus={this.form.clearError.bind(this.form,'age')}
                     onBlur={this.form.validateForm}
-                    value={this.state.form.data.age}
+                    value={this.state.form.fields.age.value}
                   />
                 </div>
               </div>
-              <div className={"form-group" + (this.state.form.changes.gender ? ' bg-warning' : '') +
-              (this.state.form.errors.hasError('email') ? ' bg-danger' : '')}>
+              <div className={"form-group" + (this.state.form.fields.gender.isChanged ? ' bg-warning' : '') +
+              (this.state.form.fields.gender.errors ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">Gender</label>
                 <div className="col-sm-9">
                   <UIKernel.Editors.Select
@@ -141,7 +141,7 @@ var RecordForm = React.createClass({
                     onChange={this.form.updateField.bind(this.form, 'gender')}
                     onFocus={this.form.clearError.bind(this.form,'gender')}
                     onBlur={this.form.validateForm}
-                    value={this.state.form.data.gender}
+                    value={this.state.form.fields.gender.value}
                   />
                 </div>
               </div>

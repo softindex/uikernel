@@ -26,7 +26,7 @@ class Form extends React.Component {
   }
 
   onFormChange(newFormState) {
-    if (!_.isEqual(this.props.state.data, newFormState.data)) {
+    if (!_.isEqual(this.props.state.fields, newFormState.fields)) {
       this.form.submit()
         .catch((err) => {
           if (err && !(err instanceof UIKernel.Models.ValidationErrors)) { // If error is not a validation one
@@ -50,32 +50,33 @@ class Form extends React.Component {
         </div>
         <div className="body">
           <form className="form-horizontal change-second-field-form">
-            <div className={'form-group' + (this.props.state.errors.hasError('name') ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.fields.name.errors ? ' error' : '')}>
               <label className="col-sm-2 control-label">Name</label>
               <div className="col-sm-6">
                 <input
                   type="text"
                   className="form-control"
                   onChange={this.form.updateField.bind(this.form, 'name')}
-                  value={this.props.state.data.name}
+                  value={this.props.state.fields.name.value}
                 />
               </div>
               <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.errors.getFieldErrors('name')}</div>
+                <div className="validation-error">{this.props.state.fields.name.errors}</div>
               </div>
             </div>
-            <div className={'form-group' + (this.props.state.errors.hasError('age') ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.fields.age.errors ? ' error' : '')}>
               <label className="col-sm-2 control-label">Age</label>
               <div className="col-sm-6">
-                <input
-                  type="number"
+                 {/* we use UIKernel.Editors.Number instead of <input type =" number "/>          */}
+                 {/* because UIKernel.Editors.Number returns a numeric value instead of a string. */}
+                <UIKernel.Editors.Number
                   className="form-control"
                   onChange={this.form.updateField.bind(this.form, 'age')}
-                  value={this.props.state.data.age}
+                  value={this.props.state.fields.age.value}
                 />
               </div>
               <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.errors.getFieldErrors('age')}</div>
+                <div className="validation-error">{this.props.state.fields.age.errors}</div>
               </div>
             </div>
           </form>
