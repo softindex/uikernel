@@ -7,3 +7,4 @@ examples/libs/js/uikernel.js
 lib
 dist
 coverage
+.DS_Store
