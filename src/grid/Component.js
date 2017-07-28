@@ -184,7 +184,7 @@ const GridComponent = React.createClass({
       if (nextProps.selected) {
         this.state.selected = nextProps.selected;
       }
-      if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT || reset & RESET_SELECTED_COLUMNS) {
+      if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
         if (reset & RESET_MODEL) {
           this.state.data = null;
           if (oldProps.model) {
@@ -198,7 +198,7 @@ const GridComponent = React.createClass({
           this._setPage(0);
         }
         this.updateTable();
-      } else if (reset & RESET_VIEW_COLUMNS) {
+      } else if ((reset & RESET_VIEW_COLUMNS) || (reset & RESET_SELECTED_COLUMNS)) {
         this._renderBody();
       }
     });
