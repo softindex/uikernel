@@ -27,7 +27,7 @@ const RESET_VIEW_COLUMNS = 1 << 1;
 const RESET_SORT = 1 << 2;
 const RESET_VIEW_COUNT = 1 << 3;
 const RESET_SELECTED_COLUMNS = 1 << 4;
-const RESET_BLACK_LIST_MODE = 1 << 4;
+const RESET_BLACK_LIST_MODE = 1 << 5;
 
 const GridComponent = React.createClass({
   ...GridColumnsMixin,
