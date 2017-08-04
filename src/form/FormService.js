@@ -28,6 +28,7 @@ class FormService {
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
     this.updateField = this.updateField.bind(this);
+    this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
     this._getChanges = this._getChanges.bind(this);
   }
@@ -41,9 +42,9 @@ class FormService {
    * @param {Object}            [settings.data]                         Preset data
    * @param {Object}            [settings.changes                       Preset changes
    * @param {bool}              [settings.submitAll=false]              Send all form for validity check
-   * @param {bool}              [settings._partialErrorChecking=false]   Activate partial gradual form validation
+   * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
    * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
-   * @param {Validator}         [settings.warningsValidator]            Warningss validator for fields
+   * @param {Validator}         [settings.warningsValidator]            Warnings validator for fields
    */
   async init(settings) {
     if (!settings.model) {
@@ -53,8 +54,8 @@ class FormService {
     this._data = settings.data || null;
     this._changes = settings.changes || {};
     this.showDependentFields = settings.showDependentFields || false;
-    this._partialErrorChecking = settings._partialErrorChecking; // Current mode
-    this._partialErrorCheckingDefault = settings._partialErrorChecking; // Default mode
+    this._partialErrorChecking = settings.partialErrorChecking; // Current mode
+    this._partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
     this.model = settings.model; // FormModel
     this.fields = settings.fields;
     this.submitAll = settings.submitAll;
@@ -80,11 +81,13 @@ class FormService {
     this.model.on('update', this._onModelChange);
     this._setState();
 
-    try {
-      await this.validateForm();
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
+    if (!settings.partialErrorChecking) {
+      try {
+        await this.validateForm();
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
       }
     }
   }
@@ -104,36 +107,31 @@ class FormService {
       };
     }
 
+    const data = this._getData();
+    const changes = this._getChangesFields();
+
     return {
       isLoaded,
-      data: this._getData(),
+      data,
       originalData: this._data,
-      changes: this._getChangesFields(),
-      errors: this._getValidationErrors(),
+      changes,
+      fields: this._getFields(data, changes),
       globalError: this._globalError,
       isSubmitting: this.isSubmitting
     };
   }
 
   /**
-   * Update form value. Is used as the Editors onSubmit handler.
+   * Update form value. Is used as the Editors onChange handler.
    * Causes component redraw.
    *
-   * @param {string|string[]}  fields  Parameters
-   * @param {*}                values   Event or data
+   * @param {string}  field  Parameter
+   * @param {*}       value  Event or data
    */
-  async updateField(fields, values) {
-    if (this._isNotInitialized) {
-      return;
-    }
-
-    values = utils.parseValueFromEvent(values);
-
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-      values = [values];
-    }
-    await this.set(utils.zipObject(fields, values));
+  async updateField(field, value) {
+    await this.set({
+      [field]: utils.parseValueFromEvent(value)
+    });
   }
 
   addChangeListener(func) {
@@ -174,15 +172,10 @@ class FormService {
     this._setState();
   }
 
-  validateField(fields, values) {
-    this.updateField(fields, values);
-    try {
-      this.validateForm();
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
-      }
-    }
+  async validateField(field, value) {
+    await this.set({
+      [field]: utils.parseValueFromEvent(value)
+    }, true);
   }
 
   /**
@@ -319,10 +312,7 @@ class FormService {
   }
 
   getPartialErrorChecking() {
-    return {
-      _partialErrorChecking: this._partialErrorChecking,
-      _partialErrorCheckingDefault: this._partialErrorCheckingDefault
-    };
+    return this._partialErrorChecking;
   }
 
   async validateForm() {
@@ -352,6 +342,18 @@ class FormService {
     if (!errorsWithPartialChecking.isEmpty()) {
       return errorsWithPartialChecking;
     }
+  }
+
+  _getFields(data, changes) {
+    const fields = this.fields;
+    const errors = this._getValidationErrors();
+    return fields.reduce((newFields, fieldName) => {
+      newFields[fieldName] = {};
+      newFields[fieldName].value = data[fieldName];
+      newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
+      newFields[fieldName].errors = errors ? errors.getFieldErrors(fieldName) : null;
+      return newFields;
+    }, {});
   }
 
   /**
@@ -396,7 +398,7 @@ class FormService {
     // Look through all form fields
     for (const field in this._data) {
       // If field is unchanged, remove errors, that regard to this field
-      if (!this._changes.hasOwnProperty(field)) {
+      if (!this._changes.hasOwnProperty(field)|| utils.isEqual(this._changes[field], this._data[field])) {
         errors.clearField(field);
       }
     }

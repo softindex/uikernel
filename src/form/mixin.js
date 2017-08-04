@@ -86,7 +86,9 @@ const FormMixin = {
 
     this.state._formMixin.model.on('update', this._handleModelChange);
     await toPromise(this::this.setState, true)(this.state);
-    await toPromise(this.validateForm, true)();
+    if (!settings.partialErrorChecking) {
+      await toPromise(this.validateForm, true)();
+    }
   }, true),
 
   /**
@@ -239,7 +241,9 @@ const FormMixin = {
       // Look through all form fields
       for (field in this.state._formMixin.data) {
         // If field is unchanged, remove errors, that regard to this field
-        if (!this.state._formMixin.changes.hasOwnProperty(field)) {
+        if (!this.state._formMixin.changes.hasOwnProperty(field) ||
+          utils.isEqual(this.state._formMixin.changes[field], this.state._formMixin.data[field])
+        ) {
           errors.clearField(field);
         }
       }
@@ -278,37 +282,25 @@ const FormMixin = {
   },
 
   /**
-   * Update form value. Is used as the Editors onSubmit handler.
+   * Update form value. Is used as the Editors onChange handler.
    * Causes component redraw.
    *
-   * @param {string|string[]}  fields  Parameters
-   * @param {*}                values   Event or data
-   * @param {Function}         [cb]       CallBack
+   * @param {string}           field   Parameter
+   * @param {*}                value   Event or data
    */
-  updateField: function (fields, values) {
+  updateField: function (field, value) {
     if (this._isNotInitialized()) {
       return;
     }
-
-    values = utils.parseValueFromEvent(values);
-
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-      values = [values];
-    }
-
-    this.set(utils.zipObject(fields, values));
-    if (this.state._formMixin.autoSubmit) {
-      this.submit(this.state._formMixin.autoSubmitHandler);
-    }
+    this.set({
+      [field]: utils.parseValueFromEvent(value)
+    });
   },
 
-  validateField: function (fields, values, cb) {
-    if (this.state._formMixin.autoSubmit) {
-      throw Error('Use updateField method to update value in autoSubmit mode');
-    }
-    this.updateField(fields, values);
-    this.validateForm(cb);
+  validateField: function (field, value, cb) {
+    this.set({
+      [field]: utils.parseValueFromEvent(value)
+    }, true, cb);
   },
 
   validateForm: function (cb) {
@@ -342,6 +334,16 @@ const FormMixin = {
 
     const state = this.state._formMixin;
     state.changes = utils.getRecordChanges(state.model, state.data, state.changes, data);
+
+    if (this.state._formMixin.autoSubmit) {
+      this.submit((err, result) => {
+        this.state._formMixin.autoSubmitHandler(err, result);
+        if (typeof cb === 'function') {
+          cb(err, result);
+        }
+      });
+      return;
+    }
 
     if (validate) {
       this.validateForm(cb);
@@ -569,18 +571,16 @@ const FormMixin = {
     const data = getData();
     validator.isValidRecord(data)
       .then(validErrors => {
-        if (this._isUnmounted || !utils.isEqual(data, getData())) {
-          return;
+        const newData = getData();
+        if (!this._isUnmounted && utils.isEqual(data, newData)) {
+          this.state._formMixin[output] = validErrors;
         }
-        this.state._formMixin[output] = validErrors;
         cb();
       })
       .catch(err => {
-        if (this._isUnmounted || !utils.isEqual(data, getData())) {
-          console.error(err);
-          return;
+        if (!this._isUnmounted && utils.isEqual(data, getData())) {
+          this.state._formMixin[output].clear();
         }
-        this.state._formMixin[output].clear();
         cb(err);
       });
   },

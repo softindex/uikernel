@@ -7,8 +7,16 @@
  */
 
 function ThrottleError() {
+  Error.call(this);
+
+  this.name = 'ThrottleError';
   this.message = 'Too many function call';
-  Error.captureStackTrace(this, ThrottleError);
+
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this, ThrottleError);
+  } else {
+    this.stack = new Error().stack;
+  }
 }
 
 ThrottleError.prototype = Object.create(Error.prototype);

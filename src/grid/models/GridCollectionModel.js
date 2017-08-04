@@ -206,41 +206,33 @@ GridCollectionModel.prototype.getRecord = callbackify(function (id, fields) {
  * @abstract
  */
 GridCollectionModel.prototype.update = callbackify(async function (changes) {
-  let completed = 0;
-  const appliedChanges = [];
-  let finish = false;
-  let validErrors;
-
   if (!changes.length) {
     return [];
   }
 
-  const promises = changes.map(async (change) => {
-    if (finish) {
-      return;
+  const appliedChanges = [];
+
+  const result = Promise.all(
+    changes.map(
+      async ([recordId, changes]) => {
+        const validErrors = await this.isValidRecord(changes);
+
+        if (!validErrors.isEmpty()) {
+          return [recordId, validErrors];
+        }
+
+        appliedChanges.push([recordId, changes]);
+        return [recordId, changes];
+      }
+    )
+  );
+
+  if (appliedChanges.length) {
+    // Apply changes
+    for (const [recordId, changes] of appliedChanges) {
+      Object.assign(this._getRecordByID(recordId)[1], changes);
     }
 
-    try {
-      validErrors = await this.isValidRecord(change[1]);
-    } catch (err) {
-      finish = true;
-      throw err;
-    }
-
-    ++completed;
-
-    if (validErrors.isEmpty()) {
-      Object.assign(this._getRecordByID(change[0])[1], change[1]);
-      appliedChanges.push(change);
-      return change;
-    } else {
-      return [change[0], validErrors];
-    }
-  });
-
-  const result = await Promise.all(promises);
-
-  if (completed === changes.length) {
     this.trigger('update', appliedChanges);
   }
 

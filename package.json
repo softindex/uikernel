@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "0.17.0-dev32",
+  "version": "0.17.0-dev61",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -35,6 +35,7 @@
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
     "del": "^2.2.1",
+    "enzyme": "^2.9.1",
     "eslint": "^3.0.1",
     "eslint-plugin-react": "^6.1.0",
     "gulp": "^3.9.1",
@@ -49,9 +50,11 @@
     "gulp-rename": "^1.2.2",
     "gulp-sequence": "^0.4.6",
     "gulp-uglify": "^2.0.0",
-    "jest": "^17.0.3",
+    "jest": "^19.0.2",
     "merge-stream": "^1.0.0",
     "path-exists": "^3.0.0",
+    "react-addons-test-utils": "^0.14.8",
+    "react-dom": "^0.14.9",
     "through2": "^2.0.3",
     "webpack": "^1.13.3",
     "webpack-stream": "^3.2.0",
@@ -59,8 +62,11 @@
   },
   "jest": {
     "testRegex": "/__tests__/",
-    "testPathDirs": [
+    "roots": [
       "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js"
     ]
   }
 }

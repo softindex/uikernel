@@ -9,6 +9,7 @@
 import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import Events from '../../common/Events';
+import utils from '../../common/utils';
 
 class GridToFormCreate extends Events {
   /**
@@ -44,8 +45,8 @@ class GridToFormCreate extends Events {
  * @param {Array}     fields     Required fields
  * @param {Function}  cb         CallBack function
  */
-GridToFormCreate.prototype.getData = callbackify(async function () {
-  return await this._adapter.initialData;
+GridToFormCreate.prototype.getData = callbackify(async function (fields) {
+  return await utils.pick(this._adapter.initialData, fields);
 });
 
 /**

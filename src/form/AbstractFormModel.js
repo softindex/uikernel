@@ -19,7 +19,6 @@ class AbstractFormModel extends EventsModel {
   constructor() {
     super();
   }
- 
 }
 
 /**
@@ -47,7 +46,7 @@ AbstractFormModel.prototype.submit = callbackify((/*changes*/) => Promise.resolv
  * @returns {Array}  Dependencies
  * @abstract
  */
-AbstractFormModel.prototype.getValidationDependency = callbackify(() => Promise.resolve([]));
+AbstractFormModel.prototype.getValidationDependency = (/*fields*/) => [];
 
 /**
  * Record validity check

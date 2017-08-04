@@ -23,6 +23,13 @@ const GridDataMixin = {
   set: function (recordId, data, cb) {//TODO cb does't used
     const row = this._getRowID(recordId);
     this._setRowChanges(row, utils.cloneDeep(data), cb);
+
+    if (this.props.autoSubmit || this.props.realtime) {
+      if (this.props.realtime) {
+        console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
+      }
+      this.save(this.props.onRealtimeSubmit);
+    }
   },
 
   /**
@@ -567,11 +574,11 @@ const GridDataMixin = {
     if (!this.props.warningsValidator) {
       return;
     }
-    return this._checkValidatorErrors(row, this.props.warningsValidator, this.state.warnings);
+    return this._checkValidatorErrors(row, this.props.warningsValidator, this._getRecord, this.state.warnings);
   },
 
   _validateRow: function (row) {
-    return this._checkValidatorErrors(row, this.props.model, this.state.errors);
+    return this._checkValidatorErrors(row, this.props.model, this._getRecordChanges, this.state.errors);
   },
 
   /**
@@ -579,15 +586,16 @@ const GridDataMixin = {
    *
    * @param {string}        row         Row ID
    * @param {Validator}     validator   Validator object
-   * @param {Validation[]}  result      Result object
+   * @param {Function}      getData     Data provider function
+   * @param {{}}            result      Validation result object
    * @private
    */
-  _checkValidatorErrors: async function (row, validator, result) {
-    const record = this._getRecordChanges(row);
+  _checkValidatorErrors: async function (row, validator, getData, result) {
+    const record = getData(row);
 
     const validErrors = await validator.isValidRecord(record);
 
-    if (utils.isEqual(record, this._getRecordChanges(row))) {
+    if (utils.isEqual(record, getData(row))) {
       if (validErrors.isEmpty()) {
         delete result[row];
       } else {
