@@ -212,7 +212,7 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
 
   const appliedChanges = [];
 
-  const result = Promise.all(
+  const result = await Promise.all(
     changes.map(
       async ([recordId, changes]) => {
         const validErrors = await this.isValidRecord(changes);
