@@ -54,7 +54,7 @@ const columns = {
         {...this.props}
         options={[
           [1, 'Male'],
-          [0, 'Female']
+          [2, 'Female']
         ]}
       />;
     },

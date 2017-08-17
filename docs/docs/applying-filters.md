@@ -73,7 +73,7 @@ class FiltersForm extends React.Component {
     this.defaultFilters = {
       search: '',
       age: null,
-      gender: 0
+      gender: 1
     };
     this.state = {
       filters: {...this.defaultFilters}

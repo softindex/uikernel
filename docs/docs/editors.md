@@ -21,17 +21,23 @@ Select is a simple component for ReactJS. It is used to create a drop-down list.
 
 ### Select Properties
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-| | **value** | Field value |
-| function | **onChange** | Selection change handler |
-| boolean | disabled=false | Disabled flag |
-| [ListModel](list-model.html) | model | Model object should have 'read' method |
-| function | onChangeLabel | Label change handler |
-| Array | options | Options in a [[id, option], ...] or string[] format |
+| Type                         | Name           | Description |
+|------------------------------|----------------|--------------|
+| Any                          | **value**      | Field value |
+| Function                     | **onChange**   | Selection change handler |
+| Boolean                      | disabled=false | Disabled flag |
+| [ListModel](list-model.html) | model          | Data model instance - object with methods which return necessary data |
+| Function                     | onChangeLabel  | Label change handler |
+| Array                        | options        | Options in a [[id, option], ...] or string [ ] format |
 
 ---
->If you pass Select the options prop, you don't need to pass it the model prop, and vice versa.
+>If you pass Select the `options` prop, you don't need to pass it the `model` prop, and vice versa.
+
+>Passed model is expected to be compatible with [List Model Interface](list-model.html).
+ It should have method `read` which is expected to return promise resolving with options list(array)
+ in format [[id1, label1], ...] or [label1, label2, ...],  where
+  - `id` - List item id, which can be any serializable value
+  - `label` - String value of the list item label
 
 ## <span id="DatePicker">DatePicker</span>
 DatePicker is a ReactJS component that allows the user to select a date.
@@ -40,17 +46,41 @@ DatePicker is a ReactJS component that allows the user to select a date.
 
 ### DatePicker Properties
 
-| Type     | Name   | Description |
-|----------|--------|--------------|
-|  | **value** | Field value |
-| function | **onChange** | Value change handler |
-| string | format | Inner field value format |
-| Date | min | Minimum date value |
-| Date | max | Maximum date value |
-| function | onBlur | Element lost focus handler |
-| boolean | show | Show on init flag |
-| string | textFormat | Displayed field value format |
+| Type                         | Name         | Description  |
+|------------------------------|--------------|--------------|
+| String \|\| Date \|\| Number | **value**    | Field value  |
+| Function                     | **onChange** | Value change handler |
+| String                       | format       | Inner field value format |
+| String                       | textFormat   | Displayed field value format |
+| Date                         | min          | Minimum date value |
+| Date                         | max          | Maximum date value |
+| Function                     | onBlur       | Element lost focus handler |
+| Boolean                      | show         | Show on init flag |
 
+Here `format` and `textFormat` property can be combinations of the following:
+- d - day of month (no leading zero)
+- dd - day of month (two digit)
+- o - day of year (no leading zeros)
+- oo - day of year (three digit)
+- D - day name short
+- DD - day name long
+- m - month of year (no leading zero)
+- mm - month of year (two digit)
+- M - month name short
+- MM - month name long
+- y - year (two digit)
+- yy - year (four digit)
+- @ - Unix timestamp (ms since 01/01/1970)
+- ! - Windows ticks (100ms since 01/01/0001)
+- '...' - literal text
+- '' - single quote
+- anything else - literal text
+
+E.g.:
+- "yy-mm-dd"    will match "1997-01-26"
+- "dd.mm.y" will match "01.26.97"
+- "m/dd/yy" will match "1/26/1997"
+- "DD, MM d, yy" will match "Sunday, January 26, 1997"
 
 ---
 
@@ -61,18 +91,30 @@ SuggestBox is a ReactJS component that can be used to quickly create a drop-down
 
 ### SuggestBox Properties
 
-| Type                         | Name               | Description                                               |
-|------------------------------|--------------------|-----------------------------------------------------------|
-|                              | **value**          | Field value                                               |
-| function                     | **onChange**       | Selection change handler                                  |
-| boolean                      | disabled           | Disabled flag                                             |
-| [ListModel](list-model.html) | model              | Model object should have the 'read' method                |
-| function                     | onLabelChange      | Label change handler                                      |
-| function                     | onMetadataChange   | Meta data change handler                                  |
-| string                       | label              | Text label                                                |
-| string                       | defaultLabel       | Default text label                                        |
-| element                      | notFoundElement    | Element to be displayed when there are no search results  |
-| element                      | loadingElement     | Element to be displayed when list items are loading       |
+| Type                         | Name               | Description                                                           |
+|------------------------------|--------------------|-----------------------------------------------------------------------|
+|                              | **value**          | Field value                                                           |
+| Function                     | **onChange**       | Selection change handler                                              |
+| Boolean                      | disabled           | Disabled flag                                                         |
+| [ListModel](list-model.html) | model              | Data model instance - object with methods which return necessary data |
+| Function                     | onLabelChange      | Label change handler                                                  |
+| Function                     | onMetadataChange   | Meta data change handler, called with onLabelChange                   |
+| String                       | label              | Text label                                                            |
+| String                       | defaultLabel       | Default text label                                                    |
+| React Element                | notFoundElement    | Element to be displayed when there are no search results              |
+| React Element                | loadingElement     | Element to be displayed when list items are loading                   |
+
+> Passed model is expected to be compatible with [List Model Interface](list-model.html).
+  It should have methods `read` and `getLabel`.
+  - Method `read` is expected to return a Promise resolving with an Array in format
+    \[{"id": "List item id", "label": "List item label", "metadata":{}, "type": "subitem"}, ...\].
+    Where
+    - `id` - List item id, which can be any serializable value
+    - `label` - String value of the list item label
+    - `metadata` - Object with any additional data needed for your code which will get it in onMetadataChange callback w
+    - `type` = "group" or "subitem" which means that the label will be displayed as a group headline
+      or a subitem of the last group headline respectively.
+  - Method `getLabel` is expected to return a Promise resolving with a string value which matches specified id
 
 ---
 
@@ -84,7 +126,7 @@ you to avoid problems with the validation of numbers. That's why we advise to us
 
 | Type     | Name         | Description          |
 |----------|--------------|----------------------|
-|          | **value**    | Field value          |
-| function | **onChange** | Value change handler |
+| Any      | **value**    | Field value          |
+| Function | **onChange** | Value change handler |
 
 ---

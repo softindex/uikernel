@@ -1,49 +1,38 @@
 ---
-title: List Model
+title: List Model Interface
 id: list-model
 prev: labels.html
 next: list-xhr-model.html
 ---
 
-A model used by one-to-many editors like SuggestBox and Select.
+Definition of the model used by one-to-many editors like SuggestBox and Select.
 
----
-
-## Types
+## Implementations
 
 * [List XHR Model](list-xhr-model.html)
 
----
-
-## Interface
-
-### read
+## Constructor
 
 {% highlight javascript %}
- read(string search, function callback)
+  const abstractListModel = new UIKernel.AbstractModels.List();
 {% endhighlight %}
 
-Get options for a Select or SuggestBox editor.
+## Methods
 
-### Example
+### (abstract) async read
+
 {% highlight javascript %}
-list.read('name', (err, res) => {
-    console.log(res);
-    /*
-    [
-      [1,'Alex'],
-      [2,'Bob']
-    ]
-    */
-});
+ async read(string search)
 {% endhighlight %}
+
+Get options list for a Select or SuggestBox editor taking into account list labels `search` filter(case insensitive).
 
 ---
 
-### getLabel
+### (abstract) async getLabel
 
 {% highlight javascript %}
- getLabel(number id, function callback)
+ async getLabel(number id)
 {% endhighlight %}
 
-Get an option name using ID. The callback function returns the result as a string.
+Get an option name which matches specified ID.

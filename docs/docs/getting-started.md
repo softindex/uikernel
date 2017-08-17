@@ -1,7 +1,7 @@
 ---
 id: getting-started
 title: Getting Started
-next: tutorial.html
+next: overview.html
 redirect_from: "docs/index.html"
 ---
 

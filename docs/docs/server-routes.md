@@ -14,8 +14,8 @@ var userGridRouter = require('./modules/userGrid/router');
 
 // get an instance of the express Router
 var router = new express.Router();
-// use router from userGrid module to handle all requests that end in '/userGrid'
-router.use('/userGrid', userGridRouter);
+// use router from userGrid module to handle all requests that end in '/users'
+router.use('/users', userGridRouter);
 
 module.exports = router;
 {% endhighlight %}

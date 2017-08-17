@@ -10,9 +10,19 @@ next: form-example.html
 
 This example demonstrates how to select grid records and perform on them some action.
 
-To select/unselect only one record, we use `toggleSelected` function.
-To select/unselect all records, we use `toggleSelectAll` function.
-To get all selected records, we use `getAllSelected` function.
+- To select/unselect only one record, we use `grid.toggleSelected` method.
+- To select/unselect all records, we use `grid.toggleSelectAll` method.
+- To get all selected records, we use `grid.getAllSelected` method.
+
+Lets implement a simple grid which will consist of 
+'name', 'surname', 'phone', 'age', 'gender' fields 
+and first column 'bulk' containing checkboxes for toggling selection of records.
+
+In our example
+ - **selecting of 1 record** will be performed in `columns.onClickRefs()` at `columns.js`
+by calling `grid.toggleSelected(recordId)`. 
+- **Selecting of all records** will be performed in method `toggleSelectMode()` 
+by calling `this.refs.grid.toggleSelectAll()` at `MainComponent.js`
 
 `MainComponent.js`:
 {% highlight javascript %}
@@ -21,7 +31,7 @@ class MainComponent extends React.Component {
     super(props);
     this.state = {
       model: model,
-      blackMode: false, // state for toggle button (Select all / Clear all)
+      bulkMode: false, // state for toggle button (Select all / Clear all)
       selectedNum: 0
     };
     this.onSelectedChange = this.onSelectedChange.bind(this);
@@ -37,21 +47,21 @@ class MainComponent extends React.Component {
 
   toggleSelectMode() {
     this.setState({
-      blackMode: !this.state.blackMode
+      bulkMode: !this.state.bulkMode
     });
     this.refs.grid.toggleSelectAll();
   }
 
   someAction() { // this function can do anything what you need
     const records = this.refs.grid.getAllSelected();
-    alert('Mode: ' + this.state.blackMode + ' Records: ' + records.join(', '));
+    alert('BulkMode: ' + this.state.bulkMode + ' Records: ' + records.join(', '));
   }
 
   render() {
-    const buttonText = this.state.blackMode ? 'Clear all' : 'Select all';
+    const buttonText = this.state.bulkMode ? 'Clear all' : 'Select all';
     let numText; // selected records
 
-    if (this.state.blackMode) {
+    if (this.state.bulkMode) {
       numText = 'Selected all records.';
     } else {
       numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
@@ -77,4 +87,36 @@ class MainComponent extends React.Component {
     );
   }
 }
+{% endhighlight %}
+
+`columns.js`:
+{% highlight javascript %}
+const columns = {
+  bulk: {
+    width: '40px',
+    className: 'text-center',
+    render: [(record, selected) => {
+      return '<input ref="checkbox" type="checkbox"' + (selected ? ' checked' : '') + '/>';
+    }],
+    onClickRefs: {
+      checkbox: (function (event, recordId, record, grid) {
+        grid.toggleSelected(recordId); // toggle our record id
+      })
+    }
+  },
+  name: {
+    name: 'First Name', // columns title
+    sortCycle: ['asc', 'desc', 'default'], // sort cycle
+    render: ['name', record => _.escape(record.name)]
+  },
+  /* ...configuration of other fields... */
+};
+{% endhighlight %}
+
+`model.js`:
+{% highlight javascript %}
+  const model = new UIKernel.Models.Grid.Collection({
+    data: _getRandomRecords(20),
+    /* ... some other methods which are not important in this example */
+  });
 {% endhighlight %}
