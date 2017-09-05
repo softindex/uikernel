@@ -184,10 +184,10 @@ const GridComponent = React.createClass({
       return;
     }
 
+    if (nextProps.selected) {
+      this.state.selected = nextProps.selected;
+    }
     this.setState({}, function () {
-      if (nextProps.selected) {
-        this.state.selected = nextProps.selected;
-      }
       if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
         if (reset & RESET_MODEL) {
           this.state.data = null;
