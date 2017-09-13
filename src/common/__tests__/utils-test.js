@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {inspect} from 'util';
 import {throttle} from '../utils';
 import ThrottleError from '../ThrottleError';
 
@@ -55,58 +54,37 @@ describe('Throttle promise', () => {
     return Promise.all([firstRequest, secondRequest, lastRequest]);
   });
 
+  // There was bug with reusing fulfilled promise (e79f4db)
   it('Should let catch all ThrottleErrors without unhandled promise rejection', async () => {
     const throttledRequest = throttle(makeRequest);
-    // const globalPromises = [];
-    // let catchesNum = 0;
+
+    // Catch errors so that Promise.all wait for completion of all promises
     async function asyncFuncCatchingThrottleErrors(data) {
-      // console.log(`Called asyncFuncCatchingThrottleErrors with Data = `, data);
       try {
-        const r = throttledRequest(data);
-        // globalPromises.push(r);
-        // console.log('Promise of throttledRequest = ', r);
-        // console.log('\nglobalPromises = ', globalPromises);
-        // const res =
-        await r;
-        // console.log('Result of promise ', r, ' = ', res);
-        // console.log('\nglobalPromises = ', globalPromises);
+        await throttledRequest(data);
       } catch (e) {
         if (!(e instanceof ThrottleError)) {
           throw e;
         }
-        // console.warn(`Caught #${++catchesNum} in setFilters: `, e, '   Data = ', data);
-        // console.log('\nglobalPromises = ', globalPromises);
       }
     }
 
-    let callNum = 0,
-      failed = false;
-
-    process.on('unhandledRejection', (reason, p) => {
-      failed = 'Unhandled Rejection at Promise: ' +
-        inspect(p, { showHidden: true, depth: null }) +
-        '\n  ....Reason: ' + reason + '\n    callNum = ' + callNum;
-      // console.error(failed);
-      // console.log('\nglobalPromises = ', globalPromises);
+    let hasUnhandledRejection = false;
+    process.on('unhandledRejection', () => {
+      hasUnhandledRejection = true;
     });
 
-    const allPromises1 = [];
-    for (let i=0; i< 2; i++) {
-      allPromises1.push(asyncFuncCatchingThrottleErrors(++callNum));
-    }
-    await Promise.all(allPromises1);
+    await Promise.all([
+      asyncFuncCatchingThrottleErrors(),
+      asyncFuncCatchingThrottleErrors()
+    ]);
 
-    const allPromises2 = [];
-    for (let i=0; i< 2; i++) {
-      allPromises2.push(asyncFuncCatchingThrottleErrors(++callNum));
-    }
-    await Promise.all(allPromises2);
+    await Promise.all([
+      asyncFuncCatchingThrottleErrors(),
+      asyncFuncCatchingThrottleErrors()
+    ]);
 
-    // console.log('\n\n\n\n', ' callNum = ', callNum, '\n\n\n\n');
-    // console.log('\n\n\n\n', ' failed = ', failed, '\n\n\n\n');
-    // console.log('\nglobalPromises = ', globalPromises);
-    expect(callNum).toBe(4);
-    expect(failed).toBeFalsy();
+    expect(hasUnhandledRejection).toBeFalsy();
   });
 });
 
