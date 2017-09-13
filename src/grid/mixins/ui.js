@@ -11,6 +11,7 @@ import toPromise from '../../common/toPromise';
 import utils from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import ThrottleError from '../../common/ThrottleError';
 
 const GridUIMixin = {
   /**
@@ -91,13 +92,21 @@ const GridUIMixin = {
 
     const viewCount = this.getViewCount();
 
-    const obj = await this._loadData({
-      limit: viewCount,
-      offset: this.state.page * viewCount,
-      sort: this._sortingToArray(),
-      fields: this._getFieldsToRender(),
-      extra: this._getAdditionalIds()
-    });
+    let obj;
+    try {
+      obj = await this._loadData({
+        limit: viewCount,
+        offset: this.state.page * viewCount,
+        sort: this._sortingToArray(),
+        fields: this._getFieldsToRender(),
+        extra: this._getAdditionalIds()
+      });
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+      return;
+    }
 
     if (!this._isMounted) {
       return;

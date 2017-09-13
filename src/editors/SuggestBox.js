@@ -11,6 +11,7 @@ import utils from '../common/utils';
 import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import ThrottleError from '../common/ThrottleError';
 
 const popupId = '__suggestBoxPopUp';
 const classes = {
@@ -141,9 +142,17 @@ class SuggestBoxEditor extends React.Component {
   }
 
   async _updateList(searchPattern) {
-    const options = await this._loadData(searchPattern);
+    let options;
+    try {
+      options = await this._loadData(searchPattern);
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+      return;
+    }
     await this.setState({
-      options: options,
+      options,
       selectedOptionKey: null,
       loading: false
     });

@@ -6,10 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../utils';
+import {inspect} from 'util';
+import {throttle} from '../utils';
 import ThrottleError from '../ThrottleError';
 
-function makeRequest(data) {
+async function makeRequest(data) {
   return new Promise((resolve) => {
     setImmediate(() => resolve(data));
   });
@@ -17,7 +18,7 @@ function makeRequest(data) {
 
 describe('Throttle promise', () => {
   it('Should handle one by one if called in turn', async () => {
-    const request = utils.throttle(makeRequest);
+    const request = throttle(makeRequest);
 
     const firstResponse = await request(1);
     expect(firstResponse).toBe(1);
@@ -30,7 +31,7 @@ describe('Throttle promise', () => {
   });
 
   it('Should handle last if called simultaneously', () => {
-    const request = utils.throttle(makeRequest);
+    const request = throttle(makeRequest);
 
     // First request throws error
     const firstRequest = request(1)
@@ -53,13 +54,67 @@ describe('Throttle promise', () => {
 
     return Promise.all([firstRequest, secondRequest, lastRequest]);
   });
+
+  it('Should let catch all ThrottleErrors without unhandled promise rejection', async () => {
+    const throttledRequest = throttle(makeRequest);
+    // const globalPromises = [];
+    // let catchesNum = 0;
+    async function asyncFuncCatchingThrottleErrors(data) {
+      // console.log(`Called asyncFuncCatchingThrottleErrors with Data = `, data);
+      try {
+        const r = throttledRequest(data);
+        // globalPromises.push(r);
+        // console.log('Promise of throttledRequest = ', r);
+        // console.log('\nglobalPromises = ', globalPromises);
+        // const res =
+        await r;
+        // console.log('Result of promise ', r, ' = ', res);
+        // console.log('\nglobalPromises = ', globalPromises);
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
+        // console.warn(`Caught #${++catchesNum} in setFilters: `, e, '   Data = ', data);
+        // console.log('\nglobalPromises = ', globalPromises);
+      }
+    }
+
+    let callNum = 0,
+      failed = false;
+
+    process.on('unhandledRejection', (reason, p) => {
+      failed = 'Unhandled Rejection at Promise: ' +
+        inspect(p, { showHidden: true, depth: null }) +
+        '\n  ....Reason: ' + reason + '\n    callNum = ' + callNum;
+      // console.error(failed);
+      // console.log('\nglobalPromises = ', globalPromises);
+    });
+
+    const allPromises1 = [];
+    for (let i=0; i< 2; i++) {
+      allPromises1.push(asyncFuncCatchingThrottleErrors(++callNum));
+    }
+    await Promise.all(allPromises1);
+
+    const allPromises2 = [];
+    for (let i=0; i< 2; i++) {
+      allPromises2.push(asyncFuncCatchingThrottleErrors(++callNum));
+    }
+    await Promise.all(allPromises2);
+
+    // console.log('\n\n\n\n', ' callNum = ', callNum, '\n\n\n\n');
+    // console.log('\n\n\n\n', ' failed = ', failed, '\n\n\n\n');
+    // console.log('\nglobalPromises = ', globalPromises);
+    expect(callNum).toBe(4);
+    expect(failed).toBeFalsy();
+  });
 });
 
 describe('Throttle callback', () => {
   it('Should handle last if called simultaneously', () => {
     let resolve;
     const requestCallback = jest.fn(cbWrapper => resolve = cbWrapper);
-    const request = utils.throttle(requestCallback);
+    const request = throttle(requestCallback);
 
     request(jest.fn()); // request 1 start
     expect(requestCallback).toHaveBeenCalledTimes(1);
