@@ -46,7 +46,10 @@ class GridToFormCreate extends Events {
  * @param {Function}  cb         CallBack function
  */
 GridToFormCreate.prototype.getData = callbackify(async function (fields) {
-  return await utils.pick(this._adapter.initialData, fields);
+  if (fields && fields.length) {
+    return utils.pick(this._adapter.initialData, fields);
+  }
+  return this._adapter.initialData;
 });
 
 /**
