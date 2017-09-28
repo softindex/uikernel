@@ -16,22 +16,20 @@ class ClientValidator extends Validator {
   /**
    * Get validator.
    *
-   * @param {string}  serverValidationUrl
    * @param {{}}      xhr
    *
    * @return {Validator}
    */
-  constructor(serverValidationUrl, xhr) {
+  constructor(xhr) {
     super();
-    this._settings.serverValidationUrl = serverValidationUrl;
     this._settings.xhr = xhr || defaultXhr;
   }
-
-  static create(serverValidationUrl, xhr) {
-    return new ClientValidator(serverValidationUrl, xhr);
-  }
-
 }
+
+ClientValidator.prototype.setUrl = function (url) {
+  this._serverValidationUrl = url;
+  return this;
+};
 
 ClientValidator.prototype.isValidRecord = callbackify(async function(record) {
   if (!this._settings.serverValidationUrl) {
@@ -44,7 +42,7 @@ ClientValidator.prototype.isValidRecord = callbackify(async function(record) {
       method: 'POST',
       headers: {'Content-type': 'application/json'},
       body: JSON.stringify(record),
-      uri: this._settings.serverValidationUrl
+      uri: this._serverValidationUrl
     });
   } catch (err) {
     if (err.statusCode === 413) {

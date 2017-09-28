@@ -28,10 +28,6 @@ class Validator {
     };
   }
 
-  static create() {
-    return new Validator();
-  }
-
   /**
    * Add field sync validators
    *
