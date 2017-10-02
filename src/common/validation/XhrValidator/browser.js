@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../toPromise';
 import defaultXhr from '../../defaultXhr';
 import ValidationErrors from '../ValidationErrors';
 import Validator from '../Validator/common';
@@ -15,46 +14,34 @@ class ClientValidator extends Validator {
   /**
    * Get validator.
    *
-   * @param String      serverValidationUrl
-   * @param {Validator}      commonValidator
+   * @param {string}        validationUrl
+   * @param {Validator}     validator
    * @param {{}}      xhr
    *
    * @return {Validator}
    */
-  constructor(serverValidationUrl, commonValidator, xhr) {
+  constructor(validationUrl, validator, xhr) {
     super();
-    this._settings.serverValidationUrl = serverValidationUrl;
+    this._settings.validationUrl = validationUrl;
     this._settings.xhr = xhr || defaultXhr;
-    this._commonValidator = commonValidator;
-  }
-
-  static create(serverValidationUrl, commonValidator, xhr) {
-    return new ClientValidator(serverValidationUrl, commonValidator, xhr);
+    this._validator = validator;
   }
 
   async isValidRecord(record) {
-    return await this._isValidRecord.bind(this._commonValidator)(record);
-  }
-
-  async _isValidRecord(record) {
-    if (!this._settings.serverValidationUrl) {
-      return await this::Validator.prototype.isValidRecord(record);
-    }
-
     let xhrResult;
     try {
-      xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
+      xhrResult = await this._settings.xhr({
         method: 'POST',
         headers: {'Content-type': 'application/json'},
         body: JSON.stringify(record),
-        uri: this._settings.serverValidationUrl
+        uri: this._settings.validationUrl
       });
     } catch (err) {
       if (err.statusCode === 413) {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors
-        const validationErrors = await this::Validator.prototype.isValidRecord(record);
+        const validationErrors = await this._validator::Validator.prototype.isValidRecord(record);
         if (!validationErrors.isEmpty()) {
           return validationErrors;
         }
@@ -66,7 +53,7 @@ class ClientValidator extends Validator {
   }
 
   getValidationDependency(fields) {
-    return super.getValidationDependency.bind(this._commonValidator)(fields);
+    return this._validator::super.getValidationDependency(fields);
   }
 }
 
