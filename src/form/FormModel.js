@@ -7,7 +7,7 @@
  */
 
 import callbackify from '../common/callbackify';
-import Validator from '../common/validation/Validator/common';
+import Validator from '../common/validation/validators/common';
 import AbstractFormModel from './AbstractFormModel';
 import utils from '../common/utils';
 

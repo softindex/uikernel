@@ -8,7 +8,7 @@
 
 import EventEmitter from '../common/Events';
 import toPromise from '../common/toPromise';
-import Validator from '../common/validation/Validator/common';
+import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import utils from '../common/utils';
 import ThrottleError from '../common/ThrottleError';

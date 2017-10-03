@@ -8,7 +8,7 @@
 
 import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
-import Validator from '../../common/validation/Validator/common';
+import Validator from '../../common/validation/validators/common';
 import AbstractGridModel from './AbstractGridModel';
 import utils from '../../common/utils';
 

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import floatValidator from '../common/validation/validators/float';
+import floatValidator from '../common/validation/rules/float';
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';

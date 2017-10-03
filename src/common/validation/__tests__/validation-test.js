@@ -8,16 +8,16 @@
 
 import ValidationError from '../ValidationErrors';
 
-import boolean from '../validators/boolean';
-import date from '../validators/date';
-import enumValidator from '../validators/enum';
-import float from '../validators/float';
-import notNull from '../validators/notNull';
-import number from '../validators/number';
-import regExp from '../validators/regExp';
-import set from '../validators/set';
+import boolean from '../rules/boolean';
+import date from '../rules/date';
+import enumValidator from '../rules/enum';
+import float from '../rules/float';
+import notNull from '../rules/notNull';
+import number from '../rules/number';
+import regExp from '../rules/regExp';
+import set from '../rules/set';
 
-import Validator from '../Validator/common';
+import Validator from '../validators/common';
 
 describe('ValidationError', () => {
   let validationError;

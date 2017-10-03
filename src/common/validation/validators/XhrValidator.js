@@ -8,9 +8,8 @@
 
 import defaultXhr from '../../defaultXhr';
 import ValidationErrors from '../ValidationErrors';
-import Validator from '../Validator/common';
 
-class ClientValidator extends Validator {
+class XhrValidator {
   /**
    * Get validator.
    *
@@ -21,27 +20,32 @@ class ClientValidator extends Validator {
    * @return {Validator}
    */
   constructor(validationUrl, validator, xhr) {
-    super();
-    this._settings.validationUrl = validationUrl;
-    this._settings.xhr = xhr || defaultXhr;
+    this._validationUrl = validationUrl;
     this._validator = validator;
+    this._xhr = xhr || defaultXhr;
+  }
+
+  static create(validationUrl, validator, xhr) {
+    return new XhrValidator(validationUrl, validator, xhr);
   }
 
   async isValidRecord(record) {
     let xhrResult;
     try {
-      xhrResult = await this._settings.xhr({
+      xhrResult = await this._xhr({
         method: 'POST',
-        headers: {'Content-type': 'application/json'},
+        headers: {
+          'Content-type': 'application/json'
+        },
         body: JSON.stringify(record),
-        uri: this._settings.validationUrl
+        uri: this._validationUrl
       });
     } catch (err) {
       if (err.statusCode === 413) {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors
-        const validationErrors = await this._validator::Validator.prototype.isValidRecord(record);
+        const validationErrors = await this._validator.isValidRecord(record);
         if (!validationErrors.isEmpty()) {
           return validationErrors;
         }
@@ -53,8 +57,8 @@ class ClientValidator extends Validator {
   }
 
   getValidationDependency(fields) {
-    return this._validator::super.getValidationDependency(fields);
+    return this._validator.getValidationDependency(fields);
   }
 }
 
-export default ClientValidator;
+export default XhrValidator;
