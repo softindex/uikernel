@@ -73,6 +73,8 @@ const GridComponent = React.createClass({
       onChange: React.PropTypes.func,
       onError: React.PropTypes.func,
       onPageLoad: React.PropTypes.func,
+      onInit: React.PropTypes.func,
+      onDestroy: React.PropTypes.func,
       autoSubmit: React.PropTypes.bool,
       height: React.PropTypes.number,
       onSelectedChange: React.PropTypes.func,
@@ -123,6 +125,9 @@ const GridComponent = React.createClass({
     this._loadData = utils.throttle(this._loadData);
     this._validateRow = utils.throttle(this._validateRow);
     this._checkWarnings = utils.throttle(this._checkWarnings);
+    if (this.props.onInit) {
+      this.props.onInit();
+    }
     return {
       page: this.props.page,
       viewCount: this.props.defaultViewCount,
@@ -159,6 +164,9 @@ const GridComponent = React.createClass({
     if (this.props.model) {
       this.props.model.off('create', this._onRecordCreated);
       this.props.model.off('update', this._setData);
+    }
+    if (this.props.onDestroy) {
+      this.props.onDestroy();
     }
   },
   componentWillReceiveProps: function (nextProps) {
