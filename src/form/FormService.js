@@ -122,8 +122,7 @@ class FormService {
   }
 
   /**
-   * Update form value. Is used as the Editors onChange handler.
-   * Causes component redraw.
+   * Update form value. Is used as the Editors onChange handler
    *
    * @param {string}  field  Parameter
    * @param {*}       value  Event or data
@@ -215,7 +214,6 @@ class FormService {
 
   /**
    * Send form data to the model
-   *
    */
   async submit() {
     if (this._isNotInitialized) {

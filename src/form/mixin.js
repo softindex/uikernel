@@ -11,7 +11,6 @@ import callbackify from '../common/callbackify';
 import toPromise from '../common/toPromise';
 import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
-import ThrottleError from '../common/ThrottleError';
 
 /**
  * Grid form mixin
@@ -67,7 +66,7 @@ const FormMixin = {
       let data;
       let err;
       try {
-        data = await toPromise(settings.model::settings.model.getData)(settings.fields);
+        data = await toPromise(::settings.model.getData)(settings.fields);
       } catch (e) {
         err = e;
       }
@@ -78,7 +77,7 @@ const FormMixin = {
 
       if (err) {
         this.state._formMixin.globalError = err;
-        await toPromise(this::this.setState, true)(this.state);
+        await toPromise(::this.setState, true)(this.state);
         throw err;
       }
 
@@ -86,7 +85,7 @@ const FormMixin = {
     }
 
     this.state._formMixin.model.on('update', this._handleModelChange);
-    await toPromise(this::this.setState, true)(this.state);
+    await toPromise(::this.setState, true)(this.state);
     if (!settings.partialErrorChecking) {
       await toPromise(this.validateForm, true)();
     }
@@ -242,7 +241,8 @@ const FormMixin = {
       // Look through all form fields
       for (field in this.state._formMixin.data) {
         // If field is unchanged, remove errors, that regard to this field
-        if (!this.state._formMixin.changes.hasOwnProperty(field) ||
+        if (
+          !this.state._formMixin.changes.hasOwnProperty(field) ||
           utils.isEqual(this.state._formMixin.changes[field], this.state._formMixin.data[field])
         ) {
           errors.clearField(field);
@@ -370,11 +370,11 @@ const FormMixin = {
    */
   submit: callbackify(async function () {
     if (this._isNotInitialized()) {
-      throw new Error('Component not initialized');
+      return;
     }
 
     if (!this.state._formMixin.autoSubmit && this.isSubmitting()) {
-      throw new ThrottleError('Form already sent');
+      return;
     }
 
     this.state._formMixin.submitting = true;
@@ -384,7 +384,7 @@ const FormMixin = {
     this.state._formMixin.globalError = null;
     this.state._formMixin.partialErrorChecking = false;
 
-    this.setState({_formMixin: this.state._formMixin});
+    this.setState(this.state);
 
     // Send changes to model
     let data;
@@ -396,7 +396,7 @@ const FormMixin = {
     }
 
     if (this._isUnmounted) {
-      throw new Error('Component is unmounted');
+      return;
     }
 
     this.state._formMixin.submitting = false;
@@ -429,7 +429,7 @@ const FormMixin = {
       }, this);
     }
 
-    await toPromise(::this.setState, true)({_formMixin: this.state._formMixin});
+    await toPromise(::this.setState, true)(this.state);
 
     if (err) {
       throw err;
@@ -572,8 +572,7 @@ const FormMixin = {
     const data = getData();
     validator.isValidRecord(data)
       .then(validErrors => {
-        const newData = getData();
-        if (!this._isUnmounted && utils.isEqual(data, newData)) {
+        if (!this._isUnmounted && utils.isEqual(data, getData())) {
           this.state._formMixin[output] = validErrors;
         }
         cb();
