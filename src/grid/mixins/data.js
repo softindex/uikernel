@@ -23,6 +23,13 @@ const GridDataMixin = {
   set: function (recordId, data, cb) {//TODO cb does't used
     const row = this._getRowID(recordId);
     this._setRowChanges(row, utils.cloneDeep(data), cb);
+
+    if (this.props.autoSubmit || this.props.realtime) {
+      if (this.props.realtime) {
+        console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
+      }
+      this.save(this.props.onRealtimeSubmit);
+    }
   },
 
   /**

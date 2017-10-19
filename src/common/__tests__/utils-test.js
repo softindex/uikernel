@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../utils';
+import {throttle} from '../utils';
 import ThrottleError from '../ThrottleError';
 
-function makeRequest(data) {
+async function makeRequest(data) {
   return new Promise((resolve) => {
     setImmediate(() => resolve(data));
   });
@@ -17,7 +17,7 @@ function makeRequest(data) {
 
 describe('Throttle promise', () => {
   it('Should handle one by one if called in turn', async () => {
-    const request = utils.throttle(makeRequest);
+    const request = throttle(makeRequest);
 
     const firstResponse = await request(1);
     expect(firstResponse).toBe(1);
@@ -30,7 +30,7 @@ describe('Throttle promise', () => {
   });
 
   it('Should handle last if called simultaneously', () => {
-    const request = utils.throttle(makeRequest);
+    const request = throttle(makeRequest);
 
     // First request throws error
     const firstRequest = request(1)
@@ -53,13 +53,46 @@ describe('Throttle promise', () => {
 
     return Promise.all([firstRequest, secondRequest, lastRequest]);
   });
+
+  // There was bug with reusing fulfilled promise (e79f4db)
+  it('Should let catch all ThrottleErrors without unhandled promise rejection', async () => {
+    const throttledRequest = throttle(makeRequest);
+
+    // Catch errors so that Promise.all wait for completion of all promises
+    async function asyncFuncCatchingThrottleErrors(data) {
+      try {
+        await throttledRequest(data);
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
+      }
+    }
+
+    let hasUnhandledRejection = false;
+    process.on('unhandledRejection', () => {
+      hasUnhandledRejection = true;
+    });
+
+    await Promise.all([
+      asyncFuncCatchingThrottleErrors(),
+      asyncFuncCatchingThrottleErrors()
+    ]);
+
+    await Promise.all([
+      asyncFuncCatchingThrottleErrors(),
+      asyncFuncCatchingThrottleErrors()
+    ]);
+
+    expect(hasUnhandledRejection).toBeFalsy();
+  });
 });
 
 describe('Throttle callback', () => {
   it('Should handle last if called simultaneously', () => {
     let resolve;
     const requestCallback = jest.fn(cbWrapper => resolve = cbWrapper);
-    const request = utils.throttle(requestCallback);
+    const request = throttle(requestCallback);
 
     request(jest.fn()); // request 1 start
     expect(requestCallback).toHaveBeenCalledTimes(1);

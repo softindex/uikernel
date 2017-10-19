@@ -80,6 +80,7 @@ exports.throttle = function (func) {
   let worked = false;
   let nextArguments;
   let nextResolve;
+
   return function () {
     if (typeof arguments[arguments.length - 1] === 'function') {
       return throttleCallback(func).apply(this, arguments);
@@ -137,12 +138,12 @@ exports.throttle = function (func) {
 
       return new Promise((resolve, reject) => {
         if (worked) {
-          nextArguments = args;
-          if (nextResolve) {
+          if (nextArguments) {
             const error = new ThrottleError();
             error.stack += parentStack;
             nextResolve(Promise.reject(error));
           }
+          nextArguments = args;
           nextResolve = resolve;
           return;
         }
@@ -153,7 +154,7 @@ exports.throttle = function (func) {
           .then(result => {
             worked = false;
             if (nextArguments) {
-              nextResolve(run(...nextArguments));
+              nextResolve(run.apply(this, nextArguments));
               nextArguments = null;
 
               const error = new ThrottleError();

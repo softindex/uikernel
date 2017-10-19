@@ -6,9 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import floatValidator from '../common/validation/rules/float';
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+
+const isInvalidFloat = floatValidator(null, null, true);
 
 class NumberEditor extends React.Component {
   static propTypes = {
@@ -31,12 +34,11 @@ class NumberEditor extends React.Component {
 
   _onChangeHandler(e) {
     const target = e.target;
-    const valueAsNumber = parseFloat(target.value);
-
-    if (!target.validity.valid) {
-      this.state.value = target.value;
-    } else if (target.value === '') {
+    const valueAsNumber = parseFloat(target.value); // Edge doesn't support "target.valueAsNumber"
+    if (target.value === '' && target.validity.valid) { // Invalid number set empty string and valid=false to event
       this.state.value = null;
+    } else if (isInvalidFloat(valueAsNumber)) {
+      this.state.value = '';
     } else {
       this.state.value = valueAsNumber;
     }

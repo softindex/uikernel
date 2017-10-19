@@ -39,6 +39,7 @@ class ValidationErrors {
       jsonErrors.push(arg.toJSON());
     }
 
+    // TODO Need deep merge
     return ValidationErrors.createFromJSON(Object.assign(...jsonErrors));
   };
 
@@ -136,6 +137,17 @@ class ValidationErrors {
    */
   clone() {
     return ValidationErrors.createFromJSON(this.toJSON());
+  }
+
+  /**
+   * Merge object
+   *
+   * @return {ValidationErrors}
+   */
+  merge(error) {
+    // TODO Need deep merge
+    Object.assign(this._fields, error.toJSON());
+    return this;
   }
 
   /**

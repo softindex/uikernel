@@ -17,7 +17,8 @@ const Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
   Form: require('./lib/form/FormService'),
-  createValidator: require('./lib/common/validation/Validator/browser').create,
+  createValidator: require('./lib/common/validation/validators/browser').create,
+  createXhrValidator: require('./lib/common/validation/validators/XhrValidator').create,
   exportGridData: require('./lib/grid/export/exportGridData'),
   toJSON: require('./lib/grid/export/exporters/toJSON'),
   Models: {
@@ -54,15 +55,15 @@ const Module = {
   ArgumentsError: require('./lib/common/ArgumentsError'),
   ThrottleError: require('./lib/common/ThrottleError'),
   Validators: {
-    boolean: require('./lib/common/validation/validators/boolean'),
-    date: require('./lib/common/validation/validators/date'),
-    enum: require('./lib/common/validation/validators/enum'),
-    set: require('./lib/common/validation/validators/set'),
-    float: require('./lib/common/validation/validators/float'),
-    regExp: require('./lib/common/validation/validators/regExp'),
-    notNull: require('./lib/common/validation/validators/notNull'),
-    number: require('./lib/common/validation/validators/number'),
-    notEmpty: require('./lib/common/validation/validators/notEmpty')
+    boolean: require('./lib/common/validation/rules/boolean'),
+    date: require('./lib/common/validation/rules/date'),
+    enum: require('./lib/common/validation/rules/enum'),
+    set: require('./lib/common/validation/rules/set'),
+    float: require('./lib/common/validation/rules/float'),
+    regExp: require('./lib/common/validation/rules/regExp'),
+    notNull: require('./lib/common/validation/rules/notNull'),
+    number: require('./lib/common/validation/rules/number'),
+    notEmpty: require('./lib/common/validation/rules/notEmpty')
   },
   Mixins: {
     Form: require('./lib/form/mixin')

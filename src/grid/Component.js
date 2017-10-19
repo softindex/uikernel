@@ -27,6 +27,7 @@ const RESET_VIEW_COLUMNS = 1 << 1;
 const RESET_SORT = 1 << 2;
 const RESET_VIEW_COUNT = 1 << 3;
 const RESET_SELECTED_COLUMNS = 1 << 4;
+const RESET_BLACK_LIST_MODE = 1 << 5;
 
 const GridComponent = React.createClass({
   ...GridColumnsMixin,
@@ -62,7 +63,7 @@ const GridComponent = React.createClass({
         React.PropTypes.arrayOf(React.PropTypes.string),
         React.PropTypes.object
       ]),
-      selectedColumns: React.PropTypes.array,
+      selected: React.PropTypes.array,
       // sort: React.PropTypes.object,
       page: React.PropTypes.number,
       defaultViewCount: React.PropTypes.number,
@@ -112,7 +113,7 @@ const GridComponent = React.createClass({
     page: 0,
     defaultViewCount: 0,
     partialErrorChecking: false,
-    selectedColumns: []
+    selected: []
   }),
   getInitialState: function () {
     this._loadData = utils.throttle(this._loadData);
@@ -138,7 +139,7 @@ const GridComponent = React.createClass({
       editor: {},
       colsWithEscapeErrors: {},
       selectBlackListMode: false,
-      selected: this.props.selectedColumns
+      selected: this.props.selected
     };
   },
   componentDidMount: function () {
@@ -172,19 +173,22 @@ const GridComponent = React.createClass({
     if (this.props.viewCount !== nextProps.viewCount) {
       reset |= RESET_VIEW_COUNT;
     }
-    if (!utils.isEqual(this.props.selectedColumns, nextProps.selectedColumns)) {
+    if (!utils.isEqual(this.props.selected, nextProps.selected)) {
       reset |= RESET_SELECTED_COLUMNS;
+    }
+    if (!utils.isEqual(this.props.blackListMode, nextProps.blackListMode)) {
+      reset |= RESET_BLACK_LIST_MODE;
     }
 
     if (!reset) {
       return;
     }
 
+    if (nextProps.selected) {
+      this.state.selected = nextProps.selected;
+    }
     this.setState({}, function () {
-      if (nextProps.selectedColumns) {
-        this.state.selected = nextProps.selectedColumns;
-      }
-      if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT || reset & RESET_SELECTED_COLUMNS) {
+      if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
         if (reset & RESET_MODEL) {
           this.state.data = null;
           if (oldProps.model) {
@@ -198,7 +202,7 @@ const GridComponent = React.createClass({
           this._setPage(0);
         }
         this.updateTable();
-      } else if (reset & RESET_VIEW_COLUMNS) {
+      } else if ((reset & RESET_VIEW_COLUMNS) || (reset & RESET_SELECTED_COLUMNS) || (reset & RESET_BLACK_LIST_MODE)) {
         this._renderBody();
       }
     });

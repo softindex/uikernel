@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "0.17.0-dev48",
+  "version": "0.17.0-dev67",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -35,7 +35,7 @@
     "browserify": "^13.0.1",
     "browserify-shim": "^3.8.12",
     "del": "^2.2.1",
-    "enzyme": "^2.8.2",
+    "enzyme": "^2.9.1",
     "eslint": "^3.0.1",
     "eslint-plugin-react": "^6.1.0",
     "gulp": "^3.9.1",
@@ -64,6 +64,9 @@
     "testRegex": "/__tests__/",
     "roots": [
       "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js"
     ]
   }
 }
