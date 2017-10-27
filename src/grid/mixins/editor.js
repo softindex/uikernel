@@ -9,6 +9,7 @@
 import React from 'react'; // eslint-disable-line no-unused-vars
 import ReactDOM from 'react-dom';
 import utils from '../../common/utils';
+import ThrottleError from '../../common/ThrottleError';
 
 const findDOMNode = ReactDOM.findDOMNode;
 
@@ -123,9 +124,15 @@ const GridEditorMixin = {
     }
   },
 
-  _onBlurEditor: function (row, column) {
+  async _onBlurEditor(row, column) {
     this._updateField(row, column);
-    this._checkWarnings(row);
+    try {
+      await this._checkWarnings(row);
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
 
     // TODO Deprecated prop realtime in v0.17
     if (this.props.autoSubmit || this.props.realtime) {

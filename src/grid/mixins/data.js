@@ -10,6 +10,7 @@ import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import utils from '../../common/utils';
+import ThrottleError from '../../common/ThrottleError';
 
 const GridDataMixin = {
   /**
@@ -414,12 +415,19 @@ const GridDataMixin = {
    * @param {Array}  changes  Changes
    * @private
    */
-  _setData: function (changes) {
-    let i;
-
+  async _setData(changes) {
     // Apply all changes
-    for (i = 0; i < changes.length; i++) {
-      this._setRecordData(changes[i][0], changes[i][1]);
+    for (const [id, data] of changes) {
+      // Firstly we update the state
+      this._setRecordData(id, data);
+      // Then we validate the updated data in state
+      try {
+        await this._checkWarnings(id);
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
+      }
     }
   },
 
@@ -608,12 +616,17 @@ const GridDataMixin = {
     }
   },
 
-  _onRecordCreated: function (recordId) {
-    this.updateTable().then(() => {
-      if (this._isRecordLoaded(recordId)) {
-        this._checkWarnings(this._getRowID(recordId));
+  async _onRecordCreated(recordId) {
+    await this.updateTable();
+    if (this._isRecordLoaded(recordId)) {
+      try {
+        await this._checkWarnings(this._getRowID(recordId));
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
       }
-    });
+    }
   }
 };
 
