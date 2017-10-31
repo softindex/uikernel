@@ -62,6 +62,7 @@ const GridUIMixin = {
     }
   },
 
+  // TODO Deprecated
   _handleHeaderCellClick: function (col, event) {
     const $target = $(event.target);
     const $refParent = $target.parents('[ref]');

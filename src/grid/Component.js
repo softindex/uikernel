@@ -42,7 +42,7 @@ const GridComponent = React.createClass({
   propTypes: (() => {
     const sortElementProp = React.PropTypes.shape({
       column: React.PropTypes.string,
-      direction: React.PropTypes.string
+      direction: React.PropTypes.any
     });
     const sortProp = React.PropTypes.oneOfType([
       sortElementProp,
@@ -77,6 +77,9 @@ const GridComponent = React.createClass({
       onSelectedChange: React.PropTypes.func,
       onSorting: React.PropTypes.func,
       multipleSorting: React.PropTypes.bool,
+      selectAllStatus: React.PropTypes.any,
+      onToggleSelected: React.PropTypes.func,
+      onToggleSelectAll: React.PropTypes.func,
       defaultSort: (props, propName) => {
         if (!props.defaultSort) {
           return;
@@ -281,22 +284,23 @@ const GridComponent = React.createClass({
             return (
               <tr key={colKey}>
                 {row.map((col, rowKey) => {
+                  const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
+                  const props = {
+                    key: rowKey,
+                    className: col.className,
+                    onClick: col.sort ? this._sortCol.bind(this, col.field) :
+                      this._handleHeaderCellClick.bind(this, col),
+                    colSpan: col.cols,
+                    rowSpan: col.rows
+                  };
                   return (
-                    <th
-                      key={rowKey}
-                      className={col.className}
-                      onClick={
-                        col.sort ?
-                          this._sortCol.bind(this, col.field) :
-                          this._handleHeaderCellClick.bind(this, col)
-                      }
-                      colSpan={col.cols}
-                      rowSpan={col.rows}
-                      dangerouslySetInnerHTML={{
-                        __html: this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id)
-                      }}
-                    />
-                  );
+                    typeof header === 'string' ?
+                      <th
+                        {...props}
+                        dangerouslySetInnerHTML={{
+                          __html: header
+                        }}/>
+                      : <th {...props}>{header}</th>);
                 })}
               </tr>
             );

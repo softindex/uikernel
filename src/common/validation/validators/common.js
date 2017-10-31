@@ -56,7 +56,7 @@ class Validator {
    */
   fields(fields, validatorFunction) {
     this._settings.groupValidators.push({
-      fields: fields,
+      fields: fields || [],
       fn: validatorFunction
     });
     return this;
@@ -179,7 +179,7 @@ Validator.prototype.isValidRecord = callbackify(async function (record) {
 
   // Add sync and async group validators
   for (const groupValidator of this._settings.groupValidators) {
-    if (utils.isIntersection(groupValidator.fields, fields)) {
+    if (!groupValidator.fields.length || utils.isIntersection(groupValidator.fields, fields)) {
       groupValidator.fn(record, errors);
     }
   }

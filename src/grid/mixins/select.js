@@ -102,6 +102,9 @@ const GridSelectMixin = {
    * @param {*}   recordId  Record ID
    */
   toggleSelected: function (recordId) {
+    if (this.props.onToggleSelected) {
+      return this.props.onToggleSelected(recordId);
+    }
     if (this.isSelected(recordId)) {
       this.unselectRecord(recordId);
     } else {
@@ -113,6 +116,9 @@ const GridSelectMixin = {
    * Switch records selection mode
    */
   toggleSelectAll: function () {
+    if (this.props.selected) {
+      return this.props.onToggleSelectAll();
+    }
     if (this.state.selectBlackListMode) {
       this.unselectAll();
     } else {
@@ -158,6 +164,10 @@ const GridSelectMixin = {
    */
   getAllSelected: function () {
     return utils.clone(this.state.selected);
+  },
+
+  getSelectAllStatus() {
+    return this.props.selectAllStatus;
   },
 
   _getAllSelected: function () {

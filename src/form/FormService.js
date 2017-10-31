@@ -67,15 +67,7 @@ class FormService {
     this._isNotInitialized = false;
 
     if (!this._data) {
-      let data;
-      try {
-        data = await toPromise(settings.model.getData.bind(settings.model))(settings.fields);
-      } catch (err) {
-        this._globalError = err;
-        this._setState();
-        return;
-      }
-      this._data = data;
+      this._data = await toPromise(settings.model.getData.bind(settings.model))(settings.fields);
     }
 
     this.model.on('update', this._onModelChange);
