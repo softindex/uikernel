@@ -9,6 +9,7 @@
 import toPromise from '../common/toPromise';
 import React from 'react';
 import utils from '../common/utils';
+import ThrottleError from '../common/ThrottleError';
 
 class SelectEditor extends React.Component {
   static propTypes = {
@@ -44,7 +45,9 @@ class SelectEditor extends React.Component {
           });
         })
         .catch(err => {
-          throw err;
+          if (!(err instanceof ThrottleError)) {
+            console.error(err);
+          }
         });
     }
   }
