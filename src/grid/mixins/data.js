@@ -187,6 +187,10 @@ const GridDataMixin = {
 
     this._renderBody();
 
+    if (this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
+    }
+
     return data;
   }),
 
@@ -203,6 +207,10 @@ const GridDataMixin = {
     delete this.state.errors[row];
 
     this._updateRow(row);
+
+    if (this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
+    }
   },
 
   /**
@@ -223,6 +231,10 @@ const GridDataMixin = {
     this.state.partialErrorChecking = this.props.partialErrorChecking;
 
     this._renderBody();
+
+    if (this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
+    }
   },
 
   /**
@@ -567,6 +579,7 @@ const GridDataMixin = {
   },
 
   _removeRecord: function (rowId, cb) {
+    const touchedChanges = this.state.changes[rowId];
     this._removeTR(rowId);
     // this.unselectRecord(recordId, true); // TODO Make unselectRecord by rowId method
     delete this.state.data[rowId];
@@ -576,6 +589,10 @@ const GridDataMixin = {
     delete this.state.errors[rowId];
     delete this.state.editor[rowId];
     this.setState(this.state, cb ? cb.bind(this) : null);
+
+    if (touchedChanges && this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
+    }
   },
 
   _checkWarnings: async function (row) {

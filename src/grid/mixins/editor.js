@@ -143,6 +143,9 @@ const GridEditorMixin = {
     } else {
       this._validateRow(row);
     }
+    if (this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
+    }
   },
 
   _isEditorVisible: function (row, column) {

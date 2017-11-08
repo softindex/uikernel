@@ -70,6 +70,7 @@ const GridComponent = React.createClass({
       viewCount: React.PropTypes.number,
       viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
       onChangeViewCount: React.PropTypes.func,
+      onChange: React.PropTypes.func,
       onError: React.PropTypes.func,
       onPageLoad: React.PropTypes.func,
       autoSubmit: React.PropTypes.bool,
