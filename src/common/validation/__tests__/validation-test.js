@@ -27,15 +27,15 @@ describe('ValidationError', () => {
 
   it('add', () => {
     validationError.add('test2', 'error2');
-    expect(validationError.toJSON()).toEqual({test: ['error'], test2: ['error2']});
+    expect(validationError.toJSON()).toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
   });
 
   it('hasError', () => {
     expect(validationError.hasError('test')).toBeTruthy();
   });
 
-  it('getFieldErrors', () => {
-    expect(validationError.getFieldErrors('test')).toEqual(['error']);
+  it('getFieldErrorMessages', () => {
+    expect(validationError.getFieldErrorMessages('test')).toEqual(['error']);
   });
 
   it('getFailedFields', () => {
@@ -56,12 +56,13 @@ describe('ValidationError', () => {
 
   it('clone', () => {
     expect(validationError.clone()).not.toBe(validationError);
-    expect(validationError.clone().toJSON()).toEqual({test: ['error']});
+    expect(validationError.clone().toJSON()).toEqual({test: [{message: 'error'}]});
   });
 
   it('merge', () => {
-    const errorToMerge = ValidationError.createFromJSON({test2: ['error2']});
-    expect(validationError.merge(errorToMerge).toJSON()).toEqual({test: ['error'], test2: ['error2']});
+    const errorToMerge = ValidationError.createFromJSON({test2: [{message: 'error2'}]});
+    expect(validationError.merge(errorToMerge).toJSON())
+      .toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
   });
 });
 
@@ -155,7 +156,7 @@ describe('Validator', () => {
     let result = await validator.isValidRecord({name: true});
     expect(result.toJSON()).toEqual({});
     result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({'name': ['err text']});
+    expect(result.toJSON()).toEqual({'name': [{message: 'err text'}]});
   });
 
   it('field', async () => {
@@ -163,6 +164,6 @@ describe('Validator', () => {
     let result = await validator.isValidRecord({name: true});
     expect(result.toJSON()).toEqual({});
     result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({'name': ['err text']});
+    expect(result.toJSON()).toEqual({'name': [{message: 'err text'}]});
   });
 });
