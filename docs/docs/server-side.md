@@ -89,3 +89,16 @@ app.listen(port, function () {
 {% endhighlight %}
 
 In the next section of the tutorial, we'll define routes for our app.
+
+The client-side part of the app is similar to the one described in the previous part of the tutorial, 
+the only difference is that the data model at the client-side part will be an instance of UIKernel.Models.Grid.Xhr
+instead of UIKernel.Models.Grid.Collection, so that the client-side part will fetch grid data and synchronize it 
+with the server's model:
+
+`client/js/model/model.js`
+{% highlight javascript %}
+const model = new UIKernel.Models.Grid.Xhr({
+    api: '/api/users',     // URI of the back-end Grid API 
+    validator              // Client-side validator
+});
+{% endhighlight %}

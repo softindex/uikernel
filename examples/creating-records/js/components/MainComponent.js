@@ -10,15 +10,13 @@ class MainComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      model, // let's store model in the state
-      createFormState: {}
+      model // let's store model in the state
     };
 
     this.highlightNewRecord = this.highlightNewRecord.bind(this);
     this.applyFilters = this.applyFilters.bind(this);
     this.saveChanges = this.saveChanges.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
-    this.updateCreateFormState = this.updateCreateFormState.bind(this);
   }
 
   highlightNewRecord(recordId) {
@@ -42,10 +40,6 @@ class MainComponent extends React.Component {
     this.refs.grid.clearAllChanges();
   }
 
-  updateCreateFormState(newFormState) {
-    this.setState({createFormState: newFormState});
-  }
-
   render() {
     return (
       <div>
@@ -56,11 +50,7 @@ class MainComponent extends React.Component {
                 <h3 className="panel-title">Add record</h3>
               </div>
               <div className="panel-body">
-                <CreateForm
-                  onSubmit={this.highlightNewRecord}
-                  onChange={this.updateCreateFormState}
-                  state={this.state.createFormState}
-                />
+                <CreateForm onSubmit={this.highlightNewRecord}/>
               </div>
             </div>
           </div>

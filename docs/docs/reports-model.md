@@ -58,10 +58,10 @@ Get requested information from cube.
 
 **info:**
 
-| Type     | Name       | Description                 |
-|----------|------------|-----------------------------|
-| string[] | drillDowns | Available DrillDowns list |
-| string[] | measures   | Available measures list     |
+| Type      | Name       | Description                 |
+|-----------|------------|-----------------------------|
+| String [ ] | drillDowns | Available DrillDowns list |
+| String [ ] | measures   | Available measures list     |
 
 ---
 
