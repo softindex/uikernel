@@ -28,7 +28,7 @@ const GridCollectionModel = function (options) {
 
   options = options || {};
 
-  this.data = options.data || [];
+  this.data = utils.cloneDeep(options).data || [];
   this._id = 1;
   this._filtersHandler = options.filtersHandler;
   if (options.validation) {
@@ -52,7 +52,7 @@ GridCollectionModel.prototype.constructor = GridCollectionModel;
  * @param {Object[]} data
  */
 GridCollectionModel.prototype.setData = function (data) {
-  this.data = data;
+  this.data = utils.cloneDeep(data);
 };
 
 /**
@@ -65,7 +65,13 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
   let i;
   let field;
   let validationErrors;
-  const clonedRecord = utils.clone(record);
+  let id = this._getID();
+  let clonedRecord = utils.clone(record);
+  // Create record with definite id
+  if (Array.isArray(clonedRecord) && clonedRecord.length === 2) {
+    id = clonedRecord[0];
+    clonedRecord = clonedRecord[1];
+  }
 
   for (i in this._requiredFields) {
     field = this._requiredFields[i];
@@ -80,18 +86,17 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
       throw validationErrors;
     }
 
-    return this._create(clonedRecord);
+    return this._create(clonedRecord, id);
   } else {
-    return this._create(clonedRecord);
+    return this._create(clonedRecord, id);
   }
 });
 
-GridCollectionModel.prototype._create = callbackify(function (record) {
-  const id = this._getID();
+GridCollectionModel.prototype._create = function (record, id) {
   this.data.push([id, record]);
   this.trigger('create', id);
   return id;
-});
+};
 
 /**
  * Get records list
