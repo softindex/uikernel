@@ -9,7 +9,7 @@
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {model}
+    this.state = {model};
   }
 
   render() {
@@ -19,7 +19,7 @@ class MainComponent extends React.Component {
           model={this.state.model} // Grid model
           cols={columns} // columns configuration
           viewCount={10} //display 10 records per page
-          />
+        />
       </div>
     );
   }

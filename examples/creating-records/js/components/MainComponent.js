@@ -6,27 +6,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+const DEFAULT_FILTERS = {
+  search: '',
+  age: null,
+  gender: 0,
+};
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      model // let's store model in the state
+      model, // let's store model in the state
+      filters: DEFAULT_FILTERS,
     };
-
-    this.highlightNewRecord = this.highlightNewRecord.bind(this);
-    this.applyFilters = this.applyFilters.bind(this);
-    this.saveChanges = this.saveChanges.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
   }
 
   highlightNewRecord(recordId) {
     this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
-  }
-
-  applyFilters(filters) {
-    this.setState({
-      model: UIKernel.applyGridFilters(model, filters)
-    });
   }
 
   saveChanges() {
@@ -35,9 +31,11 @@ class MainComponent extends React.Component {
         alert('Error');
       });
   }
-
-  clearChanges() {
-    this.refs.grid.clearAllChanges();
+  onFiltersChange(filters) {
+    this.setState({
+      filters,
+      model: UIKernel.applyGridFilters(model, filters)
+    });
   }
 
   render() {
@@ -50,7 +48,7 @@ class MainComponent extends React.Component {
                 <h3 className="panel-title">Add record</h3>
               </div>
               <div className="panel-body">
-                <CreateForm onSubmit={this.highlightNewRecord}/>
+                <CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>
               </div>
             </div>
           </div>
@@ -60,7 +58,11 @@ class MainComponent extends React.Component {
                 <h3 className="panel-title">Filters</h3>
               </div>
               <div className="panel-body">
-                <FiltersForm onSubmit={this.applyFilters}/>
+                <FiltersForm
+                  filters={this.state.filters}
+                  onChange={(filters) => this.onFiltersChange(filters)}
+                  onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}
+                />
               </div>
             </div>
           </div>
@@ -79,9 +81,9 @@ class MainComponent extends React.Component {
                 defaultSort={{column: 'name', direction: 'asc'}} // default sorting
               />
               <div className="panel-footer">
-                <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+                <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
                 {' '}
-                <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
+                <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
               </div>
             </div>
           </div>
