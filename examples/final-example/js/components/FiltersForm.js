@@ -6,76 +6,79 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var FiltersForm = (function () {
-  var defaultFilters = {
-    search: '',
-    age: null,
-    gender: 0
-  };
+class FiltersForm extends React.Component{
+  constructor(props) {
+    super(props);
+    this.defaultFilters = {
+      search: '',
+      age: null,
+      gender: 1,
+    };
+    this.state = {
+      filters: {...this.defaultFilters}
+    };
+    this.onClear = this.onClear.bind(this);
+    this.updateValue = this.updateValue.bind(this);
+  }
 
-  return React.createClass({
-    getInitialState: function () {
-      return {
-        filters: _.clone(defaultFilters)
-      }
-    },
-
-    onClear: function () {
-      this.setState({filters: _.clone(defaultFilters)});
-      this.props.onSubmit(defaultFilters);
-    },
-
-    updateValue: function (field, value) {
-      if (value.target) {
-        value = value.target.value
-      }
-
-      this.state.filters[field] = value;
-      this.props.onSubmit(this.state.filters);
-    },
-
-    render() {
-      return (
-        <form className="filters-form row">
-          <div className="col-sm-7">
-            <label className="control-label">Search</label>
-            <input
-              type="text" // text editor
-              className="form-control"
-              onChange={this.updateValue.bind(null, 'search')}
-              value={this.state.filters.search}
-            />
-          </div>
-          <div className="col-sm-2">
-            <label className="control-label">Age</label>
-            <input
-              type="number" // number editor
-              className="form-control"
-              onChange={this.updateValue.bind(null, 'age')}
-              value={this.state.filters.age}
-            />
-          </div>
-          <div className="col-sm-2">
-            <label className="control-label">Gender</label>
-            <UIKernel.Editors.Select // select editor
-              className="form-control"
-              onChange={this.updateValue.bind(null, 'gender')}
-              options={[
-                [0, ''],
-                [1, 'Male'],
-                [2, 'Female']
-              ]}
-              value={this.state.filters.gender}
-            />
-          </div>
-          <div className="col-sm-1">
-            <label className="control-label">&nbsp;</label>
-            <a className="btn btn-success show" onClick={this.onClear}>
-              Clear
-            </a>
-          </div>
-        </form>
-      );
+  getInitialState() {
+    return {
+      filters: _.clone(this.defaultFilters)
     }
-  });
-})();
+  }
+
+  onClear() {
+    this.setState({filters: {...this.defaultFilters}});
+    this.props.onSubmit(this.defaultFilters);
+  }
+
+  updateValue(filter, value) {
+    const filters = {...this.state.filters};
+    filters[filter] = ((typeof value === 'object' && !Object.is(value, null) && 'target' in value)) ? value.target.value : value;
+
+    this.setState({filters}, () => this.props.onSubmit(filters));
+  }
+
+  render() {
+    return (
+      <form className="filters-form row">
+        <div className="col-sm-7">
+          <label className="control-label">Search</label>
+          <input
+            type="text" // text editor
+            className="form-control"
+            onChange={this.updateValue.bind(null, 'search')}
+            value={this.state.filters.search}
+          />
+        </div>
+        <div className="col-sm-2">
+          <label className="control-label">Age</label>
+          <UIKernel.Editors.Number // number editor
+            className="form-control"
+            onChange={this.updateValue.bind(null, 'age')}
+            value={this.state.filters.age}
+          />
+        </div>
+        <div className="col-sm-2">
+          <label className="control-label">Gender</label>
+          <UIKernel.Editors.Select // select editor
+            className="form-control"
+            onChange={this.updateValue.bind(null, 'gender')}
+            options={[
+              [0, ''],
+              [1, 'Male'],
+              [2, 'Female']
+            ]}
+            value={this.state.filters.gender}
+          />
+        </div>
+        <div className="col-sm-1">
+          <label className="control-label">&nbsp;</label>
+          <a className="btn btn-success show" onClick={this.onClear}>
+            Clear
+          </a>
+        </div>
+      </form>
+    );
+  }
+};

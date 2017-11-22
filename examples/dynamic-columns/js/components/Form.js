@@ -12,7 +12,7 @@ class FormCheckbox extends React.Component {
   }
 
   render() {
-    const id = 'col-' + this.props.id;
+    const id = `col-${this.props.id}`;
 
     return (
       <div className="row">

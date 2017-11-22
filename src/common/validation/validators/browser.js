@@ -30,10 +30,9 @@ class ClientValidator extends Validator {
   static create(serverValidationUrl, xhr) {
     return new ClientValidator(serverValidationUrl, xhr);
   }
-
 }
 
-ClientValidator.prototype.isValidRecord = callbackify(async function(record) {
+ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
   if (!this._settings.serverValidationUrl) {
     return await this::Validator.prototype.isValidRecord(record);
   }

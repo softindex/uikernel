@@ -6,30 +6,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
-      model: model // let's store model in the state
-    };
-  },
-  addRecord: function (recordId) {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { model };
+    this.onClear = this.onClear.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.applyFilters = this.applyFilters.bind(this);
+    this.addRecord = this.addRecord.bind(this);
+  }
+
+  addRecord(recordId) {
     this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
-  },
-  applyFilters: function (filters) {
+  }
+
+  applyFilters(filters) {
     this.setState({
       model: UIKernel.applyGridFilters(model, filters)
     });
-  },
-  onSave: function () {
+  }
+
+  onSave() {
     this.refs.grid.save()
     .catch(() => {
       alert('Error');
     });
-  },
-  onClear: function () {
+  }
+
+  onClear() {
     this.refs.grid.clearAllChanges();
-  },
-  render: function () {
+  }
+
+  render() {
     return (
       <div className="panel">
         <div className="panel-heading">
@@ -53,4 +61,5 @@ var MainComponent = React.createClass({
       </div>
     );
   }
-});
+}
+

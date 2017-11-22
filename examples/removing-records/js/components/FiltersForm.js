@@ -28,7 +28,7 @@ class FiltersForm extends React.Component {
 
   updateFilter(filter, value) {
     const filters = {...this.state.filters};
-    filters[filter] = value.target ? value.target.value : value;
+    filters[filter] = ((typeof value === 'object' && !Object.is(value, null) && 'target' in value)) ? value.target.value : value;
 
     this.setState({filters}, () => this.props.onSubmit(filters));
   }

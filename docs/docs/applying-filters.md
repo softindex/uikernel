@@ -9,8 +9,8 @@ next: editing-grid-data.html
 
 There are only a few things we need to do here: teach the grid model to work with filters, create a form and render it.
 
-First, let's modify our model so that it can work with filters. We'll add the `filtersHandler` method to the settings 
-object passed to `UIKernel.Models.Grid.Collection`. This method will filter our data by name, surname, phone, gender, 
+First, let's modify our model so that it can work with filters. We'll add the `filtersHandler` method to the settings
+object passed to `UIKernel.Models.Grid.Collection`. This method will filter our data by name, surname, phone, gender,
 and age.
 
 `model.js`:
@@ -20,35 +20,35 @@ const model = new UIKernel.Models.Grid.Collection({
   filtersHandler: function (data, filters) {
       return data.filter((record) => {
         const data = record[1];
-  
+
         if (filters.search) {
           const found = (
             data.name.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
             data.surname.toLowerCase().indexOf(filters.search.toLowerCase()) >= 0 ||
             data.phone.indexOf(filters.search) >= 0
           );
-  
+
           if (!found) {
             return false
           }
         }
-  
+
         if (filters.gender && data.gender !== filters.gender) {
           return false;
         }
-  
+
         if (filters.age && data.age !== Number(filters.age)) {
           return false;
         }
-  
+
         return true;
       });
     }
 });
 {% endhighlight %}
 
-Next, we'll define the `applyFilters` method in our `MainComponent`. 
-Inside this method we'll call `setState` to update our grid model. 
+Next, we'll define the `applyFilters` method in our `MainComponent`.
+Inside this method we'll call `setState` to update our grid model.
 
 `MainComponent.js`:
 {% highlight html %}
@@ -89,7 +89,7 @@ class FiltersForm extends React.Component {
 
   updateFilter(filter, value) {
     const filters = {...this.state.filters};
-    filters[filter] = value.target ? value.target.value : value;
+    filters[filter] = ((typeof value === 'object' && !Object.is(value, null) && 'target' in value)) ? value.target.value : value;
 
     this.setState({filters}, () => this.props.onSubmit(filters));
   }
@@ -111,8 +111,7 @@ class FiltersForm extends React.Component {
         <div className="form-group">
           <label className="col-sm-3 control-label">Age</label>
           <div className="col-sm-9">
-            <input
-              type="number" // number editor
+            <UIKernel.Editors.Number// number editor
               className="form-control"
               onChange={this.updateFilter.bind(null, 'age')}
               value={this.state.filters.age}
@@ -155,7 +154,7 @@ Inside the constructor we've initialized our state variable `filters` and bound 
 
 ---
 
-Finally, let's add our form into the `render` method of `MainComponent`. 
+Finally, let's add our form into the `render` method of `MainComponent`.
 
 {% highlight html %}
 // ...

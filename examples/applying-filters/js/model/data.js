@@ -19,7 +19,7 @@ function getRandomRecords(size) {
 
   const data = [];
 
-  for (var i = 0; i < size; i++) {
+  for (let i = 0; i < size; i++) {
     const randomCountryIndex = _getRandomNumber(1, records.length);
     data.push([i, {
       'name': _names[_getRandomNumber(0, _names.length)],

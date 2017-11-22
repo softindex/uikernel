@@ -45,9 +45,9 @@ AbstractGridModel.prototype.create = callbackify((/*record*/) => Promise.resolve
  * @abstract
  */
 AbstractGridModel.prototype.read = callbackify((/*settings*/) => Promise.resolve({
-  records: [],   // Primary records
-  ids: [],    // Extra records
-  extraRecords: 0    // In all records count
+  records: [], // Primary records
+  ids: [], // Extra records
+  extraRecords: 0 // In all records count
 }));
 
 /**

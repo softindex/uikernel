@@ -28,7 +28,7 @@ class FiltersForm extends React.Component {
 
   updateFilter(filter, value) {
     const filters = {...this.state.filters};
-    filters[filter] = value.target ? value.target.value : value;
+    filters[filter] = ((typeof value === 'object' && !Object.is(value, null) && 'target' in value)) ? value.target.value : value;
 
     this.setState({filters}, () => this.props.onSubmit(filters));
   }
@@ -50,8 +50,7 @@ class FiltersForm extends React.Component {
         <div className="form-group">
           <label className="col-sm-3 control-label">Age</label>
           <div className="col-sm-9">
-            <input
-              type="number" // number editor
+            <UiKernel.Editors.Number // number editor
               className="form-control"
               onChange={this.updateFilter.bind(null, 'age')}
               value={this.state.filters.age}

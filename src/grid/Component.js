@@ -278,30 +278,30 @@ const GridComponent = React.createClass({
         >
           <colgroup>{header.colGroup}</colgroup>
           <thead>
-          {header.cols.map((row, colKey) => {
-            return (
-              <tr key={colKey}>
-                {row.map((col, rowKey) => {
-                  return (
-                    <th
-                      key={rowKey}
-                      className={col.className}
-                      onClick={
-                        col.sort ?
-                          this._sortCol.bind(this, col.field) :
-                          this._handleHeaderCellClick.bind(this, col)
-                      }
-                      colSpan={col.cols}
-                      rowSpan={col.rows}
-                      dangerouslySetInnerHTML={{
-                        __html: this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id)
-                      }}
-                    />
-                  );
-                })}
-              </tr>
-            );
-          })}
+            {header.cols.map((row, colKey) => {
+              return (
+                <tr key={colKey}>
+                  {row.map((col, rowKey) => {
+                    return (
+                      <th
+                        key={rowKey}
+                        className={col.className}
+                        onClick={
+                          col.sort ?
+                            this._sortCol.bind(this, col.field) :
+                            this._handleHeaderCellClick.bind(this, col)
+                        }
+                        colSpan={col.cols}
+                        rowSpan={col.rows}
+                        dangerouslySetInnerHTML={{
+                          __html: this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id)
+                        }}
+                      />
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </thead>
           <tbody className="dgrid-body-table" ref="tbody"/>
           {this._renderTotals(this.props.height)}

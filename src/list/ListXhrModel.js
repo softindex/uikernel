@@ -26,7 +26,6 @@ class ListXMLHttpRequestModel {
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
-
 }
 
 /**

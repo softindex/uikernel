@@ -341,7 +341,7 @@ and escape "${columnId}" field in render function by yourself`
 
     return (
       <tfoot className="dgrid-totals">
-      <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
+        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
       </tfoot>
     );
   },

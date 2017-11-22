@@ -505,7 +505,7 @@ class SuggestBoxEditor extends React.Component {
               >
                 {
                   Array.isArray(option.label) ? option.label.map((label, columnKey) => <div
-                      key={columnKey}>{label}</div>) : <div>{option.label}</div>
+                    key={columnKey}>{label}</div>) : <div>{option.label}</div>
                 }
               </li>
             );

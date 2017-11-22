@@ -76,7 +76,7 @@ class MainComponent extends React.Component {
                 model={this.state.model} // Grid model
                 cols={columns} // columns configuration
                 viewCount={10} // display 10 records per page
-                defaultSort={{column: "name", direction: "asc"}} // default sorting
+                defaultSort={{column: 'name', direction: 'asc'}} // default sorting
               />
               <div className="panel-footer">
                 <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
