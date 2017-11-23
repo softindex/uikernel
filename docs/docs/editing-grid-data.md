@@ -102,12 +102,6 @@ So we'll define the `saveChanges` and `clearChanges` methods in our `MainCompone
 
 `MainComponent.js`:
 {% highlight javascript %}
-constructor(props) {
-    // ....
-    this.saveChanges = this.saveChanges.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
-}
-
 // ...
 
 saveChanges() {
@@ -138,9 +132,9 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
   viewCount={10}
 />
 <div className="panel-footer">
-  <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+  <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
   {' '}
-  <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
+  <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
 </div>
 // ...
 {% endhighlight %}
