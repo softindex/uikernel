@@ -7,7 +7,7 @@ next: editors.html
 
 As was said before, we use MySQL database. Below is code for sample wrapper for working with database connections.
 
-`api/common/MySQL.js`
+`server/common/mysql.js`
 {% highlight javascript %}
 
 const pool = mysql.createPool(config.db);

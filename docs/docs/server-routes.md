@@ -5,57 +5,52 @@ prev: server-side.html
 next: server-validation.html
 ---
 
-First, let's define tha main router of our app.
+First, let's define the main router of our app.
 
 `router.js`:
 {% highlight javascript %}
-var express = require('express');
-var userGridRouter = require('./modules/userGrid/router');
+import express from 'express';
+import userGridRouter from './modules/userGrid/router';
 
 // get an instance of the express Router
-var router = new express.Router();
-// use router from userGrid module to handle all requests that end in '/users'
-router.use('/users', userGridRouter);
+const router = new express.Router();
+router.use('/records', userGridRouter);
 
-module.exports = router;
+export default router;
 {% endhighlight %}
 
 
 Next, we'll define routes for the module named `userGrid`. It will be responsible for work with data passed to the client model.
-UIKernel allows to generate routes if you use Express. So we're going to generate routes for this module.    
+UIKernel allows to generate routes if you use Express. So we're going to generate routes for this module.
 
 `userGrid/router.js`:
 {% highlight javascript %}
-var UIKernel = require('uikernel');
-var model = require('./model'); // we'll define the model in the next step of our tutorial
+import UserGridModel from './model';// we'll define the model in the next step of our tutorial
 
 //generate routes
-var router = UIKernel.gridExpressApi()
-    .model(model)
+const router = UIKernel.gridExpressApi()
+    .model(new UserGridModel())
     .getRouter(); //"getRouter" returns express.Router object
 
 // UIKernel doesn't generate the delete method, so we'll define it
-router.delete('/:recordId', function (req, res, next) {
-    model.delete(req.params.recordId)
-    .then(function () {
-        res.end();
-    })
-    .catch(function (err) {
-        next(err);
-    })
+router.delete('/:recordId', (req, res, next) => {
+    new UserGridModel().delete(req.params.recordId)
+        .then(() => res.end())
+        .catch((err) => next(err))
 });
 
-module.exports = router; // this router is passed to the main router of our app
+
+export default router; // this router is passed to the main router of our app
 {% endhighlight %}
 
-Pay attention to the argument passed to `model()`. 
+Pay attention to the argument passed to `model()`.
 It must be an object with the methods described [here](/docs/grid-interface.html)
 
 {% highlight javascript %}
-var router = UIKernel.gridExpressApi()
-    .model(model)// <--
+const router = UIKernel.gridExpressApi()
+    .model(new UserGridModel())
     .getRouter();
-});
+
 {% endhighlight %}
 
 The usage of `gridExpressApi` is optional.
