@@ -253,6 +253,32 @@ const FormMixin = {
     return errors;
   },
 
+  getWarningsErrors: function () {
+    if (this._isNotInitialized()) {
+      return new ValidationErrors();
+    }
+
+    let field;
+    const errors = this.state._formMixin.warnings.clone();
+
+    // If gradual validation is on, we need
+    // to remove unchanged records from errors object
+    if (this.state._formMixin.partialErrorChecking) {
+      // Look through all form fields
+      for (field in this.state._formMixin.data) {
+        // If field is unchanged, remove errors, that regard to this field
+        if (
+          !this.state._formMixin.changes.hasOwnProperty(field) ||
+          utils.isEqual(this.state._formMixin.changes[field], this.state._formMixin.data[field])
+        ) {
+          errors.clearField(field);
+        }
+      }
+    }
+
+    return errors;
+  },
+
   getFieldErrors: function (field) {
     if (this._isNotInitialized()) {
       return false;
@@ -384,7 +410,7 @@ const FormMixin = {
     this.state._formMixin.globalError = null;
     this.state._formMixin.partialErrorChecking = false;
 
-    this.setState(this.state);
+    this.setState({_formMixin: this.state._formMixin});
 
     // Send changes to model
     let data;
