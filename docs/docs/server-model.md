@@ -2,71 +2,75 @@
 title: Creating a model
 id: server-model
 prev: server-validation.html
-next: editors.html
+next: server-db-connection.html
 ---
 
 Our model will have the following methods: `read`, `getRecord`, `update`, `create`, `delete`, `isValidRecord`and `getValidationDependency`.
 
 Here, we're going to use [MySQL](https://github.com/mysqljs/mysql) and [Squel](https://hiddentao.com/squel/).
 
-First, let's define `read`. 
+First, let's define `read`.
 
 `userGrid/model.js`:
 {% highlight javascript %}
-read: function (settings) {
-    var data = {};
-    var query = squel.select()
-      .field('SQL_CALC_FOUND_ROWS *')
-      .from('getting_started')
+async read(settings) {
+    const query = squel.select()
+      .from('records')
+      .field('SQL_CALC_FOUND_ROWS id')
       .limit(settings.limit || 10)
       .offset(settings.offset || 0);
 
+    for (const fieldName of settings.fields) {
+      if (FIELDS.includes(fieldName)) {
+        query.field(fieldName);
+      }
+    }
+
     if (settings.sort) {
-      var sort = settings.sort[0];
-      query.order(sort[0], sort[1] === 'asc');
+      const [sortField, sortDirection] = settings.sort[0];
+      if (FIELDS.includes(sortField)) {
+        query.order(sortField, sortDirection === 'asc');
+      }
     }
 
     if (settings.filters) {
       if (settings.filters.search) {
-        var pattern = `%${settings.filters.search}%`;
+        const pattern = `%${settings.filters.search}%`;
         query.where('name LIKE ? OR surname LIKE ?', pattern, pattern);
       }
-
       if (settings.filters.age) {
-        query.where('age = ?', settings.filters.age);
+        query.where('age = ?', settings.filters.age)
       }
-
       if (settings.filters.gender) {
-        query.where('gender = ?', settings.filters.gender);
+        query.where('gender = ?', settings.filters.gender)
       }
     }
 
-    return mysql.query(query)
-      .then(function (result) {
-        data.records = result.map(function (elem) {
-          return [elem.id, elem];
-        });
-        return mysql.query('SELECT FOUND_ROWS() as count')
-      })
-      .then(function (result) {
-        data.count = result[0].count;
-        return data;
-      })
-}
+    const data = {};
+    const connection = await MySQLWrapper.getConnection();
+
+    try {
+      const mainQueryResult = await connection.query(query);
+      const secondQueryResult = await connection.query('SELECT FOUND_ROWS() as count');
+      data.records = mainQueryResult.map(elem => [elem.id, elem]);
+      data.count = secondQueryResult[0].count;
+    } finally {
+      connection.release();
+    }
+
+    return data;
+  }
 {% endhighlight %}
 
 The `read` method returns an object with two properties: `records` and `count`(the number of returned records).
-  
+
 Pay attention to this part:
 {% highlight javascript %}
-data.records = result.map(function (elem) {
-                    return [elem.id, elem];
-                });
-                return MySQL.query('SELECT FOUND_ROWS() as count')
+data.records = mainQueryResult.map(elem => [elem.id, elem]);
 {% endhighlight %}
 
-The value of `records` is an array consisting of arrays that store a record id as their first element and 
-a record as the second one. 
+The value of `records` is an array consisting of arrays that store a record id as their first element and
+a record as the second one.
 
 For example:
 
@@ -82,94 +86,97 @@ For example:
 Let's define methods for validation:
 
 {% highlight javascript %}
-isValidRecord: validator.isValidRecord.bind(validator),
+async isValidRecord(record) {
+    return await validator.isValidRecord(record);
+  },
 
-getValidationDependency: validator.getValidationDependency.bind(validator)
+async getValidationDependency(record) {
+    return await validator.getValidationDependency(record);
+  },
 {% endhighlight %}
 
 Next, we'll define `getRecord`:
 
 {% highlight javascript %}
-getRecord: function (id, fields) {
-        var query = squel.select()
-            .from('getting_started')
-            .where('id = ?', id);
+async getRecord(id, fields) {
+    const query = squel.select()
+      .from('records')
+      .where('id = ?', id);
 
-        return MySQL.query(query)
-            .then(function (result) {
-                return result[0];
-            });
-}
+    for (const fieldName of fields) {
+      if (FIELDS.includes(fieldName)) {
+        query.field(fieldName);
+      }
+    }
+
+    const result = await MySQLWrapper.query(query);
+    return result[0];
+  }
 {% endhighlight %}
 
-The `getRecord` method returns a single record. 
+The `getRecord` method returns a single record.
 
 Here's the code for `create`:
 
 {% highlight javascript %}
-create: function (data) {
-    // UIKernel validator doesn't check the presence of fields , so we assign default values
-    data = Object.assign({
-      name: '',
-      surname: '',
-      age: '',
-      phone: '',
-      gender: ''
-    }, data);
+async create(data) {
+    data = {
+      name: null,
+      surname: null,
+      phone: null,
+      age: null,
+      gender: null,
+      ...data
+    };
+    const query = squel.insert()
+      .into('records');
+    for (const fieldName of FIELDS) {
+      if (data.hasOwnProperty(fieldName)) {
+        query.set(fieldName, data[fieldName]);
+      }
+    }
 
-    var query = squel.insert()
-      .into("getting_started")
-      .setFields(data);
+    const validationResult = await this.isValidRecord(data);
+    if (!validationResult.isEmpty()) {
+      throw validationResult;
+    }
 
-    return this.isValidRecord(data)
-      .then(function (validationErrors) {
-        if (validationErrors.isEmpty()) {
-          return mysql.query(query); // insert a record in a table if data is valid
-        }
-        
-        return Promise.reject(validationErrors); // return validation errors if data is invalid
-      })
-      .then(function (result) {
-        return result.insertId;
-      })
+    const queryResult = await MySQLWrapper.query(query);
+    return queryResult.insertId;
   }
 {% endhighlight %}
- 
+
 If data is valid, `create` returns the id of the inserted record. Otherwise, it returns validation errors.
 
 Let's define the `update` method:
 
 {% highlight javascript %}
-  update: function (records) {
-    var promises = records.map(function (record) {
-      var recordId = record[0];
-      var values = record[1];
-      var query = squel.update()
-        .table('getting_started')
-        .setFields(values)
-        .where('id = ?', recordId);
+  async update(records) {
+      const result = [];
 
-      return this.isValidRecord(values)
-        .then(function (validationErrors) {
-          if (validationErrors.isEmpty()) {
-            return mysql.query(query)
-              .then(function () {
-                return this.getRecord(recordId);
-              }.bind(this))
-              .then(function (record) {
-                 return [record.id, record]
-              })
+      for (const [recordId, record] of records) {
+        const query = squel.update()
+          .table('records')
+          .where('id = ?', recordId);
+
+        for (const fieldName of FIELDS) {
+          if (record.hasOwnProperty(fieldName)) {
+            query.set(fieldName, record[fieldName]);
           }
+        }
 
-          return [recordId, validationErrors];
-        }.bind(this))
-        .catch(function (err) {
-          console.log(err);
-        });
-    }, this);
+        const validationResult = await this.isValidRecord(record);
+        if (!validationResult.isEmpty()) {
+          result.push([recordId, validationResult]);
+          continue;
+        }
 
-    return Promise.all(promises)
-  }
+        await MySQLWrapper.query(query);
+        result.push([recordId, record]);
+      }
+
+      return result;
+    }
 {% endhighlight %}
 
 This method returns validation errors and updated records. The return value format is the same as for the `read` method.
@@ -180,12 +187,12 @@ Updated records are used for updating of the grid.
 Finally, let's define `delete`:
 
 {% highlight javascript %}
- delete: function (id) {
-        var query = squel.delete()
-            .from("getting_started")
-            .where('id = ?', id);
-        return MySQL.query(query)
-    }
+ async delete(id) {
+   const query = squel.delete()
+     .from('getting_started')
+     .where('id = ?', id);
+   return MySQLWrapper.query(query)
+  }
 {% endhighlight %}
-  
+
 The return value of `delete` can be different. It depends on the definition of this method in the client model.
