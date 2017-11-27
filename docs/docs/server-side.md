@@ -4,7 +4,6 @@ id: server-side
 prev: creating-records.html
 next: server-routes.html
 ---
-* [Code](https://github.com/softindex/uikernel-server-example){:target="_blank"}
 
 In this tutorial, we'll be writing a server-side part of the app which will use UIKernel.
 We are going to use Node.js, Express and MySql.
