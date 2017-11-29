@@ -9,10 +9,7 @@
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state =  {
-      model: model
-    };
+    this.state = {model};
     this.saveChanges = this.saveChanges.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
   }

@@ -8,12 +8,11 @@
 
 import ReactDOM from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
+import { omit } from './utils';
 
-export const ChildrenWrapper = React.createClass({
-  propTypes: {
-    children: React.PropTypes.node
-  },
-
+export const ChildrenWrapper = createReactClass({
   getInitialState: function () {
     return {
       children: this.props.children
@@ -26,21 +25,14 @@ export const ChildrenWrapper = React.createClass({
 
   render: function () {
     return (
-      <div {...this.props}>{this.state.children}</div>
+      <div {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll'])}>{this.state.children}</div>
     );
   }
 });
 
 const portalClass = '__portal';
 
-export const Portal = React.createClass({
-  propTypes: {
-    children: React.PropTypes.node,
-    id: React.PropTypes.string,
-    onDocumentMouseDown: React.PropTypes.func,
-    onDocumentMouseScroll: React.PropTypes.func
-  },
-
+export const Portal = createReactClass({
   getInitialState: () => ({
     portal: null
   }),
@@ -89,5 +81,16 @@ export const Portal = React.createClass({
 
   render: () => null
 });
+
+ChildrenWrapper.propTypes = {
+  children: PropTypes.node,
+};
+
+Portal.propTypes = {
+  children: PropTypes.node,
+  id: PropTypes.string,
+  onDocumentMouseDown: PropTypes.func,
+  onDocumentMouseScroll: PropTypes.func,
+};
 
 export default Portal;

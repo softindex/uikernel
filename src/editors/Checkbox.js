@@ -8,10 +8,11 @@
 
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class Checkbox extends React.Component {
   static propTypes = {
-    indeterminate: React.PropTypes.bool
+    indeterminate: PropTypes.bool
   };
 
   componentDidMount() {

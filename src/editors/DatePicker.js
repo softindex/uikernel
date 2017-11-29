@@ -9,20 +9,21 @@
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class DatePickerEditor extends React.Component {
   static propTypes = {
-    format: React.PropTypes.string,
-    textFormat: React.PropTypes.string,
-    min: React.PropTypes.any,
-    max: React.PropTypes.any,
-    value: React.PropTypes.any,
-    show: React.PropTypes.bool,
-    onBlur: React.PropTypes.func,
-    onChange: React.PropTypes.func.isRequired
+    format: PropTypes.string,
+    textFormat: PropTypes.string,
+    min: PropTypes.any,
+    max: PropTypes.any,
+    value: PropTypes.any,
+    show: PropTypes.bool,
+    onBlur: PropTypes.func,
+    onChange: PropTypes.func.isRequired
   };
 
-  static defaultProps ={
+  static defaultProps = {
     textFormat: 'yyyy-mm-dd'
   };
 
@@ -128,7 +129,7 @@ class DatePickerEditor extends React.Component {
   render() {
     return (
       <input
-        {...utils.omit(this.props, ['value', 'onBlur'])}
+        {...utils.omit(this.props, ['value', 'onBlur', 'textFormat'])}
         ref="input"
         type="text"
         onChange={this.setDate}

@@ -11,6 +11,7 @@ import utils from '../common/utils';
 import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 import ThrottleError from '../common/ThrottleError';
 
 const popupId = '__suggestBoxPopUp';
@@ -38,20 +39,20 @@ const MIN_POPUP_HEIGHT = 100;
 
 class SuggestBoxEditor extends React.Component {
   static propTypes = {
-    disabled: React.PropTypes.bool,
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func,
-      getLabel: React.PropTypes.func
+    disabled: PropTypes.bool,
+    model: PropTypes.shape({
+      read: PropTypes.func,
+      getLabel: PropTypes.func
     }),
-    onChange: React.PropTypes.func.isRequired,
-    onLabelChange: React.PropTypes.func,
-    onMetadataChange: React.PropTypes.func,
-    value: React.PropTypes.any,
-    defaultLabel: React.PropTypes.string,
-    label: React.PropTypes.string,
-    notFoundElement: React.PropTypes.element,
-    loadingElement: React.PropTypes.element,
-    onFocus: React.PropTypes.func
+    onChange: PropTypes.func.isRequired,
+    onLabelChange: PropTypes.func,
+    onMetadataChange: PropTypes.func,
+    value: PropTypes.any,
+    defaultLabel: PropTypes.string,
+    label: PropTypes.string,
+    notFoundElement: PropTypes.element,
+    loadingElement: PropTypes.element,
+    onFocus: PropTypes.func
   };
 
   static defaultProps = {
@@ -70,6 +71,14 @@ class SuggestBoxEditor extends React.Component {
       selectedOptionKey: null,
       lastValidLabel: ''
     };
+    this._onInputFocus = this._onInputFocus.bind(this);
+    this._onInputKeyDown = this._onInputFocus.bind(this);
+    this._onInputValueChange = this._onInputValueChange.bind(this);
+    this._focusOption = this._focusOption.bind(this);
+    this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
+    this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
+    this._toggleList = this._toggleList.bind(this);
+    this._openList = this._openList.bind(this);
   }
 
   componentDidMount() {
@@ -243,7 +252,7 @@ class SuggestBoxEditor extends React.Component {
     if (shouldBlur) {
       findDOMNode(this.refs.input).blur();
     }
-    if (!this.state.isOpened) {
+    if (!this.state.isOpened || !this._isMounted) {
       return;
     }
     this.setState({
@@ -516,8 +525,8 @@ class SuggestBoxEditor extends React.Component {
       optionsPopup = (
         <Portal
           id={popupId}
-          onDocumentMouseDown={this::this._onDocumentMouseDown}
-          onDocumentMouseScroll={this::this._onDocumentMouseScroll}
+          onDocumentMouseDown={this._onDocumentMouseDown}
+          onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
         >
           <div className="__suggestBoxPopUp-content">
@@ -531,15 +540,17 @@ class SuggestBoxEditor extends React.Component {
       <div className='__suggestBox'>
         <div className={classes.searchBlock}>
           <input
-            {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange', 'onFocus'])}
+            {...utils.omit(this.props,
+              ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
+                'select', 'notFoundElement', 'loadingElement'])}
             ref='input'
             type='text'
-            onClick={() => this._openList()}
-            onFocus={this::this._onInputFocus}
-            onKeyDown={this::this._onInputKeyDown}
-            onChange={this::this._onInputValueChange}
+            onClick={this._openList}
+            onFocus={this._onInputFocus}
+            onKeyDown={this._onInputKeyDown}
+            onChange={this._onInputValueChange}
           />
-          <div onClick={this::this._toggleList} className={classes.selectBtn}>
+          <div onClick={this._toggleList} className={classes.selectBtn}>
             <div className={arrowClasses.join(' ')}></div>
           </div>
         </div>

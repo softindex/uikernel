@@ -10,15 +10,15 @@ import floatValidator from '../common/validation/rules/float';
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const isInvalidFloat = floatValidator(null, null, true);
 
 class NumberEditor extends React.Component {
   static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    value: React.PropTypes.number
+    onChange: PropTypes.func.isRequired,
+    value: PropTypes.number
   };
-
   constructor(props) {
     super(props);
     this.state = {

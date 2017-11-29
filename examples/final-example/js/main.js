@@ -6,4 +6,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-React.render(<MainComponent/>, document.getElementById("example"));
+ReactDOM.render(<MainComponent/>, document.getElementById("example"));
