@@ -17,7 +17,10 @@ const isInvalidFloat = floatValidator(null, null, true);
 class NumberEditor extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
-    value: PropTypes.number
+    value: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.string
+    ])
   };
   constructor(props) {
     super(props);

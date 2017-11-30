@@ -541,7 +541,7 @@ class SuggestBoxEditor extends React.Component {
         <div className={classes.searchBlock}>
           <input
             {...utils.omit(this.props,
-              ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
+              ['model','onChange', 'onLabelChange', 'onFocus',
                 'select', 'notFoundElement', 'loadingElement'])}
             ref='input'
             type='text'
