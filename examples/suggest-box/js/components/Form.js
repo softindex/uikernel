@@ -55,34 +55,31 @@ class Form extends React.Component {
               <span aria-hidden="true">×</span>
               <span className="sr-only">Close</span>
             </button>
-            <h4 className="modal-title">Edit {this.state.form.data.name.value}</h4>
+            <h4 className="modal-title">Edit {this.state.form.data.name}</h4>
           </div>
           <div className="modal-body">
             <form>
               <table className="table my-form">
-                <tbody>
-                  <tr
-                    className={(this.state.form.fields.country.isChanged ? 'changed' : '') +
-                    (this.state.form.fields.country.errors ? ' error' : '')}
-                  >
-                    <td>Country:</td>
-                    <td>
-                      <UIKernel.Editors.SuggestBox
-                        model={countries}
-                        onChange={this.formService.validateField.bind(this.formService, 'country')}
-                        onLabelChange={this.formService.updateField.bind(this.formService, 'countryName')}
-                        select={true}
-                        value={this.state.form.fields.country.value}
-                      />
-                    </td>
-                  </tr>
-                </tbody>
+                <tr
+                  className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.errors.hasError('country') ? ' error' : '')}
+                >
+                  <td>Country:</td>
+                  <td>
+                    <UIKernel.Editors.SuggestBox
+                      model={countries}
+                      onChange={this.form.validateField.bind(this.form, 'country')}
+                      onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
+                      select={true}
+                      value={this.state.form.data.country}
+                    />
+                  </td>
+                </tr>
               </table>
             </form>
           </div>
           <div className="modal-footer">
             <button type="submit" className="btn btn-primary" onClick={this.handleSubmit}>Save</button>
-            <button type="button" className="btn btn-white" onClick={this.formService.clearChanges}>Discard</button>
+            <button type="button" className="btn btn-white" onClick={this.form.clearChanges}>Discard</button>
             <button type="button" className="btn btn-white" data-dismiss="modal">Cancel</button>
           </div>
         </div>

@@ -152,4 +152,4 @@ class RecordForm extends React.Component {
       </div>
     );
   }
-};
+}

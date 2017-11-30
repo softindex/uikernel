@@ -27,7 +27,7 @@ const columns = {
             gender: 1
           }),
           mode: 'create',
-          onSubmit() {
+          onSubmit(recordId) {
             createPopup.close();
             grid.addRecordStatus(recordId, 'new');
           }
