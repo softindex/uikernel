@@ -69,10 +69,11 @@ class SuggestBoxEditor extends React.Component {
       isOpened: false,
       options: [],
       selectedOptionKey: null,
-      lastValidLabel: ''
+      lastValidLabel: '',
+      label: ''
     };
     this._onInputFocus = this._onInputFocus.bind(this);
-    this._onInputKeyDown = this._onInputFocus.bind(this);
+    this._onInputKeyDown = this._onInputKeyDown.bind(this);
     this._onInputValueChange = this._onInputValueChange.bind(this);
     this._focusOption = this._focusOption.bind(this);
     this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
@@ -97,7 +98,8 @@ class SuggestBoxEditor extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !utils.isEqual(this.props.value, nextProps.value)
+    return this.state.label !== nextState.label
+      || !utils.isEqual(this.props.value, nextProps.value)
       || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
@@ -124,10 +126,10 @@ class SuggestBoxEditor extends React.Component {
     if (label === null || label === undefined) {
       label = '';
     }
-    findDOMNode(this.refs.input).value = label;
-    if (markAsValid) {
-      this.state.lastValidLabel = label;
-    }
+    this.setState({
+      label: label,
+      lastValidLabel: markAsValid ? label : this.state.lastValidLabel
+    });
   }
 
   _getLabelFromModel(model, id) {
@@ -415,7 +417,6 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.disabled) {
       return;
     }
-
     switch (e.keyCode) {
     case ARROW_DOWN_KEY:
       e.preventDefault();
@@ -458,10 +459,11 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _onInputValueChange(e) {
+    this._setLabelTo(e.target.value);
     if (this.state.isOpened) {
-      this._updateList(e.target.value);
+      return this._updateList(e.target.value);
     } else {
-      this._openList(e.target.value);
+      return this._openList(e.target.value);
     }
   }
 
@@ -541,7 +543,7 @@ class SuggestBoxEditor extends React.Component {
         <div className={classes.searchBlock}>
           <input
             {...utils.omit(this.props,
-              ['model','onChange', 'onLabelChange', 'onFocus',
+              ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
                 'select', 'notFoundElement', 'loadingElement'])}
             ref='input'
             type='text'
@@ -549,9 +551,10 @@ class SuggestBoxEditor extends React.Component {
             onFocus={this._onInputFocus}
             onKeyDown={this._onInputKeyDown}
             onChange={this._onInputValueChange}
+            value={this.state.label}
           />
           <div onClick={this._toggleList} className={classes.selectBtn}>
-            <div className={arrowClasses.join(' ')}></div>
+            <div className={arrowClasses.join(' ')}/>
           </div>
         </div>
         {optionsPopup}

@@ -1,6 +1,6 @@
 parser: "babel-eslint"
 
-extends: ["eslint:recommended", "plugin:react/recommended"]
+extends: ["eslint:recommended"]
 
 plugins: ["react"]
 
