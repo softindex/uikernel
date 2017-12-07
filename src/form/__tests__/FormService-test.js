@@ -91,7 +91,6 @@ describe('get all', () => {
     originalData: {},
     changes: {},
     errors: new ValidationErrors(),
-    globalError: null,
     isSubmitting: false
   };
 
@@ -198,7 +197,7 @@ describe('Listeners', () => {
 describe('clearError', () => {
   it('clear error', async () => {
     form.model.isValidRecord = async function () {
-      return ValidationErrors.createFromJSON({name: 'Error'});
+      return ValidationErrors.createFromJSON({name: ['Error']});
     };
 
     await form.set({name: 'John'}, true);
@@ -310,13 +309,14 @@ describe('submit', () => {
       throw globalError;
     };
 
+    let error;
     try {
       await form.submit();
     } catch (err) {
-      expect(err).toEqual(globalError);
+      error = err;
     }
 
-    expect(form.getAll().globalError).toEqual(globalError);
+    expect(error).toEqual(globalError);
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
 
@@ -396,10 +396,14 @@ describe('validateForm', () => {
       throw globalError;
     };
 
-    await form.set({name: 'John'}, true);
+    let error;
+    try {
+      await form.set({name: 'John'}, true);
+    } catch (e) {
+      error = e;
+    }
 
-    const state = form.getAll();
-    expect(state.globalError).toBe(globalError);
+    expect(error).toBe(globalError);
     expect(form.getAll().fields.name.errors).toBeFalsy();
   });
 

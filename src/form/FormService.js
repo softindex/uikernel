@@ -19,7 +19,6 @@ class FormService {
     this._changes = null;
     this._errors = new ValidationErrors();
     this._warnings = new ValidationErrors();
-    this._globalError = null;
     this._warningsValidator = null;
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
@@ -53,6 +52,7 @@ class FormService {
 
     this._data = settings.data || null;
     this._changes = settings.changes || {};
+    this._isSubmitting = false;
     this.showDependentFields = settings.showDependentFields || false;
     this._partialErrorChecking = settings.partialErrorChecking; // Current mode
     this._partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
@@ -94,7 +94,6 @@ class FormService {
         originalData: {},
         changes: {},
         errors: new ValidationErrors(),
-        globalError: null,
         isSubmitting: false
       };
     }
@@ -108,8 +107,7 @@ class FormService {
       originalData: this._data,
       changes,
       fields: this._getFields(data, changes),
-      globalError: this._globalError,
-      isSubmitting: this.isSubmitting
+      isSubmitting: this._isSubmitting
     };
   }
 
@@ -208,66 +206,46 @@ class FormService {
    * Send form data to the model
    */
   async submit() {
-    if (this._isNotInitialized) {
+    if (this._isNotInitialized || this._isSubmitting) {
       return;
     }
-
-    if (this.isSubmitting) {
-      return;
-    }
-
-    this.isSubmitting = true;
 
     const changes = this._getChanges();
 
-    this._globalError = null;
+    this._isSubmitting = true;
     this._partialErrorChecking = false;
 
     this._setState();
 
     // Send changes to model
     let data;
-    let err;
+    let validationErrors;
     try {
       data = await this.model.submit(changes);
-    } catch (error) {
-      err = error;
+    } catch (err) {
+      if (!(err instanceof ValidationErrors)) {
+        this._isSubmitting = false;
+        this._setState();
+        throw err;
+      }
+      validationErrors = err;
     }
 
-    this.isSubmitting = false;
+    this._isSubmitting = false;
 
     const newChanges = this._getChanges();
     const actualChanges = utils.isEqual(changes, newChanges);
-    const validationError = err instanceof ValidationErrors;
-    // Replacing empty error to null
-    if (validationError && err.isEmpty()) {
-      err = null;
-    }
 
-    if (err) {
-      if (validationError) {
-        if (actualChanges) {
-          this._errors = err;
-        }
+    if (actualChanges) {
+      if (validationErrors) {
+        this._errors = validationErrors;
       } else {
-        this._globalError = err;
+        this._errors = new ValidationErrors();
+        this._changes = {};
       }
-    } else if (actualChanges) {
-      this._errors = new ValidationErrors();
-      this._changes = {};
-    } else {
-      utils.forEach(changes, (value, field) => {
-        if (utils.isEqual(value, newChanges[field])) {
-          delete this._changes[field];
-        }
-      });
     }
 
     this._setState();
-
-    if (err) {
-      throw err;
-    }
 
     return data;
   }
@@ -291,7 +269,6 @@ class FormService {
     this._errors.clear();
     this._warnings.clear();
     this._changes = {};
-    this._globalError = false;
     this._partialErrorChecking = this._partialErrorCheckingDefault;
     this._setState();
   }
@@ -311,27 +288,26 @@ class FormService {
     }
 
     this.validating = true;
-    this._globalError = null;
 
-    await Promise.all([
-      this._runValidator(this.model, this._getChanges, '_errors'),
-      this._runValidator(this._warningsValidator, this._getData, '_warnings')
-    ]);
+    try {
+      await Promise.all([
+        this._runValidator(this.model, this._getChanges, '_errors'),
+        this._runValidator(this._warningsValidator, this._getData, '_warnings')
+      ]);
+    } finally {
+      this.validating = false;
 
-    this.validating = false;
+      let field;
+      while (field = this.pendingClearErrors.pop()) {
+        this._warnings.clearField(field);
+        this._errors.clearField(field);
+      }
 
-    let field;
-    while (field = this.pendingClearErrors.pop()) {
-      this._warnings.clearField(field);
-      this._errors.clearField(field);
+      this._setState();
     }
-
-    this._setState();
 
     const errorsWithPartialChecking = this._getValidationErrors();
-    if (!errorsWithPartialChecking.isEmpty()) {
-      return errorsWithPartialChecking;
-    }
+    return errorsWithPartialChecking.isEmpty() ? null : errorsWithPartialChecking;
   }
 
   _getFields(data, changes) {
@@ -353,7 +329,7 @@ class FormService {
    */
   _isLoaded() {
     return this &&
-      Boolean(this._data || this._globalError);
+      Boolean(this._data);
   }
 
   /**
@@ -430,26 +406,16 @@ class FormService {
   async _runValidator(validator, getData, output) {
     const data = getData();
     let validErrors;
-    let err;
 
     try {
       validErrors = await validator.isValidRecord(data);
     } catch (e) {
-      err = e;
-    }
-
-    if (!utils.isEqual(data, getData())) {
-      return;
-    }
-
-    if (err) {
       this[output].clear();
-    } else {
-      this[output] = validErrors;
+      throw e;
     }
 
-    if (err) {
-      this._globalError = err;
+    if (utils.isEqual(data, getData())) {
+      this[output] = validErrors;
     }
   }
 }

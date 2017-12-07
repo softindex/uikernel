@@ -28,7 +28,7 @@ const GridCollectionModel = function (options) {
 
   options = options || {};
 
-  this.data = utils.cloneDeep(options).data || [];
+  this.data = utils.cloneDeep(options.data) || [];
   this._id = 1;
   this._filtersHandler = options.filtersHandler;
   if (options.validation) {
