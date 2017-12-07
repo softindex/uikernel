@@ -66,12 +66,6 @@ var RecordForm = React.createClass({
           </div>
           <div className="modal-body">
             <div className="form-horizontal">
-              <div className="form-group">
-                <div className="col-sm-9 col-sm-offset-3">
-                  <b
-                    className="text-danger">{this.state.form.globalError ? this.state.form.globalError.message : ''}</b>
-                </div>
-              </div>
               <div className={"form-group" + (this.state.form.fields.name.isChanged ? ' bg-warning' : '') +
               (this.state.form.fields.name.errors ? ' bg-danger' : '')}>
                 <label className="col-sm-3 control-label">First Name</label>

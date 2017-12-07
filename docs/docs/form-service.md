@@ -74,12 +74,11 @@ Subscribe on formService 'update' events.
 
 | Type     | Name                       | Description                                           |
 |----------|----------------------------|-------------------------------------------------------|
-| Object   | changes.data               | Form data, or null if it’s absent
-| Object   | changes.originalData       | Form data without changes
-| Boolean  | changes.isLoaded           | Check if data loaded
-| Object   | changes.changes            | Form changes
-| Object   | changes.errors             | Form errors
-| Object   | changes.globalError        | Global error data, or null if it’s absent
+| Object   | changes.data               | Form data, or null if it’s absent                     |
+| Object   | changes.originalData       | Form data without changes                             |
+| Boolean  | changes.isLoaded           | Check if data loaded                                  |
+| Object   | changes.changes            | Form changes                                          |
+| Object   | changes.errors             | Form errors                                           |
 | Boolean  | changes.submitting         | Check if form is being submitted                      |
 
 ----

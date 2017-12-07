@@ -115,7 +115,6 @@ render() {
 
   return (
     <div>
-      {this.state.globalError ? this.state.globalError.message : ''}
       <form className="form-horizontal edit-form" onSubmit={this.handleSubmit}>
         <div className={"form-group" + (this.state.fields.name.isChanged ? ' changed' : '') +
         (this.state.fields.name.errors ? ' error' : '')}>
