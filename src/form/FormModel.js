@@ -25,6 +25,15 @@ class FormModel extends AbstractFormModel {
     this._data = defaultValues ? utils.clone(defaultValues) : {};
   }
 
+  /**
+   * Get all dependent fields, that are required for validation
+   *
+   * @param   {Array}  fields   Fields list
+   * @returns {Array}  Dependencies
+   */
+  getValidationDependency(fields) {
+    return this._validation.getValidationDependency(fields);
+  }
 }
 
 /**
@@ -62,16 +71,6 @@ FormModel.prototype.submit = callbackify(async function (changes) {
   this.trigger('update', changes);
   return changes;
 });
-
-/**
- * Get all dependent fields, that are required for validation
- *
- * @param   {Array}  fields   Fields list
- * @returns {Array}  Dependencies
- */
-FormModel.prototype.getValidationDependency = function (fields) {
-  return this._validation.getValidationDependency(fields);
-};
 
 /**
  * Validation check

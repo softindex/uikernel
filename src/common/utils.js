@@ -452,3 +452,13 @@ exports.warn = function (message) {
 exports.toEncodedString = function (value) {
   return encodeURIComponent(JSON.stringify(value));
 };
+
+exports.asyncHandler = function (router) {
+  return (req, res, next) => {
+    const promise = router(req, res, next);
+    if (promise && promise.then) {
+      return promise.catch(next);
+    }
+    next(new Error('asyncHandler expected to take async function.'));
+  };
+};
