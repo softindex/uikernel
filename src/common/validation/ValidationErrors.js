@@ -46,8 +46,8 @@ class ValidationErrors {
   /**
    * Add an error
    *
-   * @param {string}               field       Field name
-   * @param {String|Object}        error       Error text
+   * @param {string}                  field       Field name
+   * @param {string|{string message}} error       Error text
    * @return {ValidationErrors}
    */
   add(field, error) {
