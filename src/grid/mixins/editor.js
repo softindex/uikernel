@@ -13,6 +13,9 @@ import ThrottleError from '../../common/ThrottleError';
 
 const findDOMNode = ReactDOM.findDOMNode;
 
+const ENTER_KEY = 13;
+const ESCAPE_KEY = 27;
+
 const GridEditorMixin = {
 
   /**
@@ -57,10 +60,31 @@ const GridEditorMixin = {
       onBlur: () => {
         // Remove Editor
         if (focusDone) {
-          ReactDOM.unmountComponentAtNode(element);
-          delete this.state.editor[`${row}_${column}`];
-          $element.removeClass('dgrid-input-wrapper');
+          this._unmountEditor(element, row, column);
           this._onBlurEditor(row, column);
+        }
+      },
+      onKeyUp: (e) => {
+        if (focusDone && [ENTER_KEY, ESCAPE_KEY].includes(e.keyCode)) {
+          this._unmountEditor(element, row, column);
+
+          if (e.keyCode === ENTER_KEY) {
+            this._onBlurEditor(row, column);
+          }
+
+          if (e.keyCode === ESCAPE_KEY) {
+            if (this.state.data[row][column] !== value) {
+              this._setRowChanges(row, {[column]: value});
+              this._validateRow(row);
+              return;
+            }
+
+            if (this.state.changes[row]) {
+              delete this.state.changes[row][column];
+            }
+
+            this._updateField(row, column);
+          }
         }
       },
       value: value
@@ -85,6 +109,12 @@ const GridEditorMixin = {
       }
       focusDone = true;
     });
+  },
+
+  _unmountEditor(element, row, column) {
+    ReactDOM.unmountComponentAtNode(element);
+    delete this.state.editor[`${row}_${column}`];
+    $(element).removeClass('dgrid-input-wrapper');
   },
 
   _onChangeEditor: function (row, column, values, editorContext, element) {
