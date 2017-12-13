@@ -264,8 +264,8 @@ const FormMixin = {
       return null;
     }
 
-    const errors = this.state._formMixin.errors.getFieldErrors(field) || [];
-    const warnings = this.state._formMixin.warnings.getFieldErrors(field) || [];
+    const errors = this.state._formMixin.errors.getFieldErrorMessages(field) || [];
+    const warnings = this.state._formMixin.warnings.getFieldErrorMessages(field) || [];
 
     return errors.concat(warnings);
   },

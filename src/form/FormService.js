@@ -317,7 +317,7 @@ class FormService {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
       newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
-      newFields[fieldName].errors = errors ? errors.getFieldErrors(fieldName) : null;
+      newFields[fieldName].errors = errors ? errors.getFieldErrorMessages(fieldName) : null;
       return newFields;
     }, {});
   }

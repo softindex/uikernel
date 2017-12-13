@@ -46,17 +46,18 @@ class ValidationErrors {
   /**
    * Add an error
    *
-   * @param {string}        field       Field name
-   * @param {String}        errorText   Error text
+   * @param {string}               field       Field name
+   * @param {String|Object}        error       Error text
    * @return {ValidationErrors}
    */
-  add(field, errorText) {
+  add(field, error) {
+    error = this._formErrorValue(error);
     if (!this._fields[field]) {
-      this._fields[field] = [errorText];
+      this._fields[field] = [error];
       return this;
     }
-    if (!this._fields[field].includes(errorText)) {
-      this._fields[field].push(errorText);
+    if (!this._fields[field].includes(error)) {
+      this._fields[field].push(error);
     }
     return this;
   }
@@ -79,6 +80,20 @@ class ValidationErrors {
    */
   getFieldErrors(field) {
     return this._fields[field] || null;
+  }
+
+  /**
+   * Get field errors message
+   *
+   * @param   {string}      field     Field name
+   * @returns {Array|null}  Errors array or null
+   */
+  getFieldErrorMessages(field) {
+    const errors = this._fields[field];
+    if (errors) {
+      return errors.map(err => err.message);
+    }
+    return null;
   }
 
   /**
@@ -157,6 +172,18 @@ class ValidationErrors {
    */
   getErrors() {
     return Object.entries(this._fields);
+  }
+
+  _formErrorValue(error) {
+    if (typeof error === 'string') {
+      return {
+        message: error
+      };
+    }
+    if (!error.message) {
+      throw new Error('Invalid error value. Error must be string or object with "message" property.');
+    }
+    return error;
   }
 }
 
