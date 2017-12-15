@@ -274,12 +274,14 @@ describe('submit', () => {
       throw validationError;
     };
 
+    let error;
     try {
       await form.submit();
     } catch (err) {
-      expect(err).toEqual(validationError);
+      error = err;
     }
 
+    expect(error).toEqual(validationError);
     expect(form.getAll().fields.name.errors.length).toBe(1);
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
