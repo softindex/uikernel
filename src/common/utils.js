@@ -187,20 +187,19 @@ exports.parseValueFromEvent = function (event) {
   return event;
 };
 
-exports.decorate = function (obj, decor) {
-  function Decorator() {
-    Object.assign(this, decor);
+exports.Decorator = function (obj, decor) {
+  Object.assign(this, decor);
 
-    for (const i in obj) {
-      if (typeof obj[i] === 'function' && !decor[i]) {
-        this[i] = obj[i].bind(obj);
-      }
+  for (const i in obj) {
+    if (typeof obj[i] === 'function' && !decor[i]) {
+      this[i] = obj[i].bind(obj);
     }
   }
+};
 
-  Decorator.prototype = obj;
-  Decorator.prototype.constructor = Decorator;
-  return new Decorator();
+exports.decorate = function (obj, decor) {
+  this.Decorator.prototype = obj;
+  return new this.Decorator(obj, decor);
 };
 
 /**
