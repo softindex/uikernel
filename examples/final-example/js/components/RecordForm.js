@@ -6,49 +6,45 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var RecordForm = React.createClass({
-  getInitialState: function () {
+class RecordForm extends React.Component {
+  constructor(props) {
+    super(props);
     this.form = new UIKernel.Form();
+    this.state = this.form.getAll();
+    this.onFormChange = this.onFormChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
-    return {
-      form: this.form.getAll()
-    };
-  },
-
-  componentDidMount: function () {
-    var formProperties = {
-      fields: ["name", "surname", "phone", "age", "gender"],
-      model: this.props.model,
-      changes: this.props.changes
-    };
-
-    if (this.props.mode === "create") {
-      formProperties.submitAll = true;
-      formProperties.partialErrorChecking = true;
-    }
-
-    this.form.init(formProperties);
+  componentDidMount() {
+    this.form.init({
+      fields: ['name', 'surname', 'phone', 'age', 'gender'],
+      model: new UIKernel.Adapters.Grid.ToFormCreate(model, {
+        gender: 1,
+      }),
+      submitAll: true,
+      partialErrorChecking: true,
+    });
     this.form.addChangeListener(this.onFormChange);
-  },
+  }
 
   componentWillUnmount() {
     this.form.removeChangeListener(this.onFormChange);
-  },
+  }
 
   onFormChange(newFormState) {
     this.setState({form: newFormState});
-  },
+  }
 
-  save: function (e) {
+  save(e) {
     e.preventDefault();
     this.form.submit()
       .then((recordId) => {
-        this.props.onSubmit(recordId)
+        this.props.onSubmit(recordId);
       });
-  },
+  }
 
-  render: function () {
-    if (!this.state.form.isLoaded) {
+  render() {
+    if (!this.state.isLoaded) {
       return <span>Loading...</span>;
     }
 
@@ -150,4 +146,4 @@ var RecordForm = React.createClass({
       </div>
     );
   }
-});
+};

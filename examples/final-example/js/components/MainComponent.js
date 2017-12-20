@@ -5,36 +5,43 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
+const DEFAULT_FILTERS = {
+  search: '',
+  age: null,
+  gender: 0,
+};
 
-var MainComponent = React.createClass({
-  getInitialState: function () {
-    return {
-      model: model // let's store model in the state
-    };
-  },
-  addRecord: function (recordId) {
-    this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
-  },
-  applyFilters: function (filters) {
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { model };
+  }
+
+  applyFilters(filters) {
     this.setState({
       model: UIKernel.applyGridFilters(model, filters)
     });
-  },
-  onSave: function () {
+  }
+
+  onSave() {
     this.refs.grid.save()
-    .catch(() => {
-      alert('Error');
-    });
-  },
-  onClear: function () {
+      .catch(() => {
+        alert('Error');
+      });
+  }
+
+  onClear() {
     this.refs.grid.clearAllChanges();
-  },
-  render: function () {
+  }
+
+  render() {
     return (
       <div className="panel">
         <div className="panel-heading">
           <FiltersForm
-            onSubmit={this.applyFilters}
+            filters={this.state.filters}
+            onChange={(filters) => this.onFiltersChange(filters)}
+            onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}
           />
         </div>
         <div className="panel-body padding0">
@@ -46,11 +53,12 @@ var MainComponent = React.createClass({
           />
         </div>
         <div className="panel-footer">
-          <a className="btn btn-success" onClick={this.onClear}>Clear</a>
+          <a className="btn btn-success" onClick={() => this.onClear()}>Clear</a>
           {' '}
-          <a className="btn btn-primary" onClick={this.onSave}>Save</a>
+          <a className="btn btn-primary" onClick={() => this.onSave()}>Save</a>
         </div>
       </div>
     );
   }
-});
+}
+

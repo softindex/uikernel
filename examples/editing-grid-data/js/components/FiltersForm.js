@@ -7,30 +7,11 @@
  */
 
 class FiltersForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.defaultFilters = {
-      search: '',
-      age: null,
-      gender: 0
-    };
-    this.state = {
-      filters: {...this.defaultFilters}
-    };
-    this.clearFilters = this.clearFilters.bind(this);
-    this.updateFilter = this.updateFilter.bind(this);
-  }
-
-  clearFilters() {
-    this.setState({filters: {...this.defaultFilters}});
-    this.props.onSubmit(this.defaultFilters);
-  }
-
   updateFilter(filter, value) {
-    const filters = {...this.state.filters};
-    filters[filter] = value.target ? value.target.value : value;
-
-    this.setState({filters}, () => this.props.onSubmit(filters));
+    this.props.onChange({
+      ...this.props.filters,
+      [filter]: value
+    });
   }
 
   render() {
@@ -42,19 +23,18 @@ class FiltersForm extends React.Component {
             <input
               type="text" // text editor
               className="form-control"
-              onChange={this.updateFilter.bind(null, 'search')}
-              value={this.state.filters.search}
+              onChange={(event) => this.updateFilter('search', event.target.value)}
+              value={this.props.filters.search}
             />
           </div>
         </div>
         <div className="form-group">
           <label className="col-sm-3 control-label">Age</label>
           <div className="col-sm-9">
-            <input
-              type="number" // number editor
+            <UIKernel.Editors.Number // number editor
               className="form-control"
-              onChange={this.updateFilter.bind(null, 'age')}
-              value={this.state.filters.age}
+              onChange={(value) => this.updateFilter('age', value)}
+              value={this.props.filters.age}
             />
           </div>
         </div>
@@ -63,19 +43,19 @@ class FiltersForm extends React.Component {
           <div className="col-sm-9">
             <UIKernel.Editors.Select // select editor
               className="form-control"
-              onChange={this.updateFilter.bind(null, 'gender')}
+              onChange={(value) => this.updateFilter('gender', value)}
               options={[
                 [0, ''],
                 [1, 'Male'],
                 [2, 'Female']
               ]}
-              value={this.state.filters.gender}
+              value={this.props.filters.gender}
             />
           </div>
         </div>
         <div className="form-group">
           <div className="col-sm-offset-3 col-sm-9">
-            <a className="btn btn-success" onClick={this.clearFilters}>
+            <a className="btn btn-success" onClick={() => this.props.onClear()}>
               Clear
             </a>
           </div>

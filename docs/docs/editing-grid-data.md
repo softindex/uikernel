@@ -42,7 +42,7 @@ const columns = {
     name: 'Age',
     // ...
     editor: function () {
-      return <input type="number" {...this.props}/>; // number editor
+      return <UIKernel.Editors.Number {...this.props}/>; // number editor
     },
     // ...
   },
@@ -74,10 +74,10 @@ const validator = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
-  .field('age', UIKernel.Validators.regExp.notNull(/^[^0]\d{0,2}$/, 'Invalid age.'))
+  .field('age', UIKernel.Validators.number.notNull(0, 120, 'Invalid age.'))
   .field('gender', UIKernel.Validators.enum.notNull([1, 2], 'Invalid gender.'));
 {% endhighlight %}
-Here, we've called `UIKernel.createValidator` to create a validator. 
+Here, we've called `UIKernel.createValidator` to create a validator.
 
 `field` is the method of validator which accepts two parameters: a column name and a validation function.
 
@@ -97,19 +97,13 @@ const model = new UIKernel.Models.Grid.Collection({
 {% endhighlight %}
 ---
 
-The last task is to make it possible to discard and save the edited data. 
+The last task is to make it possible to discard and save the edited data.
 So we'll define the `saveChanges` and `clearChanges` methods in our `MainComponent`.
 
 `MainComponent.js`:
 {% highlight javascript %}
-constructor(props) {
-    // ....
-    this.saveChanges = this.saveChanges.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
-}
-
 // ...
-  
+
 saveChanges() {
     this.refs.grid.save()
       .catch(() => {
@@ -138,9 +132,9 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
   viewCount={10}
 />
 <div className="panel-footer">
-  <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+  <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
   {' '}
-  <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
+  <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
 </div>
 // ...
 {% endhighlight %}

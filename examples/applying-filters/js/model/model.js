@@ -8,7 +8,7 @@
 
 const model = new UIKernel.Models.Grid.Collection({
   data,
-  filtersHandler: function (data, filters) {
+  filtersHandler(data, filters) {
     return data.filter((record) => {
       const data = record[1];
 

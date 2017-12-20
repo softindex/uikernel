@@ -28,6 +28,8 @@
       title: Server-side validation
     - id: server-model
       title: Server Model
+    - id: server-db-connection
+      title: Connection to database
 - title: Editors
   items:
   - id: editors

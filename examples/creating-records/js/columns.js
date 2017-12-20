@@ -23,7 +23,7 @@ const columns = {
   name: {
     name: 'First Name', // columns title
     sortCycle: ['asc', 'desc', 'default'], // sort cycle
-    editor: function () {
+    editor() {
       return <input type="text" {...this.props}/>; // text editor
     },
     render: ['name', (record) => _.escape(record.name)]
@@ -31,7 +31,7 @@ const columns = {
   surname: {
     name: 'Last Name',
     sortCycle: ['asc', 'desc', 'default'],
-    editor: function () {
+    editor() {
       return <input type="text" {...this.props}/>;
     },
     render: ['surname', (record) => _.escape(record.surname)]
@@ -39,7 +39,7 @@ const columns = {
   phone: {
     name: 'Phone',
     sortCycle: ['asc', 'desc', 'default'],
-    editor: function () {
+    editor() {
       return <input type="text" {...this.props}/>;
     },
     render: ['phone', (record) => _.escape(record.phone)]
@@ -47,15 +47,15 @@ const columns = {
   age: {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
-    editor: function () {
-      return <input type="number" {...this.props}/>; // number editor
+    editor() {
+      return <UIKernel.Editors.Number {...this.props}/>; // number editor
     },
     render: ['age', (record) => record.age]
   },
   gender: {
     name: 'Gender',
     sortCycle: ['asc', 'desc', 'default'],
-    editor: function () {
+    editor() {
       return <UIKernel.Editors.Select // select editor
         {...this.props}
         options={[
@@ -66,12 +66,12 @@ const columns = {
     },
     render: ['gender', (record) => {
       switch (record.gender) {
-        case 1:
-          return 'Male';
-        case 2:
-          return 'Female';
-        default:
-          return 'Undefined';
+      case 1:
+        return 'Male';
+      case 2:
+        return 'Female';
+      default:
+        return 'Undefined';
       }
     }]
   }

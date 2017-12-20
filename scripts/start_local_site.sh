@@ -1,6 +1,5 @@
 #!/usr/bin/env bash -l
 
-gem install bundler
-cd ./_site
-bundle install
+gulp buildSite
+cd _site
 jekyll serve

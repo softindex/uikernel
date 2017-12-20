@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const model = (function ( ) {
+const model = (() => {
   function _getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
   }
@@ -20,14 +20,14 @@ const model = (function ( ) {
 
     const data = [];
 
-    for (var i = 0; i < size; i++) {
+    for (let i = 0; i < size; i++) {
       const randomCountryIndex = _getRandomNumber(1, records.length);
       data.push([i, {
         'name': _names[_getRandomNumber(0, _names.length)],
         'surname': _names[_getRandomNumber(0, _names.length)],
         'age': _ages[_getRandomNumber(0, _ages.length)],
         'gender': _genders[_getRandomNumber(0, _genders.length)],
-        'phone': '555-01' + _phoneSuffixes[_getRandomNumber(0, _phoneSuffixes.length)]
+        'phone': `555-01${_phoneSuffixes[_getRandomNumber(0, _phoneSuffixes.length)]}`,
       }
       ]);
     }
@@ -39,10 +39,10 @@ const model = (function ( ) {
     data: _getRandomRecords(100),
     filtersHandler: function (data, filters) {
       return data.filter((record) => {
-        var data = record[1];
+        const data = record[1];
 
         if (filters.search) {
-          var found = (
+          const found = (
             data.name.indexOf(filters.search) >= 0 ||
             data.surname.indexOf(filters.search) >= 0 ||
             data.phone.indexOf(filters.search) >= 0
@@ -61,7 +61,6 @@ const model = (function ( ) {
         return true;
       });
     },
-    validator
+    validator,
   });
-
 })();

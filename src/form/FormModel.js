@@ -24,7 +24,6 @@ class FormModel extends AbstractFormModel {
     this._validation = validation || new Validator();
     this._data = defaultValues ? utils.clone(defaultValues) : {};
   }
-
 }
 
 /**

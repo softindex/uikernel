@@ -6,76 +6,61 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var FiltersForm = (function () {
-  var defaultFilters = {
-    search: '',
-    age: null,
-    gender: 0
-  };
+class FiltersForm extends React.Component {
+  updateFilter(filter, value) {
+    this.props.onChange({
+      ...this.props.filters,
+      [filter]: value
+    });
+  }
 
-  return React.createClass({
-    getInitialState: function () {
-      return {
-        filters: _.clone(defaultFilters)
-      }
-    },
-
-    onClear: function () {
-      this.setState({filters: _.clone(defaultFilters)});
-      this.props.onSubmit(defaultFilters);
-    },
-
-    updateValue: function (field, value) {
-      if (value.target) {
-        value = value.target.value
-      }
-
-      this.state.filters[field] = value;
-      this.props.onSubmit(this.state.filters);
-    },
-
-    render() {
-      return (
-        <form className="filters-form row">
-          <div className="col-sm-7">
-            <label className="control-label">Search</label>
+  render() {
+    return (
+      <form className="filters-form form-horizontal">
+        <div className="form-group">
+          <label className="col-sm-3 control-label">Search</label>
+          <div className="col-sm-9">
             <input
-              type="text" // text editor
+              type="text"
               className="form-control"
-              onChange={this.updateValue.bind(null, 'search')}
-              value={this.state.filters.search}
+              onChange={ event => this.updateFilter('search', event.target.value)}
+              value={this.props.filters.search}
             />
           </div>
-          <div className="col-sm-2">
-            <label className="control-label">Age</label>
-            <input
-              type="number" // number editor
+        </div>
+        <div className="form-group">
+          <label className="col-sm-3 control-label">Age</label>
+          <div className="col-sm-9">
+            <UIKernel.Editors.Number // number editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'age')}
-              value={this.state.filters.age}
+              onChange={value => this.updateFilter('age', value)}
+              value={this.props.filters.age}
             />
           </div>
-          <div className="col-sm-2">
-            <label className="control-label">Gender</label>
+        </div>
+        <div className="form-group">
+          <label className="col-sm-3 control-label">Gender</label>
+          <div className="col-sm-9">
             <UIKernel.Editors.Select // select editor
               className="form-control"
-              onChange={this.updateValue.bind(null, 'gender')}
+              onChange={value => this.updateFilter('gender', value)}
               options={[
                 [0, ''],
                 [1, 'Male'],
                 [2, 'Female']
               ]}
-              value={this.state.filters.gender}
+              value={this.props.filters.gender}
             />
           </div>
-          <div className="col-sm-1">
-            <label className="control-label">&nbsp;</label>
-            <a className="btn btn-success show" onClick={this.onClear}>
+        </div>
+        <div className="form-group">
+          <div className="col-sm-offset-3 col-sm-9">
+            <a className="btn btn-success" onClick={() => this.props.onClear()}>
               Clear
             </a>
           </div>
-        </form>
-      );
-    }
-  });
-})();
+        </div>
+      </form>
+    );
+  }
+}

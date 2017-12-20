@@ -112,8 +112,7 @@ class CreateForm extends React.Component {
             (this.state.fields.age.errors ? ' error' : '')}>
             <label className="col-sm-3 control-label">Age</label>
             <div className="col-sm-9">
-              <input
-                type="number"
+              <UIKernel.Editors.Number
                 placeholder="18"
                 className="form-control"
                 onChange={this.form.updateField.bind(this.form, 'age')}

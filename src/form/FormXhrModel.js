@@ -38,7 +38,6 @@ class FormXhrModel extends EventsModel {
   getValidationDependency(fields) {
     return this._validator.getValidationDependency(fields);
   }
-
 }
 
 FormXhrModel.prototype.getData = callbackify(async function (fields) {

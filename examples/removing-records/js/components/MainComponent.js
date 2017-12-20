@@ -6,17 +6,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+const DEFAULT_FILTERS = {
+  search: '',
+  age: null,
+  gender: 0,
+};
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {model};
-    this.applyFilters = this.applyFilters.bind(this);
-    this.saveChanges = this.saveChanges.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
+    this.state = {
+      model,
+      filters: DEFAULT_FILTERS,
+    };
   }
 
-  applyFilters(filters) {
+  onFiltersChange(filters) {
     this.setState({
+      filters,
       model: UIKernel.applyGridFilters(model, filters)
     });
   }
@@ -40,7 +47,11 @@ class MainComponent extends React.Component {
             <h3 className="panel-title">Filters</h3>
           </div>
           <div className="panel-body">
-            <FiltersForm onSubmit={this.applyFilters}/>
+            <FiltersForm
+              filters={this.state.filters}
+              onChange={(filters) => this.onFiltersChange(filters)}
+              onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}
+            />
           </div>
         </div>
         <div className="panel panel-info">
@@ -54,11 +65,11 @@ class MainComponent extends React.Component {
             viewCount={10} // display 10 records per page
           />
           <div className="panel-footer">
-            <a className="btn btn-success" onClick={this.clearChanges}>
+            <a className="btn btn-success" onClick={() => this.clearChanges()}>
               Clear
             </a>
             {' '}
-            <a className="btn btn-primary" onClick={this.saveChanges}>
+            <a className="btn btn-primary" onClick={() => this.saveChanges()}>
               Save
             </a>
           </div>

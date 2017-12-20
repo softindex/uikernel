@@ -44,7 +44,7 @@ const columns = {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
-      return <input type="number" {...this.props}/>; // number editor
+      return <UIKernel.Editors.Number {...this.props}/>; // number editor
     },
     render: ['age', record => record.age]
   },
@@ -82,7 +82,7 @@ const Validation = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
-  .field('age', UIKernel.Validators.regExp.notNull(/^[^0]\d{0,2}$/, 'Invalid age.'))
+  .field('age', UIKernel.Validators.number.notNull(0, 120, 'Invalid age.'))
   .field('gender', UIKernel.Validators.regExp.notNull(/^[12]$/, 'Invalid gender.'));
 {% endhighlight %}
 

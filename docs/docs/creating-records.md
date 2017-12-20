@@ -174,8 +174,7 @@ render() {
           (this.state.fields.age.errors ? ' error' : '')}>
           <label className="col-sm-3 control-label">Age</label>
           <div className="col-sm-9">
-            <input
-              type="number"
+            <UIKernel.Editors.Number
               placeholder="18"
               className="form-control"
               onChange={this.form.updateField.bind(this.form, 'age')}
@@ -255,19 +254,6 @@ Next up, let's modify `MainComponent`.
 
 `MainComponent.js`:
 {% highlight javascript %}
-constructor(props) {
-    super(props);
-    this.state = {
-      model,
-      createFormState: {}
-    };
-
-    this.highlightNewRecord = this.highlightNewRecord.bind(this);
-    this.applyFilters = this.applyFilters.bind(this);
-    this.saveChanges = this.saveChanges.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
-}
-//...
 
 highlightNewRecord(recordId) {
   this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
@@ -286,7 +272,7 @@ render() {
               </div>
               <div className="panel-body">
                 <CreateForm
-                  onSubmit={this.highlightNewRecord}
+                  onSubmit={(recordId) => this.highlightNewRecord(recordId)}
                 />
               </div>
             </div>
@@ -297,7 +283,9 @@ render() {
                 <h3 className="panel-title">Filters</h3>
               </div>
               <div className="panel-body">
-                <FiltersForm onSubmit={this.applyFilters}/>
+                <FiltersForm filters={this.state.filters}
+                  onChange={(filters) => this.onFiltersChange(filters)}
+                  onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}/>
               </div>
             </div>
           </div>
@@ -316,9 +304,9 @@ render() {
                 defaultSort={{column: "name", direction: "asc"}} // default sorting
               />
               <div className="panel-footer">
-                <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+                <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
                 {' '}
-                <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
+                <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
               </div>
             </div>
           </div>

@@ -433,10 +433,10 @@ exports.getStack = function () {
   try {
     throw new Error();
   } catch (e) {
-    if (e.stack) {        // Error.stack is unavailable in old browsers
+    if (e.stack) { // Error.stack is unavailable in old browsers
       return e.stack
         .split('\n')
-        .slice(2)         // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
+        .slice(2) // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
         .join('\n');
     }
   }

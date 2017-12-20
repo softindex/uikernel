@@ -48,7 +48,7 @@ const columns = {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
-      return <input type="number" {...this.props}/>;
+      return <UIKernel.Editors.Number {...this.props}/>;
     },
     render: ['age', (record) => record.age]
   },
@@ -66,12 +66,12 @@ const columns = {
     },
     render: ['gender', (record) => {
       switch (record.gender) {
-        case 1:
-          return 'Male';
-        case 2:
-          return 'Female';
-        default:
-          return 'Undefined';
+      case 1:
+        return 'Male';
+      case 2:
+        return 'Female';
+      default:
+        return 'Undefined';
       }
     }]
   }
