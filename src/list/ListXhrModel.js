@@ -1,86 +1,77 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+import callbackify from '../common/callbackify';
+import toPromise from '../common/toPromise';
+import defaultXhr from '../common/defaultXhr';
+import url from 'url';
 
-var url = require('url');
-var defaultXhr = require('../common/defaultXhr');
+class ListXMLHttpRequestModel {
+  /**
+   * Simple list client model which works via XMLHttpRequest
+   *
+   * @param {string}    apiURL  API address for list model interaction
+   * @param {Function}  [xhr]   XHR wrapper
+   * @constructor
+   */
+  constructor(apiURL, xhr) {
+    this._apiURL = apiURL;
+    this._xhr = xhr || defaultXhr;
+    this._apiUrl = apiURL
+      .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
+      .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
+  }
 
-/**
- * Simple list client model which works via XMLHttpRequest
- *
- * @param {string}    apiURL  API address for list model interaction
- * @param {Function}  [xhr]   XHR wrapper
- * @constructor
- */
-function ListXMLHttpRequestModel(apiURL, xhr) {
-  this._apiURL = apiURL;
-  this._xhr = xhr || defaultXhr;
-  this._apiUrl = apiURL
-    .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
-    .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
 }
 
 /**
  * Get model data
  *
  * @param {string}    search  List search query
- * @param {Function}  cb      CallBack function
  */
-ListXMLHttpRequestModel.prototype.read = function (search, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
+ListXMLHttpRequestModel.prototype.read = callbackify(async function (search) {
+  const parsedUrl = url.parse(this._apiUrl, true);
   delete parsedUrl.search;
   if (search) {
     parsedUrl.query.v = search;
   }
 
-  this._xhr({
+  const body = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     headers: {
       'Content-type': 'application/json'
     },
     uri: url.format(parsedUrl)
-  }, function (err, resp, body) {
-    if (err) {
-      return cb(err);
-    }
-
-    try {
-      body = JSON.parse(body);
-    } catch (e) {
-      return cb(e);
-    }
-
-    cb(null, body);
   });
-};
+
+  return JSON.parse(body);
+});
 
 /**
  * Get option name using ID
  *
  * @param {*}         id  Option ID
- * @param {Function}  cb  CallBack function
  */
-ListXMLHttpRequestModel.prototype.getLabel = function (id, cb) {
-  var parsedUrl = url.parse(this._apiUrl, true);
-  parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'label/' + JSON.stringify(id));
+ListXMLHttpRequestModel.prototype.getLabel = callbackify(async function (id) {
+  const parsedUrl = url.parse(this._apiUrl, true);
+  parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
 
-  this._xhr({
+  let body = await toPromise(this._xhr.bind(this))({
     method: 'GET',
     headers: {
       'Content-type': 'application/json'
     },
     uri: url.format(parsedUrl)
-  }, function (err, resp, body) {
-    cb(err, body);
   });
-};
 
-module.exports = ListXMLHttpRequestModel;
+  body = JSON.parse(body);
+
+  return body;
+});
+
+export default ListXMLHttpRequestModel;

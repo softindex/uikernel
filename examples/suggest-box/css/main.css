@@ -23,7 +23,7 @@
     transition: 1s;
 }
 
-.search > input {
+.__suggestBox-search > input {
     width:100%;
 }
 

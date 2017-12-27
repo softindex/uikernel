@@ -1,38 +1,30 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
-
-var utils = require('../../common/utils');
+import utils from '../../common/utils';
 
 /**
  * Grid mixin, responsible for rows Select
  */
-var GridSelectMixin = {
-  getInitialState: function () {
-    return {
-      selectBlackListMode: false,
-      selected: []
-    };
-  },
-
+const GridSelectMixin = {
   /**
    * Select only these records
    *
-   * @param {Array} selectedIds  Record IDs
+   * @param {Array}   selectedIds       Record IDs
+   * @param {boolean} [blackListMode]   Is black list mode
    */
-  setSelectedRecords: function (selectedIds) {
+  setSelectedRecords: function (selectedIds, blackListMode) {
     this.state.selected = utils.clone(selectedIds);
+    if (typeof blackListMode === 'boolean') {
+      this.state.selectBlackListMode = blackListMode;
+    }
 
-    // TODO You can do without a full page reload
-    this.updateTable();
+    this.forceUpdate();
   },
 
   /**
@@ -42,7 +34,7 @@ var GridSelectMixin = {
    * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
   selectRecord: function (recordId, ignoreBlackList) {
-    var row = utils.hash(recordId);
+    const row = utils.toEncodedString(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.unselectRecord(recordId, true);
@@ -50,14 +42,20 @@ var GridSelectMixin = {
 
     if (utils.indexOf(this.state.selected, recordId) < 0) {
       this.state.selected.push(recordId);
+
+      if (this.state.selected.length === this.state.count) {
+        if (this.state.selectBlackListMode) {
+          this.unselectAll();
+        } else {
+          this.selectAll();
+        }
+        return;
+      }
     }
 
-    this._updateRow(row, function (err) {
-      if (err) {
-        throw err;
-      }
+    this._updateRow(row).then(() => {
       this._emitChangeSelectedNum();
-    }.bind(this));
+    });
   },
 
   /**
@@ -67,23 +65,20 @@ var GridSelectMixin = {
    * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
   unselectRecord: function (recordId, ignoreBlackList) {
-    var row = utils.hash(recordId);
+    const row = utils.toEncodedString(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.selectRecord(recordId, true);
     }
 
-    var pos = utils.indexOf(this.state.selected, recordId);
+    const pos = utils.indexOf(this.state.selected, recordId);
     if (pos >= 0) {
       this.state.selected.splice(pos, 1);
     }
 
-    this._updateRow(row, function (err) {
-      if (err) {
-        throw err;
-      }
+    this._updateRow(row).then(() => {
       this._emitChangeSelectedNum();
-    }.bind(this));
+    });
   },
 
   /**
@@ -94,7 +89,7 @@ var GridSelectMixin = {
    * @returns {boolean}           Is selected row flag
    */
   isSelected: function (recordId) {
-    var selected = utils.indexOf(this.state.selected, recordId) >= 0;
+    const selected = utils.indexOf(this.state.selected, recordId) >= 0;
     if (this.state.selectBlackListMode) {
       return !selected;
     }
@@ -107,6 +102,9 @@ var GridSelectMixin = {
    * @param {*}   recordId  Record ID
    */
   toggleSelected: function (recordId) {
+    if (this.props.onToggleSelected) {
+      return this.props.onToggleSelected(recordId);
+    }
     if (this.isSelected(recordId)) {
       this.unselectRecord(recordId);
     } else {
@@ -118,6 +116,9 @@ var GridSelectMixin = {
    * Switch records selection mode
    */
   toggleSelectAll: function () {
+    if (this.props.onToggleSelectAll) {
+      return this.props.onToggleSelectAll();
+    }
     if (this.state.selectBlackListMode) {
       this.unselectAll();
     } else {
@@ -165,6 +166,10 @@ var GridSelectMixin = {
     return utils.clone(this.state.selected);
   },
 
+  getSelectAllStatus() {
+    return this.props.selectAllStatus;
+  },
+
   _getAllSelected: function () {
     return this.state.selected;
   },
@@ -176,7 +181,7 @@ var GridSelectMixin = {
    */
   _emitChangeSelectedNum: function () {
     if (this.props.onSelectedChange) {
-      var selectedCount = this.state.selected.length;
+      let selectedCount = this.state.selected.length;
       if (this.state.selectBlackListMode) {
         selectedCount = this.getCountRecords() - selectedCount;
       }
@@ -185,4 +190,4 @@ var GridSelectMixin = {
   }
 };
 
-module.exports = GridSelectMixin;
+export default GridSelectMixin;

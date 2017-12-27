@@ -7,24 +7,21 @@ prev: suggest-box.html
 Simple reports usage example.
 
 * [Live demo](/examples/reports/){:target="_blank"}
-* [Code]({{site.github}}_site/examples/reports){:target="_blank"}
+* [Code]({{ site.github }}/examples/reports){:target="_blank"}
 
 ---
 
 Let's create a model and specify the path to cube API.
 
-`reportsModel.js`
-
+`reportsModel.js`:
 {% highlight javascript %}
 var reportsModel = UIKernelReports.createXhrModel('http://localhost:7777');
 {% endhighlight %}
-
 ---
 
-Let us also write a function for columns generating.
+Next, we'll define a function for generating columns.
 
-`columnsBuilder.js`
-
+`columnsBuilder.js`:
 {% highlight javascript %}
 function columnsBuilder(dimensions, measures) {
   var columns = {};
@@ -59,11 +56,11 @@ function columnsBuilder(dimensions, measures) {
   return columns;
 }
 {% endhighlight %}
-
 ---
 
-`MainComponent.jsx`
+Now let's build `MainComponent`.
 
+`MainComponent.js`:
 {% highlight javascript %}
 var MainComponent = React.createClass({
   mixins: [UIKernelReports.mixin],
@@ -89,7 +86,7 @@ var MainComponent = React.createClass({
     }
 
     return (
-      <UIKernel.Component
+      <UIKernel.Grid
         cols={this.getReportsColumns()}
         model={this.getReportsGridModel()}
         viewCount={20}
@@ -97,4 +94,10 @@ var MainComponent = React.createClass({
     );
   }
 });
+{% endhighlight %}
+---
+
+`main.js`:
+{% highlight javascript %}
+React.render(<MainComponent/>, document.getElementById("example"));
 {% endhighlight %}

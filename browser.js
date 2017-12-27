@@ -1,21 +1,26 @@
 /**
- * Copyright (с) 2015, SoftIndex LLC.
+ * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
- *
- * @providesModule UIKernel
  */
 
-'use strict';
+if (!global._babelPolyfill) {
+  require('babel-polyfill');
+}
 
-require('./lib/fix_generators');
+require('./lib/common/setImmediate');
+const variables = require('./lib/common/variables');
 
-var Module = {
+const Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
-  createValidator: require('./lib/common/validation/Validator/browser'),
+  Form: require('./lib/form/FormService'),
+  createValidator: require('./lib/common/validation/validators/browser').create,
+  createXhrValidator: require('./lib/common/validation/validators/XhrValidator').create,
+  exportGridData: require('./lib/grid/export/exportGridData'),
+  toJSON: require('./lib/grid/export/exporters/toJSON'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
@@ -36,30 +41,35 @@ var Module = {
   },
   Adapters: {
     Grid: {
-      toFormUpdate: require('./lib/form/adapters/GridToFormUpdate'),
-      toFormCreate: require('./lib/form/adapters/GridToFormCreate')
+      ToFormUpdate: require('./lib/form/adapters/GridToFormUpdate'),
+      ToFormCreate: require('./lib/form/adapters/GridToFormCreate')
     }
   },
   Editors: {
     Select: require('./lib/editors/Select'),
     SuggestBox: require('./lib/editors/SuggestBox'),
     DatePicker: require('./lib/editors/DatePicker'),
-    Checkbox: require('./lib/editors/Checkbox')
+    Checkbox: require('./lib/editors/Checkbox'),
+    Number: require('./lib/editors/Number')
   },
   ArgumentsError: require('./lib/common/ArgumentsError'),
+  ThrottleError: require('./lib/common/ThrottleError'),
+  Validators: {
+    boolean: require('./lib/common/validation/rules/boolean'),
+    date: require('./lib/common/validation/rules/date'),
+    enum: require('./lib/common/validation/rules/enum'),
+    set: require('./lib/common/validation/rules/set'),
+    float: require('./lib/common/validation/rules/float'),
+    regExp: require('./lib/common/validation/rules/regExp'),
+    notNull: require('./lib/common/validation/rules/notNull'),
+    number: require('./lib/common/validation/rules/number'),
+    notEmpty: require('./lib/common/validation/rules/notEmpty')
+  },
   Mixins: {
     Form: require('./lib/form/mixin')
   },
-  Validators: {
-    boolean: require('./lib/common/validation/validators/boolean'),
-    date: require('./lib/common/validation/validators/date'),
-    enum: require('./lib/common/validation/validators/enum'),
-    float: require('./lib/common/validation/validators/float'),
-    listElement: require('./lib/common/validation/validators/listElement'),
-    regExp: require('./lib/common/validation/validators/regExp'),
-    notNull: require('./lib/common/validation/validators/notNull'),
-    number: require('./lib/common/validation/validators/number')
-  }
+  _get: variables.get,
+  _set: variables.set
 };
 
-global.UIKernel = module.exports = Module;
+module.exports = Module;

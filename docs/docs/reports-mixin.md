@@ -23,16 +23,16 @@ var MainComponent = React.createClass({
 
 All report settings are stored in state:
 
-| Type                               | Name                  | Description                               |
-|------------------------------------|-----------------------|-------------------------------------------|
-| string[]                           | **reportsDimensions** | Current Dimensions                        |
-| string[]                           | **reportsMeasures**   | Limit used measures                       |
-| Function                           | **reportsColumns**    | Function for columns generation           |
-| [ReportsModel](reports-model.html) | **reportsModel**      | Reports model constructor                 |
-| Array[]                            | reportsDrillDowns     | DrillDown's, that need to be applied      |
-| Object                             | reportsFilters        | Filter values                             |
-| Object                             | reportsNames          | Dimension display names                   |
-| Function                           | reportsErrorHandler   | Error handler                             |
+| Type                                 | Name                  | Description                               |
+|--------------------------------------|-----------------------|-------------------------------------------|
+| String [ ]                           | **reportsDimensions** | Current Dimensions                        |
+| String [ ]                           | **reportsMeasures**   | Limit used measures                       |
+| Function                             | **reportsColumns**    | Function for columns generation           |
+| [ReportsModel](reports-model.html)   | **reportsModel**      | Reports model constructor                 |
+| Array [ ]                            | reportsDrillDowns     | DrillDown's, that need to be applied      |
+| Object                               | reportsFilters        | Filter values                             |
+| Object                               | reportsNames          | Dimension display names                   |
+| Function                             | reportsErrorHandler   | Error handler                             |
 
 ---
 

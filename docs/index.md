@@ -7,7 +7,7 @@ nav-menu: home
 <div class="love-video row">
   <div class="col-sm-8">
     <h3>Simple way to manage complex interfaces</h3>
-    UIKernel is a comprehensive React.js UI library for building forms, editable grids and reports with drilldowns and filters, based on simple unified record model with client-side and server-side validations and data bindings.
+    UIKernel is a comprehensive React.js UI library for building forms, editable grids and reports with drilldowns and filters, based on a simple unified record model with client-side and server-side validations and data bindings.
     <!--div class="actions">
       <a href="/docs/grid-interface.html" class="btn-bordered">Read more</a>
     </div-->
@@ -63,7 +63,7 @@ nav-menu: home
 
 <br />
 <h3>Speeds up development</h3>
-You just need to pass model and configuration to make component appear on your page.
+You just need to pass a model and configuration to make a component appear on your page.
 <br />
 <br />
 {% highlight html tabsize=2 %}
@@ -74,6 +74,6 @@ You just need to pass model and configuration to make component appear on your p
 {% endhighlight %}
 <br />
 <h3>Code clarity</h3>
-UIKernel tries to avoid unnecessary abstractions, giving you the opportunity to define model as you want.
-Nevertheless there are basic implementations, that work with client data, and models linking server and
+UIKernel tries to avoid unnecessary abstractions, giving you the opportunity to define a model as you want.
+Nevertheless, there are basic implementations that work with client data and models linking server and
 client interface using API.
