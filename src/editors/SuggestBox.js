@@ -65,6 +65,7 @@ class SuggestBoxEditor extends React.Component {
   constructor(props) {
     super(props);
     this._loadData = utils.throttle(this._loadData);
+    this._styles = {}; // TODO Rename to popupStyles, move to state
     this.state = {
       isOpened: false,
       options: [],
@@ -162,11 +163,14 @@ class SuggestBoxEditor extends React.Component {
       }
       return;
     }
-    await this.setState({
-      options,
-      selectedOptionKey: null,
-      loading: false
-    });
+
+    if (this._isMounted) {
+      await this.setState({
+        options,
+        selectedOptionKey: null,
+        loading: false
+      });
+    }
 
     const $popup = $('#' + popupId);
     $popup.find('.__suggestBoxPopUp-content')
@@ -187,38 +191,7 @@ class SuggestBoxEditor extends React.Component {
 
     this.setState({isOpened: true, loading: true}, () => {
       findDOMNode(this.refs.input).select();
-
-      const $input = $(findDOMNode(this.refs.input));
-      const $popup = $(`#${popupId}`);
-
-      const inputOffset = $input.offset();
-      const inputWidth = $input.css('width');
-      const inputHeight = $input.css('height');
-
-      let offsetTop = inputOffset.top + parseInt(inputHeight);
-      const offsetLeft = inputOffset.left;
-
-      if (typeof window !== 'undefined') {
-        const availableSpace = window.innerHeight - (offsetTop - window.scrollY);
-
-        if (availableSpace < MIN_POPUP_HEIGHT) {
-          offsetTop = inputOffset.top - 300;
-          $popup.css('height', 300);
-          $popup.find('.__suggestBoxPopUp-content')
-            .css('bottom', 0)
-            .css('position', 'absolute');
-        } else {
-          $popup.css('maxHeight', availableSpace);
-        }
-      }
-
-      $popup
-        .css('minWidth', inputWidth)
-        .offset({
-          top: offsetTop,
-          left: offsetLeft
-        });
-
+      this._setPopupStyles(); // TODO Remove function
       this._updateList(searchPattern) // TODO Handle errors
         .then(() => {
           if (!this.state.options.length) {
@@ -467,6 +440,38 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
+  _setPopupStyles() {
+    const $input = $(findDOMNode(this.refs.input));
+
+    const inputOffset = findDOMNode(this.refs.input).getBoundingClientRect();
+    const inputWidth = $input.css('width');
+    const inputHeight = $input.css('height');
+
+    let offsetTop = inputOffset.top + parseInt(inputHeight);
+    const offsetLeft = inputOffset.left;
+
+    if (typeof window !== 'undefined') {
+      const availableSpace = window.innerHeight - offsetTop;
+      if (availableSpace < MIN_POPUP_HEIGHT) {
+        offsetTop = inputOffset.top - 300;
+        this._styles = {
+          bottom: '0',
+          position: 'absolute',
+          height: '300'
+        };
+      } else {
+        this._styles.maxHeight = availableSpace;
+      }
+    }
+
+    this._styles = {
+      ...this._styles,
+      minWidth: inputWidth,
+      top: offsetTop,
+      left: offsetLeft
+    };
+  }
+
   focus() {
     findDOMNode(this.refs.input).focus();
   }
@@ -527,6 +532,7 @@ class SuggestBoxEditor extends React.Component {
       optionsPopup = (
         <Portal
           id={popupId}
+          styles={this._styles}
           onDocumentMouseDown={this._onDocumentMouseDown}
           onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
@@ -544,7 +550,7 @@ class SuggestBoxEditor extends React.Component {
           <input
             {...utils.omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
-                'select', 'notFoundElement', 'loadingElement'])}
+                'select', 'notFoundElement', 'loadingElement', 'defaultLabel'])}
             ref='input'
             type='text'
             onClick={this._openList}

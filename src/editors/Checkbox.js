@@ -6,32 +6,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 
-class Checkbox extends React.Component {
-  static propTypes = {
-    indeterminate: React.PropTypes.bool
-  };
-
-  componentDidMount() {
-    this._setIndeterminate(this.props.indeterminate);
-  }
-  componentWillReceiveProps(props) {
-    this._setIndeterminate(props.indeterminate);
-  }
-  _setIndeterminate(value) {
-    findDOMNode(this.refs.checkbox).indeterminate = value;
-  }
-  render() {
-    return (
-      <input
-        {...this.props}
-        type='checkbox'
-        ref='checkbox'
-      />
-    );
-  }
+function Checkbox(props) {
+  const {indeterminate, ...otherProps} = props;
+  return (
+    <input
+      {...otherProps}
+      type="checkbox"
+      ref={input => {
+        if (input) {
+          input.indeterminate = indeterminate;
+        }
+      }}
+    />
+  );
 }
+
+Checkbox.propTypes = {
+  indeterminate: PropTypes.bool
+};
 
 export default Checkbox;
