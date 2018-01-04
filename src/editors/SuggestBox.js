@@ -65,13 +65,13 @@ class SuggestBoxEditor extends React.Component {
   constructor(props) {
     super(props);
     this._loadData = utils.throttle(this._loadData);
-    this._styles = {}; // TODO Rename to popupStyles, move to state
     this.state = {
       isOpened: false,
       options: [],
       selectedOptionKey: null,
       lastValidLabel: '',
-      label: ''
+      label: '',
+      popupStyles: {}
     };
     this._onInputFocus = this._onInputFocus.bind(this);
     this._onInputKeyDown = this._onInputKeyDown.bind(this);
@@ -189,9 +189,12 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    this.setState({isOpened: true, loading: true}, () => {
+    this.setState({
+      isOpened: true,
+      loading: true,
+      popupStyles: this._setPopupStyles()
+    }, () => {
       findDOMNode(this.refs.input).select();
-      this._setPopupStyles(); // TODO Remove function
       this._updateList(searchPattern) // TODO Handle errors
         .then(() => {
           if (!this.state.options.length) {
@@ -442,6 +445,7 @@ class SuggestBoxEditor extends React.Component {
 
   _setPopupStyles() {
     const $input = $(findDOMNode(this.refs.input));
+    let popupStyle = {};
 
     const inputOffset = findDOMNode(this.refs.input).getBoundingClientRect();
     const inputWidth = $input.css('width');
@@ -454,18 +458,18 @@ class SuggestBoxEditor extends React.Component {
       const availableSpace = window.innerHeight - offsetTop;
       if (availableSpace < MIN_POPUP_HEIGHT) {
         offsetTop = inputOffset.top - 300;
-        this._styles = {
+        popupStyle = {
           bottom: '0',
           position: 'absolute',
           height: '300'
         };
       } else {
-        this._styles.maxHeight = availableSpace;
+        popupStyle.maxHeight = availableSpace;
       }
     }
 
-    this._styles = {
-      ...this._styles,
+    return {
+      ...popupStyle,
       minWidth: inputWidth,
       top: offsetTop,
       left: offsetLeft
@@ -532,7 +536,7 @@ class SuggestBoxEditor extends React.Component {
       optionsPopup = (
         <Portal
           id={popupId}
-          styles={this._styles}
+          styles={this.state.popupStyles}
           onDocumentMouseDown={this._onDocumentMouseDown}
           onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'

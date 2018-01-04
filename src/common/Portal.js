@@ -39,9 +39,6 @@ export class Portal extends React.Component {
     this._isDocumentEventOwner = this._isDocumentEventOwner.bind(this);
     this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
     this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
-    this.state = {
-      portal: null
-    };
   }
 
   componentDidMount() {
@@ -51,18 +48,18 @@ export class Portal extends React.Component {
     const portal = document.createElement('div');
     document.body.appendChild(portal);
     portal.className = portalClass;
-    this.state.portal = portal;
+    this.portal = portal;
     ReactDOM.render(
       <ChildrenWrapper
         {...this.props}
         style={this.props.styles}
         ref={(wrapper) => {
-          this.state.wrapper = wrapper; // TODO this.wrapper = wrapper;
+          this.wrapper = wrapper;
         }}
       >
         {this.props.children}
       </ChildrenWrapper>,
-      this.state.portal
+      this.portal
     );
   }
 
@@ -70,16 +67,16 @@ export class Portal extends React.Component {
     document.removeEventListener('mousedown', this._onDocumentMouseDown, false);
     document.removeEventListener('scroll', this._onDocumentMouseScroll, true);
 
-    ReactDOM.unmountComponentAtNode(this.state.portal);
-    document.body.removeChild(this.state.portal);
+    ReactDOM.unmountComponentAtNode(this.portal);
+    document.body.removeChild(this.portal);
   }
 
   componentDidUpdate() {
-    this.state.wrapper.setChildren(this.props.children);
+    this.wrapper.setChildren(this.props.children);
   }
 
   _isDocumentEventOwner(target) {
-    return $(target).parents(`.${portalClass}`).get(0) === this.state.portal;
+    return $(target).parents(`.${portalClass}`).get(0) === this.portal;
   }
 
   _onDocumentMouseDown(e) {
@@ -95,7 +92,7 @@ export class Portal extends React.Component {
   }
 
   render() {
-    return <span/>; // TODO Try with null
+    return null;
   }
 }
 

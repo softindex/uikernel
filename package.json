@@ -23,8 +23,8 @@
     "csv-stringify": "^1.0.4",
     "express": "^4.14.0",
     "prop-types": "^15.6.0",
-    "react": "15.6.2",
-    "react-dom": "15.6.2",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
     "react-dom-factories": "^1.0.2",
     "xhr": "^2.2.0"
   },
