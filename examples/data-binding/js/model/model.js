@@ -32,6 +32,6 @@ const model = (() => {
 
   return new UIKernel.Models.Grid.Collection({
     data: data,
-    validator,
+    validator
   });
 })();

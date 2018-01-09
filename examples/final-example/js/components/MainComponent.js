@@ -61,4 +61,3 @@ class MainComponent extends React.Component {
     );
   }
 }
-

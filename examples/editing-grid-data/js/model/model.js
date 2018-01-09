@@ -59,6 +59,6 @@ const model = (() => {
         return true;
       });
     },
-    validator,
+    validator
   });
 })();
