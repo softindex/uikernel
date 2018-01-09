@@ -116,7 +116,7 @@ const GridSelectMixin = {
    * Switch records selection mode
    */
   toggleSelectAll: function () {
-    if (this.props.selected) {
+    if (this.props.onToggleSelectAll) {
       return this.props.onToggleSelectAll();
     }
     if (this.state.selectBlackListMode) {

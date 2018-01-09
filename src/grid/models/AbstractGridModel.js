@@ -16,11 +16,22 @@ import EventsModel from '../../common/Events';
  * @constructor
  * @extends EventsModel
  */
-const AbstractGridModel = function () {
-  EventsModel.call(this);
-};
-AbstractGridModel.prototype = new EventsModel();
-AbstractGridModel.prototype.constructor = AbstractGridModel;
+class AbstractGridModel extends EventsModel {
+  constructor() {
+    super();
+  }
+
+  /**
+   * Get all dependent fields, that are required for validation
+   *
+   * @param   {Array}  fields   Fields list
+   * @returns {Array}  Dependencies
+   * @abstract
+   */
+  getValidationDependency() {
+    return [];
+  }
+}
 
 /**
  * Add a record
@@ -68,15 +79,6 @@ AbstractGridModel.prototype.getRecord = callbackify((/*id, fields*/) => Promise.
  * @abstract
  */
 AbstractGridModel.prototype.update = callbackify((/*changes*/) => Promise.resolve([]));
-
-/**
- * Get all dependent fields, that are required for validation
- *
- * @param   {Array}  fields   Fields list
- * @returns {Array}  Dependencies
- * @abstract
- */
-AbstractGridModel.prototype.getValidationDependency = () => [];
 
 /**
  * Validation check

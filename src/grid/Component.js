@@ -21,6 +21,7 @@ import gridMixinData from './mixins/data';
 import gridMixinEditor from './mixins/editor';
 import gridMixinUI from './mixins/ui';
 import gridMixinSelect from './mixins/select';
+import ThrottleError from '../common/ThrottleError';
 
 const RESET_MODEL = 1 << 0;
 const RESET_VIEW_COLUMNS = 1 << 1;
@@ -120,7 +121,7 @@ const GridComponent = React.createClass({
     selected: []
   }),
   getInitialState: function () {
-    this._loadData = utils.throttle(this._loadData);
+    this._throttledUpdateTable = utils.throttle(this.updateTable);
     this._validateRow = utils.throttle(this._validateRow);
     this._checkWarnings = utils.throttle(this._checkWarnings);
     return {
@@ -205,7 +206,13 @@ const GridComponent = React.createClass({
           }
           this._setPage(0);
         }
-        this.updateTable();
+        try {
+          this._throttledUpdateTable();
+        } catch (e) {
+          if (!(e instanceof ThrottleError)) {
+            throw e;
+          }
+        }
       } else if ((reset & RESET_VIEW_COLUMNS) || (reset & RESET_SELECTED_COLUMNS) || (reset & RESET_BLACK_LIST_MODE)) {
         this._renderBody();
       }
