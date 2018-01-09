@@ -19,7 +19,11 @@ class CreateForm extends React.Component {
     this.form.init({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
       model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // default field values
-        gender: 1
+        name: '',
+        surname: '',
+        phone: '',
+        age: 18,
+        gender: 1,
       }),
       submitAll: true,
       partialErrorChecking: true
@@ -39,7 +43,7 @@ class CreateForm extends React.Component {
     e.preventDefault();
     this.form.submit() // create a new record
       .then((recordId) => {
-        this.props.onSubmit(recordId)
+        this.props.onSubmit(recordId);
       })
       .catch((err) => {
         console.log(err);

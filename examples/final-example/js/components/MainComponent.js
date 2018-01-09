@@ -5,6 +5,7 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
 const DEFAULT_FILTERS = {
   search: '',
   age: null,
@@ -14,11 +15,15 @@ const DEFAULT_FILTERS = {
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { model };
+    this.state = {
+      filters: DEFAULT_FILTERS,
+      model,
+    };
   }
 
-  applyFilters(filters) {
+  onFiltersChange(filters) {
     this.setState({
+      filters,
       model: UIKernel.applyGridFilters(model, filters)
     });
   }

@@ -10,18 +10,19 @@ import floatValidator from '../common/validation/rules/float';
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const isInvalidFloat = floatValidator(null, null, true);
 
 class NumberEditor extends React.Component {
   static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    value: React.PropTypes.oneOfType([
+    onChange: PropTypes.func.isRequired,
+    value: PropTypes.oneOfType([
+      PropTypes.number,
       // String should be allowed, because when we start typing negative number,
       // there is appearing a warning in console after '-' symbol
-      React.PropTypes.string,
-      React.PropTypes.number,
-    ]),
+      PropTypes.string
+    ])
   };
 
   constructor(props) {

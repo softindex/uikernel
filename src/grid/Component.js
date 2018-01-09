@@ -11,6 +11,8 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
 import utils from '../common/utils';
 
 import GridColumnsMixin from './mixins/columns';
@@ -30,7 +32,82 @@ const RESET_VIEW_COUNT = 1 << 3;
 const RESET_SELECTED_COLUMNS = 1 << 4;
 const RESET_BLACK_LIST_MODE = 1 << 5;
 
-const GridComponent = React.createClass({
+const propTypes = (() => {
+  const sortElementProp = PropTypes.shape({
+    column: PropTypes.string,
+    direction: PropTypes.any
+  });
+  const sortProp = PropTypes.oneOfType([
+    sortElementProp,
+    PropTypes.arrayOf(sortElementProp)
+  ]);
+  return {
+    className: PropTypes.string,
+    model: PropTypes.shape({
+      read: PropTypes.func.isRequired,
+      update: PropTypes.func,
+      isValidRecord: PropTypes.func,
+      getValidationDependency: PropTypes.func,
+      on: PropTypes.func.isRequired,
+      off: PropTypes.func.isRequired
+    }),
+    cols: PropTypes.object,
+    viewColumns: PropTypes.oneOfType([
+      PropTypes.arrayOf(PropTypes.string),
+      PropTypes.object
+    ]),
+    selected: PropTypes.array,
+    // sort: PropTypes.object,
+    page: PropTypes.number,
+    defaultViewCount: PropTypes.number,
+    viewCount: PropTypes.number,
+    viewVariants: PropTypes.arrayOf(PropTypes.number),
+    onChangeViewCount: PropTypes.func,
+    onChange: PropTypes.func,
+    onError: PropTypes.func,
+    onPageLoad: PropTypes.func,
+    autoSubmit: PropTypes.bool,
+    height: PropTypes.number,
+    onSelectedChange: PropTypes.func,
+    onSorting: PropTypes.func,
+    multipleSorting: PropTypes.bool,
+    selectAllStatus: React.PropTypes.any,
+    onToggleSelected: React.PropTypes.func,
+    onToggleSelectAll: React.PropTypes.func,
+    defaultSort: (props, propName, ...rest) => {
+      if (!props.defaultSort) {
+        return;
+      }
+      const validProp = sortProp(props, propName, ...rest);
+      if (validProp) {
+        return validProp;
+      }
+      if (props.hasOwnProperty('sort')) {
+        return Error('You can not set "defaultSort" when the "sort" prop is specified');
+      }
+    },
+    sort: (props, propName, ...rest) => {
+      if (!props.sort) {
+        return;
+      }
+      const validProp = sortProp(props, propName, ...rest);
+      if (validProp) {
+        return validProp;
+      }
+      if (!props.onSorting) {
+        return Error('You need to define the "onSorting" prop when "sort" is set');
+      }
+    },
+    saveFullRecord: PropTypes.bool,
+    partialErrorChecking: PropTypes.bool,
+    warningsValidator: PropTypes.shape({
+      isValidRecord: PropTypes.func,
+      getValidationDependency: PropTypes.func
+    })
+  };
+})();
+
+const GridComponent = createReactClass({
   ...GridColumnsMixin,
   ...gridMixinPagination,
   ...gridMixinStatuses,
@@ -40,80 +117,6 @@ const GridComponent = React.createClass({
   ...gridMixinUI,
   ...gridMixinSelect,
 
-  propTypes: (() => {
-    const sortElementProp = React.PropTypes.shape({
-      column: React.PropTypes.string,
-      direction: React.PropTypes.any
-    });
-    const sortProp = React.PropTypes.oneOfType([
-      sortElementProp,
-      React.PropTypes.arrayOf(sortElementProp)
-    ]);
-    return {
-      className: React.PropTypes.string,
-      model: React.PropTypes.shape({
-        read: React.PropTypes.func.isRequired,
-        update: React.PropTypes.func,
-        isValidRecord: React.PropTypes.func,
-        getValidationDependency: React.PropTypes.func,
-        on: React.PropTypes.func.isRequired,
-        off: React.PropTypes.func.isRequired
-      }),
-      cols: React.PropTypes.object,
-      viewColumns: React.PropTypes.oneOfType([
-        React.PropTypes.arrayOf(React.PropTypes.string),
-        React.PropTypes.object
-      ]),
-      selected: React.PropTypes.array,
-      // sort: React.PropTypes.object,
-      page: React.PropTypes.number,
-      defaultViewCount: React.PropTypes.number,
-      viewCount: React.PropTypes.number,
-      viewVariants: React.PropTypes.arrayOf(React.PropTypes.number),
-      onChangeViewCount: React.PropTypes.func,
-      onChange: React.PropTypes.func,
-      onError: React.PropTypes.func,
-      onPageLoad: React.PropTypes.func,
-      autoSubmit: React.PropTypes.bool,
-      height: React.PropTypes.number,
-      onSelectedChange: React.PropTypes.func,
-      onSorting: React.PropTypes.func,
-      multipleSorting: React.PropTypes.bool,
-      selectAllStatus: React.PropTypes.any,
-      onToggleSelected: React.PropTypes.func,
-      onToggleSelectAll: React.PropTypes.func,
-      defaultSort: (props, propName) => {
-        if (!props.defaultSort) {
-          return;
-        }
-        const validProp = sortProp(props, propName);
-        if (validProp) {
-          return validProp;
-        }
-        if (props.hasOwnProperty('sort')) {
-          return Error('You can not set "defaultSort" when the "sort" prop is specified');
-        }
-      },
-      sort: (props, propName) => {
-        if (!props.sort) {
-          return;
-        }
-        const validProp = sortProp(props, propName);
-        if (validProp) {
-          return validProp;
-        }
-        if (!props.onSorting) {
-          return Error('You need to define the "onSorting" prop when "sort" is set');
-        }
-      },
-      saveFullRecord: React.PropTypes.bool,
-      partialErrorChecking: React.PropTypes.bool,
-      warningsValidator: React.PropTypes.shape({
-        isValidRecord: React.PropTypes.func,
-        getValidationDependency: React.PropTypes.func
-      })
-    };
-  })(),
   getDefaultProps: () => ({
     page: 0,
     defaultViewCount: 0,
@@ -335,5 +338,7 @@ const GridComponent = React.createClass({
     return this.renderScrollableGrid(gridClassNames);
   }
 });
+
+GridComponent.propTypes = propTypes;
 
 export default GridComponent;

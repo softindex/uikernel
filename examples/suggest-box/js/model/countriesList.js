@@ -21,14 +21,14 @@ const countries = (function () {
           return {
             id: record[0],
             label: record[1]
-          }
+          };
         });
     },
 
     async getLabel(id) {
-      for (var i = 0; i < records.length; i++) {
-        if (records[i][0] === id) {
-          return records[i][1];
+      for (const [recordId, recordName] of records) {
+        if (id === recordId) {
+          return recordName;
         }
       }
       throw new Error('Invalid record id.');

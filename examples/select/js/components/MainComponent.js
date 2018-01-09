@@ -24,7 +24,7 @@ class MainComponent extends React.Component {
   }
 
   handleLabelChange(newLabel) {
-    this.setState({label: newLabel})
+    this.setState({label: newLabel});
   }
 
   render() {

@@ -9,25 +9,25 @@
 class Form extends React.Component {
   constructor(props) {
     super(props);
-    this.form = new UIKernel.Form();
+    this.formService = new UIKernel.Form();
     this.state = {
-      form: this.form.getAll()
+      form: this.formService.getAll()
     };
     this.onFormChange = this.onFormChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.form.init({
+    this.formService.init({
       model: this.props.model, // Get FormModel from props
       fields: ['name', 'country', 'countryName'],
       changes: this.props.changes
     });
-    this.form.addChangeListener(this.onFormChange);
+    this.formService.addChangeListener(this.onFormChange);
   }
 
   componentWillUnmount() {
-    this.form.removeChangeListener(this.onFormChange);
+    this.formService.removeChangeListener(this.onFormChange);
   }
 
   onFormChange(newFormState) {
@@ -36,7 +36,7 @@ class Form extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.form.submit()
+    this.formService.submit()
       .then(() => {
         this.props.onSubmit();
       });
@@ -67,8 +67,8 @@ class Form extends React.Component {
                   <td>
                     <UIKernel.Editors.SuggestBox
                       model={countries}
-                      onChange={this.form.validateField.bind(this.form, 'country')}
-                      onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
+                      onChange={() => this.formService.validateField('country')}
+                      onLabelChange={() => this.formService.updateField('countryName')}
                       select={true}
                       value={this.state.form.data.country}
                     />
