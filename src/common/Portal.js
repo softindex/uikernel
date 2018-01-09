@@ -9,7 +9,7 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import PropTypes from 'prop-types';
-import { omit } from './utils';
+import {omit} from './utils';
 
 class ChildrenWrapper extends React.Component {
   constructor(props) {
@@ -17,7 +17,6 @@ class ChildrenWrapper extends React.Component {
     this.state = {
       children: props.children
     };
-    this.setChildren = this.setChildren.bind(this);
   }
 
   setChildren(children) {
@@ -26,17 +25,21 @@ class ChildrenWrapper extends React.Component {
 
   render() {
     return (
-      <div {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}>{this.state.children}</div>
+      // TODO Veryha В ChildrenWrapper и не должны приходить пропсы 'onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'. Фильтровать их уровнем выше
+      <div {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}>
+        {this.state.children}
+      </div>
     );
   }
 }
 
 const portalClass = '__portal';
 
+// TODO Veryha Экспортировать сущности в конце файла
 export class Portal extends React.Component {
   constructor(props) {
     super(props);
-    this._isDocumentEventOwner = this._isDocumentEventOwner.bind(this);
+    this._isDocumentEventOwner = this._isDocumentEventOwner.bind(this); // TODO Veryha Этот метод не нужно байндить
     this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
     this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
   }

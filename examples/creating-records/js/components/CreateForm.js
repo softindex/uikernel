@@ -23,7 +23,7 @@ class CreateForm extends React.Component {
         surname: '',
         phone: '',
         age: 18,
-        gender: 1,
+        gender: 1
       }),
       submitAll: true,
       partialErrorChecking: true

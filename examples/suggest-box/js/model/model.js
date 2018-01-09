@@ -49,4 +49,3 @@ const model = (function () {
     validator
   });
 })();
-

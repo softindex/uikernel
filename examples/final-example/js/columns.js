@@ -23,7 +23,7 @@ const columns = {
             name: '',
             surname: '',
             phone: '',
-            age: 18,
+            age: null,
             gender: 1
           }),
           mode: 'create',
