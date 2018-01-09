@@ -247,6 +247,10 @@ class FormService {
 
     this._setState();
 
+    if (validationErrors) {
+      throw validationErrors;
+    }
+
     return data;
   }
 

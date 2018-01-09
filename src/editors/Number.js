@@ -16,7 +16,12 @@ const isInvalidFloat = floatValidator(null, null, true);
 class NumberEditor extends React.Component {
   static propTypes = {
     onChange: React.PropTypes.func.isRequired,
-    value: React.PropTypes.number
+    value: React.PropTypes.oneOfType([
+      // String should be allowed, because when we start typing negative number,
+      // there is appearing a warning in console after '-' symbol
+      React.PropTypes.string,
+      React.PropTypes.number,
+    ]),
   };
 
   constructor(props) {

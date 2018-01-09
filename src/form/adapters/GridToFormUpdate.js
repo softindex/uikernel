@@ -92,6 +92,16 @@ class GridToFormUpdate extends Events {
   listenerCount(event) {
     return this._adapter.model.listenerCount(event);
   }
+
+  /**
+   * Get all dependent fields, that are required for validation
+   *
+   * @param   {Array}  fields  Fields list
+   * @returns {Array}  Dependencies
+   */
+  getValidationDependency(fields) {
+    return this._adapter.model.getValidationDependency(fields);
+  }
 }
 
 /**
@@ -132,15 +142,5 @@ GridToFormUpdate.prototype.isValidRecord = callbackify(async function (record) {
   const model = this._adapter.model;
   return await toPromise(model.isValidRecord.bind(model))(record);
 });
-
-/**
- * Get all dependent fields, that are required for validation
- *
- * @param   {Array}  fields  Fields list
- * @returns {Array}  Dependencies
- */
-GridToFormUpdate.prototype.getValidationDependency = function (fields) {
-  return this._adapter.model.getValidationDependency(fields);
-};
 
 export default GridToFormUpdate;

@@ -8,9 +8,9 @@
 
 const browserModule = require('./browser');
 
-browserModule.gridExpressApi = require('./lib/grid/models/gridExpressApi');
-browserModule.listExpressApi = require('./lib/list/ListExpressApi');
-browserModule.formExpressApi = require('./lib/form/FormExpressApi');
+browserModule.gridExpressApi = require('./lib/grid/models/GridExpressApi').create;
+browserModule.listExpressApi = require('./lib/list/ListExpressApi').create;
+browserModule.formExpressApi = require('./lib/form/FormExpressApi').create;
 browserModule.createValidator = require('./lib/common/validation/validators/common').create;
 browserModule.toCSV = require('./lib/grid/export/exporters/toCSV');
 
