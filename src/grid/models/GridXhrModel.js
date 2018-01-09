@@ -23,21 +23,30 @@ import url from 'url';
  * @param {Function}  [settings.xhr]                    XHR interface
  * @constructor
  */
-const GridXhrModel = function (settings) {
-  AbstractGridModel.call(this);
+class GridXhrModel extends AbstractGridModel {
+  constructor(settings) {
+    super();
+    if (!settings.api) {
+      throw Error('Initialization problem: \'api\' must be specified.');
+    }
 
-  if (!settings.api) {
-    throw Error('Initialization problem: \'api\' must be specified.');
+    this._validator = settings.validator || new Validator();
+    this._xhr = settings.xhr || defaultXhr;
+    this._apiUrl = settings.api
+      .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
+      .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  this._validator = settings.validator || new Validator();
-  this._xhr = settings.xhr || defaultXhr;
-  this._apiUrl = settings.api
-    .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
-    .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
-};
-GridXhrModel.prototype = new AbstractGridModel();
-GridXhrModel.prototype.constructor = GridXhrModel;
+  /**
+   * Get all dependent fields, that are required for validation
+   *
+   * @param   {Array}  fields   Fields list
+   * @returns {Array}  Dependencies
+   */
+  getValidationDependency(fields) {
+    return this._validator.getValidationDependency(fields);
+  }
+}
 
 /**
  * Add a record
@@ -153,16 +162,6 @@ GridXhrModel.prototype.update = callbackify(async function (changes) {
 
   return body.changes.concat(body.errors);
 });
-
-/**
- * Get all dependent fields, that are required for validation
- *
- * @param   {Array}  fields   Fields list
- * @returns {Array}  Dependencies
- */
-GridXhrModel.prototype.getValidationDependency = function (fields) {
-  return this._validator.getValidationDependency(fields);
-};
 
 /**
  * Validation check

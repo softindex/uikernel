@@ -12,48 +12,74 @@ import Validator from '../../common/validation/validators/common';
 import AbstractGridModel from './AbstractGridModel';
 import utils from '../../common/utils';
 
-/**
- * Specifies a grid model that will work with array data passed to it as a parameter.
- *
- * @param {Object}    [options]
- * @param {Object[]}  [options.data]              Data array
- * @param {Function}  [options.filtersHandler]
- * @param {Validator} [options.validator]
- * @param {string[]}  [options.requiredFields]
- * @param {bool}      [options.validateOnCreate]
- * @constructor
- */
-const GridCollectionModel = function (options) {
-  AbstractGridModel.call(this);
+class GridCollectionModel extends AbstractGridModel {
+  /**
+   * Specifies a grid model that will work with array data passed to it as a parameter.
+   *
+   * @param {Object}    [options]
+   * @param {Object[]}  [options.data]              Data array
+   * @param {Function}  [options.filtersHandler]
+   * @param {Validator} [options.validator]
+   * @param {string[]}  [options.requiredFields]
+   * @param {bool}      [options.validateOnCreate]
+   * @constructor
+   */
+  constructor(options) {
+    super();
+    options = options || {};
 
-  options = options || {};
+    this.data = utils.cloneDeep(options.data) || [];
+    this._id = 1;
+    this._filtersHandler = options.filtersHandler;
+    if (options.validation) {
+      utils.warn('Property "validation" is deprecated, use "validator" instead');
+    }
+    this._validator = options.validator || options.validation || new Validator();
+    this._requiredFields = options.requiredFields || [];
+    this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
 
-  this.data = utils.cloneDeep(options.data) || [];
-  this._id = 1;
-  this._filtersHandler = options.filtersHandler;
-  if (options.validation) {
-    utils.warn('Property "validation" is deprecated, use "validator" instead');
+    // TODO Deprecated. Will be deleted in v0.17.0
+    if (!this._validateOnCreate) {
+      console.warn('Deprecated option "validateOnCreate".');
+    }
   }
-  this._validator = options.validator || options.validation || new Validator();
-  this._requiredFields = options.requiredFields || [];
-  this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
 
-  // TODO Deprecated. Will be deleted in v0.17.0
-  if (!this._validateOnCreate) {
-    console.warn('Deprecated option "validateOnCreate".');
+  /**
+   * Set data array in model
+   *
+   * @param {Object[]} data
+   */
+  setData(data) {
+    this.data = utils.cloneDeep(data);
   }
-};
-GridCollectionModel.prototype = new AbstractGridModel();
-GridCollectionModel.prototype.constructor = GridCollectionModel;
 
-/**
- * Set data array in model
- *
- * @param {Object[]} data
- */
-GridCollectionModel.prototype.setData = function (data) {
-  this.data = utils.cloneDeep(data);
-};
+  /**
+   * Get all dependent fields, that are required for validation
+   *
+   * @param   {Array}  fields   Fields list
+   * @returns {Array}  Dependencies
+   */
+  getValidationDependency(fields) {
+    return this._validator.getValidationDependency(fields);
+  }
+
+  _getID() {
+    while (this._getRecordByID(this._id)) {
+      this._id++;
+    }
+    return this._id++;
+  }
+
+  _getRecordByID(id) {
+    return utils.find(this.data, record => record[0] === id);
+  }
+
+  _create(record, id) {
+    this.data.push([id, record]);
+    this.trigger('create', id);
+    return id;
+  }
+}
 
 /**
  * Add a record to local collection
@@ -91,12 +117,6 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
     return this._create(clonedRecord, id);
   }
 });
-
-GridCollectionModel.prototype._create = function (record, id) {
-  this.data.push([id, record]);
-  this.trigger('create', id);
-  return id;
-};
 
 /**
  * Get records list
@@ -245,16 +265,6 @@ GridCollectionModel.prototype.update = callbackify(async function (changes) {
 });
 
 /**
- * Get all dependent fields, that are required for validation
- *
- * @param   {Array}  fields   Fields list
- * @returns {Array}  Dependencies
- */
-GridCollectionModel.prototype.getValidationDependency = function (fields) {
-  return this._validator.getValidationDependency(fields);
-};
-
-/**
  * Validation check
  *
  * @param {Object}      record
@@ -263,16 +273,5 @@ GridCollectionModel.prototype.getValidationDependency = function (fields) {
 GridCollectionModel.prototype.isValidRecord = callbackify(function (record) {
   return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
 });
-
-GridCollectionModel.prototype._getID = function () {
-  while (this._getRecordByID(this._id)) {
-    this._id++;
-  }
-  return this._id++;
-};
-
-GridCollectionModel.prototype._getRecordByID = function (id) {
-  return utils.find(this.data, record => record[0] === id);
-};
 
 export default GridCollectionModel;
