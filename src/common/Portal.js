@@ -25,8 +25,7 @@ class ChildrenWrapper extends React.Component {
 
   render() {
     return (
-      // TODO Veryha В ChildrenWrapper и не должны приходить пропсы 'onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'. Фильтровать их уровнем выше
-      <div {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}>
+      <div>
         {this.state.children}
       </div>
     );
@@ -35,11 +34,9 @@ class ChildrenWrapper extends React.Component {
 
 const portalClass = '__portal';
 
-// TODO Veryha Экспортировать сущности в конце файла
-export class Portal extends React.Component {
+class Portal extends React.Component {
   constructor(props) {
     super(props);
-    this._isDocumentEventOwner = this._isDocumentEventOwner.bind(this); // TODO Veryha Этот метод не нужно байндить
     this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
     this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
   }
@@ -54,7 +51,7 @@ export class Portal extends React.Component {
     this.portal = portal;
     ReactDOM.render(
       <ChildrenWrapper
-        {...this.props}
+        {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}
         style={this.props.styles}
         ref={(wrapper) => {
           this.wrapper = wrapper;
@@ -106,6 +103,7 @@ ChildrenWrapper.propTypes = {
 Portal.propTypes = {
   children: PropTypes.node,
   id: PropTypes.string,
+  styles: PropTypes.object,
   onDocumentMouseDown: PropTypes.func,
   onDocumentMouseScroll: PropTypes.func,
 };
