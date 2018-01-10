@@ -71,9 +71,9 @@ const propTypes = (() => {
     onSelectedChange: PropTypes.func,
     onSorting: PropTypes.func,
     multipleSorting: PropTypes.bool,
-    selectAllStatus: React.PropTypes.any,
-    onToggleSelected: React.PropTypes.func,
-    onToggleSelectAll: React.PropTypes.func,
+    selectAllStatus: PropTypes.any,
+    onToggleSelected: PropTypes.func,
+    onToggleSelectAll: PropTypes.func,
     defaultSort: (props, propName, ...rest) => {
       if (!props.defaultSort) {
         return;
