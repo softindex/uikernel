@@ -9,25 +9,25 @@
 class Form extends React.Component {
   constructor(props) {
     super(props);
-    this.formService = new UIKernel.Form();
+    this.form = new UIKernel.Form();
     this.state = {
-      form: this.formService.getAll()
+      form: this.form.getAll()
     };
     this.onFormChange = this.onFormChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.formService.init({
+    this.form.init({
       model: this.props.model, // Get FormModel from props
       fields: ['name', 'country', 'countryName'],
       changes: this.props.changes
     });
-    this.formService.addChangeListener(this.onFormChange);
+    this.form.addChangeListener(this.onFormChange);
   }
 
   componentWillUnmount() {
-    this.formService.removeChangeListener(this.onFormChange);
+    this.form.removeChangeListener(this.onFormChange);
   }
 
   onFormChange(newFormState) {
@@ -36,7 +36,7 @@ class Form extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.formService.submit()
+    this.form.submit()
       .then(() => {
         this.props.onSubmit();
       });
@@ -60,20 +60,22 @@ class Form extends React.Component {
           <div className="modal-body">
             <form>
               <table className="table my-form">
-                <tr
-                  className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.errors.hasError('country') ? ' error' : '')}
-                >
-                  <td>Country:</td>
-                  <td>
-                    <UIKernel.Editors.SuggestBox
-                      model={countries}
-                      onChange={() => this.formService.validateField('country')}
-                      onLabelChange={() => this.formService.updateField('countryName')}
-                      select={true}
-                      value={this.state.form.data.country}
-                    />
-                  </td>
-                </tr>
+                <tbody>
+                  <tr
+                    className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.fields.country.errors ? ' error' : '')}
+                  >
+                    <td>Country:</td>
+                    <td>
+                      <UIKernel.Editors.SuggestBox
+                        model={countries}
+                        onChange={this.form.validateField.bind(this.form, 'country')}
+                        onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
+                        select={true}
+                        value={this.state.form.data.country}
+                      />
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </form>
           </div>
