@@ -7,7 +7,6 @@
  */
 
 import utils from '../../common/utils';
-import React from 'react';
 import DOM from 'react-dom-factories';
 
 const GridColumnsMixin = {

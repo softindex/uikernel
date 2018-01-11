@@ -229,7 +229,7 @@ const GridComponent = createReactClass({
       }
     });
   },
-  renderScrollableGrid: function (gridClassNames) {
+  renderScrollableGrid(gridClassNames) {
     const header = this._formHeader();
     return (
       <div className={gridClassNames.join(' ')}>
@@ -267,7 +267,7 @@ const GridComponent = createReactClass({
           className='dgrid-body-wrapper dgrid-scrollable'
         >
           <div className="dgrid-body">
-            <div className="dgrid-loader" ref="loader"></div>
+            <div className="dgrid-loader" ref="loader"/>
             <table
               cellSpacing="0"
               ref="body"
@@ -285,12 +285,12 @@ const GridComponent = createReactClass({
       </div>
     );
   },
-  renderGrid: function (gridClassNames) {
+  renderGrid(gridClassNames) {
     const header = this._formHeader();
     gridClassNames = gridClassNames.concat('dgrid-not-scrollable');
     return (
       <div className={gridClassNames.join(' ')}>
-        <div className="dgrid-loader" ref="loader"></div>
+        <div className="dgrid-loader" ref="loader"/>
         <table
           cellSpacing="0"
           className="dgrid-body-table"
