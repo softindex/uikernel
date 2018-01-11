@@ -25,7 +25,7 @@ class ChildrenWrapper extends React.Component {
 
   render() {
     return (
-      <div>
+      <div {...this.props}>
         {this.state.children}
       </div>
     );

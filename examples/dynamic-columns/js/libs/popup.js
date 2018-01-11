@@ -18,9 +18,9 @@ const popup = {
     const innerContent = $el.find('.popup-inner-content').get(0); // find inner element by using class name
     $el.modal();
 
-    React.render(React.createElement(Component, props), innerContent, function () { // create react element
+    ReactDOM.render(React.createElement(Component, props), innerContent, function () { // create react element
       $(document).on('hide.bs.modal', function () {
-        React.unmountComponentAtNode(innerContent);
+        ReactDOM.unmountComponentAtNode(innerContent);
         $el.removeClass(className); // remove class name
       });
     });
