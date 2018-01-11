@@ -1,9 +1,11 @@
+- title: About UIKernel
+  items:
+  - id: overview
+    title: Overview
 - title: Quick Start
   items:
   - id: getting-started
     title: Getting Started
-  - id: overview
-    title: Overview
   - id: tutorial
     title: Tutorial
     subitems:
