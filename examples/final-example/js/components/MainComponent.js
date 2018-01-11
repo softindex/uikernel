@@ -15,11 +15,15 @@ const DEFAULT_FILTERS = {
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { model };
+    this.state = {
+      filters: DEFAULT_FILTERS,
+      model,
+    };
   }
 
-  applyFilters(filters) {
+  onFiltersChange(filters) {
     this.setState({
+      filters,
       model: UIKernel.applyGridFilters(model, filters)
     });
   }

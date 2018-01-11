@@ -37,7 +37,7 @@ class MainComponent extends React.Component {
               model={this.state.model} // Grid model
               cols={columns} // columns configuration
               viewCount={10}
-              realtime={true}
+              autoSubmit={true}
             />
           </div>
           <div className="col-sm-6">

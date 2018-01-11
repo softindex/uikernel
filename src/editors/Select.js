@@ -8,19 +8,21 @@
 
 import toPromise from '../common/toPromise';
 import React from 'react';
+import PropTypes from 'prop-types';
 import utils from '../common/utils';
 
 class SelectEditor extends React.Component {
   static propTypes = {
-    options: React.PropTypes.array,
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func
+    options: PropTypes.array,
+    model: PropTypes.shape({
+      read: PropTypes.func
     }),
-    disabled: React.PropTypes.bool,
-    onChange: React.PropTypes.func.isRequired,
-    onLabelChange: React.PropTypes.func,
-    value: React.PropTypes.any
+    disabled: PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
+    onLabelChange: PropTypes.func,
+    value: PropTypes.any
   };
+
   static defaultProps = {
     options: []
   };
@@ -72,7 +74,7 @@ class SelectEditor extends React.Component {
 
     return (
       <select
-        {...utils.omit(this.props, 'value')}
+        {...utils.omit(this.props, ['value', 'options'])}
         value={valueIndex}
         onChange={this::this.handleChange}
         disabled={this.props.disabled || this.state.loading}

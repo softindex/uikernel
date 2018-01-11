@@ -321,8 +321,7 @@ class FormService {
       this._setState();
     }
 
-    const errorsWithPartialChecking = this._getValidationErrors();
-    return errorsWithPartialChecking.isEmpty() ? null : errorsWithPartialChecking;
+    return this._getValidationErrors();
   }
 
   _getFields(data, changes) {

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
   tools: {
     width: 100,
     render: [function () {
@@ -17,13 +17,13 @@ var columns = {
       </center>';
     }],
     onClickRefs: {
-      create: function(event, recordId, record, grid) { // ref="create" click handler
-        var createPopup = Popup.open(RecordForm, {
+      create(event, recordId, record, grid) { // ref="create" click handler
+        const createPopup = Popup.open(RecordForm, {
           model: new UIKernel.Adapters.Grid.ToFormCreate(grid.getModel(), {
             name: '',
             surname: '',
             phone: '',
-            age: '',
+            age: null,
             gender: 1
           }),
           mode: 'create',
@@ -33,8 +33,8 @@ var columns = {
           }
         });
       },
-      edit: function(event, recordId, record, grid) { // ref="edit" click handler
-        var editPopup = Popup.open(RecordForm, {
+      edit(event, recordId, record, grid) { // ref="edit" click handler
+        const editPopup = Popup.open(RecordForm, {
           model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),
           mode: 'edit',
           changes: grid.getRecordChanges(recordId),
@@ -44,7 +44,7 @@ var columns = {
           }
         });
       },
-      remove: function (event, recordId, record, grid) { // ref="remove" click handler
+      remove(event, recordId, record, grid) { // ref="remove" click handler
         grid.getModel().delete(recordId, function (err) {
           if (!err) {
             grid.updateTable();
