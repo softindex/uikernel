@@ -14,7 +14,7 @@ import utils from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
 
 class FormService {
-  constructor() {
+  constructor(fields = null) {
     this._data = null;
     this._changes = null;
     this._errors = new ValidationErrors();
@@ -22,6 +22,7 @@ class FormService {
     this._warningsValidator = null;
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
+    this.fields = fields;
     this.validateForm = utils.throttle(this.validateForm.bind(this));
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
@@ -88,14 +89,24 @@ class FormService {
     const isLoaded = this._isLoaded();
 
     if (!isLoaded) {
-      return {
+      const emptyData = {
         isLoaded,
         data: {},
         originalData: {},
         changes: {},
-        errors: new ValidationErrors(),
+        fields: {},
         isSubmitting: false
       };
+      if (this.fields) {
+        for (const field of this.fields) {
+          emptyData.fields[field] = {
+            value: null,
+            isChanged: false,
+            errors: null
+          };
+        }
+      }
+      return emptyData;
     }
 
     const data = this._getData();

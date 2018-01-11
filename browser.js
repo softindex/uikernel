@@ -17,6 +17,7 @@ const Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
   Form: require('./lib/form/FormService'),
+  connectForm: require('./lib/form/connectForm'),
   createValidator: require('./lib/common/validation/validators/browser').create,
   createXhrValidator: require('./lib/common/validation/validators/XhrValidator').create,
   exportGridData: require('./lib/grid/export/exportGridData'),

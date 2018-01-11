@@ -23,7 +23,7 @@ class ListExpressApi {
 
   constructor() {
     this.middlewares = {
-      read: [asyncHandler(async(req, res, next) => {
+      read: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
         try {
           const response = await toPromise(::model.read)(req.query.v);

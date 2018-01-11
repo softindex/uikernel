@@ -88,9 +88,9 @@ describe('get all', () => {
   const defaultState = {
     isLoaded: false,
     data: {},
+    fields: {},
     originalData: {},
     changes: {},
-    errors: new ValidationErrors(),
     isSubmitting: false
   };
 
