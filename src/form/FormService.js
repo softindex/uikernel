@@ -48,7 +48,7 @@ class FormService {
    */
   async init(settings) {
     if (!settings.model) {
-      throw Error('You must specify the model form in this.init()');
+      throw Error('You must specify the model');
     }
 
     this._data = settings.data || null;
@@ -58,7 +58,6 @@ class FormService {
     this._partialErrorChecking = settings.partialErrorChecking; // Current mode
     this._partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
     this.model = settings.model; // FormModel
-    this.fields = settings.fields;
     this.submitAll = settings.submitAll;
     this._warningsValidator = settings.warningsValidator || new Validator();
 
@@ -67,6 +66,9 @@ class FormService {
     this.submitting = false;
     this._isNotInitialized = false;
 
+    if (settings.hasOwnProperty('fields')) {
+      this.fields = settings.fields;
+    }
     if (!this._data) {
       this._data = await toPromise(settings.model.getData.bind(settings.model))(settings.fields);
     }
