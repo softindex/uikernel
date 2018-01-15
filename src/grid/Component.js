@@ -48,8 +48,8 @@ const propTypes = (() => {
       update: PropTypes.func,
       isValidRecord: PropTypes.func,
       getValidationDependency: PropTypes.func,
-      on: PropTypes.func.isRequired,
-      off: PropTypes.func.isRequired
+      on: PropTypes.func,
+      off: PropTypes.func
     }),
     cols: PropTypes.object,
     viewColumns: PropTypes.oneOfType([
