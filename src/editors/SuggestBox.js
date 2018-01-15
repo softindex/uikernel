@@ -554,7 +554,7 @@ class SuggestBoxEditor extends React.Component {
           <input
             {...utils.omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
-                'select', 'notFoundElement', 'loadingElement', 'defaultLabel'])}
+                'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
             ref='input'
             type='text'
             onClick={this._openList}
