@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
 import callbackify from '../../common/callbackify';
 import utils from '../../common/utils';
 
@@ -21,9 +20,9 @@ function applyGridFilters(model, filters) {
     model = Object.getPrototypeOf(model);
   }
   return utils.decorate(model, {
-    read: callbackify(options => {
+    read: callbackify(async options => {
       options.filters = filters;
-      return toPromise(model.read.bind(model))(options);
+      return await model.read(options);
     })
   });
 }

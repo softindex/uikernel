@@ -51,6 +51,21 @@ class GridCollectionModel extends AbstractGridModel {
    */
   setData(data) {
     this.data = utils.cloneDeep(data);
+    this.trigger('create', data);
+  }
+
+  /**
+   * Remove field by record id from data
+   *
+   * @param   {Number}  recordId   record id for remove
+   * @returns {Number}  recordId   return id of deleted record
+   */
+  async delete(recordId) {
+    this.data = this.data.filter(record => {
+      return record[0] !== recordId;
+    });
+    this.trigger('delete', recordId);
+    return recordId;
   }
 
   /**
