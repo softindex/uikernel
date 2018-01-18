@@ -123,7 +123,6 @@ const GridComponent = React.createClass({
   getInitialState: function () {
     this._throttledUpdateTable = utils.throttle(this.updateTable);
     this._validateRow = utils.throttle(this._validateRow);
-    this._checkWarnings = utils.throttle(this._checkWarnings);
     return {
       page: this.props.page,
       viewCount: this.props.defaultViewCount,
