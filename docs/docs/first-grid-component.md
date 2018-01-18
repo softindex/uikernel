@@ -103,3 +103,9 @@ Finally, let's render `MainComponent` in a separate file.
 {% highlight javascript %}
 ReactDOM.render(<MainComponent/>, document.getElementById('example'));
 {% endhighlight %}
+
+Here you can play with the example
+
+<iframe style="width: 100%; height: 600px" src="https://embed.plnkr.co/TsWrGJgcU2MJIgIdyfb6/" frameborder="0" allowfullscren="allowfullscren"></iframe>
+
+

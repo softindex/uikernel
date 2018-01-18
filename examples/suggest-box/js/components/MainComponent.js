@@ -36,7 +36,7 @@ class MainComponent extends React.Component {
         />
         <a className="btn btn-success" onClick={this.saveChanges}>Save</a>
         {' '}
-        <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+        <a className="btn btn-default" onClick={this.clearChanges}>Clear</a>
       </div>
     );
   }

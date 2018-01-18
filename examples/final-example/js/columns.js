@@ -7,32 +7,28 @@
  */
 
 const columns = {
-  tools: {
-    width: 100,
-    render: [function () {
-      return '<center>\
-        <a href="javascript:void(0)" ref="create" class="text-success action"><span class="glyphicon glyphicon-file"></span></a>\
-        <a href="javascript:void(0)" ref="edit" class="text-info action"><span class="glyphicon glyphicon-pencil"></span></a>\
-        <a href="javascript:void(0)" ref="remove" class="text-danger action"><span class="glyphicon glyphicon-remove"></span></a>\
-      </center>';
+  bulk: {
+    width: '40px',
+    className: 'text-center',
+    render: [(record, selected) => {
+      return '<input ref="checkbox" type="checkbox"' + (selected ? ' checked' : '') + '/>';
     }],
     onClickRefs: {
-      create(event, recordId, record, grid) { // ref="create" click handler
-        const createPopup = Popup.open(RecordForm, {
-          model: new UIKernel.Adapters.Grid.ToFormCreate(grid.getModel(), {
-            name: '',
-            surname: '',
-            phone: '',
-            age: null,
-            gender: 1
-          }),
-          mode: 'create',
-          onSubmit(recordId) {
-            createPopup.close();
-            grid.addRecordStatus(recordId, 'new');
-          }
-        });
-      },
+      checkbox: (function (event, recordId, record, grid) {
+        grid.toggleSelected(recordId); // toggle our record id
+      })
+    }
+  },
+  tools: {
+    width: 70,
+    className: 'text-center',
+    render: [function () {
+      return '<div>\
+        <a href="javascript:void(0)" ref="edit" class="text-info action"><span class="glyphicon glyphicon-pencil"></span></a>\
+        <a href="javascript:void(0)" ref="remove" class="text-danger action"><span class="glyphicon glyphicon-remove"></span></a>\
+      </div>';
+    }],
+    onClickRefs: {
       edit(event, recordId, record, grid) { // ref="edit" click handler
         const editPopup = Popup.open(RecordForm, {
           model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),

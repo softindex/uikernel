@@ -48,7 +48,7 @@ class MainComponent extends React.Component {
               cols={columns}
               viewCount={10}
             />
-            <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+            <a className="btn btn-default" onClick={this.clearChanges}>Clear</a>
             {' '}
             <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
           </div>

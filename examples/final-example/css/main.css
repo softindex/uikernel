@@ -25,3 +25,19 @@
 .padding0 {
   padding: 0;
 }
+
+.btn .pull-left {
+  margin-right: 15px;
+}
+
+.btn .pull-right {
+  margin-left: 15px;
+}
+
+.btn .pull-left {
+  margin-right: 15px;
+}
+
+.btn .pull-right {
+  margin-left: 15px;
+}

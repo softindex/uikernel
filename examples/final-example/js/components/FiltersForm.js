@@ -55,8 +55,8 @@ class FiltersForm extends React.Component {
         </div>
         <div className="form-group">
           <div className="col-sm-offset-3 col-sm-9">
-            <a className="btn btn-success" onClick={() => this.props.onClear()}>
-              Clear
+            <a className="btn btn-default" onClick={() => this.props.onClear()}>
+              Clear filters
             </a>
           </div>
         </div>
