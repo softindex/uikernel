@@ -32,7 +32,7 @@ class FormExpressApi {
         const model = this._getModel(req, res);
         try {
           const data = await toPromise(::model.submit)(req.body);
-          this._result(null, data, req, res, next);
+          this._result(null, {data: data, error: null}, req, res, next);
         } catch (err) {
           if (err && !(err instanceof ValidationErrors)) {
             this._result(err, null, req, res, next);
