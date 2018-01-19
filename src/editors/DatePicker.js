@@ -15,7 +15,6 @@ import {omit} from '../common/utils';
 class DatePickerEditor extends React.Component {
   static propTypes = {
     format: PropTypes.string,
-    className: PropTypes.string,
     textFormat: PropTypes.string,
     min: PropTypes.any,
     max: PropTypes.any,
