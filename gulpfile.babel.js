@@ -12,22 +12,25 @@ import jsPrecompile from './gulp/jsPrecompile';
 import jsClear from './gulp/jsClear';
 import archive from './gulp/archive';
 import jsBundle from './gulp/jsBundle';
+import styleBundle from './gulp/styleBundle';
 import addLicense from './gulp/addLicense';
 import deploySite from './gulp/deploySite';
 import buildSite from './gulp/buildSite';
 import release from './gulp/release';
 import clearOldLibFiles from './gulp/clearOldLibFiles';
 
-gulp.task('default', ['lib']);
-gulp.task('bundle', ['license'], jsBundle);
 gulp.task('release', release);
-
-gulp.task('license', ['lib'], addLicense);
-gulp.task('lib', ['detectErrors'], jsPrecompile);
-gulp.task('detectErrors', ['clearOldLibFiles', 'clear'], jsDetectErrors);
-gulp.task('clearOldLibFiles', clearOldLibFiles);
 gulp.task('clear', jsClear);
+gulp.task('clearOldLibFiles', clearOldLibFiles);
+gulp.task('styleBundle', styleBundle);
 
-gulp.task('deploySite', ['buildSite'], deploySite);
-gulp.task('buildSite', ['archive'], buildSite);
-gulp.task('archive', ['bundle'], archive);
+gulp.task('detectErrors', gulp.series(['clearOldLibFiles', jsDetectErrors]));
+gulp.task('lib', gulp.series(['detectErrors', jsPrecompile]));
+gulp.task('license', gulp.series(['lib', addLicense]));
+gulp.task('jsBundle', gulp.series(['license', jsBundle]));
+gulp.task('bundle', gulp.series(['clear', gulp.parallel(['jsBundle', 'styleBundle'])]));
+gulp.task('archive', gulp.series(['bundle', archive]));
+gulp.task('buildSite', gulp.series(['archive', buildSite]));
+gulp.task('deploySite', gulp.series(['buildSite', deploySite]));
+
+gulp.task('default', gulp.series('lib'));

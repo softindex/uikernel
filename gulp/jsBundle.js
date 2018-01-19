@@ -24,11 +24,6 @@ function jsBundle() {
         'react': 'React',
         'react-dom': 'ReactDOM'
       },
-      module: {
-        loaders: [
-          { test: /\.css$/, loader: 'style-loader!css-loader' }
-        ]
-      },
       devtool: argv.map ? 'eval' : false
     }))
     .pipe(rename(packageInfo.name + '.js'))

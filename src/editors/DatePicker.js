@@ -10,6 +10,7 @@ import React from 'react';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import {omit} from '../common/utils';
 
 class DatePickerEditor extends React.Component {
   static propTypes = {
@@ -41,18 +42,18 @@ class DatePickerEditor extends React.Component {
   }
 
   render() {
+    const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max']);
     return (
-    <DatePicker
-      ref="picker"
-      className={this.props.className}
-      dateFormat={this.props.textFormat}
-      selected={this.props.value && moment(this.props.value)}
-      onChange={::this.onChange}
-      onBlur={this.props.onBlur}
-      minDate={this.props.min && moment(this.props.min)}
-      maxDate={this.props.max && moment(this.props.max)}
-      todayButton={'Today'}
-    />
+      <DatePicker
+        ref="picker"
+        {...otherProps}
+        dateFormat={this.props.textFormat}
+        selected={this.props.value && moment(this.props.value)}
+        onChange={::this.onChange}
+        minDate={this.props.min && moment(this.props.min)}
+        maxDate={this.props.max && moment(this.props.max)}
+        todayButton={'Today'}
+      />
     );
   }
 }
