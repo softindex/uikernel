@@ -54,6 +54,8 @@ class NumberEditor extends React.Component {
   _onKeyPressHandler(e) {
     const keyCode = e.keyCode || e.which;
     const char = String.fromCharCode(keyCode);
+
+    // Problem in FireFox. Allow write only numbers
     if (!/\d|\+|-|[Ee]|\./.test(char)) {
       e.preventDefault();
     }
