@@ -86,7 +86,7 @@ const GridUIMixin = {
    * Fetch server data
    */
   updateTable: callbackify(async function () {
-    this._showLoader(true);
+    this.setState({showLoader: true});
 
     if (!this.props.model) {
       return;
@@ -143,18 +143,8 @@ const GridUIMixin = {
     });
 
     this._renderBody();
-    this._showLoader(false);
+    this.setState({showLoader: false});
   }),
-
-  /**
-   * Show/hide loading icon
-   *
-   * @param {boolean} show True - Show, False - Hide
-   * @private
-   */
-  _showLoader: function (show) {
-    findDOMNode(this.refs.loader).classList.toggle('dgrid-loader', show);
-  },
 
   _getHeaderCellHTML: function (columnName) {
     const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
@@ -265,7 +255,7 @@ and escape "${columnId}" field in render function by yourself`
       }
     }
 
-    findDOMNode(this.refs.tbody).innerHTML = htmlExtra + htmlBody;
+    this.tBody.innerHTML = htmlExtra + htmlBody;
   },
 
   /**
@@ -289,7 +279,7 @@ and escape "${columnId}" field in render function by yourself`
   },
 
   _removeTR: function (rowId) {
-    this.refs.body.removeRow(rowId);
+    findDOMNode(this.body).removeRow(rowId);
   },
 
   _renderTotals: function _renderTotals(isScrollable) {
@@ -343,7 +333,7 @@ and escape "${columnId}" field in render function by yourself`
   },
 
   _updateField: function (rowId, column) {
-    const cell = findDOMNode(this.refs.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
+    const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
     cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId));
     cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
     const cellClassList = [];

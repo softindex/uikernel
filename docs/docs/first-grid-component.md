@@ -6,7 +6,7 @@ next: sorting-and-pagination.html
 ---
 
 * [Live demo](/examples/first-grid-component/){:target="_blank"}
-* [Code]({{ site.github }}examples/first-grid-component){:target="_blank"}
+* [Code](https://embed.plnkr.co/TsWrGJgcU2MJIgIdyfb6/){:target="_blank"}
 
 
 First, let's create a client model for our grid and pass it some fake data.
@@ -97,15 +97,9 @@ class MainComponent extends React.Component {
 }
 {% endhighlight %}
 
-Finally, let's render `MainComponent` in a separate file.
+Finally, let's render `MainComponent`.
 
 `main.js`:
 {% highlight javascript %}
 ReactDOM.render(<MainComponent/>, document.getElementById('example'));
 {% endhighlight %}
-
-Here you can play with the example
-
-<iframe style="width: 100%; height: 600px" src="https://embed.plnkr.co/TsWrGJgcU2MJIgIdyfb6/" frameborder="0" allowfullscren="allowfullscren"></iframe>
-
-

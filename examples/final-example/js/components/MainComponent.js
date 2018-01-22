@@ -115,10 +115,9 @@ class MainComponent extends React.Component {
           </a>
           <a className="btn btn-success" onClick={() => this.toggleSelectMode()}>{buttonText}</a>
           {numText}
-          <a className="btn btn-default pull-right" onClick={() => this.onClear()}>Clear changes</a>
+          <a className="btn pull-right btn-default" onClick={() => this.onClear()}>Clear changes</a>
           {' '}
-          <a className="btn btn-primary pull-right" onClick={() => this.onSave()}>Save</a>
-
+          <a className="btn pull-right btn-primary" onClick={() => this.onSave()}>Save</a>
         </div>
       </div>,
       <div className="panel">
@@ -126,7 +125,7 @@ class MainComponent extends React.Component {
           <h3 className="panel-title">Add record</h3>
         </div>
         <div className="panel-body">
-          <CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>
+          {/*<CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>*/}
         </div>
       </div>
     ];

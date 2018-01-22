@@ -323,3 +323,8 @@ a:hover {
   background-color: #2B2B2B;
   color: white;
 }
+
+h3 i.fa {
+  color: #00a6e2;
+  margin-left: .5em;
+}

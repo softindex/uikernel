@@ -10,38 +10,26 @@ redirect_from: "docs/index.html"
 Download the starter kit to get started.
 
 <center>
-  <a href="/dist/starter-kit.zip" class="btn btn-lg btn-success download-uikernel-button">
+  <a href="/dist/create-react-app-starter-kit.zip" class="btn btn-lg btn-success download-uikernel-button">
     Download Starter Kit {{ site.uikernel_version }}
   </a>
 </center>
 
-Open up `getting-started/index.html`. It has the following contents:
+To get starter follow follow next steps:
 
-{% highlight html %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-    <title>Getting Started</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="../libs/css/base/main.css" rel="stylesheet" type="text/css"/>
-    <link href="css/main.css" rel="stylesheet" type="text/css"/>
-</head>
-<body>
-<div class="container" id="example"></div>
+1. Install Create React App. It sets up your development environment so that you can use the latest React features. You’ll need to have Node >= 6 on your machine.
+`npm install -g create-react-app
+ create-react-app try-uikernel`
+2. Go to `try-uikernel` directory and open the project in your favourite editor.
+3. In file `package.json`  add line `"uikernel": "git+ssh://git@github.com/softindex/uikernel.git#v1.0.0"` to "dependencies" list and run `npm install`
+4. In `src` directory create files `model.js` and `columns.js`.
+5. Open up `src/model.js` and define a model.
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
-<script src="../libs/js/uikernel.js"></script>
-
-<!-- Grid model -->
-<script type="text/babel">
-  const model = new UIKernel.Models.Grid.Collection({
+ {% highlight javascript %}
+ const model = new UIKernel.Models.Grid.Collection({
     data: [
       [1, {
-        name: 'Pace',
+        name: 'Pace',libs
         surname: 'White',
         age: 20
       }],
@@ -57,11 +45,12 @@ Open up `getting-started/index.html`. It has the following contents:
       }]
     ]
   });
-</script>
+ {% endhighlight %}
+{:start="6"}
+6. Open `src/columns.js` and add columns. Columns data is listed as an object.
 
-<!-- Grid columns -->
-<script type="text/babel">
-  const columns = {
+{% highlight javascript %}
+const columns = {
     name: {
       name: 'First Name',
       render: ['name', record => record.name]
@@ -75,25 +64,37 @@ Open up `getting-started/index.html`. It has the following contents:
       render: ['age', record => record.age]
     }
   };
-</script>
-
-<!-- Main part - grid to render -->
-<script type="text/babel">
-  ReactDOM.render(
-    <UIKernel.Grid
-      cols={columns}
-      model={model}
-    />
-    , document.getElementById('example'));
-</script>
-</body>
-</html>
+{% endhighlight%}
+{:start="7"}
+7. `src/index.js` is the main React entry point, where we render our first `UIKernel.Grid`. Replace
+{% highlight javascript %}
+ReactDOM.render(<App />, document.getElementById('root'));
 {% endhighlight %}
 
-Here, we've included the required libraries - React, JQuery and UIKernel.
-Next, let's take a closer look on each of  `script` tag content.
+with
 
-`main` is the main React entry point where we render our first `UIKernel.Grid`.
+{% highlight javascript %}
+ReactDOM.render(
+    <UIKernel.Grid
+        cols={columns}
+        model={model}
+    />
+    , document.getElementById('root'));
+{% endhighlight %}
+{:start="8"}
+8. The last thing to make it work are appropriate imports, so in the beginning add lines:
+
+{% highlight javascript %}
+import UIKernel from 'uikernel';
+import columns from './columns';
+import model from './model';
+{% endhighlight %}
+{:start="9"}
+9. Try your work by command `npm start`
+
+Next, let's take a closer look on each of file content.
+
+`index` is the main React entry point where we render our first `UIKernel.Grid`.
 
 As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
 

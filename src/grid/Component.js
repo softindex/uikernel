@@ -152,7 +152,8 @@ const GridComponent = createReactClass({
       editor: {},
       colsWithEscapeErrors: {},
       selectBlackListMode: false,
-      selected: this.props.selected
+      selected: this.props.selected,
+      showLoader: false
     };
   },
   componentDidMount: function () {
@@ -267,14 +268,14 @@ const GridComponent = createReactClass({
           className='dgrid-body-wrapper dgrid-scrollable'
         >
           <div className="dgrid-body">
-            <div className="dgrid-loader" ref="loader"/>
+            <div className={this.state.showLoader ? 'dgrid-loader' : ''} ref={(loader) => this.loader = loader }/>
             <table
               cellSpacing="0"
-              ref="body"
+              ref={(body) => this.body = body }
               onClick={this._handleBodyClick}
             >
               <colgroup>{header.colGroup}</colgroup>
-              <tbody className="dgrid-body-table" ref="tbody"/>
+              <tbody className="dgrid-body-table" ref={(tbody) => this.tBody = tbody }/>
             </table>
           </div>
         </div>
@@ -290,11 +291,11 @@ const GridComponent = createReactClass({
     gridClassNames = gridClassNames.concat('dgrid-not-scrollable');
     return (
       <div className={gridClassNames.join(' ')}>
-        <div className="dgrid-loader" ref="loader"/>
+        <div className={this.state.showLoader ? 'dgrid-loader' : ''} ref={(loader) => this.loader = loader }/>
         <table
           cellSpacing="0"
           className="dgrid-body-table"
-          ref="body"
+          ref={(body) => this.body = body }
           onClick={this._handleBodyClick}
         >
           <colgroup>{header.colGroup}</colgroup>
@@ -325,7 +326,7 @@ const GridComponent = createReactClass({
               );
             })}
           </thead>
-          <tbody className="dgrid-body-table" ref="tbody"/>
+          <tbody className="dgrid-body-table" ref={(tbody) => this.tBody = tbody }/>
           {this._renderTotals(this.props.height)}
         </table>
         {this._renderPagination()}
