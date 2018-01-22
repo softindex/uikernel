@@ -274,7 +274,6 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
-    findDOMNode(this.refs.input).select();
   }
 
   _focusOption(key, shouldSetLabel) {
