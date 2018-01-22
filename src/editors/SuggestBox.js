@@ -354,7 +354,6 @@ class SuggestBoxEditor extends React.Component {
   _isParentOf(child) {
     while (child) {
       child = child.parentNode;
-      console.log(child, $(child).parent().get(0));
       if (child === findDOMNode(this)) {
         return true;
       }
