@@ -50,8 +50,15 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object[]} data
    */
   setData(data) {
+    const newIds = data.map(elem => elem[0]);
+    const currentIds = this.data.map(elem => elem[0]);
+    const createdIds = utils.without(newIds, currentIds);
+    const deletedIds = utils.without(currentIds, newIds);
+    const updatedIds = utils.without(currentIds, deletedIds);
     this.data = utils.cloneDeep(data);
-    this.trigger('create', data);
+    this.trigger('create', createdIds);
+    this.trigger('delete', deletedIds);
+    this.trigger('update', updatedIds);
   }
 
   /**

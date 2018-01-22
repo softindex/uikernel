@@ -236,31 +236,31 @@ const GridComponent = React.createClass({
           <table cellSpacing="0" className="dgrid-header">
             <colgroup>{header.colGroup}</colgroup>
             <thead>
-            {header.cols.map((row, colKey) => {
-              return (
-                <tr key={colKey}>
-                  {row.map((col, rowKey) => {
-                    const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
-                    const props = {
-                      key: rowKey,
-                      className: col.className,
-                      onClick: col.sort ? this._sortCol.bind(this, col.field) :
-                        this._handleHeaderCellClick.bind(this, col),
-                      colSpan: col.cols,
-                      rowSpan: col.rows
-                    };
-                    return (
-                      typeof header === 'string' ?
-                        <th
-                          {...props}
-                          dangerouslySetInnerHTML={{
-                            __html: header
-                          }}/>
-                        : <th {...props}>{header}</th>);
-                  })}
-                </tr>
-              );
-            })}
+              {header.cols.map((row, colKey) => {
+                return (
+                  <tr key={colKey}>
+                    {row.map((col, rowKey) => {
+                      const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
+                      const props = {
+                        key: rowKey,
+                        className: col.className,
+                        onClick: col.sort ? this._sortCol.bind(this, col.field) :
+                          this._handleHeaderCellClick.bind(this, col),
+                        colSpan: col.cols,
+                        rowSpan: col.rows
+                      };
+                      return (
+                        typeof header === 'string' ?
+                          <th
+                            {...props}
+                            dangerouslySetInnerHTML={{
+                              __html: header
+                            }}/>
+                          : <th {...props}>{header}</th>);
+                    })}
+                  </tr>
+                );
+              })}
             </thead>
           </table>
         </div>
