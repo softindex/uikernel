@@ -5,27 +5,23 @@ next: overview.html
 redirect_from: "docs/index.html"
 ---
 
-## Starter Kit
+To get started follow next steps:
 
-Download the starter kit to get started.
+1. Install Create React App and go to the created directory
 
-<center>
-  <a href="/dist/create-react-app-starter-kit.zip" class="btn btn-lg btn-success download-uikernel-button">
-    Download Starter Kit {{ site.uikernel_version }}
-  </a>
-</center>
+{% highlight bash %}
+npm install -g create-react-app
+create-react-app try-uikernel
+cd try-uikernel
+{% endhighlight%}
+{:start="2"}
 
-To get starter follow follow next steps:
-
-1. Install Create React App. It sets up your development environment so that you can use the latest React features. You’ll need to have Node >= 6 on your machine.
-`npm install -g create-react-app
- create-react-app try-uikernel`
-2. Go to `try-uikernel` directory and open the project in your favourite editor.
-3. In file `package.json`  add line `"uikernel": "git+ssh://git@github.com/softindex/uikernel.git#v1.0.0"` to "dependencies" list and run `npm install`
-4. In `src` directory create files `model.js` and `columns.js`.
-5. Open up `src/model.js` and define a model.
+2. In file `package.json`  add line `"uikernel": "git+ssh://git@github.com/softindex/uikernel.git#v1.0.0"` to "dependencies" list and run `npm install`
+3. Open up `src/index.js` and paste next code after `import`s
 
  {% highlight javascript %}
+ import UIKernel from 'uikernel';
+
  const model = new UIKernel.Models.Grid.Collection({
     data: [
       [1, {
@@ -45,12 +41,8 @@ To get starter follow follow next steps:
       }]
     ]
   });
- {% endhighlight %}
-{:start="6"}
-6. Open `src/columns.js` and add columns. Columns data is listed as an object.
 
-{% highlight javascript %}
-const columns = {
+ const columns = {
     name: {
       name: 'First Name',
       render: ['name', record => record.name]
@@ -64,33 +56,27 @@ const columns = {
       render: ['age', record => record.age]
     }
   };
-{% endhighlight%}
-{:start="7"}
-7. `src/index.js` is the main React entry point, where we render our first `UIKernel.Grid`. Replace
-{% highlight javascript %}
-ReactDOM.render(<App />, document.getElementById('root'));
-{% endhighlight %}
 
-with
+ {% endhighlight %}
+ Replace
 
-{% highlight javascript %}
-ReactDOM.render(
-    <UIKernel.Grid
-        cols={columns}
-        model={model}
-    />
-    , document.getElementById('root'));
-{% endhighlight %}
-{:start="8"}
-8. The last thing to make it work are appropriate imports, so in the beginning add lines:
+ {% highlight javascript %}
+ ReactDOM.render(<App />, document.getElementById('root'));
+ {% endhighlight %}
 
-{% highlight javascript %}
-import UIKernel from 'uikernel';
-import columns from './columns';
-import model from './model';
-{% endhighlight %}
-{:start="9"}
-9. Try your work by command `npm start`
+ with
+
+ {% highlight javascript %}
+ ReactDOM.render(
+     <UIKernel.Grid
+         cols={columns}
+         model={model}
+     />
+     , document.getElementById('root'));
+ {% endhighlight %}
+
+{:start="4"}
+4. Try your work by command `npm start`
 
 Next, let's take a closer look on each of file content.
 
@@ -102,7 +88,7 @@ Columns data is listed as an object.
 
 Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
-And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}/examples/getting-started){:target="_blank"}.
+And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code](https://embed.plnkr.co/TsWrGJgcU2MJIgIdyfb6/){:target="_blank"}.
 
 ## Want CommonJS?
 

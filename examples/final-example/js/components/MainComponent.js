@@ -125,7 +125,7 @@ class MainComponent extends React.Component {
           <h3 className="panel-title">Add record</h3>
         </div>
         <div className="panel-body">
-          {/*<CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>*/}
+          <CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>
         </div>
       </div>
     ];
