@@ -172,11 +172,13 @@ class SuggestBoxEditor extends React.Component {
       });
     }
 
-    const $popup = $('#' + popupId);
-    $popup.find('.__suggestBoxPopUp-content')
-      .css('bottom', 'auto')
-      .css('position', 'static');
-
+    const content = document.querySelector(`${popupId} .__suggestBoxPopUp-content`);
+    if (content) {
+      content.style = {
+        bottom: 'auto',
+        position: 'static'
+      };
+    }
     this._scrollListTo();
   }
 
@@ -277,9 +279,15 @@ class SuggestBoxEditor extends React.Component {
 
   _focusOptionAndScrollIntoView(key) {
     this.state.selectedOptionKey = key;
-    $(`.${classes.optionFocused}`).removeClass(classes.optionFocused);
-    $(`.${classes.option}[data-key="${key}"]`).addClass(classes.optionFocused);
-    const domOption = $(`#${popupId} li[data-key="${key}"]`).get(0);
+    const focusedItems = document.querySelector(`.${classes.optionFocused}`);
+    const currentItem = document.querySelector(`.${classes.option}[data-key="${key}"]`);
+    if (focusedItems) {
+      focusedItems.classList.remove(classes.optionFocused);
+    }
+    if (currentItem) {
+      currentItem.classList.add(classes.optionFocused);
+    }
+    const domOption = document.querySelectorAll(`#${popupId} li[data-key="${key}"]`)[0];
     this._scrollListTo(domOption);
   }
 
@@ -326,7 +334,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _scrollListTo(target) {
-    const container = $(`#${popupId}`).get(0);
+    const container = document.querySelector(`#${popupId}:first-child`);
     if (!container) {
       return;
     }
@@ -345,7 +353,8 @@ class SuggestBoxEditor extends React.Component {
 
   _isParentOf(child) {
     while (child) {
-      child = $(child).parent().get(0);
+      child = child.parentNode;
+      console.log(child, $(child).parent().get(0));
       if (child === findDOMNode(this)) {
         return true;
       }
@@ -357,17 +366,18 @@ class SuggestBoxEditor extends React.Component {
     if (e.button !== 0) {
       return;
     }
-    let $target = $(e.target);
+    let target = e.target;
     if (isOwner) {
-      if (!$target.hasClass(classes.option)) {
-        $target = $target.parent();
+      if (!target.classList.contains(classes.option)) {
+        target = target.parentNode;
       }
-      if ($target.hasClass(classes.optionSelectable) && this.state.isOpened) {
-        this._selectOption(this.state.options[$target.attr('data-key')]);
+      if (target.classList.contains(classes.optionSelectable) && this.state.isOpened) {
+        this._selectOption(this.state.options[target.getAttribute('data-key')]);
         this._closeList(true);
       }
     } else {
-      if (!$target.parents(`.${classes.searchBlock}`).length) {
+      // q where to test
+      if (!utils.parents(target, `.${classes.searchBlock}`).length) {
         if (!findDOMNode(this.refs.input).value) {
           this._selectOption(null);
         } else {
@@ -444,12 +454,12 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _setPopupStyles() {
-    const $input = $(findDOMNode(this.refs.input));
+    const inputStyles = window.getComputedStyle(findDOMNode(this.refs.input));
     let popupStyle = {};
 
     const inputOffset = findDOMNode(this.refs.input).getBoundingClientRect();
-    const inputWidth = $input.css('width');
-    const inputHeight = $input.css('height');
+    const inputWidth = inputStyles.width;
+    const inputHeight =inputStyles.height;
 
     let offsetTop = inputOffset.top + parseInt(inputHeight);
     const offsetLeft = inputOffset.left;
@@ -554,7 +564,7 @@ class SuggestBoxEditor extends React.Component {
           <input
             {...utils.omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
-                'select', 'notFoundElement', 'loadingElement', 'defaultLabel'])}
+                'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
             ref='input'
             type='text'
             onClick={this._openList}

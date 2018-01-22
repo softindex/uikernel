@@ -14,20 +14,21 @@ const popup = {
      props - initial properties
      className - the class name of a modal window when it is open
      */
-    const $el = $('#popup').addClass(className);// get modal dialog by id
-    const innerContent = $el.find('.popup-inner-content').get(0); // find inner element by using class name
-    $el.modal();
+    const el = document.getElementById('popup');
+    el.classList.add(className);
+    const innerContent = el.querySelector('.popup-inner-content:first-child');
 
-    ReactDOM.render(React.createElement(Component, props), innerContent, () => { // create react element
-      $(document).on('hide.bs.modal', () => {
+    $(el).modal();
+    ReactDOM.render(<Component {...props}/>, innerContent, () => {
+      document.addEventListener('hide.bs.modal', function () {
         ReactDOM.unmountComponentAtNode(innerContent);
-        $el.removeClass(className); // remove class name
+        el.classList.remove(className);
       });
     });
 
     return {
       close() {
-        $el.modal('hide'); // close our modal
+        $(el).modal('hide');
       }
     };
   }

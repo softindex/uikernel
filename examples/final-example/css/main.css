@@ -25,3 +25,10 @@
 .padding0 {
   padding: 0;
 }
+
+div.panel-footer a.btn {
+  margin: 0 10px 0 0;
+}
+.btn .pull-right {
+  margin: 0 0 0 10px;
+}
