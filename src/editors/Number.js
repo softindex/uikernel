@@ -34,7 +34,7 @@ class NumberEditor extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
-      findDOMNode(this.refs.input).value = this.state.value = nextProps.value;
+      findDOMNode(this.input).value = this.state.value = nextProps.value;
     }
   }
 

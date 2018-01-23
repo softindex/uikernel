@@ -196,7 +196,7 @@ class SuggestBoxEditor extends React.Component {
       loading: true,
       popupStyles: this._setPopupStyles()
     }, () => {
-      findDOMNode(this.refs.input).select();
+      findDOMNode(this.input).select();
       this._updateList(searchPattern) // TODO Handle errors
         .then(() => {
           if (!this.state.options.length) {
@@ -222,7 +222,7 @@ class SuggestBoxEditor extends React.Component {
 
   _onInputFocus(e) {
     this._openList();
-    findDOMNode(this.refs.input).select();
+    findDOMNode(this.input).select();
     if (this.props.onFocus) {
       this.props.onFocus(e);
     }
@@ -230,7 +230,7 @@ class SuggestBoxEditor extends React.Component {
 
   _closeList(shouldBlur) {
     if (shouldBlur) {
-      findDOMNode(this.refs.input).blur();
+      findDOMNode(this.input).blur();
     }
     if (!this.state.isOpened || !this._isMounted) {
       return;
@@ -263,7 +263,7 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
-    findDOMNode(this.refs.input).select();
+    findDOMNode(this.input).select();
   }
 
   _focusOption(key, shouldSetLabel) {
@@ -377,7 +377,7 @@ class SuggestBoxEditor extends React.Component {
     } else {
       // q where to test
       if (!utils.parents(target, `.${classes.searchBlock}`).length) {
-        if (!findDOMNode(this.refs.input).value) {
+        if (!findDOMNode(this.input).value) {
           this._selectOption(null);
         } else {
           this._setLabelTo(this.state.lastValidLabel);
@@ -453,10 +453,10 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _setPopupStyles() {
-    const inputStyles = window.getComputedStyle(findDOMNode(this.refs.input));
+    const inputStyles = window.getComputedStyle(findDOMNode(this.input));
     let popupStyle = {};
 
-    const inputOffset = findDOMNode(this.refs.input).getBoundingClientRect();
+    const inputOffset = findDOMNode(this.input).getBoundingClientRect();
     const inputWidth = inputStyles.width;
     const inputHeight =inputStyles.height;
 
@@ -486,7 +486,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   focus() {
-    findDOMNode(this.refs.input).focus();
+    findDOMNode(this.input).focus();
   }
 
   render() {
@@ -564,7 +564,7 @@ class SuggestBoxEditor extends React.Component {
             {...utils.omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
                 'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
-            ref='input'
+            ref={(input) => this.input = input }
             type='text'
             onClick={this._openList}
             onFocus={this._onInputFocus}

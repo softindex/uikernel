@@ -90,7 +90,7 @@ const GridStatusesMixin = {
     }
 
     // Remove element's class
-    const elem = findDOMNode(this.refs.body).querySelector(`tr[key="${rowId}"]`);
+    const elem = findDOMNode(this.body).querySelector(`tr[key="${rowId}"]`);
     elem && elem.classList.remove(status);
   },
 
@@ -148,7 +148,7 @@ const GridStatusesMixin = {
         delete this.state.statuses[i];
       }
     }
-    const elem = findDOMNode(this.refs.body).querySelector(`.dgrid-body tr.${status}`);
+    const elem = findDOMNode(this.body).querySelector(`.dgrid-body tr.${status}`);
     elem && elem.classList.remove(status);
   },
 
