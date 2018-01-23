@@ -128,17 +128,18 @@ const GridUIMixin = {
 
     const data = this._dataArrayToObject(obj.records);
     const extra = this._dataArrayToObject(obj.extraRecords || []);
-    const recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
+    const rowIds = Object.keys(data.records).concat(Object.keys(extra.records)).map(utils.toEncodedString);
+    const encodeKey = (value, key) => utils.toEncodedString(key);
 
     await toPromise(this.setState.bind(this), true)({
-      data: Object.assign({}, data.records, extra.records),
-      mainIds: Object.keys(data.records),
+      data: utils.mapKeys(Object.assign({}, data.records, extra.records), encodeKey),
+      mainIds: Object.keys(data.records).map(utils.toEncodedString),
       count: obj.count,
       totals: obj.totals,
-      recordsInfo: Object.assign({}, extra.info, data.info),
-      errors: utils.pick(this.state.errors, recordIds),
-      changes: utils.pick(this.state.changes, recordIds),
-      statuses: utils.pick(this.state.statuses, recordIds)
+      recordsInfo: utils.mapKeys(Object.assign({}, extra.info, data.info), encodeKey),
+      errors: utils.pick(this.state.errors, rowIds),
+      changes: utils.pick(this.state.changes, rowIds),
+      statuses: utils.pick(this.state.statuses, rowIds)
     });
 
     this._renderBody();
