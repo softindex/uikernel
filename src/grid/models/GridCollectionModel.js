@@ -56,9 +56,15 @@ class GridCollectionModel extends AbstractGridModel {
     const deletedIds = utils.without(currentIds, newIds);
     const updatedIds = utils.without(currentIds, deletedIds);
     this.data = utils.cloneDeep(data);
-    this.trigger('create', createdIds);
-    this.trigger('delete', deletedIds);
-    this.trigger('update', updatedIds);
+    if (createdIds.length) {
+      this.trigger('create', createdIds);
+    }
+    if (deletedIds.length) {
+      this.trigger('delete', deletedIds);
+    }
+    if (updatedIds.length) {
+      this.trigger('update', updatedIds);
+    }
   }
 
   /**
