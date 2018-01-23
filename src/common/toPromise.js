@@ -9,6 +9,7 @@
 import utils from '../common/utils';
 
 const functionsNames = [];
+
 function toPromise(func, hideWarning) {
   const funcName = func.name;
 

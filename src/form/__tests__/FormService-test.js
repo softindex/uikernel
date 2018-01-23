@@ -36,7 +36,7 @@ describe('init form', () => {
     try {
       await form.init({});
     } catch (error) {
-      expect(error.message).toEqual('You must specify the model form in this.init()');
+      expect(error.message).toEqual('You must specify the model');
     }
   });
 
