@@ -43,7 +43,7 @@ exports.isIntersection = function (a, b) {
     b = c;
   }
   for (const el of a) {
-    if (b.includes(el)) {
+    if (exports.indexOf(b, el) > -1) {
       return true;
     }
   }
@@ -398,7 +398,7 @@ exports.toDate = function (value) {
 exports.without = function (arr, el) {
   const result = [];
   for (let i = 0; i < arr.length; i++) {
-    if (Array.isArray(el) ? exports.isIntersection(arr[i], el) : arr[i] === el) {
+    if (Array.isArray(el) ? exports.indexOf(el, arr[i]) > -1 : exports.isEqual(arr[i], el)) {
       continue;
     }
     result.push(arr[i]);

@@ -635,12 +635,15 @@ const GridDataMixin = {
 
   async _onRecordCreated(recordId) {
     await this.updateTable();
-    if (this._isRecordLoaded(recordId)) {
-      try {
-        await this._checkWarnings(this._getRowID(recordId));
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
+    const ids = Array.isArray(recordId) ? recordId : [recordId];
+    for (const id of ids) {
+      if (this._isRecordLoaded(id)) {
+        try {
+          await this._checkWarnings(this._getRowID(id));
+        } catch (e) {
+          if (!(e instanceof ThrottleError)) {
+            throw e;
+          }
         }
       }
     }
