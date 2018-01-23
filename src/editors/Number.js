@@ -52,6 +52,16 @@ class NumberEditor extends React.Component {
     this.props.onChange(this.state.value);
   }
 
+  _onKeyPressHandler(e) {
+    const keyCode = e.keyCode || e.which;
+    const char = String.fromCharCode(keyCode);
+
+    // Problem in FireFox. Allow write only numbers
+    if (!/\d|\+|-|[Ee]|\./.test(char)) {
+      e.preventDefault();
+    }
+  }
+
   render() {
     return (
       <input
@@ -60,6 +70,7 @@ class NumberEditor extends React.Component {
         type="number"
         ref="input"
         onChange={this::this._onChangeHandler}
+        onKeyPress={this::this._onKeyPressHandler}
         defaultValue={this.props.value}
       />
     );

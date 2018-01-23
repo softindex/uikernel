@@ -128,15 +128,19 @@ class GridExpressApi {
   read(middlewares) {
     return this._addMidelwares('read', middlewares);
   }
+
   validate(middlewares) {
     return this._addMidelwares('validate', middlewares);
   }
+
   getRecord(middlewares) {
     return this._addMidelwares('getRecord', middlewares);
   }
+
   update(middlewares) {
     return this._addMidelwares('update', middlewares);
   }
+
   create(middlewares) {
     return this._addMidelwares('create', middlewares);
   }
@@ -157,6 +161,10 @@ class GridExpressApi {
   _result(method) {
     if (method === 'update') {
       return (err, data, req, res, next) => {
+        if (err) {
+          return send(err, null, req, res, next);
+        }
+
         data = data.reduce((result, record) => {
           if (record[1] instanceof ValidationErrors || record[1] instanceof Error) {
             result.errors.push(record);
@@ -166,7 +174,7 @@ class GridExpressApi {
           return result;
         }, {changes: [], errors: []});
 
-        send(err, data, req, res, next);
+        send(null, data, req, res, next);
       };
     }
 

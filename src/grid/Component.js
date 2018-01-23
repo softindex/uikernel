@@ -128,7 +128,6 @@ const GridComponent = createReactClass({
   getInitialState: function () {
     this._throttledUpdateTable = utils.throttle(this.updateTable);
     this._validateRow = utils.throttle(this._validateRow);
-    this._checkWarnings = utils.throttle(this._checkWarnings);
     if (this.props.onInit) {
       this.props.onInit();
     }
