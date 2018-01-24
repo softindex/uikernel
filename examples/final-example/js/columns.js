@@ -7,18 +7,7 @@
  */
 
 const columns = {
-  bulk: {
-    width: '40px',
-    className: 'text-center',
-    render: [(record, selected) => {
-      return '<input ref="checkbox" type="checkbox"' + (selected ? ' checked' : '') + '/>';
-    }],
-    onClickRefs: {
-      checkbox: (function (event, recordId, record, grid) {
-        grid.toggleSelected(recordId); // toggle our record id
-      })
-    }
-  },
+  bulk: selectRecordsHandler,
   tools: {
     width: 70,
     className: 'text-center',

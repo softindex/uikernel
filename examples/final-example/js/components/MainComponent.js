@@ -29,7 +29,6 @@ class MainComponent extends React.Component {
         age: false,
         gender: false
       },
-      blackMode: false,
       selectedNum: 0
     };
   }
@@ -48,9 +47,6 @@ class MainComponent extends React.Component {
   }
 
   toggleSelectMode() {
-    this.setState({
-      blackMode: !this.state.blackMode
-    });
     this.refs.grid.toggleSelectAll();
   }
 
@@ -81,10 +77,11 @@ class MainComponent extends React.Component {
   }
 
   render() {
-    const buttonText = this.state.blackMode ? 'Clear all' : 'Select all';
+    const blackMode = this.refs.grid ? this.refs.grid.state.selectBlackListMode : false;
+    const buttonText = blackMode ? 'Clear all' : 'Select all';
     let numText; // selected records
 
-    if (this.state.blackMode) {
+    if (blackMode) {
       numText = 'Selected all records.';
     } else {
       numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
@@ -122,7 +119,7 @@ class MainComponent extends React.Component {
       </div>,
       <div className="panel">
         <div className="panel-heading">
-          <h3 className="panel-title">Add record</h3>
+          <h2 className="panel-title">Add record</h2>
         </div>
         <div className="panel-body">
           <CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>

@@ -7,17 +7,17 @@ redirect_from: "docs/index.html"
 
 To get started follow next steps:
 
-1. Install Create React App and go to the created directory
+1. Setup Create React App in terminal
 
 {% highlight bash %}
-npm install -g create-react-app
-create-react-app try-uikernel
-cd try-uikernel
+npm install -g create-react-app # install create-react-app globally
+create-react-app try-uikernel   # create new project named try-uikernel
+cd try-uikernel                 # go to project directory
+npm i uikernel                  # install uikernel package
 {% endhighlight%}
 {:start="2"}
 
-2. In file `package.json`  add line `"uikernel": "git+ssh://git@github.com/softindex/uikernel.git#v1.0.0"` to "dependencies" list and run `npm install`
-3. Open up `src/index.js` and paste next code after `import`s
+2. Open up `src/index.js` and paste next code after `import`s
 
  {% highlight javascript %}
  import UIKernel from 'uikernel';
@@ -57,38 +57,23 @@ cd try-uikernel
     }
   };
 
- {% endhighlight %}
- Replace
-
- {% highlight javascript %}
- ReactDOM.render(<App />, document.getElementById('root'));
- {% endhighlight %}
-
- with
-
- {% highlight javascript %}
  ReactDOM.render(
-     <UIKernel.Grid
-         cols={columns}
-         model={model}
-     />
-     , document.getElementById('root'));
+      <UIKernel.Grid
+          cols={columns}
+          model={model}
+      />
+      , document.getElementById('root'))
  {% endhighlight %}
 
-{:start="4"}
-4. Try your work by command `npm start`
+{:start="3"}
+3. Try your work by command `npm start`
 
-Next, let's take a closer look on each of file content.
-
-`index` is the main React entry point where we render our first `UIKernel.Grid`.
 
 As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
 
-Columns data is listed as an object.
-
 Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
-And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code](https://embed.plnkr.co/TsWrGJgcU2MJIgIdyfb6/){:target="_blank"}.
+And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}/examples/getting-started){:target="_blank"}.
 
 ## Want CommonJS?
 

@@ -38,6 +38,7 @@ nav-menu: home
     <div class="col-md-4"><h3><i class="fa  fa-users grid-i"></i>Bulk operations</h3><p>UIKernel grid support performing massive operations on records</p></div>
   </div>
 </div>
+<br />
 
 <div class="home-example">
   <h2>Basic grid example</h2>
