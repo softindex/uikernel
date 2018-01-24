@@ -6,7 +6,7 @@ next: sorting-and-pagination.html
 ---
 
 * [Live demo](/examples/first-grid-component/){:target="_blank"}
-* [Code](https://embed.plnkr.co/TsWrGJgcU2MJIgIdyfb6/){:target="_blank"}
+* [Code]({{ site.github }}/examples/first-grid-component/){:target="_blank"}
 
 
 First, let's create a client model for our grid and pass it some fake data.

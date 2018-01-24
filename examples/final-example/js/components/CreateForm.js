@@ -57,11 +57,11 @@ class CreateForm extends React.Component {
 
     return (
       <div className="body">
-        <form className="form-horizontal edit-form change-second-field-form" onSubmit={this.handleSubmit}>
+        <form className="form-horizontal edit-form col-md-offset-2 col-md-8" onSubmit={this.handleSubmit}>
           <div className={'form-group' + (this.state.fields.name.isChanged ? ' changed' : '') +
           (this.state.fields.name.errors ? ' error' : '')}>
-            <label className="col-sm-4 control-label">First Name</label>
-            <div className="col-sm-4">
+            <label className="col-sm-3 control-label">First Name</label>
+            <div className="col-sm-6">
               <input
                 type="text"
                 placeholder="Alyx"
@@ -80,8 +80,8 @@ class CreateForm extends React.Component {
           <div
             className={'form-group' + (this.state.fields.surname.isChanged ? ' changed' : '') +
             (this.state.fields.surname.errors ? ' error' : '')}>
-            <label className="col-sm-4 control-label">Last Name</label>
-            <div className="col-sm-4">
+            <label className="col-sm-3 control-label">Last Name</label>
+            <div className="col-sm-6">
               <input
                 type="text"
                 placeholder="Vance"
@@ -100,8 +100,8 @@ class CreateForm extends React.Component {
           <div
             className={'form-group' + (this.state.fields.phone.isChanged ? ' changed' : '') +
             (this.state.fields.phone.errors ? ' error' : '')}>
-            <label className="col-sm-4 control-label">Phone</label>
-            <div className="col-sm-4">
+            <label className="col-sm-3 control-label">Phone</label>
+            <div className="col-sm-6">
               <input
                 type="text"
                 placeholder="555-0100"
@@ -120,8 +120,8 @@ class CreateForm extends React.Component {
           <div
             className={'form-group' + (this.state.fields.age.isChanged ? ' changed' : '') +
             (this.state.fields.age.errors ? ' error' : '')}>
-            <label className="col-sm-4 control-label">Age</label>
-            <div className="col-sm-4">
+            <label className="col-sm-3 control-label">Age</label>
+            <div className="col-sm-6">
               <UIKernel.Editors.Number
                 placeholder="18"
                 className="form-control"
@@ -138,8 +138,8 @@ class CreateForm extends React.Component {
           </div>
           <div
             className={'form-group' + (this.state.fields.gender.isChanged ? ' changed' : '')}>
-            <label className="col-sm-4 control-label">Gender</label>
-            <div className="col-sm-4">
+            <label className="col-sm-3 control-label">Gender</label>
+            <div className="col-sm-6">
               <UIKernel.Editors.Select
                 options={[
                   [1, 'Male'],

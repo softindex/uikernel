@@ -6,7 +6,7 @@ next: server-side.html
 ---
 
 * [Live demo](/examples/creating-records/){:target="_blank"}
-* [Code](https://embed.plnkr.co/3TdtQqilYzTbxfHLCwzv){:target="_blank"}
+* [Code]({{ site.github }}/examples/creating-records/){:target="_blank"}
 
 First, let's create a form for adding new records to our grid.
 
