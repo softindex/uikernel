@@ -10,59 +10,61 @@ To get started follow next steps:
 1. Setup Create React App in terminal
 
 {% highlight bash %}
-npm install -g create-react-app # install create-react-app globally
-create-react-app try-uikernel   # create new project named try-uikernel
-cd try-uikernel                 # go to project directory
-npm i uikernel                  # install uikernel package
+# create React boilerplate
+npm install -g create-react-app
+create-react-app try-uikernel
+cd try-uikernel
+# setup uikernel
+npm i uikernel
 {% endhighlight%}
 {:start="2"}
 
-2. Open up `src/index.js` and paste next code after `import`s
+2. Open up `src/index.js` and replace all with next piece of code
 
  {% highlight javascript %}
+ import React from 'react';
+ import ReactDOM from 'react-dom';
  import UIKernel from 'uikernel';
 
  const model = new UIKernel.Models.Grid.Collection({
-    data: [
-      [1, {
-        name: 'Pace',libs
-        surname: 'White',
-        age: 20
-      }],
-      [2, {
-        name: 'Evangeline',
-        surname: 'Terrell',
-        age: 72
-      }],
-      [3, {
-        name: 'Roach',
-        surname: 'Potts',
-        age: 14
-      }]
-    ]
-  });
+     data: [
+         [1, {
+             name: 'Pace',
+             surname: 'White',
+     age: 20
+ }],
+ [2, {
+     name: 'Evangeline',
+     surname: 'Terrell',
+     age: 72
+ }],
+     [3, {
+         name: 'Roach',
+         surname: 'Potts',
+         age: 14
+     }]
+ ]
+ });
 
  const columns = {
-    name: {
-      name: 'First Name',
-      render: ['name', record => record.name]
-    },
-    surname: {
-      name: 'Last Name',
-      render: ['surname', record => record.surname]
-    },
-    age: {
-      name: 'Age',
-      render: ['age', record => record.age]
-    }
-  };
+     name: {
+         name: 'First Name',
+         render: ['name', record => record.name]
+     },
+     surname: {
+         name: 'Last Name',
+         render: ['surname', record => record.surname]
+     },
+     age: {
+         name: 'Age',
+         render: ['age', record => record.age]
+     }
+ };
 
  ReactDOM.render(
-      <UIKernel.Grid
-          cols={columns}
-          model={model}
-      />
-      , document.getElementById('root'))
+     <UIKernel.Grid cols={columns} model={model}/>,
+     document.getElementById('root')
+ );
  {% endhighlight %}
 
 {:start="3"}
