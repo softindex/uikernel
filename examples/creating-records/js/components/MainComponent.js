@@ -81,7 +81,7 @@ class MainComponent extends React.Component {
                 defaultSort={{column: 'name', direction: 'asc'}} // default sorting
               />
               <div className="panel-footer">
-                <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
+                <a className="btn btn-default" onClick={() => this.clearChanges()}>Clear</a>
                 {' '}
                 <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
               </div>

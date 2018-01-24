@@ -19,6 +19,28 @@ nav-menu: home
 <br />
 
 <div class="home-example">
+  <h2>What you can do with UIKernel components</h2>
+</div>
+<div class="home-example">
+  <div class="row">
+    <div class="col-md-4"><h3><i class="fa fa-pencil-square-o grid-i"></i>Interact with data</h3><p>You can set up grid not only to display data but to add new records, update or delete them</p></div>
+    <div class="col-md-4"><h3><i class="fa fa-filter grid-i"></i>Filtering</h3><p>UIKernel grid supports sorting by different fields</p></div>
+    <div class="col-md-4"><h3><i class="fa fa-sort-amount-asc grid-i"></i>Sorting & pagination</h3><p>Sort data by default order or by user choice and paginate the data.</p></div>
+  </div>
+  <div class="row">
+    <div class="col-md-4"><h3><i class="fa fa-database grid-i"></i>Data source</h3><p>Pass data from any source to UIKernel model</p></div>
+    <div class="col-md-4"><h3><i class="fa fa-keyboard-o grid-i"></i>Convenient inputs</h3><p>Each form input or grid cell can be one from UIKernel editors: date picker, suggest box, number, select, checkbox</p></div>
+    <div class="col-md-4"><h3><i class="fa fa-check-square-o grid-i"></i>Validation</h3><p>Use UIKernel validators to check fields on client or both on client and server. Also custom validation rules can be applied</p></div>
+  </div>
+  <div class="row">
+    <div class="col-md-4"><h3><i class="fa fa-download grid-i"></i>Data export</h3><p>Export grid data in JSON or CSV formats for further interaction.</p></div>
+    <div class="col-md-4"><h3><i class="fa fa-refresh grid-i"></i>Synchronize multiple grids</h3><p>Automatic synchronization of multiple forms and grids with a shared data model</p></div>
+    <div class="col-md-4"><h3><i class="fa  fa-users grid-i"></i>Bulk operations</h3><p>UIKernel grid support performing massive operations on records</p></div>
+  </div>
+</div>
+<br />
+
+<div class="home-example">
   <h2>Basic grid example</h2>
   {% include example.html %}
 </div>

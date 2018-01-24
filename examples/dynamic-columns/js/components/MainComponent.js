@@ -38,7 +38,7 @@ class MainComponent extends React.Component {
   render() {
     return (
       <div>
-        <a className="btn btn-success" onClick={this.openColumnsForm}>
+        <a className="btn btn-default" onClick={this.openColumnsForm}>
           <i className="fa fa-th-list"></i>{' '}Columns
         </a>
         <UIKernel.Grid

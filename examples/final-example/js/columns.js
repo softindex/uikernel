@@ -7,32 +7,17 @@
  */
 
 const columns = {
+  bulk: selectRecordsHandler,
   tools: {
-    width: 100,
+    width: 70,
+    className: 'text-center',
     render: [function () {
-      return '<center>\
-        <a href="javascript:void(0)" ref="create" class="text-success action"><span class="glyphicon glyphicon-file"></span></a>\
+      return '<div>\
         <a href="javascript:void(0)" ref="edit" class="text-info action"><span class="glyphicon glyphicon-pencil"></span></a>\
         <a href="javascript:void(0)" ref="remove" class="text-danger action"><span class="glyphicon glyphicon-remove"></span></a>\
-      </center>';
+      </div>';
     }],
     onClickRefs: {
-      create(event, recordId, record, grid) { // ref="create" click handler
-        const createPopup = Popup.open(RecordForm, {
-          model: new UIKernel.Adapters.Grid.ToFormCreate(grid.getModel(), {
-            name: '',
-            surname: '',
-            phone: '',
-            age: null,
-            gender: 1
-          }),
-          mode: 'create',
-          onSubmit(recordId) {
-            createPopup.close();
-            grid.addRecordStatus(recordId, 'new');
-          }
-        });
-      },
       edit(event, recordId, record, grid) { // ref="edit" click handler
         const editPopup = Popup.open(RecordForm, {
           model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),

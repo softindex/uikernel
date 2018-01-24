@@ -29,7 +29,6 @@ const GridEditorMixin = {
   _renderEditor: function (element, row, column) {
     const binds = this._getBindParam(column);
     const record = this._getRecord(row);
-    const $element = $(element);
     let value = utils.at(record, binds);
     let focusDone = false;
 
@@ -100,7 +99,7 @@ const GridEditorMixin = {
     }
 
     this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element, function () {
-      $element.addClass('dgrid-input-wrapper');
+      element.classList.add('dgrid-input-wrapper');
 
       if (typeof this.focus === 'function') {
         this.focus();
@@ -114,7 +113,7 @@ const GridEditorMixin = {
   _unmountEditor(element, row, column) {
     ReactDOM.unmountComponentAtNode(element);
     delete this.state.editor[`${row}_${column}`];
-    $(element).removeClass('dgrid-input-wrapper');
+    element.classList.remove('dgrid-input-wrapper');
   },
 
   _onChangeEditor: function (row, column, values, editorContext, element) {

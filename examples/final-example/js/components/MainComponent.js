@@ -18,6 +18,18 @@ class MainComponent extends React.Component {
     this.state = {
       filters: DEFAULT_FILTERS,
       model,
+      cols: {
+        // display name, surname, phone by default
+        bulk: true,
+        tools: true,
+        name: true,
+        surname: true,
+        phone: true,
+        // hide age, gender
+        age: false,
+        gender: false
+      },
+      selectedNum: 0
     };
   }
 
@@ -26,6 +38,31 @@ class MainComponent extends React.Component {
       filters,
       model: UIKernel.applyGridFilters(model, filters)
     });
+  }
+
+  onSelectedChange(records) {
+    this.setState({
+      selectedNum: records.length
+    });
+  }
+
+  toggleSelectMode() {
+    this.refs.grid.toggleSelectAll();
+  }
+
+  highlightNewRecord(recordId) {
+    this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+  }
+
+  openColumnsForm() {
+    //open modal with our information (you can use your own modal)
+    const columnsWindow = Popup.open(DynamicColumnsForm, {
+      cols: this.state.cols,
+      onChange: (cols) => {
+        columnsWindow.close();
+        this.setState({cols});
+      }
+    }, "opened");
   }
 
   onSave() {
@@ -40,7 +77,17 @@ class MainComponent extends React.Component {
   }
 
   render() {
-    return (
+    const blackMode = this.refs.grid ? this.refs.grid.state.selectBlackListMode : false;
+    const buttonText = blackMode ? 'Clear all' : 'Select all';
+    let numText; // selected records
+
+    if (blackMode) {
+      numText = 'Selected all records.';
+    } else {
+      numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
+    }
+
+    return [
       <div className="panel">
         <div className="panel-heading">
           <FiltersForm
@@ -54,15 +101,30 @@ class MainComponent extends React.Component {
             ref="grid"
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
+            viewColumns={this.state.cols}
             viewCount={10} // 10 records limit to display by default
+            onSelectedChange={(records) => this.onSelectedChange(records)}
           />
         </div>
         <div className="panel-footer">
-          <a className="btn btn-success" onClick={() => this.onClear()}>Clear</a>
+          <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
+            <i className="fa fa-th-list"></i>{' '}Columns
+          </a>
+          <a className="btn btn-success" onClick={() => this.toggleSelectMode()}>{buttonText}</a>
+          {numText}
+          <a className="btn pull-right btn-default" onClick={() => this.onClear()}>Clear changes</a>
           {' '}
-          <a className="btn btn-primary" onClick={() => this.onSave()}>Save</a>
+          <a className="btn pull-right btn-primary" onClick={() => this.onSave()}>Save</a>
+        </div>
+      </div>,
+      <div className="panel">
+        <div className="panel-heading">
+          <h2 className="panel-title">Add record</h2>
+        </div>
+        <div className="panel-body">
+          <CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>
         </div>
       </div>
-    );
+    ];
   }
 }

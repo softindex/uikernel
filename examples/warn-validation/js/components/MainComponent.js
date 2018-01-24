@@ -55,7 +55,7 @@ var MainComponent = React.createClass({
             warningsValidator = {ValidationWarn}
           />
           <div className="panel-footer">
-            <a className="btn btn-success" onClick={this.onClear}>
+            <a className="btn btn-default" onClick={this.onClear}>
               Clear
             </a>
             {' '}

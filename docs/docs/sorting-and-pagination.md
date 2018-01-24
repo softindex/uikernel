@@ -5,7 +5,7 @@ prev: first-grid-component.html
 next: applying-filters.html
 ---
 * [Live demo](/examples/sorting-and-pagination/){:target="_blank"}
-* [Code]({{ site.github }}/examples/sorting-and-pagination){:target="_blank"}
+* [Code](https://embed.plnkr.co/4j6Sj8EWGddQFzq5Z2O6/){:target="_blank"}
 
 Let's add our grid some functionality, such as sorting and pagination.
 

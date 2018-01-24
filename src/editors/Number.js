@@ -34,7 +34,7 @@ class NumberEditor extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
-      findDOMNode(this.refs.input).value = this.state.value = nextProps.value;
+      findDOMNode(this.input).value = this.state.value = nextProps.value;
     }
   }
 
@@ -68,7 +68,7 @@ class NumberEditor extends React.Component {
         step="any"
         {...utils.omit(this.props, 'value')}
         type="number"
-        ref="input"
+        ref={(input) => this.input = input }
         onChange={this::this._onChangeHandler}
         onKeyPress={this::this._onKeyPressHandler}
         defaultValue={this.props.value}

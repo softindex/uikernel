@@ -5,110 +5,73 @@ next: overview.html
 redirect_from: "docs/index.html"
 ---
 
-## Starter Kit
+To get started follow next steps:
 
-Download the starter kit to get started.
+1. Setup Create React App in terminal
 
-<center>
-  <a href="/dist/starter-kit.zip" class="btn btn-lg btn-success download-uikernel-button">
-    Download Starter Kit {{ site.uikernel_version }}
-  </a>
-</center>
+{% highlight bash %}
+npm install -g create-react-app # install create-react-app globally
+create-react-app try-uikernel   # create new project named try-uikernel
+cd try-uikernel                 # go to project directory
+npm i uikernel                  # install uikernel package
+{% endhighlight%}
+{:start="2"}
 
-Open up `getting-started/index.html`. It has the following contents:
+2. Open up `src/index.js` and paste next code after `import`s
 
-{% highlight html %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Getting Started</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-  <link href="../libs/css/base/main.css" rel="stylesheet" type="text/css"/>
-  <link href="css/main.css" rel="stylesheet" type="text/css"/>
-</head>
-<body>
-<div class="container" id="example"></div>
+ {% highlight javascript %}
+ import UIKernel from 'uikernel';
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
-<script src="../libs/js/uikernel.js"></script>
+ const model = new UIKernel.Models.Grid.Collection({
+    data: [
+      [1, {
+        name: 'Pace',libs
+        surname: 'White',
+        age: 20
+      }],
+      [2, {
+        name: 'Evangeline',
+        surname: 'Terrell',
+        age: 72
+      }],
+      [3, {
+        name: 'Roach',
+        surname: 'Potts',
+        age: 14
+      }]
+    ]
+  });
 
-<!-- Grid model -->
-<script src="js/model.js" type="text/babel"></script>
+ const columns = {
+    name: {
+      name: 'First Name',
+      render: ['name', record => record.name]
+    },
+    surname: {
+      name: 'Last Name',
+      render: ['surname', record => record.surname]
+    },
+    age: {
+      name: 'Age',
+      render: ['age', record => record.age]
+    }
+  };
 
-<!-- Grid columns -->
-<script src="js/columns.js" type="text/babel"></script>
+ ReactDOM.render(
+      <UIKernel.Grid
+          cols={columns}
+          model={model}
+      />
+      , document.getElementById('root'))
+ {% endhighlight %}
 
-<!-- Main file to render -->
-<script src="js/main.js" type="text/babel"></script>
-</body>
-</html>
-{% endhighlight %}
+{:start="3"}
+3. Try your work by command `npm start`
 
-Here, we've included the required libraries - React, JQuery and UIKernel.
 
-The file `getting-started/js/main.js` is the main React entry point where we render our first `UIKernel.Grid`.
+As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
 
-`main.js`:
-{% highlight html %}
-ReactDOM.render(
-  <UIKernel.Grid
-    cols={columns}
-    model={model}
-  />
-, document.getElementById('example'));
-{% endhighlight %}
-
-As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. It's a good practice to separate logic,
-so we've defined these props in the `getting-started/js/columns.js` and `getting-started/js/model.js` files.
-
-Columns data is listed as an object.
-
-`columns.js`:
-{% highlight javascript %}
-const columns = {
-  name: {
-    name: 'First Name',
-    render: ['name', record => record.name]
-  },
-  surname: {
-    name: 'Last Name',
-    render: ['surname', record => record.surname]
-  },
-  age: {
-    name: 'Age',
-    render: ['age', record => record.age]
-  }
-};
-{% endhighlight %}
-
-To create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
-
-`model.js`:
-{% highlight javascript %}
-const model = new UIKernel.Models.Grid.Collection({
-  data: [
-    [1, {
-      name: 'Pace',
-      surname: 'White',
-      age: 20
-    }],
-    [2, {
-      name: 'Evangeline',
-      surname: 'Terrell',
-      age: 72
-    }],
-    [3, {
-      name: 'Roach',
-      surname: 'Potts',
-      age: 14
-    }]
-  ]
-});
-{% endhighlight %}
+Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
 And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}/examples/getting-started){:target="_blank"}.
 

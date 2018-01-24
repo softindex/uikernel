@@ -76,7 +76,7 @@ class Portal extends React.Component {
   }
 
   _isDocumentEventOwner(target) {
-    return $(target).parents(`.${portalClass}`).get(0) === this.portal;
+    return (target === this.portal || this.portal.contains(target));
   }
 
   _onDocumentMouseDown(e) {

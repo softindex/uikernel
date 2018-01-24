@@ -5,7 +5,7 @@ prev: sorting-and-pagination.html
 next: editing-grid-data.html
 ---
 * [Live demo](/examples/applying-filters/){:target="_blank"}
-* [Code]({{ site.github }}/examples/applying-filters){:target="_blank"}
+* [Code](https://embed.plnkr.co/yho2RdQNUG4JtoHqgbuk){:target="_blank"}
 
 There are only a few things we need to do here: teach the grid model to work with filters, create a form and render it.
 
