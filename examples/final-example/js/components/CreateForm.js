@@ -91,11 +91,11 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.surname.value}
               />
-              {this.state.fields.name.errors &&
-              <div className="col-sm-3">
-                <div className="validation-error">{this.state.fields.name.errors[0]}</div>
-              </div>}
             </div>
+            {this.state.fields.surname.errors &&
+            <div className="col-sm-3">
+              <div className="validation-error">{this.state.fields.surname.errors[0]}</div>
+            </div>}
           </div>
           <div
             className={'form-group' + (this.state.fields.phone.isChanged ? ' changed' : '') +
@@ -111,11 +111,11 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.phone.value}
               />
-              {this.state.fields.name.errors &&
-              <div className="col-sm-3">
-                <div className="validation-error">{this.state.fields.name.errors[0]}</div>
-              </div>}
             </div>
+            {this.state.fields.phone.errors &&
+            <div className="col-sm-3">
+              <div className="validation-error">{this.state.fields.phone.errors[0]}</div>
+            </div>}
           </div>
           <div
             className={'form-group' + (this.state.fields.age.isChanged ? ' changed' : '') +
@@ -130,11 +130,11 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.age.value}
               />
-              {this.state.fields.name.errors &&
-              <div className="col-sm-3">
-                <div className="validation-error">{this.state.fields.name.errors[0]}</div>
-              </div>}
             </div>
+            {this.state.fields.age.errors &&
+            <div className="col-sm-3">
+              <div className="validation-error">{this.state.fields.age.errors[0]}</div>
+            </div>}
           </div>
           <div
             className={'form-group' + (this.state.fields.gender.isChanged ? ' changed' : '')}>
