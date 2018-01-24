@@ -19,4 +19,10 @@ function ThrottleError() {
 ThrottleError.prototype = Object.create(Error.prototype);
 ThrottleError.prototype.constructor = ThrottleError;
 
+ThrottleError.createByStack = function (stack) {
+  const err = new ThrottleError();
+  err.stack = stack;
+  return err;
+};
+
 export default ThrottleError;

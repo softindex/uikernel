@@ -216,7 +216,7 @@ class SuggestBoxEditor extends React.Component {
 
     if (focusFirstOption) {
       const key = this.state.options[0].type !== 'group' ? 0 : 1;
-      return this._focusOption(key, true);
+      return await this._focusOption(key, true);
     }
 
     const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
@@ -230,7 +230,6 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputFocus(e) {
     await this._openList();
-    findDOMNode(this.refs.input).select();
     if (this.props.onFocus) {
       this.props.onFocus(e);
     }
@@ -252,9 +251,10 @@ class SuggestBoxEditor extends React.Component {
 
   async _toggleList() {
     if (this.state.isOpened) {
-      return this._closeList();
+      this._closeList();
+    } else {
+      await this._openList();
     }
-    await this._openList();
   }
 
   _selectOption(option) {
@@ -278,10 +278,11 @@ class SuggestBoxEditor extends React.Component {
       this._setLabelTo(this.state.options[key].label);
     }
     if (this.state.isOpened) {
-      return this._focusOptionAndScrollIntoView(key);
+      this._focusOptionAndScrollIntoView(key);
+    } else {
+      await this._openList(null);
+      this._focusOptionAndScrollIntoView(key);
     }
-    await this._openList(null);
-    this._focusOptionAndScrollIntoView(key);
   }
 
   _focusOptionAndScrollIntoView(key) {
@@ -446,9 +447,10 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputValueChange(e) {
     if (this.state.isOpened) {
-      return await this._updateList(e.target.value);
+      await this._updateList(e.target.value);
+    } else {
+      await this._openList(e.target.value);
     }
-    await this._openList(e.target.value);
   }
 
   focus() {

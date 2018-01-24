@@ -81,6 +81,7 @@ exports.throttle = function (func) {
   let nextArguments;
   let nextResolve;
   let nextReject;
+
   return function () {
     if (typeof arguments[arguments.length - 1] === 'function') {
       return throttleCallback(func).apply(this, arguments);
@@ -139,7 +140,7 @@ exports.throttle = function (func) {
       return new Promise((resolve, reject) => {
         if (worked) {
           if (nextArguments) {
-            nextReject(exports.setStack(new ThrottleError, parentStack));
+            nextReject(ThrottleError.createByStack(parentStack));
           }
           nextArguments = args;
           nextResolve = resolve;
@@ -156,7 +157,7 @@ exports.throttle = function (func) {
               nextResolve(run.apply(this, nextArguments));
               nextArguments = null;
 
-              reject(exports.setStack(new ThrottleError, parentStack));
+              reject(ThrottleError.createByStack(parentStack));
               return;
             }
             resolve(result);
@@ -434,25 +435,16 @@ exports.getStack = function (deep = 0) {
   try {
     throw new Error();
   } catch (e) {
-    if (e.stack) {        // Error.stack is unavailable in old browsers
+    if (e.stack) { // Error.stack is unavailable in old browsers
       stack = e.stack
         .split('\n')
-        .slice(2 + deep)  // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
+        .slice(2 + deep) // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
         .join('\n');
     }
   }
 
   Error.stackTraceLimit = stackTraceLimitDefault;
   return stack;
-};
-
-exports.setStack = function (error, stack) {
-  error.stack = stack;
-  return error;
-};
-
-exports.consoleError = function (message) {
-  console.error(message, '\n', exports.getStack(1));
 };
 
 exports.warn = function (message) {

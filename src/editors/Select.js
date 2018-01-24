@@ -9,7 +9,6 @@
 import toPromise from '../common/toPromise';
 import React from 'react';
 import utils from '../common/utils';
-import ThrottleError from '../common/ThrottleError';
 
 class SelectEditor extends React.Component {
   static propTypes = {
@@ -33,6 +32,7 @@ class SelectEditor extends React.Component {
       loading: Boolean(props.model)
     };
   }
+
   componentDidMount() {
     if (this.props.model) {
       toPromise(this.props.model.read.bind(this.props.model))('')
@@ -45,9 +45,7 @@ class SelectEditor extends React.Component {
           });
         })
         .catch(err => {
-          if (!(err instanceof ThrottleError)) {
-            console.error(err);
-          }
+          console.error(err);
         });
     }
   }
