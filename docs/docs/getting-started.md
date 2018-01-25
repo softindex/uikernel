@@ -26,6 +26,7 @@ npm i uikernel
  import React from 'react';
  import ReactDOM from 'react-dom';
  import UIKernel from 'uikernel';
+ import 'uikernel/themes/base/main.css';
 
  const model = new UIKernel.Models.Grid.Collection({
    data: [
