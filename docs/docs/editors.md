@@ -119,7 +119,7 @@ SuggestBox is a ReactJS component that can be used to quickly create a drop-down
 ---
 
 ## <span id="Number">Number</span>
-Number unlike `<input type =" number "/>` returns a numeric value instead of a string. Usage of this editor will allow
+Number unlike `<input type="number"/>` returns a numeric value instead of a string. Usage of this editor will allow
 you to avoid problems with the validation of numbers. That's why we advise to use it for work with numbers.
 
 ### Number Properties

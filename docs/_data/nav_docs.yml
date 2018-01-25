@@ -79,20 +79,12 @@
       title: Form XHR Model
   - id: form-express-api
     title: Form Express API
-- title: Utilities
+- title: Validation
   items:
   - id: validator
     title: Validator
   - id: validation-errors
     title: ValidationErrors
-- title: Reports
-  items:
-  - id: reports-mixin
-    title: Mixin
-  - id: reports-model
-    title: Model
-  - id: reports-filters
-    title: Filters
 - title: Examples
   items:
   - id: dynamic-columns

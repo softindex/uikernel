@@ -9,5 +9,4 @@ examples
 .npmignore
 .publish
 gulpfile.babel.js
-bower.json
 npm-debug.log

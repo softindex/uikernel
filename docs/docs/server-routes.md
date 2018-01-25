@@ -44,14 +44,7 @@ export default router; // this router is passed to the main router of our app
 {% endhighlight %}
 
 Pay attention to the argument passed to `model()`.
-It must be an object with the methods described [here](/docs/grid-interface.html)
-
-{% highlight javascript %}
-const router = UIKernel.gridExpressApi()
-    .model(new UserGridModel())
-    .getRouter();
-
-{% endhighlight %}
+It must be an object with the methods described [here](/docs/grid-interface.html) or function that return model based on request.
 
 The usage of `gridExpressApi` is optional.
 You can define a router by yourself, but it must be able to handle the following [requests](/docs/grid-express-api.html).
