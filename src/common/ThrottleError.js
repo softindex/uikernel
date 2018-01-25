@@ -6,20 +6,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {getStack} from './utils';
+
 function ThrottleError() {
   Error.call(this);
 
   this.name = 'ThrottleError';
   this.message = 'Too many function call';
-
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, ThrottleError);
-  } else {
-    this.stack = new Error().stack;
-  }
+  this.stack = getStack();
 }
 
 ThrottleError.prototype = Object.create(Error.prototype);
 ThrottleError.prototype.constructor = ThrottleError;
+
+ThrottleError.createByStack = function (stack) {
+  const err = new ThrottleError();
+  err.stack = stack;
+  return err;
+};
 
 export default ThrottleError;

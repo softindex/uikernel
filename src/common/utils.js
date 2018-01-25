@@ -80,6 +80,7 @@ exports.throttle = function (func) {
   let worked = false;
   let nextArguments;
   let nextResolve;
+  let nextReject;
 
   return function () {
     if (typeof arguments[arguments.length - 1] === 'function') {
@@ -134,17 +135,16 @@ exports.throttle = function (func) {
      * @throws {ThrottleError} Too many function call
      */
     return function run(...args) {
-      const parentStack = '\n' + exports.getStack();
+      const parentStack = '\n' + exports.getStack(2);
 
       return new Promise((resolve, reject) => {
         if (worked) {
           if (nextArguments) {
-            const error = new ThrottleError();
-            error.stack += parentStack;
-            nextResolve(Promise.reject(error));
+            nextReject(ThrottleError.createByStack(parentStack));
           }
           nextArguments = args;
           nextResolve = resolve;
+          nextReject = reject;
           return;
         }
 
@@ -157,9 +157,7 @@ exports.throttle = function (func) {
               nextResolve(run.apply(this, nextArguments));
               nextArguments = null;
 
-              const error = new ThrottleError();
-              error.stack += parentStack;
-              reject(error);
+              reject(ThrottleError.createByStack(parentStack));
               return;
             }
             resolve(result);
@@ -427,25 +425,30 @@ exports.getRecordChanges = function (model, data, changes, newChanges) {
   return result;
 };
 
-exports.getStack = function () {
+exports.getStack = function (deep = 0) {
   // We add here try..catch because in IE Error.stack is available only
   // for thrown errors: https://msdn.microsoft.com/ru-ru/library/windows/apps/hh699850.aspx
+
+  let stack = '';
+  const stackTraceLimitDefault = Error.stackTraceLimit;
+  Error.stackTraceLimit = deep + 12;
   try {
     throw new Error();
   } catch (e) {
     if (e.stack) { // Error.stack is unavailable in old browsers
-      return e.stack
+      stack = e.stack
         .split('\n')
-        .slice(2) // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
+        .slice(2 + deep) // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
         .join('\n');
     }
   }
 
-  return '';
+  Error.stackTraceLimit = stackTraceLimitDefault;
+  return stack;
 };
 
 exports.warn = function (message) {
-  console.warn(message, '\n', exports.getStack());
+  console.warn(message, '\n', exports.getStack(1));
 };
 
 exports.toEncodedString = function (value) {

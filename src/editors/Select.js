@@ -32,6 +32,7 @@ class SelectEditor extends React.Component {
       loading: Boolean(props.model)
     };
   }
+
   componentDidMount() {
     if (this.props.model) {
       toPromise(this.props.model.read.bind(this.props.model))('')
@@ -44,7 +45,7 @@ class SelectEditor extends React.Component {
           });
         })
         .catch(err => {
-          throw err;
+          console.error(err);
         });
     }
   }
