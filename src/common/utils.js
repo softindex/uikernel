@@ -135,12 +135,12 @@ exports.throttle = function (func) {
      * @throws {ThrottleError} Too many function call
      */
     return function run(...args) {
-      const parentStack = '\n' + exports.getStack(2);
+      const parentStack = exports.getStack(2);
 
       return new Promise((resolve, reject) => {
         if (worked) {
           if (nextArguments) {
-            nextReject(ThrottleError.createByStack(parentStack));
+            nextReject(ThrottleError.createWithParentStack(parentStack));
           }
           nextArguments = args;
           nextResolve = resolve;
@@ -157,7 +157,7 @@ exports.throttle = function (func) {
               nextResolve(run.apply(this, nextArguments));
               nextArguments = null;
 
-              reject(ThrottleError.createByStack(parentStack));
+              reject(ThrottleError.createWithParentStack(parentStack));
               return;
             }
             resolve(result);

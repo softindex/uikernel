@@ -19,9 +19,9 @@ function ThrottleError() {
 ThrottleError.prototype = Object.create(Error.prototype);
 ThrottleError.prototype.constructor = ThrottleError;
 
-ThrottleError.createByStack = function (stack) {
+ThrottleError.createWithParentStack = function (stack) {
   const err = new ThrottleError();
-  err.stack = stack;
+  err.stack += '\n' + stack;
   return err;
 };
 
