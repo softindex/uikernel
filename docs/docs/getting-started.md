@@ -12,8 +12,8 @@ To get started follow next steps:
 {% highlight bash %}
 # Setup React boilerplate
 npm install -g create-react-app
-create-react-app try-uikernel
-cd try-uikernel
+create-react-app react-app
+cd react-app
 
 # Install UIKernel
 npm i uikernel
