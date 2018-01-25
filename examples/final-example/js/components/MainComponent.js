@@ -33,6 +33,19 @@ class MainComponent extends React.Component {
     };
   }
 
+  getSelectedRecords() {
+    const isBlackMode = this.refs.grid.state.selectBlackListMode;
+    let selected = this.refs.grid.getAllSelected();
+
+    if (isBlackMode) {
+      const allData = this.state.model.data.map(item => item[0]);
+      selected = allData.filter(el => !selected.includes(el));
+    }
+
+    this.setState({ selectedNum: selected.length });
+    return selected;
+  }
+
   onFiltersChange(filters) {
     this.setState({
       filters,
@@ -46,8 +59,18 @@ class MainComponent extends React.Component {
     });
   }
 
-  toggleSelectMode() {
-    this.refs.grid.toggleSelectAll();
+  deleteSelectedRecords() {
+    const records = this.getSelectedRecords();
+
+    records.forEach((recordId) => {
+      this.state.model.delete(recordId, (err) => {
+        if (!err) {
+          this.refs.grid.updateTable();
+        }
+      });
+    });
+
+    this.refs.grid.unselectAll();
   }
 
   highlightNewRecord(recordId) {
@@ -78,7 +101,6 @@ class MainComponent extends React.Component {
 
   render() {
     const blackMode = this.refs.grid ? this.refs.grid.state.selectBlackListMode : false;
-    const buttonText = blackMode ? 'Clear all' : 'Select all';
     let numText; // selected records
 
     if (blackMode) {
@@ -96,6 +118,13 @@ class MainComponent extends React.Component {
             onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}
           />
         </div>
+        <div className="panel-footer">
+          <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
+            <i className="fa fa-th-list"></i>{' '}Columns
+          </a>
+          <a className="btn btn-success" onClick={() => this.deleteSelectedRecords()}>Delete selected</a>
+          {numText}
+        </div>
         <div className="panel-body padding0">
           <UIKernel.Grid
             ref="grid"
@@ -107,14 +136,9 @@ class MainComponent extends React.Component {
           />
         </div>
         <div className="panel-footer">
-          <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
-            <i className="fa fa-th-list"></i>{' '}Columns
-          </a>
-          <a className="btn btn-success" onClick={() => this.toggleSelectMode()}>{buttonText}</a>
-          {numText}
-          <a className="btn pull-right btn-default" onClick={() => this.onClear()}>Clear changes</a>
+          <a className="btn btn-default" onClick={() => this.onClear()}>Clear changes</a>
           {' '}
-          <a className="btn pull-right btn-primary" onClick={() => this.onSave()}>Save</a>
+          <a className="btn btn-primary" onClick={() => this.onSave()}>Save</a>
         </div>
       </div>,
       <div className="panel">
