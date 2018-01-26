@@ -15,21 +15,21 @@ class MainComponent extends React.Component {
   }
 
   saveChanges() {
-    this.refs.grid.save()
+   this.grid.save()
       .catch(() => {
         alert('Error');
       });
   }
 
   clearChanges() {
-    this.refs.grid.clearAllChanges();
+   this.grid.clearAllChanges();
   }
 
   render() {
     return (
       <div>
         <UIKernel.Grid
-          ref="grid"
+          ref={(grid) => this.grid = grid}
           cols={columns}
           model={this.state.model}
           viewCount={10}

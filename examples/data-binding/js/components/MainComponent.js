@@ -17,14 +17,14 @@ class MainComponent extends React.Component {
   }
 
   saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(function () {
         alert('Error');
       });
   }
 
   clearChanges() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
@@ -43,7 +43,7 @@ class MainComponent extends React.Component {
           <div className="col-sm-6">
             <h3>Grid without autosave</h3>
             <UIKernel.Grid
-              ref="grid"
+              ref={(grid) => this.grid = grid}
               model={this.state.model}
               cols={columns}
               viewCount={10}

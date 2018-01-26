@@ -25,7 +25,7 @@ class MainComponent extends React.Component {
         <span>Date: {this.state.date}</span>
         <br/>
         <UIKernel.Editors.DatePicker
-          ref="datepicker"
+          ref={(datepicker) => this.datepicker = datepicker}
           format="YYYY-MM-DD"
           textFormat="dddd, MMMM Do YYYY"
           onChange={this.handleChanges}

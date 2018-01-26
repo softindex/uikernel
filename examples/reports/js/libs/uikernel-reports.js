@@ -113,8 +113,8 @@ function createXHR(options, callback) {
     if ("responseType" in options) {
         xhr.responseType = options.responseType
     }
-    
-    if ("beforeSend" in options && 
+
+    if ("beforeSend" in options &&
         typeof options.beforeSend === "function"
     ) {
         options.beforeSend(xhr)
@@ -257,7 +257,7 @@ function forEach(list, iterator, context) {
     if (arguments.length < 3) {
         context = this
     }
-    
+
     if (toString.call(list) === '[object Array]')
         forEachArray(list, iterator, context)
     else if (typeof list === 'string')
@@ -758,7 +758,7 @@ module.exports = {
           }.bind(this)
         },
         render: [function () {
-          return '<div class="drillDown" ref="select"></div>';
+          return '<div class="drillDown" ref={(select) => this.select = select}</div>';
         }]
       };
     }

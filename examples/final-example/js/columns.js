@@ -29,7 +29,7 @@ const columns = {
           }
         });
       },
-      remove(event, recordId, record, grid) { // ref="remove" click handler
+      remove(event, recordId, record, grid) {
         grid.getModel().delete(recordId, function (err) {
           if (!err) {
             grid.updateTable();
@@ -37,6 +37,15 @@ const columns = {
         });
       }
     }
+  },
+  id: {
+    name: 'ID',
+    width: 30,
+    className: 'text-center',
+    sortCycle: ['asc', 'desc', 'default'],
+    render: ['id', function (record) {
+      return record.id;
+    }]
   },
   name: {
     name: 'First Name', // columns title

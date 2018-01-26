@@ -105,14 +105,14 @@ So we'll define the `saveChanges` and `clearChanges` methods in our `MainCompone
 // ...
 
 saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   },
 
 clearChanges() {
-  this.refs.grid.clearAllChanges();
+  this.grid.clearAllChanges();
 }
 {% endhighlight %}
 
@@ -126,7 +126,7 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
 {% highlight javascript %}
 // ...
 <UIKernel.Grid
-  ref="grid"
+  ref={(grid) => this.grid = grid}
   model={this.state.model}
   cols={columns}
   viewCount={10}

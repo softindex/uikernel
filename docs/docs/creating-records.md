@@ -256,7 +256,7 @@ Next up, let's modify `MainComponent`.
 {% highlight javascript %}
 
 highlightNewRecord(recordId) {
-  this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+  this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
 }
 
 // ...
@@ -297,7 +297,7 @@ render() {
                 <h3 className="panel-title">Records</h3>
               </div>
               <UIKernel.Grid
-                ref="grid"
+                ref={(grid) => this.grid = grid}
                 model={this.state.model} // Grid model
                 cols={columns} // columns configuration
                 viewCount={10} // display 10 records per page

@@ -19,9 +19,10 @@ class MainComponent extends React.Component {
       filters: DEFAULT_FILTERS,
       model,
       cols: {
-        // display name, surname, phone by default
+        // display id, name, surname, phone by default
         bulk: true,
         tools: true,
+        id: true,
         name: true,
         surname: true,
         phone: true,
@@ -34,8 +35,8 @@ class MainComponent extends React.Component {
   }
 
   getSelectedRecords() {
-    const isBlackMode = this.refs.grid.state.selectBlackListMode;
-    let selected = this.refs.grid.getAllSelected();
+    const isBlackMode =this.grid.state.selectBlackListMode;
+    let selected =this.grid.getAllSelected();
 
     if (isBlackMode) {
       const allData = this.state.model.data.map(item => item[0]);
@@ -53,9 +54,10 @@ class MainComponent extends React.Component {
     });
   }
 
-  onSelectedChange(records) {
+  onSelectedChange() {
+    const num = this.getSelectedRecords().length;
     this.setState({
-      selectedNum: records.length
+      selectedNum: num
     });
   }
 
@@ -65,16 +67,16 @@ class MainComponent extends React.Component {
     records.forEach((recordId) => {
       this.state.model.delete(recordId, (err) => {
         if (!err) {
-          this.refs.grid.updateTable();
+          this.grid.updateTable();
         }
       });
     });
 
-    this.refs.grid.unselectAll();
+    this.grid.unselectAll();
   }
 
   highlightNewRecord(recordId) {
-    this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+    this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   }
 
   openColumnsForm() {
@@ -85,29 +87,22 @@ class MainComponent extends React.Component {
         columnsWindow.close();
         this.setState({cols});
       }
-    }, "opened");
+    }, 'opened');
   }
 
   onSave() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   }
 
   onClear() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
-    const blackMode = this.refs.grid ? this.refs.grid.state.selectBlackListMode : false;
-    let numText; // selected records
-
-    if (blackMode) {
-      numText = 'Selected all records.';
-    } else {
-      numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
-    }
+    const numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
 
     return [
       <div className="panel">
@@ -127,7 +122,7 @@ class MainComponent extends React.Component {
         </div>
         <div className="panel-body padding0">
           <UIKernel.Grid
-            ref="grid"
+            ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
             viewColumns={this.state.cols}

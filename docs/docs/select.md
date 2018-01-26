@@ -8,7 +8,7 @@ next: datepicker.html
 * [Live demo](/examples/select/){:target="_blank"}
 * [Code]({{ site.github }}/examples/select){:target="_blank"}
 
-In this example, we use `UIKernel.Editors.Select` and pass it the `value`, `onChange`, `options`, 
+In this example, we use `UIKernel.Editors.Select` and pass it the `value`, `onChange`, `options`,
 and `onLabelChange` props. You can also use [other props](editors.html#Select).
 
 `MainComponent.jsx`:
@@ -42,7 +42,7 @@ class MainComponent extends React.Component {
         <span>Selected: {this.state.label}</span>
         <br/>
         <UIKernel.Editors.Select
-          ref="select"
+          ref={(select) => this.select = select}
           onChange={this.handleChange}
           onLabelChange={this.handleLabelChange}
           value={this.state.value}

@@ -41,12 +41,12 @@ with both front-end and back-end data sources.
 <UIKernel.Grid
   model={model}
   cols={columns}
-  ref="grid"
+  ref={(grid) => this.grid = grid}
   {/*some other props*/}
 />
 
 //somewhere else
-this.refs.grid.someGridMethod();
+this.grid.someGridMethod();
 {% endhighlight %}
 
    There are also special [adapters](/docs/grid-adapters.html) to adapt Grid model to From model.
