@@ -29,14 +29,14 @@ class MainComponent extends React.Component {
   }
 
   saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   }
 
   clearChanges() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
@@ -59,7 +59,7 @@ class MainComponent extends React.Component {
             <h3 className="panel-title">Records</h3>
           </div>
           <UIKernel.Grid
-            ref="grid"
+            ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
             viewCount={10} // display 10 records per page

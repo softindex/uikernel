@@ -19,9 +19,10 @@ class MainComponent extends React.Component {
       filters: DEFAULT_FILTERS,
       model,
       cols: {
-        // display name, surname, phone by default
+        // display id, name, surname, phone by default
         bulk: true,
         tools: true,
+        id: true,
         name: true,
         surname: true,
         phone: true,
@@ -33,6 +34,19 @@ class MainComponent extends React.Component {
     };
   }
 
+  getSelectedRecords() {
+    const isBlackMode =this.grid.state.selectBlackListMode;
+    let selected =this.grid.getAllSelected();
+
+    if (isBlackMode) {
+      const allData = this.state.model.data.map(item => item[0]);
+      selected = allData.filter(el => !selected.includes(el));
+    }
+
+    this.setState({ selectedNum: selected.length });
+    return selected;
+  }
+
   onFiltersChange(filters) {
     this.setState({
       filters,
@@ -40,18 +54,29 @@ class MainComponent extends React.Component {
     });
   }
 
-  onSelectedChange(records) {
+  onSelectedChange() {
+    const num = this.getSelectedRecords().length;
     this.setState({
-      selectedNum: records.length
+      selectedNum: num
     });
   }
 
-  toggleSelectMode() {
-    this.refs.grid.toggleSelectAll();
+  deleteSelectedRecords() {
+    const records = this.getSelectedRecords();
+
+    records.forEach((recordId) => {
+      this.state.model.delete(recordId, (err) => {
+        if (!err) {
+          this.grid.updateTable();
+        }
+      });
+    });
+
+    this.grid.unselectAll();
   }
 
   highlightNewRecord(recordId) {
-    this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+    this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   }
 
   openColumnsForm() {
@@ -62,30 +87,22 @@ class MainComponent extends React.Component {
         columnsWindow.close();
         this.setState({cols});
       }
-    }, "opened");
+    }, 'opened');
   }
 
   onSave() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   }
 
   onClear() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
-    const blackMode = this.refs.grid ? this.refs.grid.state.selectBlackListMode : false;
-    const buttonText = blackMode ? 'Clear all' : 'Select all';
-    let numText; // selected records
-
-    if (blackMode) {
-      numText = 'Selected all records.';
-    } else {
-      numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
-    }
+    const numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
 
     return [
       <div className="panel">
@@ -96,9 +113,16 @@ class MainComponent extends React.Component {
             onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}
           />
         </div>
+        <div className="panel-footer">
+          <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
+            <i className="fa fa-th-list"></i>{' '}Columns
+          </a>
+          <a className="btn btn-success" onClick={() => this.deleteSelectedRecords()}>Delete selected</a>
+          {numText}
+        </div>
         <div className="panel-body padding0">
           <UIKernel.Grid
-            ref="grid"
+            ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
             viewColumns={this.state.cols}
@@ -107,14 +131,9 @@ class MainComponent extends React.Component {
           />
         </div>
         <div className="panel-footer">
-          <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
-            <i className="fa fa-th-list"></i>{' '}Columns
-          </a>
-          <a className="btn btn-success" onClick={() => this.toggleSelectMode()}>{buttonText}</a>
-          {numText}
-          <a className="btn pull-right btn-default" onClick={() => this.onClear()}>Clear changes</a>
+          <a className="btn btn-default" onClick={() => this.onClear()}>Clear changes</a>
           {' '}
-          <a className="btn pull-right btn-primary" onClick={() => this.onSave()}>Save</a>
+          <a className="btn btn-primary" onClick={() => this.onSave()}>Save</a>
         </div>
       </div>,
       <div className="panel">

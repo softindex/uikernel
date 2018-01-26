@@ -38,9 +38,9 @@ class MainComponent extends React.Component {
         <span>Date: {this.state.date}</span>
         <br/>
         <UIKernel.Editors.DatePicker
-          ref="datepicker"
-          format="yy-mm-dd"
-          textFormat="DD, d MM, yy"
+          ref={(datepicker) => this.datepicker = datepicker}
+          format="YYYY-MM-DD"
+          textFormat="dddd, MMMM Do YYYY"
           onChange={this.handleChanges}
           min="2003-01-01"
           max="2003-12-31"
