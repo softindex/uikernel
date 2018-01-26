@@ -33,7 +33,7 @@ class MainComponent extends React.Component {
   }
 
   someAction() { // this function can do anything what you need
-    const records =this.grid.getAllSelected();
+    const records = this.grid.getAllSelected();
     alert(`Mode: ${this.state.blackMode}. Records: ${records.length ? records.join(', ') : 'all'}`);
   }
 

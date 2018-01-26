@@ -134,8 +134,8 @@ Checkbox editor is a React wrapper which handle indeterminate state of checkbox.
 
 ### Checkbox Properties
 
-| Type     | Name              | Description          |
-|----------|-------------------|----------------------|
-| Boolean  | **checked**       | If is checked        |
-| Function | **onChange**      | Value change handler |
+| Type     | Name              | Description                           |
+|----------|-------------------|---------------------------------------|
+| Boolean  | **checked**       | If is checked                         |
+| Function | **onChange**      | Value change handler                  |
 | Boolean  | indeterminate     | If checkbox is in indeterminate state |
