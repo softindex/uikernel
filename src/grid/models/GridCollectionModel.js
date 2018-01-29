@@ -130,7 +130,7 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
   for (i in this._requiredFields) {
     field = this._requiredFields[i];
     if (!clonedRecord.hasOwnProperty(field)) {
-      clonedRecord[field] = record[field];
+      clonedRecord[field] = null;
     }
   }
 
