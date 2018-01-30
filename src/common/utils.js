@@ -341,6 +341,16 @@ exports.pick = (obj, keys, defaultValue) => keys.reduce((result, key) => {
   return result;
 }, {});
 
+exports.mapKeys = (object, iteratee) => {
+  const result = {};
+
+  for (const [key, value] of Object.entries(object)) {
+    result[iteratee(value, key)] = value;
+  }
+
+  return result;
+};
+
 exports.reduce = function (obj, func, value) {
   for (const i in obj) {
     value = func(value, obj[i], i);
@@ -452,7 +462,7 @@ exports.warn = function (message) {
 };
 
 exports.toEncodedString = function (value) {
-  return encodeURIComponent(JSON.stringify(value));
+  return encodeURIComponent((typeof value === 'string' ? value : JSON.stringify(value)));
 };
 
 exports.asyncHandler = function (router) {
