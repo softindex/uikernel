@@ -201,7 +201,7 @@ const GridComponent = React.createClass({
     if (nextProps.selected) {
       this.state.selected = nextProps.selected;
     }
-    this.setState({}, function () {
+    this.setState({}, async function () {
       if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
         if (reset & RESET_MODEL) {
           this.state.data = null;
@@ -216,7 +216,7 @@ const GridComponent = React.createClass({
           this._setPage(0);
         }
         try {
-          this._throttledUpdateTable();
+          await this._throttledUpdateTable();
         } catch (e) {
           if (!(e instanceof ThrottleError)) {
             throw e;
