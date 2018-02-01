@@ -5,7 +5,7 @@ prev: form-model.html
 next: form-express-api.html
 ---
 
-Form XHR Model is a class which interacts with the server API keeping there its data.
+Form XHR Model is a class which interacts with the server API holding the data.
 
 *Form XHR Model implements [Form Model Interface](/docs/form-interface.html).*
 

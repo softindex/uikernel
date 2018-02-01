@@ -20,7 +20,7 @@ export default router;
 {% endhighlight %}
 
 
-Next, we'll define routes for the module named `userGrid`. It will be responsible for work with data passed to the client model.
+Next, we'll define routes for the module named `userGrid`. It will be responsible for working with the data passed to the client model.
 UIKernel allows to generate routes if you use Express. So we're going to generate routes for this module.
 
 `userGrid/router.js`:

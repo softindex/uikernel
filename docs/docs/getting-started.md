@@ -20,7 +20,7 @@ npm i uikernel
 {% endhighlight%}
 {:start="2"}
 
-2. Open up `src/index.js` and replace all with next piece of code
+2. Open up `src/index.js` and replace all with the next piece of code
 
  {% highlight javascript %}
  import React from 'react';
@@ -70,14 +70,14 @@ npm i uikernel
  {% endhighlight %}
 
 {:start="3"}
-3. Try your work by command `npm start`
+3. Try it out now using the `npm start` command
 
 
 As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
 
 Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 
-And that's all. Here's [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}/examples/getting-started){:target="_blank"}.
+And that's all. Here's the [live demo](/examples/getting-started/){:target="_blank"} and [code]({{ site.github }}/examples/getting-started){:target="_blank"}.
 
 ## Next Steps
 

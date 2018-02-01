@@ -5,7 +5,7 @@ prev: grid-interface.html
 next: grid-model-collection.html
 ---
 
-Grid Xhr Model is a class that interacts with the server API keeping there its data.
+Grid Xhr Model is a class that interacts with the server API holding the data.
 
 *Grid Xhr Model implements [Grid Model Interface](/docs/grid-interface.html){:target="_blank"}*
 

@@ -6,7 +6,7 @@ next: select.html
 ---
 
 The grids in this example share one model.
-When we modify records in one of the grids, another grid updates too.
+When we modify records in one of the grids, the other grid updates, too.
 
 * [Live demo](/examples/data-binding/){:target="_blank"}
 * [Code]({{ site.github }}/examples/data-binding){:target="_blank"}

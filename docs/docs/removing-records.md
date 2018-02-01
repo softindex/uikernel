@@ -46,4 +46,4 @@ const columns = {
 };
 {% endhighlight %}
 
-That's all. Now we can remove grid records.
+That's it. Now we can remove grid records.

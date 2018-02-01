@@ -102,7 +102,7 @@ handleSubmit(e) {
 {% endhighlight %}
 
 `handleSubmit` calls the `this.form.submit` method which sends data to our model.
-On successful submitting, the  callback from  `MainComponent` is invoked.
+On successful submission, the  callback from  `MainComponent` is invoked.
 
 ---
 

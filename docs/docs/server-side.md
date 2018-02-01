@@ -5,7 +5,7 @@ prev: creating-records.html
 next: server-routes.html
 ---
 
-In this tutorial, we'll be writing a server-side part of the app which will use UIKernel.
+In this tutorial, we'll be writing an example of the server-side part of the app which will use UIKernel.
 We are going to use Node.js, Express and MySql.
 
 Our app will have the following structure:
@@ -92,7 +92,7 @@ app.listen(port, () => {
 In the next section of the tutorial, we'll define routes for our app.
 
 The client-side part of the app is similar to the one described in the previous part of the tutorial,
-the only difference is that the data model at the client-side part will be an instance of UIKernel.Models.Grid.Xhr
+the only difference is that the data model on the client-side part will be an instance of UIKernel.Models.Grid.Xhr
 instead of UIKernel.Models.Grid.Collection, so that the client-side part will fetch grid data and synchronize it
 with the server's model:
 
@@ -103,7 +103,7 @@ const model = new UIKernel.Models.Grid.Xhr({
   validator,
 });
 
-// do not forget to define delete method for UserGridModel
+// do not forget to define a delete method for UserGridModel
 model.deleteItem = async function (recordId) {
   await this._xhr({
     method: 'DELETE',

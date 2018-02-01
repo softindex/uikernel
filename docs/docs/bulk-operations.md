@@ -14,7 +14,7 @@ This example demonstrates how to select grid records and perform on them some ac
 - To select/unselect all records, we use `grid.toggleSelectAll` method.
 - To get all selected records, we use `grid.getAllSelected` method.
 
-Lets implement a simple grid which will consist of
+Let's implement a simple grid which will consist of
 'name', 'surname', 'phone', 'age', 'gender' fields
 and first column 'bulk' containing checkboxes for toggling selection of records.
 

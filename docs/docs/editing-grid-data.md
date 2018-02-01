@@ -81,9 +81,7 @@ Here, we've called `UIKernel.createValidator` to create a validator.
 
 `field` is the method of validator which accepts two parameters: a column name and a validation function.
 
-In this example, we've used only `UIKernel.Validators.regExp`. There are much more UIKernel validation functions.
-
-You can check them [here](validator.html).
+In this example, we've used only `UIKernel.Validators.regExp`. There are many more UIKernel validation functions, see them all [here](validator.html).
 
 ---
 

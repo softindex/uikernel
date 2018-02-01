@@ -5,7 +5,7 @@ prev: server-routes.html
 next: server-model.html
 ---
 
-UIKernel supports the client-side and server-side validation.
+UIKernel supports client-side and server-side validation.
 To define the server-side validation, we're going to use [UIKernel validator](/docs/validator.html).
 
 `userGrid/validations.js`:
