@@ -160,6 +160,7 @@ const GridComponent = createReactClass({
     if (this.props.model) {
       this.props.model.on('create', this._onRecordCreated);
       this.props.model.on('update', this._setData);
+      this.props.model.on('delete', this.updateTable);
     }
     this.updateTable();
   },
@@ -168,6 +169,7 @@ const GridComponent = createReactClass({
     if (this.props.model) {
       this.props.model.off('create', this._onRecordCreated);
       this.props.model.off('update', this._setData);
+      this.props.model.off('delete', this.updateTable);
     }
     if (this.props.onDestroy) {
       this.props.onDestroy();
@@ -217,13 +219,11 @@ const GridComponent = createReactClass({
           }
           this._setPage(0);
         }
-        try {
-          this._throttledUpdateTable();
-        } catch (e) {
-          if (!(e instanceof ThrottleError)) {
-            throw e;
+        this._throttledUpdateTable().catch(err => {
+          if (!(err instanceof ThrottleError)) {
+            console.error(err);
           }
-        }
+        });
       } else if ((reset & RESET_VIEW_COLUMNS) || (reset & RESET_SELECTED_COLUMNS) || (reset & RESET_BLACK_LIST_MODE)) {
         this._renderBody();
       }
@@ -236,34 +236,37 @@ const GridComponent = createReactClass({
         <div className="wrapper-dgrid-header">
           <table cellSpacing="0" className="dgrid-header">
             <colgroup>{header.colGroup}</colgroup>
-            {header.cols.map((row, colKey) => {
-              return (
-                <tr key={colKey}>
-                  {row.map((col, rowKey) => {
-                    return (
-                      <th
-                        key={rowKey}
-                        className={col.className}
-                        onClick={
-                          col.sort ?
-                            this._sortCol.bind(this, col.field) :
-                            this._handleHeaderCellClick.bind(this, col)
-                        }
-                        colSpan={col.cols}
-                        rowSpan={col.rows}
-                        dangerouslySetInnerHTML={{
-                          __html: this._getHeaderCellHTML(col.name || col.id)
-                        }}
-                      />
-                    );
-                  })}
-                </tr>
-              );
-            })}
+            <thead>
+              {header.cols.map((row, colKey) => {
+                return (
+                  <tr key={colKey}>
+                    {row.map((col, rowKey) => {
+                      const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
+                      const props = {
+                        key: rowKey,
+                        className: col.className,
+                        onClick: col.sort ? this._sortCol.bind(this, col.field) :
+                          this._handleHeaderCellClick.bind(this, col),
+                        colSpan: col.cols,
+                        rowSpan: col.rows
+                      };
+                      return (
+                        typeof header === 'string' ?
+                          <th
+                            {...props}
+                            dangerouslySetInnerHTML={{
+                              __html: header
+                            }}/>
+                          : <th {...props}>{header}</th>);
+                    })}
+                  </tr>
+                );
+              })}
+            </thead>
           </table>
         </div>
         <div
-          style={{maxHeight: this.props.height}}
+          style={{maxHeight: this.props.height, height: this.props.height}}
           className='dgrid-body-wrapper dgrid-scrollable'
         >
           <div className="dgrid-body">

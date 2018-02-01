@@ -191,37 +191,36 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    this.setState({
+    await toPromise(::this.setState, true)({
       isOpened: true,
       loading: true,
       popupStyles: this._setPopupStyles()
-    }, () => {
-      findDOMNode(this.input).select();
-      this._updateList(searchPattern) // TODO Handle errors
-        .then(() => {
-          if (!this.state.options.length) {
-            return;
-          }
-
-          if (focusFirstOption) {
-            const key = this.state.options[0].type !== 'group' ? 0 : 1;
-            this._focusOption(key, true);
-            return;
-          }
-
-          const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
-            return utils.isEqual(option.id, this.props.value);
-          });
-
-          if (selectedOptionKey !== -1) {
-            this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
-          }
-        });
     });
+    findDOMNode(this.input).select();
+
+    await this._updateList(searchPattern); // TODO Handle errors
+
+    if (!this.state.options.length) {
+      return;
+    }
+
+    if (focusFirstOption) {
+      const key = this.state.options[0].type !== 'group' ? 0 : 1;
+      await this._focusOption(key, true);
+      return;
+    }
+
+    const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
+      return utils.isEqual(option.id, this.props.value);
+    });
+
+    if (selectedOptionKey !== -1) {
+      this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
+    }
   }
 
-  _onInputFocus(e) {
-    this._openList();
+  async _onInputFocus(e) {
+    await this._openList();
     findDOMNode(this.input).select();
     if (this.props.onFocus) {
       this.props.onFocus(e);
@@ -242,11 +241,11 @@ class SuggestBoxEditor extends React.Component {
     });
   }
 
-  _toggleList() {
+  async _toggleList() {
     if (this.state.isOpened) {
       this._closeList();
     } else {
-      this._openList();
+      await this._openList();
     }
   }
 
@@ -266,14 +265,15 @@ class SuggestBoxEditor extends React.Component {
     findDOMNode(this.input).select();
   }
 
-  _focusOption(key, shouldSetLabel) {
+  async _focusOption(key, shouldSetLabel) {
     if (shouldSetLabel === true) {
       this._setLabelTo(this.state.options[key].label);
     }
     if (this.state.isOpened) {
       this._focusOptionAndScrollIntoView(key);
     } else {
-      this._openList(null).then(() => this._focusOptionAndScrollIntoView(key));
+      await this._openList(null);
+      this._focusOptionAndScrollIntoView(key);
     }
   }
 
@@ -443,12 +443,12 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
-  _onInputValueChange(e) {
+  async _onInputValueChange(e) {
     this._setLabelTo(e.target.value);
     if (this.state.isOpened) {
-      return this._updateList(e.target.value);
+      await this._updateList(e.target.value);
     } else {
-      return this._openList(e.target.value);
+      await this._openList(e.target.value);
     }
   }
 

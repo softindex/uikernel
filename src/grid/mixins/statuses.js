@@ -39,27 +39,36 @@ const GridStatusesMixin = {
   /**
    * Add status to records group
    *
-   * @param {Array}      group   Record IDs array
-   * @param {string}     status  Status
+   * @param {Array}      recordIds   Record IDs array
+   * @param {string}     status      Status
    */
-  addRecordStatusGroup: function (group, status) {
-    let i;
+  addRecordStatusGroup: function (recordIds, status) {
     const bit = this._getStatusBit(status);
-    let row;
+    let needTableUpdate;
 
-    for (i in group) {
-      row = utils.toEncodedString(group[i]);
+    for (const id of recordIds) {
+      const row = utils.toEncodedString(id);
+
       if (!this.state.statuses.hasOwnProperty(row)) {
         this.state.statuses[row] = {
-          id: group[i],
+          id,
           sum: 0
         };
       }
+
       this.state.statuses[row].sum |= bit;
+
+      if (this.state.data[row]) {
+        this._updateRow(row);
+        continue;
+      }
+
+      needTableUpdate = true;
     }
 
-    // TODO You can do without a full page reload
-    this.updateTable();
+    if (needTableUpdate) {
+      this.updateTable();
+    }
   },
 
   /**

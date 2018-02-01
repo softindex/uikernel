@@ -50,7 +50,35 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object[]} data
    */
   setData(data) {
+    const newIds = data.map(elem => elem[0]);
+    const currentIds = this.data.map(elem => elem[0]);
+    const createdIds = utils.without(newIds, currentIds);
+    const deletedIds = utils.without(currentIds, newIds);
+    const updatedIds = utils.without(currentIds, deletedIds);
     this.data = utils.cloneDeep(data);
+    if (createdIds.length) {
+      this.trigger('create', createdIds);
+    }
+    if (deletedIds.length) {
+      this.trigger('delete', deletedIds);
+    }
+    if (updatedIds.length) {
+      this.trigger('update', updatedIds);
+    }
+  }
+
+  /**
+   * Remove field by record id from data
+   *
+   * @param   {Number}  recordId   record id for remove
+   * @returns {Number}  recordId   return id of deleted record
+   */
+  async delete(recordId) {
+    this.data = this.data.filter(record => {
+      return record[0] !== recordId;
+    });
+    this.trigger('delete', recordId);
+    return recordId;
   }
 
   /**
@@ -102,7 +130,7 @@ GridCollectionModel.prototype.create = callbackify(async function (record) {
   for (i in this._requiredFields) {
     field = this._requiredFields[i];
     if (!clonedRecord.hasOwnProperty(field)) {
-      clonedRecord[field] = record[field];
+      clonedRecord[field] = null;
     }
   }
 
