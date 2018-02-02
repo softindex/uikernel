@@ -50,20 +50,45 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object[]} data
    */
   setData(data) {
-    const newIds = data.map(elem => elem[0]);
-    const currentIds = this.data.map(elem => elem[0]);
-    const createdIds = utils.without(newIds, currentIds);
-    const deletedIds = utils.without(currentIds, newIds);
-    const updatedIds = utils.without(currentIds, deletedIds);
+    const currentData = this.data.reduce((result, [recordId, record]) => {
+      result[JSON.stringify(recordId)] = record;
+      return result;
+    }, {});
+
+    const createdRecordsIds = [];
+    const updatedRecords = [];
+
+    const recordIds = [];
+
+    for (const [recordId, record] of data) {
+      const id = JSON.stringify(recordId);
+
+      recordIds.push(id);
+
+      if (!currentData[id]) {
+        createdRecordsIds.push(recordId);
+        continue;
+      }
+
+      if (!utils.isEqual(record, currentData[id])) {
+        updatedRecords.push(record);
+      }
+    }
+
+    const deletedRecordsIds = utils.without(Object.keys(currentData), recordIds).map(JSON.parse);
+
     this.data = utils.cloneDeep(data);
-    if (createdIds.length) {
-      this.trigger('create', createdIds);
+
+    if (createdRecordsIds.length) {
+      this.trigger('create', createdRecordsIds);
     }
-    if (deletedIds.length) {
-      this.trigger('delete', deletedIds);
+
+    if (deletedRecordsIds.length) {
+      this.trigger('delete', deletedRecordsIds);
     }
-    if (updatedIds.length) {
-      this.trigger('update', updatedIds);
+
+    if (updatedRecords.length) {
+      this.trigger('update', updatedRecords);
     }
   }
 
