@@ -44,6 +44,7 @@ rules:
   no-underscore-dangle: 0
   consistent-return: 0
   require-yield: 0
+  react/prop-types: 0
   react/no-is-mounted: 0
   react/no-direct-mutation-state: 0
   react/no-find-dom-node: 0

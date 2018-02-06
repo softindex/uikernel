@@ -37,7 +37,10 @@ class DatePickerEditor extends React.Component {
   }
 
   onChange(date) {
-    this.props.onChange(date.format(this.props.format));
+    if (date) {
+      date = date.format(this.props.format);
+    }
+    this.props.onChange(date);
   }
 
   render() {

@@ -69,8 +69,8 @@ class NumberEditor extends React.Component {
         {...utils.omit(this.props, 'value')}
         type="number"
         ref={(input) => this.input = input }
-        onChange={this::this._onChangeHandler}
-        onKeyPress={this::this._onKeyPressHandler}
+        onChange={::this._onChangeHandler}
+        onKeyPress={::this._onKeyPressHandler}
         defaultValue={this.props.value}
       />
     );

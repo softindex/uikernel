@@ -19,7 +19,6 @@ import buildSite from './gulp/buildSite';
 import release from './gulp/release';
 import clearOldLibFiles from './gulp/clearOldLibFiles';
 
-gulp.task('release', release);
 gulp.task('clear', jsClear);
 gulp.task('clearOldLibFiles', clearOldLibFiles);
 gulp.task('styleBundle', styleBundle);
@@ -33,4 +32,5 @@ gulp.task('archive', gulp.series(['bundle', archive]));
 gulp.task('buildSite', gulp.series(['archive', buildSite]));
 gulp.task('deploySite', gulp.series(['buildSite', deploySite]));
 
+gulp.task('release', gulp.series(['bundle', release]));
 gulp.task('default', gulp.series('lib'));

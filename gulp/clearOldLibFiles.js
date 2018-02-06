@@ -13,17 +13,11 @@ import count from 'gulp-count';
 import pathExists from 'path-exists';
 import del from 'del';
 
-function isFileExistInSrc(stream, cb, sourceFile, destPath) {
-  pathExists(destPath)
-    .then(exist => {
-      if (!exist) {
-        stream.push(sourceFile);
-      }
-    })
-    .catch(err => {
-      stream.emit('error', err);
-    })
-    .then(() => cb());
+async function isFileExistInSrc(stream, sourceFile, destPath) {
+  const exist = await pathExists(destPath);
+  if (!exist) {
+    stream.push(sourceFile);
+  }
 }
 
 function clearOldLibFilesTask() {
