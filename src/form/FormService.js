@@ -70,7 +70,7 @@ class FormService {
       this.fields = settings.fields;
     }
     if (!this._data) {
-      this._data = await toPromise(settings.model.getData.bind(settings.model))(settings.fields);
+      this._data = await toPromise(settings.model.getData.bind(settings.model))(this.fields);
     }
 
     this.model.on('update', this._onModelChange);
