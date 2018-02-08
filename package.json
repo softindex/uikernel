@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "0.17.0-dev90",
+  "version": "0.17.0-dev91",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -15,7 +15,8 @@
   "repository": "git@github.com:softindex/uikernel.git",
   "scripts": {
     "test": "jest",
-    "start-site": "sh ./scripts/start_local_site.sh"
+    "start-site": "sh ./scripts/start_local_site.sh",
+    "build": "gulp"
   },
   "dependencies": {
     "babel-runtime": "^6.23.0",
