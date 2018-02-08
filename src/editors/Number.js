@@ -54,10 +54,19 @@ class NumberEditor extends React.Component {
 
   _onKeyPressHandler(e) {
     const keyCode = e.keyCode || e.which;
-    const char = String.fromCharCode(keyCode);
+    const char = String.fromCharCode(keyCode).toLowerCase();
 
-    // Problem in FireFox. Allow write only numbers
-    if (!/\d|\+|-|[Ee]|\./.test(char)) {
+    const isModifierKeyPressed = (e.metaKey || e.ctrlKey || e.shiftKey);
+    const isCursorMoveOrDeleteAction = [46, 8, 37, 38, 39, 40].includes(keyCode);
+    const isNumKey = /\d|\+|-|[Ee]|\./.test(char);
+
+    // Problem in FireFox. Allow write only numbers and use standard shortcuts
+    switch (true) {
+    case isCursorMoveOrDeleteAction:
+    case (isModifierKeyPressed === false) && isNumKey:
+    case (e.metaKey || e.ctrlKey) && ['a', 'c', 'v', 'x'].includes(char):
+      break;
+    default:
       e.preventDefault();
     }
   }
