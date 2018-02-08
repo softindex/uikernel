@@ -347,7 +347,7 @@ const FormMixin = {
     }
 
     if (validate) {
-      this.validateForm(cb);
+      this.setState(this.state, () => this.validateForm(cb));
       return;
     }
 
