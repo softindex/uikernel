@@ -22,6 +22,7 @@ import gridMixinEditor from './mixins/editor';
 import gridMixinUI from './mixins/ui';
 import gridMixinSelect from './mixins/select';
 import ThrottleError from '../common/ThrottleError';
+import HeaderCell from './HeaderCell';
 
 const RESET_MODEL = 1 << 0;
 const RESET_VIEW_COLUMNS = 1 << 1;
@@ -240,20 +241,11 @@ const GridComponent = React.createClass({
                       const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
                       const props = {
                         key: rowKey,
-                        className: col.className,
-                        onClick: col.sort ? this._sortCol.bind(this, col.field) :
-                          this._handleHeaderCellClick.bind(this, col),
-                        colSpan: col.cols,
-                        rowSpan: col.rows
+                        onClick: this._sortCol,
+                        col,
+                        header
                       };
-                      return (
-                        typeof header === 'string' ?
-                          <th
-                            {...props}
-                            dangerouslySetInnerHTML={{
-                              __html: header
-                            }}/>
-                          : <th {...props}>{header}</th>);
+                      return <HeaderCell {...props}/>;
                     })}
                   </tr>
                 );
@@ -305,20 +297,11 @@ const GridComponent = React.createClass({
                     const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
                     const props = {
                       key: rowKey,
-                      className: col.className,
-                      onClick: col.sort ? this._sortCol.bind(this, col.field) :
-                        this._handleHeaderCellClick.bind(this, col),
-                      colSpan: col.cols,
-                      rowSpan: col.rows
+                      onClick: this._sortCol,
+                      col,
+                      header
                     };
-                    return (
-                      typeof header === 'string' ?
-                        <th
-                          {...props}
-                          dangerouslySetInnerHTML={{
-                            __html: header
-                          }}/>
-                        : <th {...props}>{header}</th>);
+                    return <HeaderCell {...props}/>;
                   })}
                 </tr>
               );

@@ -62,25 +62,6 @@ const GridUIMixin = {
     }
   },
 
-  // TODO Deprecated
-  _handleHeaderCellClick: function (col, event) {
-    const $target = $(event.target);
-    const $refParent = $target.parents('[ref]');
-    const ref = $refParent.attr('ref') || event.target.getAttribute('ref');
-    let handler;
-
-    if (ref && col.onClickRefs) {
-      handler = col.onClickRefs[ref];
-      if (handler) {
-        return handler(event, this);
-      }
-    }
-
-    if (col.onClick) {
-      col.onClick(event, this);
-    }
-  },
-
   /**
    * Fetch server data
    */
