@@ -14,6 +14,21 @@ import PropTypes from 'prop-types';
 
 const isInvalidFloat = floatValidator(null, null, true);
 
+const ESC_KEYCODE = 27,
+  BACKSPACE_KEYCODE = 8,
+  DELETE_KEYCODE = 46,
+  INSERT_KEYCODE = 45,
+  LEFT_KEYCODE = 37,
+  UP_KEYCODE = 38,
+  RIGHT_KEYCODE = 39,
+  DOWN_KEYCODE = 40;
+
+const isCursorMoveOrDeleteAction = (keyCode) => {
+  return (new Set([ESC_KEYCODE, BACKSPACE_KEYCODE, DELETE_KEYCODE,
+    INSERT_KEYCODE, LEFT_KEYCODE, UP_KEYCODE, RIGHT_KEYCODE, DOWN_KEYCODE]))
+    .has(keyCode);
+};
+
 class NumberEditor extends React.Component {
   static propTypes = {
     onChange: PropTypes.func.isRequired,
@@ -57,16 +72,13 @@ class NumberEditor extends React.Component {
     const char = String.fromCharCode(keyCode).toLowerCase();
 
     const isModifierKeyPressed = (e.metaKey || e.ctrlKey || e.shiftKey);
-    const isCursorMoveOrDeleteAction = [46, 8, 37, 38, 39, 40].includes(keyCode);
-    const isNumKey = /\d|\+|-|[Ee]|\./.test(char);
+    const isNumKey = /\d|\+|-|e|\./.test(char);
 
     // Problem in FireFox. Allow write only numbers and use standard shortcuts
-    switch (true) {
-    case isCursorMoveOrDeleteAction:
-    case (isModifierKeyPressed === false) && isNumKey:
-    case (e.metaKey || e.ctrlKey) && ['a', 'c', 'v', 'x'].includes(char):
-      break;
-    default:
+    if (!(isCursorMoveOrDeleteAction(keyCode) // allow action keys
+          || (!isModifierKeyPressed && isNumKey) // restrict Shift+'1' = '!' e.g.
+          || ((e.metaKey || e.ctrlKey) && ['a', 'c', 'v', 'x'].includes(char)) // allow standard shortcuts
+    )) {
       e.preventDefault();
     }
   }
