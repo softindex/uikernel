@@ -26,8 +26,7 @@ class FormService {
     this.validateForm = utils.throttle(this.validateForm.bind(this));
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
-    this.clearError = this.clearError.bind(this);
-    this.clearValidations = this.clearValidations.bind(this);
+    this.clearValidation = this.clearValidation.bind(this);
     this.updateField = this.updateField.bind(this);
     this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
@@ -63,7 +62,7 @@ class FormService {
     this._warningsValidator = settings.warningsValidator || new Validator();
 
     this.validating = false;
-    this.pendingClearErrors = [];
+    this._pendingClearValidation = [];
     this.submitting = false;
     this._isNotInitialized = false;
 
@@ -71,7 +70,7 @@ class FormService {
       this.fields = settings.fields;
     }
     if (!this._data) {
-      this._data = await toPromise(settings.model.getData.bind(settings.model))(settings.fields);
+      this._data = await toPromise(settings.model.getData.bind(settings.model))(this.fields);
     }
 
     this.model.on('update', this._onModelChange);
@@ -153,36 +152,13 @@ class FormService {
     this.model.off('update', this._onModelChange);
   }
 
-  clearValidations(field) {
+  clearValidation(field) {
     if (this._isNotInitialized) {
       return;
     }
 
     if (this.validating) {
-      this.pendingClearErrors.push(field);
-    }
-
-    if (Array.isArray(field)) {
-      field.forEach(oneField => {
-        this._errors.clearField(oneField);
-        this._warnings.clearField(oneField);
-      });
-    } else {
-      this._errors.clearField(field);
-      this._warnings.clearField(field);
-    }
-
-    this._setState();
-  }
-
-  clearError(field) {
-    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidations"');
-    if (this._isNotInitialized) {
-      return;
-    }
-
-    if (this.validating) {
-      this.pendingClearErrors.push(field);
+      this._pendingClearValidation.push(field);
     }
 
     if (Array.isArray(field)) {
@@ -339,7 +315,7 @@ class FormService {
       this.validating = false;
 
       let field;
-      while (field = this.pendingClearErrors.pop()) {
+      while (field = this._pendingClearValidation.pop()) {
         this._warnings.clearField(field);
         this._errors.clearField(field);
       }
@@ -350,12 +326,10 @@ class FormService {
     const errorsWithPartialChecking = this._applyPartialErrorChecking(this._errors);
     const warningsWithPartialChecking = this._applyPartialErrorChecking(this._warnings);
 
-    if (!errorsWithPartialChecking.isEmpty()) {
-      return {
-        errors: errorsWithPartialChecking,
-        warnings: warningsWithPartialChecking
-      };
-    }
+    return {
+      errors: !errorsWithPartialChecking.isEmpty() ? errorsWithPartialChecking : null,
+      warnings: !warningsWithPartialChecking.isEmpty() ? warningsWithPartialChecking : null,
+    };
   }
 
   _getFields(data, changes) {
@@ -366,8 +340,8 @@ class FormService {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
       newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
-      newFields[fieldName].errors = errors ? errors.getFieldErrors(fieldName) : null;
-      newFields[fieldName].warnings = warnings ? warnings.getFieldErrors(fieldName) : null;
+      newFields[fieldName].errors = errors ? errors.getFieldErrorMessages(fieldName) : null;
+      newFields[fieldName].warnings = warnings ? warnings.getFieldErrorMessages(fieldName) : null;
       return newFields;
     }, {});
   }
@@ -398,27 +372,28 @@ class FormService {
   }
 
   /**
-   * Filter form fields
+   * Filter errors depending on the partialErrorChecking mode
    *
+   * @param {ValidationErrors}  validationErrors
    * @returns {ValidationErrors} Form fields
    */
-  _applyPartialErrorChecking(fields) {
-    const filterFields = fields;
+  _applyPartialErrorChecking(validationErrors) {
+    const filteredErrors = validationErrors;
 
     // If gradual validation is on, we need
     // to remove unchanged records from changes object
     if (!this._partialErrorChecking) {
-      return filterFields;
+      return filteredErrors;
     }
 
     // Look through all form fields
     for (const field in this._data) {
       if (!this._changes.hasOwnProperty(field)) {
-        filterFields.clearField(field);
+        filteredErrors.clearField(field);
       }
     }
 
-    return filterFields;
+    return filteredErrors;
   }
 
   _setState() {
