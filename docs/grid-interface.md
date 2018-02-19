@@ -1,100 +1,80 @@
 ---
-title: Grid Model
+title: Grid Model Interface
 id: grid-interface
 prev: grid-columns.html
 next: grid-model-xhr.html
 ---
 
-Model that is able to create, read, edit, remove and validate records.
+Definition of the model which is able to create, read, edit, remove and validate records of spreadsheets(grids).
 
-## Types
-* [GridXhrModel](/docs/grid-model-xhr.html)
-* [GridCollectionModel](/docs/grid-model-collection.html)
+## Implementations
+* [Grid Xhr Model](/docs/grid-model-xhr.html)
+* [Grid Collection Model](/docs/grid-model-collection.html)
 
-## Interface
-
-### create
+## Constructor
 
 {% highlight javascript %}
- create(Object record, function callback)
+  const abstractGridModel = new UIKernel.AbstractModels.Grid();
 {% endhighlight %}
 
-Adds a record and returns its ID.
+## Methods
+
+### (abstract) async create
+
+{% highlight javascript %}
+  async Object create(Object record)
+{% endhighlight %}
+
+Adds a record to the grid model data and returns an ID of the added record.
 
 ----
 
-### read
+### (abstract) async read
 
 {% highlight javascript %}
- read(Object settings, function callback)
+  async Array read(Object settings)
 {% endhighlight %}
 
-Reads records, filters, sorts and limits them.
-
-**settings:**
-
-| Type     | Name             | Description                         |
-|----------|------------------|-------------------------------------|
-| string[] | settings.fields  | Fields                              |
-| number   | settings.limit   | Limit                               |
-| Object   | settings.filters | Filter values object                |
-| Array    | settings.sort    | Sort parameters                     |
-| Array    | settings.extra     | Record IDs, we need to get for sure |
-
-*settings.extra* accepts record IDs, that need to be explicitly returned in a result.
-Usually they are edited records, that are displayed in spite of filters and current page.
-
-**result:**
-
-| Type    | Name                | Description                                               |
-|---------|---------------------|-----------------------------------------------------------|
-| Array[] | result.records      | Required records                                      |
-| Array[] | result.extraRecords | Extra records                      |
-| number  | result.count        | Filtered records count |
-| Object  | result.totals       | Totals line      |
+Retrieves grid records applying there filters, sorting, limits and offset.
 
 ---
 
-### getRecord
+### (abstract) async getRecord
 
 {% highlight javascript %}
- getRecord (id, string[] fields, function callback)
+  async Object getRecord (Any id, string[] fields)
 {% endhighlight %}
 
 Get record by ID.
 
 ---
 
-### update
+### (abstract) async update
 
 {% highlight javascript %}
-update(Array[] changes, function callback)
+  async Array update(Object[][] changes)
 {% endhighlight %}
 
 Applies record changes.
 
 ---
 
-### getValidationDependency
+### (abstract) getValidationDependency
 
 {% highlight javascript %}
   string[] getValidationDependency(string[] fields)
 {% endhighlight %}
 
-Returns fields that need to be sent additionally to validate fields `field`. Such a method necessity
-is caused with the ability to create group validators.
+Return fields(Array of string values) that need to be sent additionally to validate fields specified in passed parameters.
 
 ---
 
-### isValidRecord
+### (abstract) async isValidRecord
 
 {% highlight javascript %}
- ValidationErrors|null isValidRecord(Object record, function callback)
+  async ValidationErrors isValidRecord(Object record)
 {% endhighlight %}
 
 Validates a record.
 
 ---
-
-
-

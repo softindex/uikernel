@@ -1,3 +1,7 @@
+- title: About UIKernel
+  items:
+  - id: overview
+    title: Overview
 - title: Quick Start
   items:
   - id: getting-started
@@ -17,6 +21,17 @@
       title: Removing records
     - id: creating-records
       title: Creating records
+  - id: server-side
+    title: Server Tutorial
+    subitems:
+    - id: server-routes
+      title: Routing
+    - id: server-validation
+      title: Server-side validation
+    - id: server-model
+      title: Server Model
+    - id: server-db-connection
+      title: Connection to database
 - title: Editors
   items:
   - id: editors
@@ -24,12 +39,12 @@
   - id: labels
     title: Labels
   - id: list-model
-    title: List Model
+    title: List Model Interface
     subitems:
     - id: list-xhr-model
-      title: XHR Model
-    - id: list-express-api
-      title: Express API
+      title: List XHR Model
+  - id: list-express-api
+    title: List Express API
 - title: Grid
   items:
   - id: grid-component
@@ -39,37 +54,37 @@
   - id: grid-interface
     title: Grid Model Interface
     subitems:
-    - id: grid-model-xhr
-      title: Grid Xhr Model
     - id: grid-model-collection
       title: Grid Collection Model
-  - id: validator
-    title: Validator
+    - id: grid-model-xhr
+      title: Grid Xhr Model
   - id: filter-adapter
     title: Filters
   - id: grid-adapters
     title: Form Adapters
-  - id: express-grid-api
-    title: Express API
+  - id: grid-export
+    title: Export
+  - id: grid-express-api
+    title: Grid Express API
 - title: Form
   items:
-  - id: form-mixin
-    title: Mixin
+  - id: form-service
+    title: Service
   - id: form-interface
-    title: Model Interface
+    title: Form Model Interface
     subitems:
     - id: form-model
-      title: Form Model
+      title: Form Collection Model
     - id: form-xhr-model
-      title: XHR Model
-- title: Reports
+      title: Form XHR Model
+  - id: form-express-api
+    title: Form Express API
+- title: Validation
   items:
-  - id: reports-mixin
-    title: Mixin
-  - id: reports-model
-    title: Model
-  - id: reports-filters
-    title: Filters
+  - id: validator
+    title: Validator
+  - id: validation-errors
+    title: ValidationErrors
 - title: Examples
   items:
   - id: dynamic-columns
@@ -86,5 +101,3 @@
     title: DatePicker
   - id: suggest-box
     title: Suggest Box
-  - id: reports-example
-    title: Reports

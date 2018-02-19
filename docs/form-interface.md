@@ -1,58 +1,66 @@
 ---
-title: Model interface
+title: Form Model interface
 id: form-interface
-prev: form-mixin.html
+prev: form-service.html
 next: form-model.html
 ---
 
-Model for handling form requests.
+Definition of the model for keeping and performing data of your forms.
 
-*FormModel extends [AbstractFormModel]({{site.github}}/src/form/AbstractFormModel.js){:target="_blank"}*
+## Implementations
+* [Form XHR Model](/docs/form-xhr-model.html)
+* [Form Collection Model](/docs/form-model.html)
 
-### getData
+## Constructor
 
 {% highlight javascript %}
- getData(string[] fields, function callback)
+  const abstractFormModel = new UIKernel.AbstractModels.Form();
 {% endhighlight %}
 
-Returns all requested fields.
+## Methods
+
+### (abstract) async getData
+
+{% highlight javascript %}
+ async getData(string[] fields)
+{% endhighlight %}
+
+Return all requested fields.
 
 ----
 
-### submit
+### (abstract) submit
 
 {% highlight javascript %}
- submit(Object changes, function callback)
+ async submit(Object changes)
 {% endhighlight %}
 
-Process form data
+Process form data.
 
 ----
 
-### getValidationDependency
+### (abstract) getValidationDependency
 
 {% highlight javascript %}
-string[] getValidationDependency(string[] fields)
+  string[] getValidationDependency(string[] fields)
 {% endhighlight %}
 
-Returns fields that need to be sent additionally to validate fields `field`. Such a method necessity
-is caused with the ability to create group validators.
+Return fields that need to be sent additionally to validate a field. This method is required for creating group
+validators.
 
 ----
 
-### isValidRecord
+### (abstract) async isValidRecord
 
 {% highlight javascript %}
-isValidRecord(Object record, function callback)
+  async isValidRecord(Object record)
 {% endhighlight %}
 
-Validates records.
+Validate records
 
 ---
 
 ## Adapters
 
-Form model can be easily obtained from Grid model.
+Form model can be easily obtained **from Grid model**.
 [More..](grid-adapters.html)
-
----

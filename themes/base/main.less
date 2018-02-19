@@ -1,0 +1,372 @@
+/**
+ * Copyright 2015, SoftIndex LLC.
+ */
+
+@import (less) 'node_modules/react-datepicker/dist/react-datepicker.css';
+
+html {
+  font-size: 14px;
+}
+
+.data-grid {
+  color: #000;
+  display: table;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  font-family: Arial Unicode MS, Arial, sans-serif;
+  font-size: small;
+}
+
+.data-grid table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.dgrid-body-wrapper {
+  position: relative;
+  border-bottom: 1px solid #ddd;
+}
+
+.dgrid-scrollable {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  border-bottom: 0;
+}
+
+.dgrid-body {
+  overflow: hidden;
+}
+
+.dgrid-scrollable .dgrid-body {
+  width: 100%;
+}
+
+.data-grid .dgrid-body tr {
+  height: 37px;
+}
+
+.data-grid th {
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding: 3px 9px 3px 9px;
+  text-align: center;
+  background: transparent;
+  font-weight: bold;
+  color: #2B2A2A;
+}
+
+.data-grid td {
+  white-space: nowrap;
+  padding: 1px 9px 1px 10px;
+  border-right: 1px solid #ddd;
+  text-overflow: ellipsis;
+}
+
+.data-grid .dgrid-cell.dgrid-input-wrapper {
+  padding: 0;
+}
+
+.data-grid .dgrid-scrollable .dgrid-cell:last-child {
+  padding-right: 15px;
+}
+
+.data-grid .dgrid-input-wrapper input,
+.data-grid .dgrid-input-wrapper select {
+  width: 100%;
+  height: 37px;
+  border: 0;
+  margin: 0 auto;
+  padding-left: 5px;
+}
+
+.data-grid .dgrid-loader {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85) url('./img/loading.gif') no-repeat center;
+  z-index: 1;
+}
+
+.data-grid th.dgrid-default,
+.data-grid th.dgrid-asc,
+.data-grid th.dgrid-desc {
+  cursor: pointer;
+}
+
+.data-grid th.dgrid-asc:before {
+  content: '';
+  position: relative;
+  display: inline-block;
+  width: 11px;
+  height: 10px;
+  background: url('./img/cellTableSortAscending.png') no-repeat 50%;
+  left: -5px;
+}
+
+.data-grid th.dgrid-desc:before {
+  content: '';
+  position: relative;
+  display: inline-block;
+  width: 11px;
+  height: 10px;
+  background: url('./img/cellTableSortDescending.png') no-repeat 50%;
+  left: -5px;
+}
+
+.dgrid-totals {
+  border-bottom: 1px solid #ddd;
+  background-color: #FFF;
+  font-weight: bold;
+}
+
+.dgrid-totals td:last-child {
+  border-right: 1px solid #ddd;
+}
+
+.data-grid .dgrid-footer {
+  background: transparent;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding: 5px 0;
+}
+
+.data-grid .dgrid-footer > * {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 5px;
+}
+
+.data-grid .dgrid-footer > a {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  background-image: url('./img/simplePager.png');
+  background-repeat: no-repeat;
+}
+
+.data-grid .dgrid-footer > .btn-first-page {
+  background-position: 0;
+}
+
+.data-grid .dgrid-footer > .btn-prev-page {
+  background-position: -18px;
+}
+
+.data-grid .dgrid-footer > .btn-next-page {
+  background-position: -35px;
+}
+
+.data-grid .dgrid-footer > .btn-last-page {
+  background-position: -52px;
+}
+
+.data-grid .dgrid-footer > .btn-refresh-page {
+  background-position: -69px;
+}
+
+.data-grid .dgrid-footer input,
+.data-grid .dgrid-footer select {
+  margin: 0;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) {
+  background: #fff;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.data-grid tbody.dgrid-body-table tr.others:nth-child(odd) {
+  background: #FFFFE1;
+}
+
+.data-grid tbody.dgrid-body-table tr.others:nth-child(even) {
+  background: #FFFFFF;
+}
+
+.data-grid tbody.dgrid-body-table tr.new:nth-child(odd) td {
+  background-color: #A9E2FB;
+}
+
+.data-grid tbody.dgrid-body-table tr.new:nth-child(even) td {
+  background-color: #B4E8FF;
+}
+
+.data-grid tbody.dgrid-body-table tr.changed:nth-child(odd) td {
+  background-color: #FFFF00;
+}
+.data-grid tbody.dgrid-body-table tr.changed:nth-child(even) td {
+  background-color: #FFFF00;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-changed {
+  background-color: #ffffcc;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-changed {
+  background-color: #F0F09A;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
+  background-color: #FFBDC4;
+}
+
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-warning {
+  background-color: #ffcccc;
+}
+
+.data-grid tbody.dgrid-body-table tr:hover {
+  background-color: #ffffd0;
+}
+
+/* Grid component (left layout) */
+.dgrid-not-scrollable {
+  position: relative;
+  width: 100%;
+  border: none;
+}
+.dgrid-not-scrollable .dgrid-body-table {
+  border: 1px solid #ddd;
+  table-layout: auto;
+}
+.dgrid-not-scrollable .dgrid-body-table {
+  border: 1px solid #ddd;
+  border-spacing: 0;
+}
+.dgrid-not-scrollable  td {
+  padding: 5px;
+  display: table-cell;
+}
+.dgrid-not-scrollable .dgrid-footer {
+  border-top: 0;
+  border-left: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+}
+.wrapper-dgrid-header {
+  border-right: 1px solid #ddd;
+  overflow-y: scroll;
+}
+.dgrid-scrollable {
+  border-right: 1px solid #ddd;
+}
+.wrapper-totals {
+  overflow-y: scroll;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.wrapper-totals table {
+  border-top: 1px solid #ddd;
+  border-bottom: 0;
+}
+
+/* Portal */
+.__portal {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3000;
+}
+
+/* SuggestBox */
+.__suggestBox {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+.__suggestBox input[type="text"] {
+  cursor: default;
+}
+.__suggestBox input[type="text"]:focus {
+  cursor: auto;
+}
+.__suggestBox.select input {
+  padding-right: 40px;
+}
+.__suggestBox .__suggestBox-select-btn {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  width: 35px;
+  height: calc(100% - 2px);
+  background-color: inherit;
+}
+.__suggestBox .__suggestBox-select-btn .__suggestBox-arrow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -4px;
+  margin-top: -2px;
+  border-color: #888 transparent transparent transparent;
+  border-style: solid;
+  border-width: 5px 4px 0 4px;
+}
+.__suggestBox .__suggestBox-select-btn .__suggestBox-arrow.__suggestBox-up {
+  border-color: transparent transparent #888 transparent;
+  border-width: 0 4px 5px 4px;
+}
+.__suggestBoxPopUp {
+  position: absolute;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+  border-bottom: 1px solid #e5e6e7;
+}
+
+.__suggestBoxPopUp-content {
+  border: 1px solid #e5e6e7;
+  border-bottom: 0;
+  background-color: #fff;
+  width: 100%;
+}
+
+.__suggestBoxPopUp ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: table;
+  width: 100%;
+}
+.__suggestBoxPopUp-option {
+  min-height: 30px;
+  display: table-row;
+}
+.__suggestBoxPopUp-option div:not(:last-child) {
+  white-space: nowrap;
+}
+.__suggestBoxPopUp-option div {
+  display: table-cell;
+  margin: 0 10px;
+  padding: 5px 10px;
+}
+.__suggestBoxPopUp-option:not(.__suggestBoxPopUp-option-selectable) {
+  color: #aaa;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-subitem div:first-child {
+  padding-left: 20px;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-group {
+  font-weight: 600;
+  color: inherit;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-header {
+  font-weight: 800;
+  background-color: #f9f9f9;
+  color: inherit;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-empty {
+  color: #888;
+  text-align: center;
+}
+.__suggestBoxPopUp-option {
+  cursor: default;
+}
+.__suggestBoxPopUp-option.__suggestBoxPopUp-option-selectable {
+  cursor: pointer;
+}
+.__suggestBoxPopUp-option-selectable.__suggestBoxPopUp-option-focused {
+  background-color: #eee;
+}

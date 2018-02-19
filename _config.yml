@@ -1,6 +1,6 @@
 highlighter: pygments
 markdown: kramdown
-uikernel_version: 0.16.1
+uikernel_version: 0.17.0
 github: https://github.com/softindex/uikernel/tree/master/
 github_uikernel: https://github.com/softindex/uikernel
 exclude:
