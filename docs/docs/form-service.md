@@ -27,7 +27,7 @@ ___
 - [async set(data, validate)](#async-set)
 - [async submit()](#async-submit)
 - [async submitData(data)](#async-submitdata)
-- [clearError(field)](#clearerror)
+- [clearValidation(field)](#clearvalidation)
 - [clearFieldChanges(field)](#clearfieldchanges)
 - [clearChanges()](#clearchanges)
 
@@ -209,13 +209,13 @@ The method triggers 'update' event eventually
 
 ----
 
-### clearError
+### clearvalidation
 
 {% highlight javascript %}
-  formService.clearError(field);
+  formService.clearValidation(field);
 {% endhighlight %}
 
-Clear field error mark. The method triggers 'update' event eventually
+Clear field error and warning mark. The method triggers 'update' event eventually
 
 **Parameters**:
 

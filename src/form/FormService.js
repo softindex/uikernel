@@ -27,6 +27,7 @@ class FormService {
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
+    this.clearValidation = this.clearValidation.bind(this);
     this.updateField = this.updateField.bind(this);
     this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
@@ -62,7 +63,7 @@ class FormService {
     this._warningsValidator = settings.warningsValidator || new Validator();
 
     this.validating = false;
-    this.pendingClearErrors = [];
+    this._pendingClearValidation = [];
     this.submitting = false;
     this._isNotInitialized = false;
 
@@ -152,13 +153,13 @@ class FormService {
     this.model.off('update', this._onModelChange);
   }
 
-  clearError(field) {
+  clearValidation(field) {
     if (this._isNotInitialized) {
       return;
     }
 
     if (this.validating) {
-      this.pendingClearErrors.push(field);
+      this._pendingClearValidation.push(field);
     }
 
     if (Array.isArray(field)) {
@@ -172,6 +173,11 @@ class FormService {
     }
 
     this._setState();
+  }
+
+  clearError(field) {
+    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidations"');
+    this.clearValidation(field);
   }
 
   async validateField(field, value) {
@@ -315,7 +321,7 @@ class FormService {
       this.validating = false;
 
       let field;
-      while (field = this.pendingClearErrors.pop()) {
+      while (field = this._pendingClearValidation.pop()) {
         this._warnings.clearField(field);
         this._errors.clearField(field);
       }
@@ -323,17 +329,25 @@ class FormService {
       this._setState();
     }
 
-    return this._getValidationErrors();
+    const errorsWithPartialChecking = this._applyPartialErrorChecking(this._errors);
+    const warningsWithPartialChecking = this._applyPartialErrorChecking(this._warnings);
+
+    return {
+      errors: !errorsWithPartialChecking.isEmpty() ? errorsWithPartialChecking : null,
+      warnings: !warningsWithPartialChecking.isEmpty() ? warningsWithPartialChecking : null,
+    };
   }
 
   _getFields(data, changes) {
     const fields = this.fields;
-    const errors = this._getValidationErrors();
+    const errors = this._applyPartialErrorChecking(this._errors);
+    const warnings = this._applyPartialErrorChecking(this._warnings);
     return fields.reduce((newFields, fieldName) => {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
       newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
       newFields[fieldName].errors = errors ? errors.getFieldErrorMessages(fieldName) : null;
+      newFields[fieldName].warnings = warnings ? warnings.getFieldErrorMessages(fieldName) : null;
       return newFields;
     }, {});
   }
@@ -364,28 +378,28 @@ class FormService {
   }
 
   /**
-   * Get form errors
+   * Filter errors depending on the partialErrorChecking mode
    *
-   * @returns {ValidationErrors} Form errors
+   * @param {ValidationErrors}  validationErrors
+   * @returns {ValidationErrors} Form fields
    */
-  _getValidationErrors() {
-    const errors = ValidationErrors.merge(this._errors, this._warnings);
+  _applyPartialErrorChecking(validationErrors) {
+    const filteredErrors = validationErrors;
 
     // If gradual validation is on, we need
-    // to remove unchanged records from errors object
+    // to remove unchanged records from changes object
     if (!this._partialErrorChecking) {
-      return errors;
+      return filteredErrors;
     }
 
     // Look through all form fields
     for (const field in this._data) {
-      // If field is unchanged, remove errors, that regard to this field
-      if (!this._changes.hasOwnProperty(field)|| utils.isEqual(this._changes[field], this._data[field])) {
-        errors.clearField(field);
+      if (!this._changes.hasOwnProperty(field)) {
+        filteredErrors.clearField(field);
       }
     }
 
-    return errors;
+    return filteredErrors;
   }
 
   _setState() {
