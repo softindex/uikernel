@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var MainComponent = React.createClass({
+const MainComponent = React.createClass({
   getInitialState: function () {
     return {
       model: model // let's store model in the state
@@ -20,14 +20,14 @@ var MainComponent = React.createClass({
   },
 
   onSave: function () {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   },
 
   onClear: function () {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   },
 
   render: function () {
@@ -48,14 +48,14 @@ var MainComponent = React.createClass({
             <h3 className="panel-title">Records</h3>
           </div>
           <UIKernel.Grid
-            ref="grid"
+            ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
             viewCount={10} // 10 records limit to display by default
             warningsValidator = {ValidationWarn}
           />
           <div className="panel-footer">
-            <a className="btn btn-success" onClick={this.onClear}>
+            <a className="btn btn-default" onClick={this.onClear}>
               Clear
             </a>
             {' '}

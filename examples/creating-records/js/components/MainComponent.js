@@ -22,11 +22,11 @@ class MainComponent extends React.Component {
   }
 
   highlightNewRecord(recordId) {
-    this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+    this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   }
 
   saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
@@ -74,14 +74,14 @@ class MainComponent extends React.Component {
                 <h3 className="panel-title">Records</h3>
               </div>
               <UIKernel.Grid
-                ref="grid"
+                ref={(grid) => this.grid = grid}
                 model={this.state.model} // Grid model
                 cols={columns} // columns configuration
                 viewCount={10} // display 10 records per page
                 defaultSort={{column: 'name', direction: 'asc'}} // default sorting
               />
               <div className="panel-footer">
-                <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
+                <a className="btn btn-default" onClick={() => this.clearChanges()}>Clear</a>
                 {' '}
                 <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
               </div>

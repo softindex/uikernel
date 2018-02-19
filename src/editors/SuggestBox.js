@@ -11,6 +11,7 @@ import utils from '../common/utils';
 import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 import ThrottleError from '../common/ThrottleError';
 
 const popupId = '__suggestBoxPopUp';
@@ -38,20 +39,20 @@ const MIN_POPUP_HEIGHT = 100;
 
 class SuggestBoxEditor extends React.Component {
   static propTypes = {
-    disabled: React.PropTypes.bool,
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func,
-      getLabel: React.PropTypes.func
+    disabled: PropTypes.bool,
+    model: PropTypes.shape({
+      read: PropTypes.func,
+      getLabel: PropTypes.func
     }),
-    onChange: React.PropTypes.func.isRequired,
-    onLabelChange: React.PropTypes.func,
-    onMetadataChange: React.PropTypes.func,
-    value: React.PropTypes.any,
-    defaultLabel: React.PropTypes.string,
-    label: React.PropTypes.string,
-    notFoundElement: React.PropTypes.element,
-    loadingElement: React.PropTypes.element,
-    onFocus: React.PropTypes.func
+    onChange: PropTypes.func.isRequired,
+    onLabelChange: PropTypes.func,
+    onMetadataChange: PropTypes.func,
+    value: PropTypes.any,
+    defaultLabel: PropTypes.string,
+    label: PropTypes.string,
+    notFoundElement: PropTypes.element,
+    loadingElement: PropTypes.element,
+    onFocus: PropTypes.func
   };
 
   static defaultProps = {
@@ -68,8 +69,18 @@ class SuggestBoxEditor extends React.Component {
       isOpened: false,
       options: [],
       selectedOptionKey: null,
-      lastValidLabel: ''
+      lastValidLabel: '',
+      label: '',
+      popupStyles: {}
     };
+    this._onInputFocus = this._onInputFocus.bind(this);
+    this._onInputKeyDown = this._onInputKeyDown.bind(this);
+    this._onInputValueChange = this._onInputValueChange.bind(this);
+    this._focusOption = this._focusOption.bind(this);
+    this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
+    this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
+    this._toggleList = this._toggleList.bind(this);
+    this._openList = this._openList.bind(this);
   }
 
   componentDidMount() {
@@ -88,7 +99,8 @@ class SuggestBoxEditor extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !utils.isEqual(this.props.value, nextProps.value)
+    return this.state.label !== nextState.label
+      || !utils.isEqual(this.props.value, nextProps.value)
       || this.state.loading !== nextState.loading
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
@@ -115,10 +127,10 @@ class SuggestBoxEditor extends React.Component {
     if (label === null || label === undefined) {
       label = '';
     }
-    findDOMNode(this.refs.input).value = label;
-    if (markAsValid) {
-      this.state.lastValidLabel = label;
-    }
+    this.setState({
+      label: label,
+      lastValidLabel: markAsValid ? label : this.state.lastValidLabel
+    });
   }
 
   _getLabelFromModel(model, id) {
@@ -151,17 +163,22 @@ class SuggestBoxEditor extends React.Component {
       }
       return;
     }
-    await this.setState({
-      options,
-      selectedOptionKey: null,
-      loading: false
-    });
 
-    const $popup = $('#' + popupId);
-    $popup.find('.__suggestBoxPopUp-content')
-      .css('bottom', 'auto')
-      .css('position', 'static');
+    if (this._isMounted) {
+      await this.setState({
+        options,
+        selectedOptionKey: null,
+        loading: false
+      });
+    }
 
+    const content = document.querySelector(`${popupId} .__suggestBoxPopUp-content`);
+    if (content) {
+      content.style = {
+        bottom: 'auto',
+        position: 'static'
+      };
+    }
     this._scrollListTo();
   }
 
@@ -174,41 +191,14 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    await toPromise(::this.setState, true)({isOpened: true, loading: true});
-    findDOMNode(this.refs.input).select();
+    await toPromise(::this.setState, true)({
+      isOpened: true,
+      loading: true,
+      popupStyles: this._setPopupStyles()
+    });
+    findDOMNode(this.input).select();
 
-    const $input = $(findDOMNode(this.refs.input));
-    const $popup = $(`#${popupId}`);
-
-    const inputOffset = $input.offset();
-    const inputWidth = $input.css('width');
-    const inputHeight = $input.css('height');
-
-    let offsetTop = inputOffset.top + parseInt(inputHeight);
-    const offsetLeft = inputOffset.left;
-
-    if (typeof window !== 'undefined') {
-      const availableSpace = window.innerHeight - (offsetTop - window.scrollY);
-
-      if (availableSpace < MIN_POPUP_HEIGHT) {
-        offsetTop = inputOffset.top - 300;
-        $popup.css('height', 300);
-        $popup.find('.__suggestBoxPopUp-content')
-          .css('bottom', 0)
-          .css('position', 'absolute');
-      } else {
-        $popup.css('maxHeight', availableSpace);
-      }
-    }
-
-    $popup
-      .css('minWidth', inputWidth)
-      .offset({
-        top: offsetTop,
-        left: offsetLeft
-      });
-
-    await this._updateList(searchPattern);
+    await this._updateList(searchPattern); // TODO Handle errors
 
     if (!this.state.options.length) {
       return;
@@ -216,7 +206,8 @@ class SuggestBoxEditor extends React.Component {
 
     if (focusFirstOption) {
       const key = this.state.options[0].type !== 'group' ? 0 : 1;
-      return await this._focusOption(key, true);
+      await this._focusOption(key, true);
+      return;
     }
 
     const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
@@ -230,6 +221,7 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputFocus(e) {
     await this._openList();
+    findDOMNode(this.input).select();
     if (this.props.onFocus) {
       this.props.onFocus(e);
     }
@@ -237,9 +229,9 @@ class SuggestBoxEditor extends React.Component {
 
   _closeList(shouldBlur) {
     if (shouldBlur) {
-      findDOMNode(this.refs.input).blur();
+      findDOMNode(this.input).blur();
     }
-    if (!this.state.isOpened) {
+    if (!this.state.isOpened || !this._isMounted) {
       return;
     }
     this.setState({
@@ -270,7 +262,7 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
-    findDOMNode(this.refs.input).select();
+    findDOMNode(this.input).select();
   }
 
   async _focusOption(key, shouldSetLabel) {
@@ -287,9 +279,15 @@ class SuggestBoxEditor extends React.Component {
 
   _focusOptionAndScrollIntoView(key) {
     this.state.selectedOptionKey = key;
-    $(`.${classes.optionFocused}`).removeClass(classes.optionFocused);
-    $(`.${classes.option}[data-key="${key}"]`).addClass(classes.optionFocused);
-    const domOption = $(`#${popupId} li[data-key="${key}"]`).get(0);
+    const focusedItems = document.querySelector(`.${classes.optionFocused}`);
+    const currentItem = document.querySelector(`.${classes.option}[data-key="${key}"]`);
+    if (focusedItems) {
+      focusedItems.classList.remove(classes.optionFocused);
+    }
+    if (currentItem) {
+      currentItem.classList.add(classes.optionFocused);
+    }
+    const domOption = document.querySelectorAll(`#${popupId} li[data-key="${key}"]`)[0];
     this._scrollListTo(domOption);
   }
 
@@ -336,7 +334,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _scrollListTo(target) {
-    const container = $(`#${popupId}`).get(0);
+    const container = document.querySelector(`#${popupId}:first-child`);
     if (!container) {
       return;
     }
@@ -355,7 +353,7 @@ class SuggestBoxEditor extends React.Component {
 
   _isParentOf(child) {
     while (child) {
-      child = $(child).parent().get(0);
+      child = child.parentNode;
       if (child === findDOMNode(this)) {
         return true;
       }
@@ -367,18 +365,19 @@ class SuggestBoxEditor extends React.Component {
     if (e.button !== 0) {
       return;
     }
-    let $target = $(e.target);
+    let target = e.target;
     if (isOwner) {
-      if (!$target.hasClass(classes.option)) {
-        $target = $target.parent();
+      if (!target.classList.contains(classes.option)) {
+        target = target.parentNode;
       }
-      if ($target.hasClass(classes.optionSelectable) && this.state.isOpened) {
-        this._selectOption(this.state.options[$target.attr('data-key')]);
+      if (target.classList.contains(classes.optionSelectable) && this.state.isOpened) {
+        this._selectOption(this.state.options[target.getAttribute('data-key')]);
         this._closeList(true);
       }
     } else {
-      if (!$target.parents(`.${classes.searchBlock}`).length) {
-        if (!findDOMNode(this.refs.input).value) {
+      // q where to test
+      if (!utils.parents(target, `.${classes.searchBlock}`).length) {
+        if (!findDOMNode(this.input).value) {
           this._selectOption(null);
         } else {
           this._setLabelTo(this.state.lastValidLabel);
@@ -403,7 +402,6 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.disabled) {
       return;
     }
-
     switch (e.keyCode) {
     case ARROW_DOWN_KEY:
       e.preventDefault();
@@ -446,6 +444,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   async _onInputValueChange(e) {
+    this._setLabelTo(e.target.value);
     if (this.state.isOpened) {
       await this._updateList(e.target.value);
     } else {
@@ -453,8 +452,41 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
+  _setPopupStyles() {
+    const inputStyles = window.getComputedStyle(findDOMNode(this.input));
+    let popupStyle = {};
+
+    const inputOffset = findDOMNode(this.input).getBoundingClientRect();
+    const inputWidth = inputStyles.width;
+    const inputHeight =inputStyles.height;
+
+    let offsetTop = inputOffset.top + parseInt(inputHeight);
+    const offsetLeft = inputOffset.left;
+
+    if (typeof window !== 'undefined') {
+      const availableSpace = window.innerHeight - offsetTop;
+      if (availableSpace < MIN_POPUP_HEIGHT) {
+        offsetTop = inputOffset.top - 300;
+        popupStyle = {
+          bottom: '0',
+          position: 'absolute',
+          height: '300'
+        };
+      } else {
+        popupStyle.maxHeight = availableSpace;
+      }
+    }
+
+    return {
+      ...popupStyle,
+      minWidth: inputWidth,
+      top: offsetTop,
+      left: offsetLeft
+    };
+  }
+
   focus() {
-    findDOMNode(this.refs.input).focus();
+    findDOMNode(this.input).focus();
   }
 
   render() {
@@ -513,8 +545,9 @@ class SuggestBoxEditor extends React.Component {
       optionsPopup = (
         <Portal
           id={popupId}
-          onDocumentMouseDown={this::this._onDocumentMouseDown}
-          onDocumentMouseScroll={this::this._onDocumentMouseScroll}
+          styles={this.state.popupStyles}
+          onDocumentMouseDown={this._onDocumentMouseDown}
+          onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
         >
           <div className="__suggestBoxPopUp-content">
@@ -528,16 +561,19 @@ class SuggestBoxEditor extends React.Component {
       <div className='__suggestBox'>
         <div className={classes.searchBlock}>
           <input
-            {...utils.omit(this.props, ['model', 'value', 'onChange', 'onLabelChange', 'onFocus'])}
-            ref='input'
+            {...utils.omit(this.props,
+              ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
+                'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
+            ref={(input) => this.input = input }
             type='text'
-            onClick={() => this._openList()}
-            onFocus={::this._onInputFocus}
-            onKeyDown={::this._onInputKeyDown}
-            onChange={::this._onInputValueChange}
+            onClick={this._openList}
+            onFocus={this._onInputFocus}
+            onKeyDown={this._onInputKeyDown}
+            onChange={this._onInputValueChange}
+            value={this.state.label}
           />
-          <div onClick={::this._toggleList} className={classes.selectBtn}>
-            <div className={arrowClasses.join(' ')}></div>
+          <div onClick={this._toggleList} className={classes.selectBtn}>
+            <div className={arrowClasses.join(' ')}/>
           </div>
         </div>
         {optionsPopup}

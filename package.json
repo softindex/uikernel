@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "0.17.0-dev92",
+  "version": "1.0.0-dev1.5",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -14,53 +14,60 @@
   "browser": "./browser",
   "repository": "git@github.com:softindex/uikernel.git",
   "scripts": {
+    "build": "gulp",
     "test": "jest",
-    "start-site": "sh ./scripts/start_local_site.sh",
-    "build": "gulp"
+    "start-site": "sh ./scripts/start_local_site.sh"
   },
   "dependencies": {
+    "babel-polyfill": "^6.23.0",
     "babel-runtime": "^6.23.0",
+    "create-react-class": "^15.6.2",
     "csv-stringify": "^1.0.4",
     "express": "^4.14.0",
-    "react": "~0.14.8",
-    "react-dom": "~0.14.8",
+    "moment": "^2.17.1",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-datepicker": "1.1.0",
+    "react-dom": "^16.2.0",
+    "react-dom-factories": "^1.0.2",
     "xhr": "^2.2.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.2",
     "babel-plugin-add-module-exports": "^0.2.1",
     "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-polyfill": "^6.23.0",
     "babel-preset-latest": "^6.16.0",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
-    "browserify": "^13.0.1",
+    "browserify": "^15.2.0",
     "browserify-shim": "^3.8.12",
-    "del": "^2.2.1",
-    "enzyme": "^2.9.1",
+    "del": "^3.0.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.11.0",
-    "eslint-plugin-react": "^6.1.0",
-    "gulp": "^3.9.1",
+    "eslint-plugin-react": "^7.6.1",
+    "gulp": "^4.0.0",
     "gulp-archiver": "^1.0.0",
-    "gulp-babel": "^6.1.2",
-    "gulp-changed": "^1.3.2",
-    "gulp-count": "^0.3.0",
+    "gulp-babel": "^7.0.1",
+    "gulp-changed": "^3.2.0",
+    "gulp-count": "^1.0.0",
     "gulp-eslint": "^4.0.0",
     "gulp-gh-pages": "^0.5.4",
     "gulp-if": "^2.0.2",
+    "gulp-less": "^3.4.0",
     "gulp-licenser": "^1.0.2",
     "gulp-rename": "^1.2.2",
-    "gulp-sequence": "^0.4.6",
-    "gulp-uglify": "^2.0.0",
-    "jest": "^19.0.2",
+    "gulp-sequence": "^1.0.0",
+    "gulp-uglify": "^3.0.0",
+    "jest": "^22.1.4",
     "merge-stream": "^1.0.0",
     "path-exists": "^3.0.0",
-    "react-addons-test-utils": "^0.14.8",
-    "react-dom": "^0.14.9",
+    "raf": "^3.4.0",
+    "react-dom": "15.6.2",
     "through2": "^2.0.3",
     "webpack": "^1.13.3",
     "webpack-stream": "^3.2.0",
-    "yargs": "^5.0.0"
+    "yargs": "^11.0.0"
   },
   "jest": {
     "testRegex": "/__tests__/",
@@ -69,6 +76,7 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.js"
-    ]
+    ],
+    "setupTestFrameworkScriptFile": "<rootDir>/src/test/setupTestFramework.js"
   }
 }

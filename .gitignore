@@ -3,7 +3,7 @@ node_modules
 _site
 .publish
 npm-debug.log
-examples/libs/js/uikernel.js
+examples/libs/
 lib
 dist
 coverage

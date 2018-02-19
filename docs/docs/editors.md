@@ -11,6 +11,7 @@ UIKernel provides the following editors:
 * [DatePicker](#DatePicker)
 * [SuggestBox](#SuggestBox)
 * [Number](#Number)
+* [Checkbox](#Checkbox)
 
 ---
 
@@ -58,29 +59,25 @@ DatePicker is a ReactJS component that allows the user to select a date.
 | Boolean                      | show         | Show on init flag |
 
 Here `format` and `textFormat` property can be combinations of the following:
-- d - day of month (no leading zero)
-- dd - day of month (two digit)
-- o - day of year (no leading zeros)
-- oo - day of year (three digit)
-- D - day name short
-- DD - day name long
-- m - month of year (no leading zero)
-- mm - month of year (two digit)
-- M - month name short
-- MM - month name long
-- y - year (two digit)
-- yy - year (four digit)
-- @ - Unix timestamp (ms since 01/01/1970)
-- ! - Windows ticks (100ms since 01/01/0001)
-- '...' - literal text
-- '' - single quote
-- anything else - literal text
+
+
+| Input        | Example          | Description            |
+|--------------|------------------|------------------------|
+| `YYYY`       | `2014`           | 4 or 2 digit year      |
+| `YY`         | `14`             | 2 digit year           |
+| `Y`          | `-25`            | Year with any number of digits and sign |
+| `M MM`       | `1..12`          | Month number |
+| `MMM MMMM`   | `Jan..December`  | Month name in locale set by moment.locale() |
+| `D DD`       | `1..31`          | Day of month |
+| `Do`         | `1st..31st`      | Day of month with ordinal |
+| `DDD DDDD`   | `1..365`         | Day of year |
+| `X`          | `1410715640.579` | Unix timestamp |
+| `x`          | `1410715640579`  | Unix ms timestamp |
 
 E.g.:
-- "yy-mm-dd"    will match "1997-01-26"
-- "dd.mm.y" will match "01.26.97"
-- "m/dd/yy" will match "1/26/1997"
-- "DD, MM d, yy" will match "Sunday, January 26, 1997"
+- "YYYY-MM-DD"    will match "1997-01-26"
+- "DD.MM.YY" will match "01.02.97"
+- "D/M/YYYY" will match "1/2/1997"
 
 ---
 
@@ -119,7 +116,7 @@ SuggestBox is a ReactJS component that can be used to quickly create a drop-down
 ---
 
 ## <span id="Number">Number</span>
-Number unlike `<input type =" number "/>` returns a numeric value instead of a string. Usage of this editor will allow
+Number unlike `<input type="number"/>` returns a numeric value instead of a string. Usage of this editor will allow
 you to avoid problems with the validation of numbers. That's why we advise to use it for work with numbers.
 
 ### Number Properties
@@ -130,3 +127,15 @@ you to avoid problems with the validation of numbers. That's why we advise to us
 | Function | **onChange** | Value change handler |
 
 ---
+
+## <span id="Checkbox">Checkbox</span>
+Checkbox editor is a React wrapper which handle indeterminate state of checkbox.
+*In some use cases you will need nested checkboxes. If all those children are checked, it may be checked; if none -  it is unchecked. If some of them are checked, then it's in an indeterminate state.*
+
+### Checkbox Properties
+
+| Type     | Name              | Description                           |
+|----------|-------------------|---------------------------------------|
+| Boolean  | **checked**       | If is checked                         |
+| Function | **onChange**      | Value change handler                  |
+| Boolean  | indeterminate     | If checkbox is in indeterminate state |

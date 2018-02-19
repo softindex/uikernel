@@ -5,7 +5,7 @@ prev: server-model.html
 next: editors.html
 ---
 
-As was said before, we use MySQL database. Below is code for sample wrapper for working with database connections.
+As mentioned, we're using a MySQL database for our example. Below is  the code for the example wrapper for working with database connections.
 
 `server/common/mysql.js`
 {% highlight javascript %}

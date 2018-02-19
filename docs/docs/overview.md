@@ -25,6 +25,18 @@ with both front-end and back-end data sources.
   - complex validation rules for dependent fields(e.g. combination of fields 'name' + 'surname' must be unique)
 
 ### Library Elements
+
+{% highlight html tabsize=2 %}
+<UIKernel.Grid
+  model={model}
+  cols={columns}
+  ref={(grid) => this.grid = grid}
+  {/*some other props*/}
+/>
+
+//somewhere else
+this.grid.someGridMethod();
+{% endhighlight %}
 1. GRID - means for creating data driven spreadsheets.
    It consists of independent front-end end back-end parts:
 - At front-end there is
@@ -35,22 +47,8 @@ with both front-end and back-end data sources.
  [table columns configuration object](/docs/grid-columns.html).
  Also React `Grid` component accepts some other
  [table configuration properties](/docs/grid-component.html#properties)
- and has [some useful methods](/docs/grid-component.html#methods).
-
-{% highlight html tabsize=2 %}
-<UIKernel.Grid
-  model={model}
-  cols={columns}
-  ref="grid"
-  {/*some other props*/}
-/>
-
-//somewhere else
-this.refs.grid.someGridMethod();
-{% endhighlight %}
-
-   There are also special [adapters](/docs/grid-adapters.html) to adapt Grid model to From model.
-
+ and has [some useful methods](/docs/grid-component.html#methods). 
+- There are also special [adapters](/docs/grid-adapters.html) to adapt Grid model to From model.
 - At back-end there is useful [express.js API](/docs/grid-express-api.html) which helps to
 make communication with front-end easier. But it isn't mandatory to use express.js - you can
 implement similar REST API with any other framework and back-end platform.

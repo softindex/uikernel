@@ -11,9 +11,9 @@ if (!global._babelPolyfill) {
 }
 
 require('./lib/common/setImmediate');
-const variables = require('./lib/common/variables');
+var variables = require('./lib/common/variables');
 
-const Module = {
+var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
   Form: require('./lib/form/FormService'),

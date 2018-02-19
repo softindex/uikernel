@@ -20,18 +20,19 @@ const GridUIMixin = {
    * @param {Event} event
    */
   _handleBodyClick: function (event) {
-    const $target = $(event.target);
-    const $refParent = $target.parents('[ref]');
+    const target = event.target;
+    const refParent = utils.parents(target, '[ref]')[0];
+
     let element;
 
-    if ($target.hasClass('dgrid-cell')) {
+    if (target.classList.contains('dgrid-cell')) {
       element = event.target;
     } else {
-      element = $target.parents('td.dgrid-cell').get(0);
+      element = utils.parents(target, 'td.dgrid-cell')[0];
     }
 
-    if (element && !$refParent.attr('disabled')) {
-      this._handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
+    if (element && !(refParent && refParent.getAttribute('disabled'))) {
+      this._handleCellClick(event, element, (refParent || event.target).getAttribute('ref'));
     }
   },
 
@@ -43,8 +44,8 @@ const GridUIMixin = {
    * @param {string}          ref         Click handler name in the table configuration
    */
   _handleCellClick: function (event, element, ref) {
-    const colId = $(element).attr('key');
-    const row = $(element).parent().attr('key');
+    const colId = element.getAttribute('key');
+    const row = element.parentNode.getAttribute('key');
     const columnConfig = this.props.cols[colId];
     const recordId = this.state.recordsInfo[row].id;
     const record = this._getRecord(row);
@@ -64,9 +65,9 @@ const GridUIMixin = {
 
   // TODO Deprecated
   _handleHeaderCellClick: function (col, event) {
-    const $target = $(event.target);
-    const $refParent = $target.parents('[ref]');
-    const ref = $refParent.attr('ref') || event.target.getAttribute('ref');
+    const target = event.target;
+    const refParent = utils.parents(target, '[ref]')[0];
+    const ref = (refParent || target).getAttribute('ref');
     let handler;
 
     if (ref && col.onClickRefs) {
@@ -85,7 +86,7 @@ const GridUIMixin = {
    * Fetch server data
    */
   updateTable: callbackify(async function () {
-    this._showLoader(true);
+    this.setState({showLoader: true});
 
     if (!this.props.model) {
       return;
@@ -143,22 +144,8 @@ const GridUIMixin = {
     });
 
     this._renderBody();
-    this._showLoader(false);
+    this.setState({showLoader: false});
   }),
-
-  /**
-   * Show/hide loading icon
-   *
-   * @param {boolean} show True - Show, False - Hide
-   * @private
-   */
-  _showLoader: function (show) {
-    if (show) {
-      $(findDOMNode(this.refs.loader)).addClass('dgrid-loader');
-    } else {
-      $(findDOMNode(this.refs.loader)).removeClass('dgrid-loader');
-    }
-  },
 
   _getHeaderCellHTML: function (columnName) {
     const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
@@ -269,7 +256,7 @@ and escape "${columnId}" field in render function by yourself`
       }
     }
 
-    findDOMNode(this.refs.tbody).innerHTML = htmlExtra + htmlBody;
+    this.tBody.innerHTML = htmlExtra + htmlBody;
   },
 
   /**
@@ -293,9 +280,7 @@ and escape "${columnId}" field in render function by yourself`
   },
 
   _removeTR: function (rowId) {
-    $(findDOMNode(this.refs.body))
-      .find(`tr[key="${rowId}"]`)
-      .remove();
+    findDOMNode(this.body).removeRow(rowId);
   },
 
   _renderTotals: function _renderTotals(isScrollable) {
@@ -349,20 +334,20 @@ and escape "${columnId}" field in render function by yourself`
   },
 
   _updateField: function (rowId, column) {
-    $(findDOMNode(this.refs.body))
-      .find(`tr[key="${rowId}"]`)
-      .find(`td[key=${column}]`)
-      .html(this._getCellHTML(column, this._getRecord(rowId)))
-      .removeClass('dgrid-changed dgrid-error dgrid-warning')
-      .addClass(`${this._isChanged(
-        rowId,
-        this._getBindParam(column)) ? 'dgrid-changed' : ''}`)
-      .addClass(`${this._hasError(
-        rowId,
-        this._getBindParam(column)) ? 'dgrid-error' : ''}`)
-      .addClass(`${this._hasWarning(
-        rowId,
-        this._getBindParam(column)) ? 'dgrid-warning' : ''}`);
+    const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
+    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId));
+    cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
+    const cellClassList = [];
+    if (this._isChanged(rowId, this._getBindParam(column))) {
+      cellClassList.push('dgrid-changed');
+    }
+    if (this._hasError(rowId, this._getBindParam(column))) {
+      cellClassList.push('dgrid-error');
+    }
+    if (this._hasWarning(rowId, this._getBindParam(column))) {
+      cellClassList.push('dgrid-warning');
+    }
+    cell.classList.add(...cellClassList);
   },
 
   async _updateRow(row) {

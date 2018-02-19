@@ -8,86 +8,104 @@
 
 import ReactDOM from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
+import {omit} from './utils';
 
-export const ChildrenWrapper = React.createClass({
-  propTypes: {
-    children: React.PropTypes.node
-  },
-
-  getInitialState: function () {
-    return {
-      children: this.props.children
+class ChildrenWrapper extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      children: props.children
     };
-  },
+  }
 
-  setChildren: function (children) {
+  setChildren(children) {
     this.setState({children: children});
-  },
+  }
 
-  render: function () {
+  render() {
     return (
-      <div {...this.props}>{this.state.children}</div>
+      <div {...this.props}>
+        {this.state.children}
+      </div>
     );
   }
-});
+}
 
 const portalClass = '__portal';
 
-export const Portal = React.createClass({
-  propTypes: {
-    children: React.PropTypes.node,
-    id: React.PropTypes.string,
-    onDocumentMouseDown: React.PropTypes.func,
-    onDocumentMouseScroll: React.PropTypes.func
-  },
+class Portal extends React.Component {
+  constructor(props) {
+    super(props);
+    this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
+    this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
+  }
 
-  getInitialState: () => ({
-    portal: null
-  }),
-
-  componentDidMount: function () {
+  componentDidMount() {
     document.addEventListener('mousedown', this._onDocumentMouseDown, false);
     document.addEventListener('scroll', this._onDocumentMouseScroll, true);
 
     const portal = document.createElement('div');
     document.body.appendChild(portal);
-
     portal.className = portalClass;
-    this.state.portal = portal;
-    this.state.wrapper = ReactDOM.render(
-      <ChildrenWrapper {...this.props}>{this.props.children}</ChildrenWrapper>
-      , this.state.portal);
-  },
+    this.portal = portal;
+    ReactDOM.render(
+      <ChildrenWrapper
+        {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}
+        style={this.props.styles}
+        ref={(wrapper) => {
+          this.wrapper = wrapper;
+        }}
+      >
+        {this.props.children}
+      </ChildrenWrapper>,
+      this.portal
+    );
+  }
 
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     document.removeEventListener('mousedown', this._onDocumentMouseDown, false);
     document.removeEventListener('scroll', this._onDocumentMouseScroll, true);
 
-    ReactDOM.unmountComponentAtNode(this.state.portal);
-    document.body.removeChild(this.state.portal);
-  },
+    ReactDOM.unmountComponentAtNode(this.portal);
+    document.body.removeChild(this.portal);
+  }
 
-  componentDidUpdate: function () {
-    this.state.wrapper.setChildren(this.props.children);
-  },
+  componentDidUpdate() {
+    this.wrapper.setChildren(this.props.children);
+  }
 
-  _isDocumentEventOwner: function (target) {
-    return $(target).parents(`.${portalClass}`).get(0) === this.state.portal;
-  },
+  _isDocumentEventOwner(target) {
+    return (target === this.portal || this.portal.contains(target));
+  }
 
-  _onDocumentMouseDown: function (e) {
+  _onDocumentMouseDown(e) {
     if (this.props.onDocumentMouseDown) {
       this.props.onDocumentMouseDown(e, this._isDocumentEventOwner(e.target));
     }
-  },
+  }
 
-  _onDocumentMouseScroll: function (e) {
+  _onDocumentMouseScroll(e) {
     if (this.props.onDocumentMouseScroll) {
       this.props.onDocumentMouseScroll(e, this._isDocumentEventOwner(e.target));
     }
-  },
+  }
 
-  render: () => null
-});
+  render() {
+    return null;
+  }
+}
+
+ChildrenWrapper.propTypes = {
+  children: PropTypes.node,
+};
+
+Portal.propTypes = {
+  children: PropTypes.node,
+  id: PropTypes.string,
+  styles: PropTypes.object,
+  onDocumentMouseDown: PropTypes.func,
+  onDocumentMouseScroll: PropTypes.func,
+};
 
 export default Portal;

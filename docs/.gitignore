@@ -1,6 +1,5 @@
 .idea
 lib
 dist
-bower_components
 node_modules
 Gemfile.lock

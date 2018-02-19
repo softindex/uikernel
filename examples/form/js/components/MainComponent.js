@@ -30,7 +30,7 @@ class MainComponent extends React.Component {
               </div>
               <div className="panel-body padding0">
                 <UIKernel.Grid
-                  ref="grid"
+                  ref={(grid) => this.grid = grid}
                   model={model}
                   cols={columns}
                   autoSubmit={true}

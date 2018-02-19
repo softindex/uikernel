@@ -7,7 +7,7 @@
  */
 
 import utils from '../../common/utils';
-import React from 'react';
+import DOM from 'react-dom-factories';
 
 const GridColumnsMixin = {
   /**
@@ -47,7 +47,7 @@ const GridColumnsMixin = {
       }
 
       colGroup.push(
-        React.DOM.col({
+        DOM.col({
           key: columnId,
           width: this.props.cols[columnId].width,
           className: this._getColumnClass(columnId)

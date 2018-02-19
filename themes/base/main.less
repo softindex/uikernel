@@ -2,6 +2,12 @@
  * Copyright 2015, SoftIndex LLC.
  */
 
+@import (less) 'node_modules/react-datepicker/dist/react-datepicker.css';
+
+html {
+  font-size: 14px;
+}
+
 .data-grid {
   color: #000;
   display: table;
@@ -202,16 +208,14 @@
   background-color: #F0F09A;
 }
 
-.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
   background-color: #FFBDC4;
 }
 
-.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-warning {
   background-color: #ffcccc;
-}
-
-.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
-  border: 2px solid #dea4ff
 }
 
 .data-grid tbody.dgrid-body-table tr:hover {
@@ -261,7 +265,7 @@
 
 /* Portal */
 .__portal {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: 3000;
@@ -306,13 +310,19 @@
 }
 .__suggestBoxPopUp {
   position: absolute;
-  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
   display: block;
-  border: 1px solid #e5e6e7;
-  background-color: #fff;
+  border-bottom: 1px solid #e5e6e7;
 }
+
+.__suggestBoxPopUp-content {
+  border: 1px solid #e5e6e7;
+  border-bottom: 0;
+  background-color: #fff;
+  width: 100%;
+}
+
 .__suggestBoxPopUp ul {
   list-style-type: none;
   padding: 0;

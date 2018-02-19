@@ -29,11 +29,11 @@ class MainComponent extends React.Component {
     this.setState({
       blackMode: !this.state.blackMode
     });
-    this.refs.grid.toggleSelectAll();
+    this.grid.toggleSelectAll();
   }
 
   someAction() { // this function can do anything what you need
-    const records = this.refs.grid.getAllSelected();
+    const records = this.grid.getAllSelected();
     alert(`Mode: ${this.state.blackMode}. Records: ${records.length ? records.join(', ') : 'all'}`);
   }
 
@@ -54,7 +54,7 @@ class MainComponent extends React.Component {
             <a className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>
             {numText}
             <UIKernel.Grid
-              ref="grid"
+              ref={(grid) => this.grid = grid}
               cols={columns}
               model={this.state.model}
               viewCount={10}

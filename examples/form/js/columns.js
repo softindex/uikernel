@@ -28,7 +28,7 @@ const columns = {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
-      return <input type="text" {...this.props}/>;
+      return <UIKernel.Editors.Number {...this.props}/>;
     },
     render: ['age', record => record.age]
   }

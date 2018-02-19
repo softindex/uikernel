@@ -99,9 +99,8 @@ const GridStatusesMixin = {
     }
 
     // Remove element's class
-    $(findDOMNode(this.refs.body))
-      .find(`tr[key="${rowId}"]`)
-      .removeClass(status);
+    const elem = findDOMNode(this.body).querySelector(`tr[key="${rowId}"]`);
+    elem && elem.classList.remove(status);
   },
 
   /**
@@ -158,13 +157,12 @@ const GridStatusesMixin = {
         delete this.state.statuses[i];
       }
     }
-    $(findDOMNode(this.refs.body))
-      .find(`.dgrid-body tr.${status}`)
-      .removeClass(status);
+    const elem = findDOMNode(this.body).querySelector(`.dgrid-body tr.${status}`);
+    elem && elem.classList.remove(status);
   },
 
   /**
-   * Get all status names that are applyed to the row
+   * Get all status names that are applied to the row
    *
    * @param   {string}    row    Row ID
    * @return  {Array}  Status names array
