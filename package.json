@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "1.0.0-dev2.0",
+  "version": "0.17.0",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
