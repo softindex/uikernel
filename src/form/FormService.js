@@ -26,6 +26,7 @@ class FormService {
     this.validateForm = utils.throttle(this.validateForm.bind(this));
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
+    this.clearError = this.clearError.bind(this);
     this.clearValidation = this.clearValidation.bind(this);
     this.updateField = this.updateField.bind(this);
     this.validateField = this.validateField.bind(this);
@@ -172,6 +173,11 @@ class FormService {
     }
 
     this._setState();
+  }
+
+  clearError(field) {
+    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidations"');
+    this.clearValidation(field);
   }
 
   async validateField(field, value) {
