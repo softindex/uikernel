@@ -97,6 +97,8 @@ class FormService {
         data: {},
         originalData: {},
         changes: {},
+        errors: new ValidationErrors(),
+        warnings: new ValidationErrors(),
         fields: {},
         isSubmitting: false
       };
@@ -114,13 +116,19 @@ class FormService {
 
     const data = this._getData();
     const changes = this._getChangesFields();
+    const errors = this._applyPartialErrorChecking(this._errors);
+    const warnings = this._applyPartialErrorChecking(this._warnings);
 
     return {
       isLoaded,
       data,
       originalData: this._data,
       changes,
-      fields: this._getFields(data, changes),
+      errors,
+      warnings,
+      // Note that we return errors and warnings both in bunch as a property and for each field separately
+      // - it is redundantly, but handy :)
+      fields: this._getFields(data, changes, errors, warnings),
       isSubmitting: this._isSubmitting
     };
   }
@@ -176,7 +184,7 @@ class FormService {
   }
 
   clearError(field) {
-    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidations"');
+    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidation"');
     this.clearValidation(field);
   }
 
@@ -338,10 +346,8 @@ class FormService {
     };
   }
 
-  _getFields(data, changes) {
+  _getFields(data, changes, errors, warnings) {
     const fields = this.fields;
-    const errors = this._applyPartialErrorChecking(this._errors);
-    const warnings = this._applyPartialErrorChecking(this._warnings);
     return fields.reduce((newFields, fieldName) => {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
