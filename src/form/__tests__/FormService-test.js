@@ -91,7 +91,9 @@ describe('get all', () => {
     fields: {},
     originalData: {},
     changes: {},
-    isSubmitting: false
+    isSubmitting: false,
+    warnings: new ValidationErrors(),
+    errors: new ValidationErrors()
   };
 
   it('before init', () => {
@@ -103,22 +105,26 @@ describe('get all', () => {
       name: {
         value: 'newName',
         isChanged: true,
-        errors: null
+        errors: null,
+        warnings: null
       },
       surname: {
         value: undefined,
         isChanged: false,
-        errors: ['Surname is required']
+        errors: ['Surname is required'],
+        warnings: null
       },
       phone: {
         value: 123456,
         isChanged: true,
+        warnings: null,
         errors: null
       },
       age: {
         value: 45,
         isChanged: false,
-        errors: ['Age must be greater then 100']
+        errors: ['Age must be greater then 100'],
+        warnings: null
       }
     };
     initSettings.data = {name: 'Name', age: 45};
@@ -194,14 +200,14 @@ describe('Listeners', () => {
   });
 });
 
-describe('clearError', () => {
+describe('clearValidation', () => {
   it('clear error', async () => {
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({name: ['Error']});
     };
 
     await form.set({name: 'John'}, true);
-    form.clearError('name');
+    form.clearValidation('name');
 
     expect(form.getAll().fields.name.errors).toBeFalsy();
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set changes, validation, clear error
@@ -216,7 +222,7 @@ describe('clearError', () => {
     };
 
     const validatePromise = form.validateForm();
-    form.clearError('name');
+    form.clearValidation('name');
 
     await validatePromise;
     expect(form.getAll().fields.age.errors.length).toBe(1);
@@ -461,7 +467,7 @@ describe('before init', async () => {
   const form = new Form();
   const func = [
     form.updateField.bind(form),
-    form.clearError.bind(form),
+    form.clearValidation.bind(form),
     form.submit.bind(form),
     form.clearFieldChanges.bind(form),
     form.clearChanges.bind(form),
