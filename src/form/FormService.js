@@ -441,6 +441,9 @@ class FormService {
 
   async _runValidator(validator, getData, output) {
     const data = getData();
+    if (utils.isEmpty(data)) {
+      return new ValidationErrors();
+    }
     let validErrors;
 
     try {
