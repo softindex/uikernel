@@ -69,7 +69,7 @@ describe('settings', () => {
     await form.init(initSettings);
     // runValidator in ValidateForm won't call model.isValidRecord
     // if there are no changes or data in form
-    form._changes = {age: 'test'};
+    form.set({age: 'test'});
     form.model.isValidRecord = async () => ValidationErrors.createFromJSON({age: ['Error']});
 
     await form.validateForm();
@@ -218,7 +218,7 @@ describe('clearValidation', () => {
   it('clear & validating conflict', async () => {
     // runValidator in ValidateForm won't call model.isValidRecord
     // if there are no changes or data in form
-    form._changes = {name: 'test', age: 'test'};
+    form.set({name: 'test', age: 'test'});
 
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({
