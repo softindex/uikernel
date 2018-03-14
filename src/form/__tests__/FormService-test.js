@@ -67,7 +67,9 @@ describe('settings', () => {
   it('partialErrorChecking = false', async () => {
     const form = new Form();
     await form.init(initSettings);
-
+    // runValidator in ValidateForm won't call model.isValidRecord
+    // if there are no changes or data in form
+    form._changes = {age: 'test'};
     form.model.isValidRecord = async () => ValidationErrors.createFromJSON({age: ['Error']});
 
     await form.validateForm();
@@ -214,6 +216,10 @@ describe('clearValidation', () => {
   });
 
   it('clear & validating conflict', async () => {
+    // runValidator in ValidateForm won't call model.isValidRecord
+    // if there are no changes or data in form
+    form._changes = {name: 'test', age: 'test'};
+
     form.model.isValidRecord = async function () {
       return ValidationErrors.createFromJSON({
         name: ['Error'],
@@ -455,7 +461,7 @@ describe('validateForm', () => {
     };
 
     await form.set({name: 'John'}, true);
-    expect(form.model.isValidRecord.mock.calls[1][0]).toEqual({
+    expect(form.model.isValidRecord.mock.calls[0][0]).toEqual({
       age: null,
       name: 'John'
     });
