@@ -400,7 +400,7 @@ class FormService {
 
     // Look through all form fields
     for (const field in this._data) {
-      if (!this._changes.hasOwnProperty(field)) {
+      if (!this._changes.hasOwnProperty(field) || utils.isEqual(this._changes[field], this._data[field])) {
         filteredErrors.clearField(field);
       }
     }
