@@ -30,6 +30,8 @@ const GridDataMixin = {
         console.warn('Deprecated: Grid prop "realtime" renamed to "autoSubmit"');
       }
       this.save(this.props.onRealtimeSubmit);
+    } else if (this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
     }
   },
 
