@@ -466,6 +466,21 @@ describe('validateForm', () => {
       name: 'John'
     });
   });
+  it('remove errors from unchanged form fields', async () => {
+    form.setPartialErrorChecking(true);
+    form.model.getValidationDependency = () => {
+      return ['age'];
+    };
+    form.set({name: 'John'});
+
+    form.model.isValidRecord = () => {
+      return ValidationErrors.createFromJSON({age: ['Age is required']});
+    };
+
+    const {errors} = await form.validateForm();
+    expect(errors).toEqual(null);
+    form.setPartialErrorChecking(false);
+  });
 });
 
 describe('before init', async () => {
