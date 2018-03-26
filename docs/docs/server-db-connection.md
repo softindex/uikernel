@@ -9,8 +9,15 @@ As mentioned, we're using a MySQL database for our example. Below is  the code f
 
 `server/common/mysql.js`
 {% highlight javascript %}
+const mysql = require('mysql');
 
-const pool = mysql.createPool(config.db);
+const pool = mysql.createPool({
+  host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'passwordForRoot',
+  database: 'database',
+});
 
 function executeQuery(connection, query) {
   return new Promise((resolve, reject) => {
@@ -30,8 +37,7 @@ function executeQuery(connection, query) {
         resolve(res)
       }
     });
-  })
-
+  });
 }
 
 const MySQLWrapper = {
@@ -64,4 +70,6 @@ const MySQLWrapper = {
     });
   }
 };
+
+module.exports = MySQLWrapper;
 {% endhighlight %}
