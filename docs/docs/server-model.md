@@ -5,7 +5,7 @@ prev: server-validation.html
 next: server-db-connection.html
 ---
 
-Our model will have the following methods: `read`, `getRecord`, `update`, `create`, `delete`, `isValidRecord`and `getValidationDependency`.
+Our model will have the following methods: `read`, `getRecord`, `update`, `create`, `delete`, `isValidRecord` and `getValidationDependency`.
 
 Here, we're going to use [MySQL](https://github.com/mysqljs/mysql) and [Squel](https://hiddentao.com/squel/).
 
@@ -13,7 +13,14 @@ First, let's define `read`.
 
 `userGrid/model.js`:
 {% highlight javascript %}
-async read(settings) {
+const squel = require('squel');
+const MySQLWrapper = require('../../common/mysql');
+const validator = require('./validation');
+
+const FIELDS = ['name', 'surname', 'phone', 'age', 'gender'];
+
+class UserGridModel {
+  async read(settings) {
     const query = squel.select()
       .from('records')
       .field('SQL_CALC_FOUND_ROWS id')
@@ -60,6 +67,10 @@ async read(settings) {
 
     return data;
   }
+  // ...
+
+  module.exports = UserGridModel;
+}
 {% endhighlight %}
 
 The `read` method returns an object with two properties: `records` and `count`(the number of returned records).
@@ -86,19 +97,25 @@ For example:
 Let's define methods for validation:
 
 {% highlight javascript %}
-async isValidRecord(record) {
+class UserGridModel {
+  // ...
+  async isValidRecord(record) {
     return await validator.isValidRecord(record);
-  },
+  }
 
-async getValidationDependency(record) {
+  async getValidationDependency(record) {
     return await validator.getValidationDependency(record);
-  },
+  }
+  // ...
+}
 {% endhighlight %}
 
 Next, we'll define `getRecord`:
 
 {% highlight javascript %}
-async getRecord(id, fields) {
+class UserGridModel {
+  // ...
+  async getRecord(id, fields) {
     const query = squel.select()
       .from('records')
       .where('id = ?', id);
@@ -112,6 +129,8 @@ async getRecord(id, fields) {
     const result = await MySQLWrapper.query(query);
     return result[0];
   }
+  // ...
+}
 {% endhighlight %}
 
 The `getRecord` method returns a single record.
@@ -119,7 +138,9 @@ The `getRecord` method returns a single record.
 Here's the code for `create`:
 
 {% highlight javascript %}
-async create(data) {
+class UserGridModel {
+  // ...
+  async create(data) {
     data = {
       name: null,
       surname: null,
@@ -144,6 +165,8 @@ async create(data) {
     const queryResult = await MySQLWrapper.query(query);
     return queryResult.insertId;
   }
+  // ...
+}
 {% endhighlight %}
 
 If data is valid, `create` returns the id of the inserted record. Otherwise, it returns validation errors.
@@ -151,32 +174,36 @@ If data is valid, `create` returns the id of the inserted record. Otherwise, it 
 Let's define the `update` method:
 
 {% highlight javascript %}
+class UserGridModel {
+  // ...
   async update(records) {
-      const result = [];
+    const result = [];
 
-      for (const [recordId, record] of records) {
-        const query = squel.update()
-          .table('records')
-          .where('id = ?', recordId);
+    for (const [recordId, record] of records) {
+      const query = squel.update()
+        .table('records')
+        .where('id = ?', recordId);
 
-        for (const fieldName of FIELDS) {
-          if (record.hasOwnProperty(fieldName)) {
-            query.set(fieldName, record[fieldName]);
-          }
+      for (const fieldName of FIELDS) {
+        if (record.hasOwnProperty(fieldName)) {
+          query.set(fieldName, record[fieldName]);
         }
-
-        const validationResult = await this.isValidRecord(record);
-        if (!validationResult.isEmpty()) {
-          result.push([recordId, validationResult]);
-          continue;
-        }
-
-        await MySQLWrapper.query(query);
-        result.push([recordId, record]);
       }
 
-      return result;
+      const validationResult = await this.isValidRecord(record);
+      if (!validationResult.isEmpty()) {
+        result.push([recordId, validationResult]);
+        continue;
+      }
+
+      await MySQLWrapper.query(query);
+      result.push([recordId, record]);
     }
+
+    return result;
+  }
+  // ...
+}
 {% endhighlight %}
 
 This method returns validation errors and updated records. The return value format is the same as for the `read` method.
@@ -187,12 +214,15 @@ Updated records are used for updating of the grid.
 Finally, let's define `delete`:
 
 {% highlight javascript %}
- async delete(id) {
-   const query = squel.delete()
-     .from('getting_started')
-     .where('id = ?', id);
-   return MySQLWrapper.query(query)
+class UserGridModel {
+  // ...
+  async delete(id) {
+    const query = squel.delete()
+      .from('records')
+      .where('id = ?', id);
+    return MySQLWrapper.query(query);
   }
+}
 {% endhighlight %}
 
 The return value of `delete` can be different. It depends on the definition of this method in the client model.

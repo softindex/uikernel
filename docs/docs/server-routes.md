@@ -9,14 +9,14 @@ First, let's define the main router of our app.
 
 `router.js`:
 {% highlight javascript %}
-import express from 'express';
-import userGridRouter from './modules/userGrid/router';
+const express = require('express');
+const userGridRouter = require('./modules/userGrid/router');
 
 // get an instance of the express Router
 const router = new express.Router();
 router.use('/records', userGridRouter);
 
-export default router;
+module.exports = router;
 {% endhighlight %}
 
 
@@ -25,12 +25,13 @@ UIKernel allows to generate routes if you use Express. So we're going to generat
 
 `userGrid/router.js`:
 {% highlight javascript %}
-import UserGridModel from './model';// we'll define the model in the next step of our tutorial
+const UIKernel = require('uikernel');
+const UserGridModel = require('./model'); // we'll define the model in the next step of our tutorial
 
-//generate routes
+// generate routes
 const router = UIKernel.gridExpressApi()
     .model(new UserGridModel())
-    .getRouter(); //"getRouter" returns express.Router object
+    .getRouter(); // "getRouter" returns express.Router object
 
 // UIKernel doesn't generate the delete method, so we'll define it
 router.delete('/:recordId', (req, res, next) => {
@@ -39,8 +40,7 @@ router.delete('/:recordId', (req, res, next) => {
         .catch((err) => next(err))
 });
 
-
-export default router; // this router is passed to the main router of our app
+module.exports = router; // this router is passed to the main router of our app
 {% endhighlight %}
 
 Pay attention to the argument passed to `model()`.
