@@ -13,7 +13,8 @@ import utils from '../common/utils';
 
 class SelectEditor extends React.Component {
   static propTypes = {
-    options: PropTypes.array,
+    options: PropTypes.array, // [[value, label, isDisabled], ...] or [label1, label2, ...]
+    //                           isDisabled == true - the option will be disabled, else the option will be enabled
     model: PropTypes.shape({
       read: PropTypes.func
     }),
@@ -81,7 +82,11 @@ class SelectEditor extends React.Component {
         disabled={this.props.disabled || this.state.loading}
       >
         {options.map((item, index) => (
-          <option key={index} value={index}>
+          <option
+            key={index}
+            value={index}
+            disabled={(item instanceof Array) && item[2]}
+          >
             {item instanceof Array ? item[1] : item}
           </option>
         ), this)}
