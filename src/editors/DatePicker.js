@@ -28,14 +28,6 @@ class DatePickerEditor extends React.Component {
     textFormat: 'YYYY-MM-DD'
   };
 
-  componentDidMount() {
-    this.picker.setOpen(this.props.show);
-  }
-
-  componentDidUpdate() {
-    this.picker.setOpen(this.props.show);
-  }
-
   onChange(date) {
     if (date) {
       date = date.format(this.props.format);
@@ -47,7 +39,6 @@ class DatePickerEditor extends React.Component {
     const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max']);
     return (
       <DatePicker
-        ref={(picker) => this.picker = picker}
         {...otherProps}
         dateFormat={this.props.textFormat}
         selected={this.props.value && moment(this.props.value)}
