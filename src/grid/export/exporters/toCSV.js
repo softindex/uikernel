@@ -6,11 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../../common/toPromise';
 import csv from 'csv-stringify';
 
 const toCSV = async (data) => {
-  const csvData = await toPromise(csv, true)(data.records.concat([data.totals]), {
+  const csvData = await csv(data.records.concat([data.totals]), {
     header: true,
     columns: data.columns
   });

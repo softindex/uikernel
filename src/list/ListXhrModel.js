@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import defaultXhr from '../common/defaultXhr';
 import url from 'url';
 
@@ -38,7 +37,7 @@ class ListXMLHttpRequestModel {
       parsedUrl.query.v = search;
     }
 
-    const body = await toPromise(this._xhr.bind(this))({
+    const body = await this._xhr({
       method: 'GET',
       headers: {
         'Content-type': 'application/json'
@@ -58,7 +57,7 @@ class ListXMLHttpRequestModel {
     const parsedUrl = url.parse(this._apiUrl, true);
     parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
 
-    let body = await toPromise(this._xhr.bind(this))({
+    let body = await this._xhr({
       method: 'GET',
       headers: {
         'Content-type': 'application/json'

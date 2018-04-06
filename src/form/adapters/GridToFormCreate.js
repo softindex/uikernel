@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
 import Events from '../../common/Events';
 import utils from '../../common/utils';
 
@@ -48,7 +47,7 @@ class GridToFormCreate extends Events {
    */
   async submit(data) {
     const model = this._adapter.model;
-    return await toPromise(model.create.bind(model))(data);
+    return await model.create(data);
   }
 
   /**
@@ -59,7 +58,7 @@ class GridToFormCreate extends Events {
    */
   async isValidRecord(record) {
     const model = this._adapter.model;
-    return await toPromise(model.isValidRecord.bind(model))(record);
+    return await model.isValidRecord(record);
   }
 
   /**

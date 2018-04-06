@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import Validator from '../common/validation/validators/common';
 import defaultXhr from '../common/defaultXhr';
@@ -33,7 +32,7 @@ class FormXhrModel extends EventsModel {
     parsedUrl.query.fields = JSON.stringify(fields);
     delete parsedUrl.search;
 
-    const response = await toPromise(this._xhr.bind(this))({
+    const response = await this._xhr({
       method: 'GET',
       uri: url.format(parsedUrl)
     });
@@ -42,7 +41,7 @@ class FormXhrModel extends EventsModel {
   }
 
   async submit(changes) {
-    let body = await toPromise(this._xhr.bind(this))({
+    let body = await this._xhr({
       method: 'POST',
       headers: {
         'Content-type': 'application/json'
@@ -68,7 +67,7 @@ class FormXhrModel extends EventsModel {
    * @param {Function}    cb      CallBack function
    */
   isValidRecord(record) {
-    return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
+    return this._validator.isValidRecord(record);
   }
 
   /**

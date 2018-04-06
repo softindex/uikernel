@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import React from 'react';
 import PropTypes from 'prop-types';
 import utils from '../common/utils';
@@ -37,7 +36,7 @@ class SelectEditor extends React.Component {
 
   componentDidMount() {
     if (this.props.model) {
-      toPromise(this.props.model.read.bind(this.props.model))('')
+      this.props.model.read('')
         .then(data => {
           data.unshift([null, '']);
 

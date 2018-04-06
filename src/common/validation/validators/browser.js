@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../toPromise';
 import defaultXhr from '../../defaultXhr';
 import ValidationErrors from '../ValidationErrors';
 import Validator from './common';
@@ -37,7 +36,7 @@ class ClientValidator extends Validator {
 
     let xhrResult;
     try {
-      xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
+      xhrResult = await this._settings.xhr({
         method: 'POST',
         headers: {'Content-type': 'application/json'},
         body: JSON.stringify(record),

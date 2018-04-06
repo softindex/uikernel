@@ -7,7 +7,6 @@
  */
 
 import utils from '../common/utils';
-import toPromise from '../common/toPromise';
 import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 
@@ -65,7 +64,7 @@ const FormMixin = {
       let data;
       let err;
       try {
-        data = await toPromise(::settings.model.getData)(settings.fields);
+        data = await settings.model.getData(settings.fields);
       } catch (e) {
         err = e;
       }
@@ -76,7 +75,7 @@ const FormMixin = {
 
       if (err) {
         this.state._formMixin.globalError = err;
-        await toPromise(::this.setState, true)(this.state);
+        await this.setState(this.state);
         throw err;
       }
 
@@ -84,9 +83,9 @@ const FormMixin = {
     }
 
     this.state._formMixin.model.on('update', this._handleModelChange);
-    await toPromise(::this.setState, true)(this.state);
+    await this.setState(this.state);
     if (!settings.partialErrorChecking) {
-      await toPromise(this.validateForm, true)();
+      await this.validateForm();
     }
   },
 
@@ -389,7 +388,7 @@ const FormMixin = {
     let data;
     let err;
     try {
-      data = await toPromise(::this.state._formMixin.model.submit)(changes);
+      data = await this.state._formMixin.model.submit(changes);
     } catch (e) {
       err = e;
     }
@@ -428,7 +427,7 @@ const FormMixin = {
       }, this);
     }
 
-    await toPromise(::this.setState, true)(this.state);
+    await this.setState(this.state);
 
     if (err) {
       throw err;

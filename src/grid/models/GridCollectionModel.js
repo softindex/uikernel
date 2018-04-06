@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
 import Validator from '../../common/validation/validators/common';
 import AbstractGridModel from './AbstractGridModel';
 import utils from '../../common/utils';
@@ -295,7 +294,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Function}    cb      CallBack function
    */
   isValidRecord(record) {
-    return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
+    return this._validator.isValidRecord(record);
   }
 
   /**

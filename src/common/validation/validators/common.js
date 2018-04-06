@@ -9,7 +9,6 @@
 import ValidationErrors from '../ValidationErrors';
 import ArgumentsError from '../../ArgumentsError';
 import utils from '../../utils';
-import toPromise from '../../toPromise';
 
 class Validator {
   /**
@@ -169,7 +168,7 @@ class Validator {
         for (const asyncValidator of asyncValidators) {
           awaitStack.push(field);
           promises.push(
-            await toPromise(asyncValidator)(value)
+            await asyncValidator(value)
           );
         }
       }
@@ -186,7 +185,7 @@ class Validator {
       if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
         awaitStack.push(null);
         promises.push(
-          await toPromise(asyncGroupValidator.fn)(record, errors)
+          await asyncGroupValidator.fn(record, errors)
         );
       }
     }

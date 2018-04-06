@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import Events from '../../common/Events';
 import utils from '../../common/utils';
@@ -100,7 +99,7 @@ class GridToFormUpdate extends Events {
    */
   getData(fields) {
     const model = this._adapter.model;
-    return toPromise(model.getRecord.bind(model))(this._adapter.id, fields);
+    return model.getRecord(this._adapter.id, fields);
   }
 
   /**
@@ -112,7 +111,7 @@ class GridToFormUpdate extends Events {
   async submit(changes) {
     const record = utils.clone(changes);
     const model = this._adapter.model;
-    let result = await toPromise(model.update.bind(model))([[this._adapter.id, record]]);
+    let result = await model.update([[this._adapter.id, record]]);
     result = result[0][1];
     if (result instanceof ValidationErrors) {
       throw result;
@@ -128,7 +127,7 @@ class GridToFormUpdate extends Events {
    */
   async isValidRecord(record) {
     const model = this._adapter.model;
-    return await toPromise(model.isValidRecord.bind(model))(record);
+    return await model.isValidRecord(record);
   }
 
   /**
