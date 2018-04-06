@@ -7,7 +7,6 @@
  */
 
 import toPromise from '../common/toPromise';
-import callbackify from '../common/callbackify';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import Validator from '../common/validation/validators/common';
 import defaultXhr from '../common/defaultXhr';
@@ -29,6 +28,49 @@ class FormXhrModel extends EventsModel {
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
+  async getData(fields) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.query.fields = JSON.stringify(fields);
+    delete parsedUrl.search;
+
+    const response = await toPromise(this._xhr.bind(this))({
+      method: 'GET',
+      uri: url.format(parsedUrl)
+    });
+
+    return JSON.parse(response);
+  }
+
+  async submit(changes) {
+    let body = await toPromise(this._xhr.bind(this))({
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      uri: this._apiUrl,
+      body: JSON.stringify(changes)
+    });
+
+    body = JSON.parse(body);
+
+    if (body.error) {
+      throw ValidationErrors.createFromJSON(body.error);
+    }
+
+    this.trigger('update', body.data);
+    return body.data;
+  }
+
+  /**
+   * Validation check
+   *
+   * @param {Object}      record
+   * @param {Function}    cb      CallBack function
+   */
+  isValidRecord(record) {
+    return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
+  }
+
   /**
    * Get all dependent fields, that are required for validation
    *
@@ -39,48 +81,5 @@ class FormXhrModel extends EventsModel {
     return this._validator.getValidationDependency(fields);
   }
 }
-
-FormXhrModel.prototype.getData = callbackify(async function (fields) {
-  const parsedUrl = url.parse(this._apiUrl, true);
-  parsedUrl.query.fields = JSON.stringify(fields);
-  delete parsedUrl.search;
-
-  const response = await toPromise(this._xhr.bind(this))({
-    method: 'GET',
-    uri: url.format(parsedUrl)
-  });
-
-  return JSON.parse(response);
-});
-
-FormXhrModel.prototype.submit = callbackify(async function (changes) {
-  let body = await toPromise(this._xhr.bind(this))({
-    method: 'POST',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    uri: this._apiUrl,
-    body: JSON.stringify(changes)
-  });
-
-  body = JSON.parse(body);
-
-  if (body.error) {
-    throw ValidationErrors.createFromJSON(body.error);
-  }
-
-  this.trigger('update', body.data);
-  return body.data;
-});
-
-/**
- * Validation check
- *
- * @param {Object}      record
- * @param {Function}    cb      CallBack function
- */
-FormXhrModel.prototype.isValidRecord = callbackify(function (record) {
-  return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
-});
 
 export default FormXhrModel;

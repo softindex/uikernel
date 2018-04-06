@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import utils from '../../common/utils';
@@ -125,7 +124,7 @@ const GridDataMixin = {
    *
    * @param {Function} cb CallBack function
    */
-  save: callbackify(async function () {
+  save: async function () {
     const errors = this.getErrors();
 
     // Collect all valid changes
@@ -192,7 +191,7 @@ const GridDataMixin = {
     }
 
     return data;
-  }),
+  },
 
   /**
    * Clear record changes

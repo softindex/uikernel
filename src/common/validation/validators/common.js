@@ -10,7 +10,6 @@ import ValidationErrors from '../ValidationErrors';
 import ArgumentsError from '../../ArgumentsError';
 import utils from '../../utils';
 import toPromise from '../../toPromise';
-import callbackify from '../../callbackify';
 
 class Validator {
   /**
@@ -135,75 +134,75 @@ class Validator {
     }
     return result;
   }
-}
 
-/**
- * Check client record validity
- *
- * @param {Object}  record   Record
- * @returns {ValidationErrors|null} Record validity
- */
-Validator.prototype.isValidRecord = callbackify(async function (record) {
-  const fields = Object.keys(record);
-  const errors = new ValidationErrors();
-  const awaitStack = [];
-  const promises = [];
+  /**
+   * Check client record validity
+   *
+   * @param {Object}  record   Record
+   * @returns {ValidationErrors|null} Record validity
+   */
+  async isValidRecord(record) {
+    const fields = Object.keys(record);
+    const errors = new ValidationErrors();
+    const awaitStack = [];
+    const promises = [];
 
-  const dependentFields = this.getValidationDependency(fields);
-  if (dependentFields.length) {
-    throw new ArgumentsError('Not enough fields for validator: ' + dependentFields.join(', '));
-  }
+    const dependentFields = this.getValidationDependency(fields);
+    if (dependentFields.length) {
+      throw new ArgumentsError('Not enough fields for validator: ' + dependentFields.join(', '));
+    }
 
-  // Add sync and async validators
-  for (const [field, value] of Object.entries(record)) {
-    const validators = this._settings.validators[field];
-    if (validators) {
-      for (const validator of validators) {
-        const error = validator(value);
-        if (error) {
-          errors.add(field, error);
+    // Add sync and async validators
+    for (const [field, value] of Object.entries(record)) {
+      const validators = this._settings.validators[field];
+      if (validators) {
+        for (const validator of validators) {
+          const error = validator(value);
+          if (error) {
+            errors.add(field, error);
+          }
+        }
+      }
+
+      const asyncValidators = this._settings.asyncValidators[field];
+      if (asyncValidators) {
+        for (const asyncValidator of asyncValidators) {
+          awaitStack.push(field);
+          promises.push(
+            await toPromise(asyncValidator)(value)
+          );
         }
       }
     }
 
-    const asyncValidators = this._settings.asyncValidators[field];
-    if (asyncValidators) {
-      for (const asyncValidator of asyncValidators) {
-        awaitStack.push(field);
+    // Add sync and async group validators
+    for (const groupValidator of this._settings.groupValidators) {
+      if (utils.isIntersection(groupValidator.fields, fields)) {
+        groupValidator.fn(record, errors);
+      }
+    }
+
+    for (const asyncGroupValidator of this._settings.asyncGroupValidators) {
+      if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
+        awaitStack.push(null);
         promises.push(
-          await toPromise(asyncValidator)(value)
+          await toPromise(asyncGroupValidator.fn)(record, errors)
         );
       }
     }
-  }
 
-  // Add sync and async group validators
-  for (const groupValidator of this._settings.groupValidators) {
-    if (utils.isIntersection(groupValidator.fields, fields)) {
-      groupValidator.fn(record, errors);
+    const asyncErrors = await Promise.all(promises);
+    while (asyncErrors.length) {
+      const error = asyncErrors.pop();
+      const field = awaitStack.pop();
+
+      if (error && field) {
+        errors.add(field, error);
+      }
     }
+
+    return errors;
   }
-
-  for (const asyncGroupValidator of this._settings.asyncGroupValidators) {
-    if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
-      awaitStack.push(null);
-      promises.push(
-        await toPromise(asyncGroupValidator.fn)(record, errors)
-      );
-    }
-  }
-
-  const asyncErrors = await Promise.all(promises);
-  while (asyncErrors.length) {
-    const error = asyncErrors.pop();
-    const field = awaitStack.pop();
-
-    if (error && field) {
-      errors.add(field, error);
-    }
-  }
-
-  return errors;
-});
+}
 
 export default Validator;

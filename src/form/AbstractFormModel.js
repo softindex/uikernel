@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../common/callbackify';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import EventsModel from '../common/Events';
 
@@ -21,6 +20,39 @@ class AbstractFormModel extends EventsModel {
   }
 
   /**
+   * Get data
+   *
+   * @param {Array} fields     Required fields
+   * @returns {Object}  Promise
+   * @abstract
+   */
+  getData(/*fields*/) {
+    return Promise.resolve({});
+  }
+
+  /**
+   * Process form data
+   *
+   * @param   {Object}      changes     Form data
+   * @returns {Object}  Promise
+   * @abstract
+   */
+  submit(/*changes*/) {
+    return Promise.resolve();
+  }
+
+  /**
+   * Record validity check
+   *
+   * @param {Object}      record  Record object
+   * @returns {Object}  Promise
+   * @abstract
+   */
+  isValidRecord(/*record*/) {
+    return Promise.resolve(new ValidationErrors());
+  }
+
+  /**
    * Get all dependent fields, that are required for validation
    *
    * @param   {Array}  fields  Fields list
@@ -31,32 +63,5 @@ class AbstractFormModel extends EventsModel {
     return [];
   }
 }
-
-/**
- * Get data
- *
- * @param {Array} fields     Required fields
- * @returns {Object}  Promise
- * @abstract
- */
-AbstractFormModel.prototype.getData = callbackify((/*fields*/) => Promise.resolve({}));
-
-/**
- * Process form data
- *
- * @param   {Object}      changes     Form data
- * @returns {Object}  Promise
- * @abstract
- */
-AbstractFormModel.prototype.submit = callbackify((/*changes*/) => Promise.resolve());
-
-/**
- * Record validity check
- *
- * @param {Object}      record  Record object
- * @returns {Object}  Promise
- * @abstract
- */
-AbstractFormModel.prototype.isValidRecord = callbackify((/*record*/) => Promise.resolve(new ValidationErrors()));
 
 export default AbstractFormModel;

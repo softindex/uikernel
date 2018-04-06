@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import utils from '../../common/utils';
 import {findDOMNode} from 'react-dom';
@@ -85,7 +84,7 @@ const GridUIMixin = {
   /**
    * Fetch server data
    */
-  updateTable: callbackify(async function () {
+  updateTable: async function () {
     this.setState({showLoader: true});
 
     if (!this.props.model) {
@@ -144,7 +143,7 @@ const GridUIMixin = {
 
     this._renderBody();
     this.setState({showLoader: false});
-  }),
+  },
 
   _getHeaderCellHTML: function (columnName) {
     const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
@@ -176,9 +175,9 @@ const GridUIMixin = {
         if (type === 'object' && record[field] && !this.state.colsWithEscapeErrors[columnId]) {
           this.state.colsWithEscapeErrors[columnId] = true;
           console.error(
-            `UIKernel.Grid warning: 
-You send record with fields of Object type in escaped column "${columnId}". 
-To use Objects, set column config "escape" to false, 
+            `UIKernel.Grid warning:
+You send record with fields of Object type in escaped column "${columnId}".
+To use Objects, set column config "escape" to false,
 and escape "${columnId}" field in render function by yourself`
           );
         }

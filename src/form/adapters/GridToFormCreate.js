@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import Events from '../../common/Events';
 import utils from '../../common/utils';
@@ -29,6 +28,41 @@ class GridToFormCreate extends Events {
   }
 
   /**
+   * Get data
+   *
+   * @param {Array}     fields     Required fields
+   * @param {Function}  cb         CallBack function
+   */
+  async getData(fields) {
+    if (fields && fields.length) {
+      return utils.pick(this._adapter.initialData, fields);
+    }
+    return this._adapter.initialData;
+  }
+
+  /**
+   * Create new record
+   *
+   * @param   {Object}      data      Record
+   * @param   {Function}    cb        CallBack function
+   */
+  async submit(data) {
+    const model = this._adapter.model;
+    return await toPromise(model.create.bind(model))(data);
+  }
+
+  /**
+   * Validation checking
+   *
+   * @param {Object}      record  Record object
+   * @param {Function}    cb      CallBack function
+   */
+  async isValidRecord(record) {
+    const model = this._adapter.model;
+    return await toPromise(model.isValidRecord.bind(model))(record);
+  }
+
+  /**
    * Get all dependent fields, that are required for validation
    *
    * @param   {Array}  fields
@@ -38,40 +72,5 @@ class GridToFormCreate extends Events {
     return this._adapter.model.getValidationDependency(fields);
   }
 }
-
-/**
- * Get data
- *
- * @param {Array}     fields     Required fields
- * @param {Function}  cb         CallBack function
- */
-GridToFormCreate.prototype.getData = callbackify(async function (fields) {
-  if (fields && fields.length) {
-    return utils.pick(this._adapter.initialData, fields);
-  }
-  return this._adapter.initialData;
-});
-
-/**
- * Create new record
- *
- * @param   {Object}      data      Record
- * @param   {Function}    cb        CallBack function
- */
-GridToFormCreate.prototype.submit = callbackify(async function (data) {
-  const model = this._adapter.model;
-  return await toPromise(model.create.bind(model))(data);
-});
-
-/**
- * Validation checking
- *
- * @param {Object}      record  Record object
- * @param {Function}    cb      CallBack function
- */
-GridToFormCreate.prototype.isValidRecord = callbackify(async function (record) {
-  const model = this._adapter.model;
-  return await toPromise(model.isValidRecord.bind(model))(record);
-});
 
 export default GridToFormCreate;
