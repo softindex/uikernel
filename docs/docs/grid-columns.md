@@ -51,9 +51,10 @@ Columns list is specified as an object with column string IDs as keys and column
      * Function should return React component for editing value of the `editorField`.
      *
      * @param   {Object}           record    Record content
+     * @param   {Object}           grid      Grid context(this)
      * @return  {ReactComponent}
     **/
-    editor: function (record) { ... },
+    editor: function (record, grid) { ... },
 
     render: [
       {string}, ...,                // Fields, used for rendering
