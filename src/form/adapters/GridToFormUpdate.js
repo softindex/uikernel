@@ -95,18 +95,16 @@ class GridToFormUpdate extends Events {
    * Get data
    *
    * @param {Array}     fields     Required fields
-   * @param {Function}  cb         CallBack function
    */
-  getData(fields) {
+  async getData(fields) {
     const model = this._adapter.model;
-    return model.getRecord(this._adapter.id, fields);
+    return await model.getRecord(this._adapter.id, fields);
   }
 
   /**
    * Apply changes
    *
    * @param   {Object}      changes     Form data
-   * @param   {Function}    cb          CallBack function
    */
   async submit(changes) {
     const record = utils.clone(changes);
@@ -123,7 +121,6 @@ class GridToFormUpdate extends Events {
    * Record validity check
    *
    * @param {Object}      record  Record object
-   * @param {Function}    cb      CallBack function
    */
   async isValidRecord(record) {
     const model = this._adapter.model;

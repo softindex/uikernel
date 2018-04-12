@@ -108,7 +108,6 @@ class GridCollectionModel extends AbstractGridModel {
    * Add a record to local collection
    *
    * @param {Object}      record  Record object
-   * @param {Function}    cb      CallBack function
    */
   async create(record) {
     let i;
@@ -151,7 +150,6 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object}      [settings.filters]      Filter values object
    * @param {Array}       [settings.sort]         Sort parameters
    * @param {Array}       [settings.ids]          Record IDs, we need to get for sure
-   * @param {Function}    cb                      CallBack function
    */
   read(settings) {
     let data = utils.cloneDeep(this.data);
@@ -224,7 +222,6 @@ class GridCollectionModel extends AbstractGridModel {
    *
    * @param {number|string}   id      Record ID
    * @param {Array}           fields  Required fields
-   * @param {Function}        cb      CallBack function
    */
   getRecord(id, fields) {
     const record = utils.cloneDeep(this._getRecordByID(id));
@@ -250,7 +247,6 @@ class GridCollectionModel extends AbstractGridModel {
    * Apply record changes
    *
    * @param {Array}       changes     Changes array
-   * @param {Function}    cb          CallBack function
    * @abstract
    */
   async update(changes) {
@@ -291,7 +287,6 @@ class GridCollectionModel extends AbstractGridModel {
    * Validation check
    *
    * @param {Object}      record
-   * @param {Function}    cb      CallBack function
    */
   isValidRecord(record) {
     return this._validator.isValidRecord(record);

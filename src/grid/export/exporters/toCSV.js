@@ -8,7 +8,7 @@
 
 import csv from 'csv-stringify';
 
-const toCSV = async (data) => {
+async function toCSV(data) {
   const csvData = await csv(data.records.concat([data.totals]), {
     header: true,
     columns: data.columns
@@ -18,6 +18,6 @@ const toCSV = async (data) => {
     mime: 'text/csv',
     data: csvData
   };
-};
+}
 
 export default toCSV;

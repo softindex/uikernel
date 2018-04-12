@@ -55,9 +55,8 @@ const FormMixin = {
    * @param {bool}              [settings.autoSubmit]                   Automatic submit before updateField
    * @param {Function}          [settings.autoSubmitHandler]            Automatic submit handler
    * @param {Validator}         [settings.warningsValidator]            Warningss validator for fields
-   * @param {Function}          [cb]                                    CallBack function
    */
-  initForm: async function (settings) {
+  async initForm(settings) {
     this._initState(settings);
 
     if (!this.state._formMixin.data) {

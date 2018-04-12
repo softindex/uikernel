@@ -39,7 +39,6 @@ class GridXhrModel extends AbstractGridModel {
    * Add a record
    *
    * @param {Object}      record  Record object
-   * @param {Function}    cb      CallBack function
    */
   async create(record) {
     let body = await this._xhr({
@@ -70,7 +69,6 @@ class GridXhrModel extends AbstractGridModel {
    * @param {Object}      [settings.filters]      Filter values object
    * @param {Array}       [settings.sort]         Sort parameters
    * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
-   * @param {Function}    cb                      CallBack function
    */
   async read(settings) {
     const parsedUrl = url.parse(this._apiUrl, true);
@@ -104,7 +102,6 @@ class GridXhrModel extends AbstractGridModel {
    *
    * @param {number|string}   id      Record ID
    * @param {Array}           fields  Required fields
-   * @param {Function}        cb      CallBack function
    */
   async getRecord(id, fields) {
     const parsedUrl = url.parse(this._apiUrl, true);
@@ -124,7 +121,6 @@ class GridXhrModel extends AbstractGridModel {
    * Apply record changes
    *
    * @param {Array}       changes     Changes array
-   * @param {Function}    cb          CallBack function
    * @abstract
    */
   async update(changes) {
@@ -154,7 +150,6 @@ class GridXhrModel extends AbstractGridModel {
    * Validation check
    *
    * @param {Object}      record
-   * @param {Function}    cb      CallBack function
    */
   isValidRecord(record) {
     return this._validator.isValidRecord(record);

@@ -120,10 +120,8 @@ const GridDataMixin = {
 
   /**
    * Save grid changes
-   *
-   * @param {Function} cb CallBack function
    */
-  save: async function () {
+  async save() {
     const errors = this.getErrors();
 
     // Collect all valid changes

@@ -6,12 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const toJSON = async (data) => ({
-  mime: 'application/json',
-  data: {
-    records: data.records,
-    totals: data.totals
-  }
-});
+async function toJSON(data) {
+  return {
+    mime: 'application/json',
+    data: {
+      records: data.records,
+      totals: data.totals
+    }
+  };
+}
 
 export default toJSON;

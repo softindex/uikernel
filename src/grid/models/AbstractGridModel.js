@@ -24,7 +24,6 @@ class AbstractGridModel extends EventsModel {
    * Add a record
    *
    * @param {Object}      record  Record object
-   * @param {Function}    cb      CallBack function
    * @abstract
    */
   create(/*record*/) {
@@ -41,7 +40,6 @@ class AbstractGridModel extends EventsModel {
    * @param {Object}      [settings.filters]      Filter values object
    * @param {Array}       [settings.sort]         Sort parameters
    * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
-   * @param {Function}    cb                      CallBack function
    * @abstract
    */
   read(/*settings*/) {
@@ -57,7 +55,6 @@ class AbstractGridModel extends EventsModel {
    *
    * @param {*}         id      Record ID
    * @param {Array}     fields  Required fields
-   * @param {Function}  cb      CallBack function
    * @abstract
    */
   getRecord(/*id, fields*/) {
@@ -68,7 +65,6 @@ class AbstractGridModel extends EventsModel {
    * Apply record changes
    *
    * @param {Array}       changes     Changes array
-   * @param {Function}    cb          CallBack function
    * @abstract
    */
   update(/*changes*/) {
@@ -79,7 +75,6 @@ class AbstractGridModel extends EventsModel {
    * Validation check
    *
    * @param {Object}      record
-   * @param {Function}    cb      CallBack function
    * @abstract
    */
   isValidRecord(/*record*/) {

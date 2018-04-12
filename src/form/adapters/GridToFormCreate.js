@@ -30,7 +30,6 @@ class GridToFormCreate extends Events {
    * Get data
    *
    * @param {Array}     fields     Required fields
-   * @param {Function}  cb         CallBack function
    */
   async getData(fields) {
     if (fields && fields.length) {
@@ -43,7 +42,6 @@ class GridToFormCreate extends Events {
    * Create new record
    *
    * @param   {Object}      data      Record
-   * @param   {Function}    cb        CallBack function
    */
   async submit(data) {
     const model = this._adapter.model;
@@ -54,7 +52,6 @@ class GridToFormCreate extends Events {
    * Validation checking
    *
    * @param {Object}      record  Record object
-   * @param {Function}    cb      CallBack function
    */
   async isValidRecord(record) {
     const model = this._adapter.model;

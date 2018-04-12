@@ -64,7 +64,6 @@ class FormXhrModel extends EventsModel {
    * Validation check
    *
    * @param {Object}      record
-   * @param {Function}    cb      CallBack function
    */
   isValidRecord(record) {
     return this._validator.isValidRecord(record);

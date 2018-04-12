@@ -28,7 +28,6 @@ class FormModel extends AbstractFormModel {
    * Get data
    *
    * @param {Array}    fields     Required fields
-   * @param {Function} cb         CallBack function
    */
   async getData(fields) {
     let record = {};
@@ -48,7 +47,6 @@ class FormModel extends AbstractFormModel {
    * Process form data
    *
    * @param {Object}      changes     Form data
-   * @param {Function}    cb          CallBack function
    */
   async submit(changes) {
     const validErrors = await this.isValidRecord(changes);
@@ -64,7 +62,6 @@ class FormModel extends AbstractFormModel {
    * Validation check
    *
    * @param {Object}      record
-   * @param {Function}    cb      CallBack function
    */
   async isValidRecord(record) {
     return await this._validation.isValidRecord(record);

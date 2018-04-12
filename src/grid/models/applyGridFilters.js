@@ -19,7 +19,7 @@ function applyGridFilters(model, filters) {
     model = Object.getPrototypeOf(model);
   }
   return utils.decorate(model, {
-    read: async (options) => {
+    async read(options) {
       options.filters = filters;
       return await model.read(options);
     }

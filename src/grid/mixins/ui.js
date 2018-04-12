@@ -174,10 +174,10 @@ const GridUIMixin = {
         if (type === 'object' && record[field] && !this.state.colsWithEscapeErrors[columnId]) {
           this.state.colsWithEscapeErrors[columnId] = true;
           console.error(
-            `UIKernel.Grid warning:
-You send record with fields of Object type in escaped column "${columnId}".
-To use Objects, set column config "escape" to false,
-and escape "${columnId}" field in render function by yourself`
+            `UIKernel.Grid warning: ` +
+            `You send record with fields of Object type in escaped column "${columnId}". ` +
+            `To use Objects, set column config "escape" to false, ` +
+            `and escape "${columnId}" field in render function by yourself`
           );
         }
       }

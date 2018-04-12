@@ -85,9 +85,8 @@ function assertValidViewColumns(columns, viewColumns) {
  * @param {number}                  settings.limit
  * @param {number}                  settings.offset
  * @param {string[]}                settings.viewColumns
- * @param {Function}              cb
  */
-export default async (gridModel, columns, viewColumns, exporter, settings) => {
+async function exportGridData(gridModel, columns, viewColumns, exporter, settings) {
   assertValidViewColumns(columns, viewColumns);
   const result = await gridModel.read({
     fields: getFields(columns, viewColumns),
@@ -99,4 +98,6 @@ export default async (gridModel, columns, viewColumns, exporter, settings) => {
   const data = formatData(result.records, result.totals, columns, viewColumns);
 
   return await exporter(data);
-};
+}
+
+export default exportGridData;
