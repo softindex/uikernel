@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import ArgumentsError from '../../common/ArgumentsError';
 
 function formatColumns(columns, viewColumns) {
@@ -88,7 +87,7 @@ function assertValidViewColumns(columns, viewColumns) {
  * @param {string[]}                settings.viewColumns
  * @param {Function}              cb
  */
-export default callbackify(async (gridModel, columns, viewColumns, exporter, settings) => {
+export default async (gridModel, columns, viewColumns, exporter, settings) => {
   assertValidViewColumns(columns, viewColumns);
   const result = await gridModel.read({
     fields: getFields(columns, viewColumns),
@@ -100,4 +99,4 @@ export default callbackify(async (gridModel, columns, viewColumns, exporter, set
   const data = formatData(result.records, result.totals, columns, viewColumns);
 
   return await exporter(data);
-});
+};

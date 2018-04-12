@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
-import toPromise from '../../common/toPromise';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import utils from '../../common/utils';
 import ThrottleError from '../../common/ThrottleError';
@@ -125,7 +123,7 @@ const GridDataMixin = {
    *
    * @param {Function} cb CallBack function
    */
-  save: callbackify(async function () {
+  save: async function () {
     const errors = this.getErrors();
 
     // Collect all valid changes
@@ -148,7 +146,7 @@ const GridDataMixin = {
     this.removeRecordStatusAll('new');
 
     // Pass changes to table model processing
-    const data = await toPromise(this.props.model.update.bind(this.props.model))(this._dataObjectToArray(changes));
+    const data = await this.props.model.update(this._dataObjectToArray(changes));
     if (!this._isMounted) {
       return;
     }
@@ -192,7 +190,7 @@ const GridDataMixin = {
     }
 
     return data;
-  }),
+  },
 
   /**
    * Clear record changes

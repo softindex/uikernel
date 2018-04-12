@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import utils from '../common/utils';
 import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
@@ -138,7 +137,7 @@ class SuggestBoxEditor extends React.Component {
       return this._setLabelTo('', true);
     }
 
-    toPromise(model.getLabel.bind(model))(id)
+    model.getLabel(id)
       .then((label) => {
         if (!this._isMounted) {
           return;
@@ -183,7 +182,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _loadData(searchPattern) {
-    return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '');
+    return this.props.model.read(searchPattern || '');
   }
 
   async _openList(searchPattern, focusFirstOption = false) {
@@ -191,7 +190,7 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    await toPromise(::this.setState, true)({
+    await this.setState({
       isOpened: true,
       loading: true,
       popupStyles: this._setPopupStyles()
