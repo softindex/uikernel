@@ -82,93 +82,40 @@ exports.throttle = function (func) {
   let nextResolve;
   let nextReject;
 
-  return function () {
-    if (typeof arguments[arguments.length - 1] === 'function') {
-      return throttleCallback(func).apply(this, arguments);
-    } else {
-      return throttlePromise(func).apply(this, arguments);
-    }
-  };
+  return function run(...args) {
+    const parentStack = exports.getStack(2);
 
-  function throttleCallback(func) {
-    return function run() {
-      const ctx = this; // Function context
-      const cb = arguments[arguments.length - 1];
-      const argumentsArray = [].slice.call(arguments);
-
+    return new Promise((resolve, reject) => {
       if (worked) {
-        // Set as the next call
-        nextArguments = arguments;
+        if (nextArguments) {
+          nextReject(ThrottleError.createWithParentStack(parentStack));
+        }
+        nextArguments = args;
+        nextResolve = resolve;
+        nextReject = reject;
         return;
       }
 
       worked = true;
 
-      const cbWrapper = function () {
-        if (!nextWorker() && typeof cb === 'function') {
-          cb.apply(null, arguments);
-        }
-      };
-
-      if (typeof cb === 'function') {
-        argumentsArray[argumentsArray.length - 1] = cbWrapper;
-        func.apply(this, argumentsArray.concat(nextWorker));
-      } else {
-        func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
-      }
-
-      function nextWorker() {
-        worked = false;
-        if (nextArguments) {
-          const args = nextArguments;
-          nextArguments = null;
-          run.apply(ctx, args);
-          return true;
-        }
-        return false;
-      }
-    };
-  }
-
-  function throttlePromise(func) {
-    /**
-     * @throws {ThrottleError} Too many function call
-     */
-    return function run(...args) {
-      const parentStack = exports.getStack(2);
-
-      return new Promise((resolve, reject) => {
-        if (worked) {
+      func.apply(this, args)
+        .then(result => {
+          worked = false;
           if (nextArguments) {
-            nextReject(ThrottleError.createWithParentStack(parentStack));
+            nextResolve(run.apply(this, nextArguments));
+            nextArguments = null;
+
+            reject(ThrottleError.createWithParentStack(parentStack));
+            return;
           }
-          nextArguments = args;
-          nextResolve = resolve;
-          nextReject = reject;
-          return;
-        }
-
-        worked = true;
-
-        func.apply(this, args)
-          .then(result => {
-            worked = false;
-            if (nextArguments) {
-              nextResolve(run.apply(this, nextArguments));
-              nextArguments = null;
-
-              reject(ThrottleError.createWithParentStack(parentStack));
-              return;
-            }
-            resolve(result);
-          })
-          .catch(err => {
-            worked = false;
-            reject(err);
-          });
-      });
-    };
-  }
+          resolve(result);
+        })
+        .catch(err => {
+          worked = false;
+          reject(err);
+        });
+    });
+  };
 };
 
 exports.parseValueFromEvent = function (event) {

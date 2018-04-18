@@ -9,7 +9,6 @@
 import express from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import {asyncHandler} from '../../common/utils';
-import toPromise from '../../common/toPromise';
 
 /**
  * Form Express API for Grid model interaction
@@ -47,7 +46,7 @@ class GridExpressApi {
         const model = this._getModel(req, res);
         const result = this._result('read');
         try {
-          const response = await toPromise(::model.read)(settings);
+          const response = await model.read(settings);
           result(null, response, req, res, next);
         } catch (err) {
           result(err, null, req, res, next);
@@ -57,7 +56,7 @@ class GridExpressApi {
         const model = this._getModel(req, res);
         const result = this._result('validate');
         try {
-          const errors = await toPromise(::model.isValidRecord)(req.body);
+          const errors = await model.isValidRecord(req.body);
           result(null, errors, req, res, next);
         } catch (err) {
           result(err, null, req, res, next);
@@ -69,7 +68,7 @@ class GridExpressApi {
         const model = this._getModel(req, res);
         const result = this._result('getRecord');
         try {
-          const response = await toPromise(::model.getRecord)(recordId, cols);
+          const response = await model.getRecord(recordId, cols);
           result(null, response, req, res, next);
         } catch (err) {
           result(err, null, req, res, next);
@@ -79,7 +78,7 @@ class GridExpressApi {
         const model = this._getModel(req, res);
         const result = this._result('update');
         try {
-          const data = await toPromise(::model.update)(req.body);
+          const data = await model.update(req.body);
           result(null, data, req, res, next);
         } catch (err) {
           result(err, null, req, res, next);
@@ -89,7 +88,7 @@ class GridExpressApi {
         const model = this._getModel(req, res);
         const result = this._result('create');
         try {
-          const data = await toPromise(model.create.bind(model))(req.body);
+          const data = await model.create(req.body);
           result(null, data, req, res, next);
         } catch (err) {
           result(err, null, req, res, next);

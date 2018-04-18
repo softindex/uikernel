@@ -7,7 +7,6 @@
  */
 
 import EventEmitter from '../common/Events';
-import toPromise from '../common/toPromise';
 import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import utils from '../common/utils';
@@ -71,7 +70,7 @@ class FormService {
       this.fields = settings.fields;
     }
     if (!this._data) {
-      this._data = await toPromise(settings.model.getData.bind(settings.model))(this.fields);
+      this._data = await settings.model.getData(this.fields);
     }
 
     this.model.on('update', this._onModelChange);

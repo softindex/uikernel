@@ -23,4 +23,5 @@ function addLicense() {
     .pipe(licenser(LICENSE_TEMPLATE));
 }
 
+export {LICENSE_TEMPLATE};
 export default addLicense;

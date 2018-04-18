@@ -7,8 +7,6 @@
  */
 
 import utils from '../common/utils';
-import callbackify from '../common/callbackify';
-import toPromise from '../common/toPromise';
 import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 
@@ -57,16 +55,15 @@ const FormMixin = {
    * @param {bool}              [settings.autoSubmit]                   Automatic submit before updateField
    * @param {Function}          [settings.autoSubmitHandler]            Automatic submit handler
    * @param {Validator}         [settings.warningsValidator]            Warningss validator for fields
-   * @param {Function}          [cb]                                    CallBack function
    */
-  initForm: callbackify(async function (settings) {
+  async initForm(settings) {
     this._initState(settings);
 
     if (!this.state._formMixin.data) {
       let data;
       let err;
       try {
-        data = await toPromise(::settings.model.getData)(settings.fields);
+        data = await settings.model.getData(settings.fields);
       } catch (e) {
         err = e;
       }
@@ -77,7 +74,7 @@ const FormMixin = {
 
       if (err) {
         this.state._formMixin.globalError = err;
-        await toPromise(::this.setState, true)(this.state);
+        await this.setState(this.state);
         throw err;
       }
 
@@ -85,11 +82,11 @@ const FormMixin = {
     }
 
     this.state._formMixin.model.on('update', this._handleModelChange);
-    await toPromise(::this.setState, true)(this.state);
+    await this.setState(this.state);
     if (!settings.partialErrorChecking) {
-      await toPromise(this.validateForm, true)();
+      await this.validateForm();
     }
-  }, true),
+  },
 
   /**
    * Check is data loaded
@@ -368,7 +365,7 @@ const FormMixin = {
    *
    * @param {Function}  [cb]  CallBack function
    */
-  submit: callbackify(async function () {
+  submit: async function () {
     if (this._isNotInitialized()) {
       return;
     }
@@ -390,7 +387,7 @@ const FormMixin = {
     let data;
     let err;
     try {
-      data = await toPromise(::this.state._formMixin.model.submit)(changes);
+      data = await this.state._formMixin.model.submit(changes);
     } catch (e) {
       err = e;
     }
@@ -429,13 +426,13 @@ const FormMixin = {
       }, this);
     }
 
-    await toPromise(::this.setState, true)(this.state);
+    await this.setState(this.state);
 
     if (err) {
       throw err;
     }
     return data;
-  }, true),
+  },
 
   clearFieldChanges: function (field, cb) {
     if (this._isNotInitialized()) {

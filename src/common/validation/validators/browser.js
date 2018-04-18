@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../callbackify';
-import toPromise from '../../toPromise';
 import defaultXhr from '../../defaultXhr';
 import ValidationErrors from '../ValidationErrors';
 import Validator from './common';
@@ -30,35 +28,35 @@ class ClientValidator extends Validator {
   static create(serverValidationUrl, xhr) {
     return new ClientValidator(serverValidationUrl, xhr);
   }
-}
 
-ClientValidator.prototype.isValidRecord = callbackify(async function (record) {
-  if (!this._settings.serverValidationUrl) {
-    return await this::Validator.prototype.isValidRecord(record);
-  }
-
-  let xhrResult;
-  try {
-    xhrResult = await toPromise(this._settings.xhr.bind(this._settings))({
-      method: 'POST',
-      headers: {'Content-type': 'application/json'},
-      body: JSON.stringify(record),
-      uri: this._settings.serverValidationUrl
-    });
-  } catch (err) {
-    if (err.statusCode === 413) {
-      // When request exceeds server limits and
-      // client validators are able to find errors,
-      // we need to return these errors
-      const validationErrors = await this::Validator.prototype.isValidRecord(record);
-      if (!validationErrors.isEmpty()) {
-        return validationErrors;
-      }
+  async isValidRecord(record) {
+    if (!this._settings.serverValidationUrl) {
+      return await this::Validator.prototype.isValidRecord(record);
     }
-    throw err;
-  }
 
-  return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
-});
+    let xhrResult;
+    try {
+      xhrResult = await this._settings.xhr({
+        method: 'POST',
+        headers: {'Content-type': 'application/json'},
+        body: JSON.stringify(record),
+        uri: this._settings.serverValidationUrl
+      });
+    } catch (err) {
+      if (err.statusCode === 413) {
+        // When request exceeds server limits and
+        // client validators are able to find errors,
+        // we need to return these errors
+        const validationErrors = await this::Validator.prototype.isValidRecord(record);
+        if (!validationErrors.isEmpty()) {
+          return validationErrors;
+        }
+      }
+      throw err;
+    }
+
+    return ValidationErrors.createFromJSON(JSON.parse(xhrResult));
+  }
+}
 
 export default ClientValidator;
