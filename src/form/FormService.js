@@ -22,7 +22,8 @@ class FormService {
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
     this.fields = fields;
-    this.validateForm = utils.throttle(this.validateForm.bind(this));
+    this._validateForm = utils.throttle(this._validateForm.bind(this));
+    this.validateForm = this.validateForm.bind(this);
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
@@ -77,13 +78,7 @@ class FormService {
     this._setState();
 
     if (!settings.partialErrorChecking) {
-      try {
-        await this.validateForm();
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
-        }
-      }
+      await this.validateForm();
     }
   }
 
@@ -313,6 +308,16 @@ class FormService {
   }
 
   async validateForm() {
+    try {
+      return await this._validateForm();
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
+  }
+
+  async _validateForm() {
     if (this._isNotInitialized) {
       return;
     }
