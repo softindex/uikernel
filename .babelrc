@@ -1,4 +1,4 @@
 {
-  "presets": ["react", "latest", "stage-0"],
+  "presets": ["react", "latest", "stage-0", "flow"],
   "plugins": ["transform-runtime", "babel-plugin-add-module-exports"]
 }
