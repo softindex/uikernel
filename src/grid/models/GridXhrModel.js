@@ -89,7 +89,7 @@ class GridXhrModel extends AbstractGridModel {
     }
     delete parsedUrl.search;
 
-    const response = await this._xhr.bind({
+    const response = await this._xhr({
       method: 'GET',
       uri: url.format(parsedUrl)
     });
