@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "1.0.0-dev3.2",
+  "version": "1.0.0-dev3.3",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -16,7 +16,8 @@
   "scripts": {
     "build": "gulp",
     "test": "jest",
-    "start-site": "sh ./scripts/start_local_site.sh"
+    "start-site": "sh ./scripts/start_local_site.sh",
+    "flow": "flow"
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",

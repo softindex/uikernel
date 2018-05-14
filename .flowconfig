@@ -1,15 +1,5 @@
 [ignore]
-.*/node_modules/.*/src/.*
-.*/__tests__/.*
-
-[include]
-.*/src/.*
-
-[libs]
-flow-typed
-
-#[lints]
-#all=warn
+<PROJECT_ROOT>/node_modules/.*
 
 [options]
 include_warnings=true

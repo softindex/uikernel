@@ -2,35 +2,24 @@
 
 import ValidationErrors from '../validation/ValidationErrors';
 
-export type ID<T> = T;
-
-export type Record = [ID<number>, Object];
-
-export type Records = {
-  records: Array<Record>,
+export type Records<K, R> = {
+  records: Array<[K, R]>,
   count?: number
 };
 
-export type ReadMethodParams = {
+export type ReadSettings<F> = {
   fields: Array<string>,
-  filters?: Object,
+  filters?: F,
   limit?: number,
   offset?: number,
   sort?: Array<[string, 'asc' | 'desc' | 'default']>
 };
 
-export interface IGridServerModel {
-  isValidRecord(record: Object): Promise<ValidationErrors>;
-
+export interface IServerGridModel<K, R, F> {
+  isValidRecord(record: R): Promise<ValidationErrors>;
   getValidationDependency(fields: Array<string>): Array<string>;
-
-  getRecord(id: ID<number>, fields: Array<string>): Promise<?Record>;
-
-  read(settings: ReadMethodParams): Promise<Records>;
-
-  create(record: Object): Promise<?Record>;
-
-  update(records: Array<Record>): Promise<Array<[ID<number>, Record | ValidationErrors]>>;
+  getRecord(id: K, fields: Array<string>): Promise<R>;
+  read(settings: ReadSettings<F>): Promise<Records<K, R>>;
+  create(record: R): Promise<[K, R]>;
+  update(records: Array<[K, R]>): Promise<Array<[K, R | ValidationErrors]>>;
 }
-
-export type ValidationErrorsType = typeof ValidationErrors;
