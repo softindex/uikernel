@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import toPromise from '../common/toPromise';
 import utils from '../common/utils';
 import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
@@ -190,7 +191,7 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    await this.setState({
+    await toPromise(::this.setState, true)({
       isOpened: true,
       loading: true,
       popupStyles: this._setPopupStyles()

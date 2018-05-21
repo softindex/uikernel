@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import toPromise from '../../common/toPromise';
 import utils from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
@@ -129,7 +130,7 @@ const GridUIMixin = {
     const extra = this._dataArrayToObject(obj.extraRecords || []);
     const recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
 
-    await this.setState({
+    await toPromise(this.setState.bind(this), true)({
       data: Object.assign({}, data.records, extra.records),
       mainIds: Object.keys(data.records),
       count: obj.count,
