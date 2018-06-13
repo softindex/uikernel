@@ -29,7 +29,7 @@ class Form extends React.Component {
     if (!_.isEqual(this.props.state.fields, newFormState.fields)) {
       this.form.submit()
         .catch((err) => {
-          if (err && !(err instanceof UIKernel.Models.ValidationErrors)) { // If error is not a validation one
+          if (err && !(err instanceof UIKernel.ValidationErrors)) { // If error is not a validation one
             alert('Error');
           }
         });

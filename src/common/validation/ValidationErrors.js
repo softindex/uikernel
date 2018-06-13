@@ -24,13 +24,26 @@ class ValidationErrors {
    * @return  {ValidationErrors}
    * @static
    */
-  static createFromJSON = function (jsonObject) {
+  static createFromJSON(jsonObject) {
     const validationErrors = new ValidationErrors();
     for (const [key, value] of Object.entries(jsonObject)) {
       value.forEach(errMessage => validationErrors.add(key, errMessage));
     }
     return validationErrors;
-  };
+  }
+
+  /**
+   * Create ValidationErrors object with one error
+   *
+   * @param {string}                  field
+   * @param {string|{error: string}}  error
+   * @return {ValidationErrors}
+   */
+  static createWithError(field, error) {
+    const validationErrors = new ValidationErrors();
+    validationErrors.add(field, error);
+    return validationErrors;
+  }
 
   static merge = function (...args) {
     const jsonErrors = [{}];

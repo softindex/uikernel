@@ -20,46 +20,57 @@ import set from '../rules/set';
 import Validator from '../validators/common';
 
 describe('ValidationError', () => {
-  let validationError;
-  beforeEach(() => {
-    validationError = ValidationError.createFromJSON({test: ['error']});
+  describe('Check "static createWithError" method', () => {
+    it('Should create ValidationErrors instance with one error', () => {
+      const validationError = ValidationError.createWithError('test', 'error');
+      expect(validationError.toJSON()).toEqual({test: [{message: 'error'}]});
+    });
   });
 
   it('add', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     validationError.add('test2', 'error2');
     expect(validationError.toJSON()).toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
   });
 
   it('hasError', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.hasError('test')).toBeTruthy();
   });
 
   it('getFieldErrorMessages', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.getFieldErrorMessages('test')).toEqual(['error']);
   });
 
   it('getFailedFields', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.getFailedFields()).toEqual(['test']);
   });
 
   it('isEmpty', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.isEmpty()).not.toBeTruthy();
   });
 
   it('clearField', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.clearField('test').toJSON()).toEqual({});
   });
 
   it('clear', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.clear().toJSON()).toEqual({});
   });
 
   it('clone', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     expect(validationError.clone()).not.toBe(validationError);
     expect(validationError.clone().toJSON()).toEqual({test: [{message: 'error'}]});
   });
 
   it('merge', () => {
+    const validationError = ValidationError.createFromJSON({test: ['error']});
     const errorToMerge = ValidationError.createFromJSON({test2: [{message: 'error2'}]});
     expect(validationError.merge(errorToMerge).toJSON())
       .toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});

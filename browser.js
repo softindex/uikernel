@@ -22,6 +22,7 @@ var Module = {
   createXhrValidator: require('./lib/common/validation/validators/XhrValidator').create,
   exportGridData: require('./lib/grid/export/exportGridData'),
   toJSON: require('./lib/grid/export/exporters/toJSON'),
+  ValidationErrors: require('./lib/common/validation/ValidationErrors'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
@@ -30,7 +31,7 @@ var Module = {
     Events: require('./lib/common/Events'),
     Form: require('./lib/form/FormModel'),
     FormXhr: require('./lib/form/FormXhrModel'),
-    ValidationErrors: require('./lib/common/validation/ValidationErrors'),
+    ValidationErrors: require('./lib/common/validation/ValidationErrors'), // Deprecated. Use UIKernel.ValidationErrors
     List: {
       Xhr: require('./lib/list/ListXhrModel')
     }
