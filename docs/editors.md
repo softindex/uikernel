@@ -29,16 +29,18 @@ Select is a simple component for ReactJS. It is used to create a drop-down list.
 | Boolean                      | disabled=false | Disabled flag |
 | [ListModel](list-model.html) | model          | Data model instance - object with methods which return necessary data |
 | Function                     | onChangeLabel  | Label change handler |
-| Array                        | options        | Options in a [[id, option], ...] or string [ ] format |
+| Array                        | options        | Options in a [[id1, label1, props1], ...] or [label1, label2, ...] format |
 
 ---
->If you pass Select the `options` prop, you don't need to pass it the `model` prop, and vice versa.
+>If you pass the `options` prop to the Select editor, you don't need to pass the `model` prop there, and vice versa.
 
 >Passed model is expected to be compatible with [List Model Interface](list-model.html).
  It should have method `read` which is expected to return promise resolving with options list(array)
- in format [[id1, label1], ...] or [label1, label2, ...],  where
+ in format [[id1, label1, props1], ...] or [label1, label2, ...],  where
   - `id` - List item id, which can be any serializable value
   - `label` - String value of the list item label
+  - `props` - Object with props that will be passed to the corresponding \<option /\> item,
+             e.g. `{disabled: true, title: "this option is disabled"}`
 
 ## <span id="DatePicker">DatePicker</span>
 DatePicker is a ReactJS component that allows the user to select a date.

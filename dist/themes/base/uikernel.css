@@ -835,6 +835,7 @@ html {
   display: table-cell;
   margin: 0 10px;
   padding: 5px 10px;
+  word-break: break-all;
 }
 .__suggestBoxPopUp-option:not(.__suggestBoxPopUp-option-selectable) {
   color: #aaa;
