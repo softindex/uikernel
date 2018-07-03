@@ -22,15 +22,14 @@ const GridUIMixin = {
     const target = event.target;
     const refParent = utils.parents(target, '[ref]')[0];
 
-    let element;
+    const element = (target.classList.contains('dgrid-cell'))
+      ? event.target
+      : utils.parents(target, 'td.dgrid-cell')[0];
 
-    if (target.classList.contains('dgrid-cell')) {
-      element = event.target;
-    } else {
-      element = utils.parents(target, 'td.dgrid-cell')[0];
-    }
-
-    if (element && !(refParent && refParent.getAttribute('disabled'))) {
+    if (
+      element
+      && !(refParent && refParent.hasAttribute('disabled'))
+    ) {
       this._handleCellClick(event, element, (refParent || event.target).getAttribute('ref'));
     }
   },
