@@ -22,9 +22,13 @@ const GridUIMixin = {
     const target = event.target;
     const refParent = utils.parents(target, '[ref]')[0];
 
-    const element = (target.classList.contains('dgrid-cell'))
-      ? event.target
-      : utils.parents(target, 'td.dgrid-cell')[0];
+    let element;
+
+    if (target.classList.contains('dgrid-cell')) {
+      element = event.target;
+    } else {
+      element = utils.parents(target, 'td.dgrid-cell')[0];
+    }
 
     if (
       element
