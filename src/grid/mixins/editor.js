@@ -72,17 +72,9 @@ const GridEditorMixin = {
           }
 
           if (e.keyCode === ESCAPE_KEY) {
-            if (this.state.data[row][column] !== value) {
-              this._setRowChanges(row, {[column]: value});
-              this._validateRow(row);
-              return;
-            }
-
-            if (this.state.changes[row]) {
-              delete this.state.changes[row][column];
-            }
-
+            this._setRowChanges(row, { [column]: value });
             this._updateField(row, column);
+            this._renderBinds(row, column);
           }
         }
       },
