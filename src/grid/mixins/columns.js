@@ -134,10 +134,19 @@ const GridColumnsMixin = {
    * @private
    */
   _getDependentColumns: function (field) {
-    const validationDependency = this.props.model.getValidationDependency([field]);
-    const isFieldExist = field => this.props.cols[field] !== undefined;
+    const dependentColumns = [];
+    const dependencyFields = this.props.model.getValidationDependency([field]);
 
-    return validationDependency.filter(isFieldExist);
+    for (const [column, columnData] of Object.entries(this.props.cols)) {
+      const renderFields = columnData.render.slice(0, columnData.render.length - 1);
+
+      if (renderFields.some(renderField => dependencyFields.includes(renderField))) {
+        dependentColumns.push(column);
+        continue;
+      }
+    }
+
+    return dependentColumns;
   },
 
   _getColumnClass: function (id) {
