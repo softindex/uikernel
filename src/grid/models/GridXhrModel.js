@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../common/toPromise';
-import callbackify from '../../common/callbackify';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import Validator from '../../common/validation/validators/common';
 import defaultXhr from '../../common/defaultXhr';
@@ -38,6 +36,126 @@ class GridXhrModel extends AbstractGridModel {
   }
 
   /**
+   * Add a record
+   *
+   * @param {Object}      record  Record object
+   */
+  async create(record) {
+    let body = await this._xhr({
+      method: 'POST',
+      headers: {'Content-type': 'application/json'},
+      uri: this._apiUrl,
+      body: JSON.stringify(record)
+    });
+
+    body = JSON.parse(body);
+
+    if (body.error) {
+      throw ValidationErrors.createFromJSON(body.error);
+    }
+
+    this.trigger('create', body.data);
+
+    return body.data;
+  }
+
+  /**
+   * Get records list
+   *
+   * @param {Object}      settings                Request
+   * @param {Array}       settings.fields         Fields
+   * @param {number}      [settings.limit]        Limit
+   * @param {number}      [settings.offset=0]     Offset
+   * @param {Object}      [settings.filters]      Filter values object
+   * @param {Array}       [settings.sort]         Sort parameters
+   * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
+   */
+  async read(settings) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+
+    parsedUrl.query.fields = JSON.stringify(settings.fields);
+    parsedUrl.query.offset = settings.offset || 0;
+    if (settings.limit) {
+      parsedUrl.query.limit = settings.limit;
+    }
+    if (settings.filters) {
+      parsedUrl.query.filters = JSON.stringify(settings.filters);
+    }
+    if (settings.sort) {
+      parsedUrl.query.sort = JSON.stringify(settings.sort);
+    }
+    if (settings.extra) {
+      parsedUrl.query.extra = JSON.stringify(settings.extra);
+    }
+    delete parsedUrl.search;
+
+    const response = await this._xhr({
+      method: 'GET',
+      uri: url.format(parsedUrl)
+    });
+
+    return JSON.parse(response);
+  }
+
+  /**
+   * Get the particular record
+   *
+   * @param {number|string}   id      Record ID
+   * @param {Array}           fields  Required fields
+   */
+  async getRecord(id, fields) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname, JSON.stringify(id));
+    delete parsedUrl.search;
+
+    const body = await this._xhr({
+      method: 'GET',
+      uri: url.format(parsedUrl)
+    });
+
+    return JSON.parse(body);
+  }
+
+  /**
+   * Apply record changes
+   *
+   * @param {Array}       changes     Changes array
+   * @abstract
+   */
+  async update(changes) {
+    let body = await this._xhr({
+      method: 'PUT',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      uri: this._apiUrl,
+      body: JSON.stringify(changes)
+    });
+
+    body = JSON.parse(body);
+
+    if (body.changes.length) {
+      this.trigger('update', body.changes);
+    }
+
+    body.errors.forEach(error => {
+      error[1] = ValidationErrors.createFromJSON(error[1]);
+    });
+
+    return body.changes.concat(body.errors);
+  }
+
+  /**
+   * Validation check
+   *
+   * @param {Object}      record
+   */
+  isValidRecord(record) {
+    return this._validator.isValidRecord(record);
+  }
+
+  /**
    * Get all dependent fields, that are required for validation
    *
    * @param   {Array}  fields   Fields list
@@ -47,130 +165,5 @@ class GridXhrModel extends AbstractGridModel {
     return this._validator.getValidationDependency(fields);
   }
 }
-
-/**
- * Add a record
- *
- * @param {Object}      record  Record object
- * @param {Function}    cb      CallBack function
- */
-GridXhrModel.prototype.create = callbackify(async function (record) {
-  let body = await toPromise(this._xhr.bind(this))({
-    method: 'POST',
-    headers: {'Content-type': 'application/json'},
-    uri: this._apiUrl,
-    body: JSON.stringify(record)
-  });
-
-  body = JSON.parse(body);
-
-  if (body.error) {
-    throw ValidationErrors.createFromJSON(body.error);
-  }
-
-  this.trigger('create', body.data);
-
-  return body.data;
-});
-
-/**
- * Get records list
- *
- * @param {Object}      settings                Request
- * @param {Array}       settings.fields         Fields
- * @param {number}      [settings.limit]        Limit
- * @param {number}      [settings.offset=0]     Offset
- * @param {Object}      [settings.filters]      Filter values object
- * @param {Array}       [settings.sort]         Sort parameters
- * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
- * @param {Function}    cb                      CallBack function
- */
-GridXhrModel.prototype.read = callbackify(async function (settings) {
-  const parsedUrl = url.parse(this._apiUrl, true);
-
-  parsedUrl.query.fields = JSON.stringify(settings.fields);
-  parsedUrl.query.offset = settings.offset || 0;
-  if (settings.limit) {
-    parsedUrl.query.limit = settings.limit;
-  }
-  if (settings.filters) {
-    parsedUrl.query.filters = JSON.stringify(settings.filters);
-  }
-  if (settings.sort) {
-    parsedUrl.query.sort = JSON.stringify(settings.sort);
-  }
-  if (settings.extra) {
-    parsedUrl.query.extra = JSON.stringify(settings.extra);
-  }
-  delete parsedUrl.search;
-
-  const response = await toPromise(this._xhr.bind(this))({
-    method: 'GET',
-    uri: url.format(parsedUrl)
-  });
-
-  return JSON.parse(response);
-});
-
-/**
- * Get the particular record
- *
- * @param {number|string}   id      Record ID
- * @param {Array}           fields  Required fields
- * @param {Function}        cb      CallBack function
- */
-GridXhrModel.prototype.getRecord = callbackify(async function (id, fields) {
-  const parsedUrl = url.parse(this._apiUrl, true);
-  parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
-  parsedUrl.pathname = url.resolve(parsedUrl.pathname, JSON.stringify(id));
-  delete parsedUrl.search;
-
-  const body = await toPromise(this._xhr.bind(this))({
-    method: 'GET',
-    uri: url.format(parsedUrl)
-  });
-
-  return JSON.parse(body);
-});
-
-/**
- * Apply record changes
- *
- * @param {Array}       changes     Changes array
- * @param {Function}    cb          CallBack function
- * @abstract
- */
-GridXhrModel.prototype.update = callbackify(async function (changes) {
-  let body = await toPromise(this._xhr.bind(this))({
-    method: 'PUT',
-    headers: {
-      'Content-type': 'application/json'
-    },
-    uri: this._apiUrl,
-    body: JSON.stringify(changes)
-  });
-
-  body = JSON.parse(body);
-
-  if (body.changes.length) {
-    this.trigger('update', body.changes);
-  }
-
-  body.errors.forEach(error => {
-    error[1] = ValidationErrors.createFromJSON(error[1]);
-  });
-
-  return body.changes.concat(body.errors);
-});
-
-/**
- * Validation check
- *
- * @param {Object}      record
- * @param {Function}    cb      CallBack function
- */
-GridXhrModel.prototype.isValidRecord = callbackify(function (record) {
-  return toPromise(this._validator.isValidRecord.bind(this._validator))(record);
-});
 
 export default GridXhrModel;

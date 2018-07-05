@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import utils from '../../common/utils';
 import {findDOMNode} from 'react-dom';
@@ -23,9 +22,13 @@ const GridUIMixin = {
     const target = event.target;
     const refParent = utils.parents(target, '[ref]')[0];
 
-    const element = (target.classList.contains('dgrid-cell'))
-      ? event.target
-      : utils.parents(target, 'td.dgrid-cell')[0];
+    let element;
+
+    if (target.classList.contains('dgrid-cell')) {
+      element = event.target;
+    } else {
+      element = utils.parents(target, 'td.dgrid-cell')[0];
+    }
 
     if (
       element
@@ -84,7 +87,7 @@ const GridUIMixin = {
   /**
    * Fetch server data
    */
-  updateTable: callbackify(async function () {
+  updateTable: async function () {
     this.setState({showLoader: true});
 
     if (!this.props.model) {
@@ -143,7 +146,7 @@ const GridUIMixin = {
 
     this._renderBody();
     this.setState({showLoader: false});
-  }),
+  },
 
   _getHeaderCellHTML: function (columnName) {
     const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
@@ -175,10 +178,10 @@ const GridUIMixin = {
         if (type === 'object' && record[field] && !this.state.colsWithEscapeErrors[columnId]) {
           this.state.colsWithEscapeErrors[columnId] = true;
           console.error(
-            `UIKernel.Grid warning:
-You send record with fields of Object type in escaped column "${columnId}".
-To use Objects, set column config "escape" to false,
-and escape "${columnId}" field in render function by yourself`
+            `UIKernel.Grid warning: ` +
+            `You send record with fields of Object type in escaped column "${columnId}". ` +
+            `To use Objects, set column config "escape" to false, ` +
+            `and escape "${columnId}" field in render function by yourself`
           );
         }
       }

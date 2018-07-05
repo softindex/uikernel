@@ -79,7 +79,7 @@ const GridEditorMixin = {
     editorContext.props = props;
 
     // Display Editor
-    const Component = this.props.cols[column].editor.call(editorContext, record);
+    const Component = this.props.cols[column].editor.call(editorContext, record, this);
 
     if (!Component) {
       return;
@@ -112,7 +112,7 @@ const GridEditorMixin = {
     const record = this._getRecord(row);
     const context = utils.cloneDeep(editorContext);
     context.props.value = values;
-    const Component = this.props.cols[column].editor.call(context, record);
+    const Component = this.props.cols[column].editor.call(context, record, this);
     this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element);
 
     if (!Array.isArray(binds)) {

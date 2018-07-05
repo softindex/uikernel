@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import React from 'react';
 import PropTypes from 'prop-types';
 import utils from '../common/utils';
 
 class SelectEditor extends React.Component {
   static propTypes = {
-    options: PropTypes.array,
+    options: PropTypes.array, // shape: [[value, label, props], ...] or [label1, label2, ...]
+    //                           `props` will be passed to each corresponding <option />
     model: PropTypes.shape({
       read: PropTypes.func
     }),
@@ -37,7 +37,7 @@ class SelectEditor extends React.Component {
 
   componentDidMount() {
     if (this.props.model) {
-      toPromise(this.props.model.read.bind(this.props.model))('')
+      this.props.model.read('')
         .then(data => {
           data.unshift([null, '']);
 
@@ -80,11 +80,14 @@ class SelectEditor extends React.Component {
         onChange={this::this.handleChange}
         disabled={this.props.disabled || this.state.loading}
       >
-        {options.map((item, index) => (
-          <option key={index} value={index}>
-            {item instanceof Array ? item[1] : item}
-          </option>
-        ), this)}
+        {options.map((item, index) => {
+          const optionProps = ((item instanceof Array) && (item[2] instanceof Object)) ? item[2] : {};
+          return (
+            <option key={index} value={index} {...optionProps}>
+              {item instanceof Array ? item[1] : item}
+            </option>
+          );
+        })}
       </select>
     );
   }

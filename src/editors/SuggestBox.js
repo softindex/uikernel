@@ -138,7 +138,7 @@ class SuggestBoxEditor extends React.Component {
       return this._setLabelTo('', true);
     }
 
-    toPromise(model.getLabel.bind(model))(id)
+    model.getLabel(id)
       .then((label) => {
         if (!this._isMounted) {
           return;
@@ -183,7 +183,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _loadData(searchPattern) {
-    return toPromise(this.props.model.read.bind(this.props.model))(searchPattern || '');
+    return this.props.model.read(searchPattern || '');
   }
 
   async _openList(searchPattern, focusFirstOption = false) {

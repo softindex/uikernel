@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import utils from '../../common/utils';
 
 /**
@@ -20,10 +19,10 @@ function applyGridFilters(model, filters) {
     model = Object.getPrototypeOf(model);
   }
   return utils.decorate(model, {
-    read: callbackify(async options => {
+    async read(options) {
       options.filters = filters;
       return await model.read(options);
-    })
+    }
   });
 }
 

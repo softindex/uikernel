@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import express from 'express';
 import {asyncHandler} from '../common/utils';
@@ -22,7 +21,7 @@ class FormExpressApi {
         const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
         const model = this._getModel(req, res);
         try {
-          const data = await toPromise(::model.getData)(fields);
+          const data = await model.getData(fields);
           this._result(null, data, req, res, next);
         } catch (err) {
           this._result(err, null, req, res, next);
@@ -31,7 +30,7 @@ class FormExpressApi {
       submit: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
         try {
-          const data = await toPromise(::model.submit)(req.body);
+          const data = await model.submit(req.body);
           this._result(null, {data: data, error: null}, req, res, next);
         } catch (err) {
           if (err && !(err instanceof ValidationErrors)) {
@@ -44,7 +43,7 @@ class FormExpressApi {
       validate: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
         try {
-          const data = await toPromise(::model.isValidRecord)(req.body);
+          const data = await model.isValidRecord(req.body);
           this._result(null, data, req, res, next);
         } catch (err) {
           this._result(err, null, req, res, next);

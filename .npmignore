@@ -2,11 +2,16 @@ docs
 src
 gulp
 examples
+coverage
+scripts
 .idea
+.publish
 .editorconfig
 .eslintrc
 .gitignore
 .npmignore
-.publish
+.babelrc
+.flowconfig
 gulpfile.babel.js
 npm-debug.log
+.DS_Store

@@ -7,7 +7,6 @@
  */
 
 import EventEmitter from '../common/Events';
-import toPromise from '../common/toPromise';
 import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import utils from '../common/utils';
@@ -23,7 +22,8 @@ class FormService {
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
     this.fields = fields;
-    this.validateForm = utils.throttle(this.validateForm.bind(this));
+    this._validateForm = utils.throttle(this._validateForm.bind(this));
+    this.validateForm = this.validateForm.bind(this);
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
@@ -71,20 +71,14 @@ class FormService {
       this.fields = settings.fields;
     }
     if (!this._data) {
-      this._data = await toPromise(settings.model.getData.bind(settings.model))(this.fields);
+      this._data = await settings.model.getData(this.fields);
     }
 
     this.model.on('update', this._onModelChange);
     this._setState();
 
     if (!settings.partialErrorChecking) {
-      try {
-        await this.validateForm();
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
-        }
-      }
+      await this.validateForm();
     }
   }
 
@@ -314,6 +308,16 @@ class FormService {
   }
 
   async validateForm() {
+    try {
+      return await this._validateForm();
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
+  }
+
+  async _validateForm() {
     if (this._isNotInitialized) {
       return;
     }

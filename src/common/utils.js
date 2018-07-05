@@ -90,6 +90,7 @@ exports.throttle = function (func) {
     }
   };
 
+  // it is still used in FormMixin._validateForm so we can't remove it yet
   function throttleCallback(func) {
     return function run() {
       const ctx = this; // Function context

@@ -9,9 +9,11 @@
 import gulp from 'gulp';
 import rename from 'gulp-rename';
 import uglify from 'gulp-uglify';
+import licenser from 'gulp-licenser';
 import packageInfo from '../package.json';
 import webpack from 'webpack-stream';
 import {argv} from 'yargs';
+import {LICENSE_TEMPLATE} from './addLicense';
 
 function jsBundle() {
   return gulp.src('browser.js')
@@ -30,6 +32,7 @@ function jsBundle() {
     .pipe(gulp.dest('dist'))
     .pipe(gulp.dest('examples/libs/js'))
     .pipe(uglify())
+    .pipe(licenser(LICENSE_TEMPLATE))
     .pipe(rename(packageInfo.name + '.min.js'))
     .pipe(gulp.dest('dist'));
 }

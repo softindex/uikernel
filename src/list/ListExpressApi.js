@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import express from 'express';
 import {asyncHandler} from '../common/utils';
 
@@ -26,7 +25,7 @@ class ListExpressApi {
       read: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
         try {
-          const response = await toPromise(::model.read)(req.query.v);
+          const response = await model.read(req.query.v);
           this._result(null, response, req, res, next);
         } catch (err) {
           this._result(err, null, req, res, next);
@@ -36,7 +35,7 @@ class ListExpressApi {
         const id = JSON.parse(req.params.id);
         const model = this._getModel(req, res);
         try {
-          const response = await toPromise(::model.getLabel)(id);
+          const response = await model.getLabel(id);
           this._result(null, response, req, res, next);
         } catch (err) {
           this._result(err, null, req, res, next);

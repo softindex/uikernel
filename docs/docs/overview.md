@@ -89,7 +89,8 @@ UIKernel = {
   applyGridFilters,
   Grid,
   Form,
-  createValidator.create,
+  ValidationErrors,
+  createValidator,
   exportGridData,
   toJSON,
   Models: {
@@ -100,7 +101,6 @@ UIKernel = {
     Events,
     Form,
     FormXhr,
-    ValidationErrors,
     List: {
       Xhr
     }
