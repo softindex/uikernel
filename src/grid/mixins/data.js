@@ -397,11 +397,10 @@ const GridDataMixin = {
 
     if (utils.isEmpty(changes[row])) {
       delete changes[row];
-    } else {
-      // Redraw the changes in the row
-      utils.forEach(changes[row], function (value, field) {
-        this._renderBinds(row, field);
-      }, this);
+    }
+
+    for (const column of Object.keys(data)) {
+      this._renderBinds(row, column);
     }
   },
 
@@ -625,9 +624,7 @@ const GridDataMixin = {
         result[row] = validErrors;
       }
 
-      Object.keys(record).forEach((field) => {
-        this._renderBinds(row, field);
-      });
+      this._updateRow(row);
     }
   },
 
