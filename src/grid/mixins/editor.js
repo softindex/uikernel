@@ -60,21 +60,19 @@ const GridEditorMixin = {
         // Remove Editor
         if (focusDone) {
           this._unmountEditor(element, row, column);
-          this._onBlurEditor(row, column);
+          this._onBlurEditor(row);
         }
       },
       onKeyUp: (e) => {
         if (focusDone && [ENTER_KEY, ESCAPE_KEY].includes(e.keyCode)) {
+          if (e.keyCode === ESCAPE_KEY) {
+            this._setRowChanges(row, { [column]: value });
+          }
+
           this._unmountEditor(element, row, column);
 
           if (e.keyCode === ENTER_KEY) {
-            this._onBlurEditor(row, column);
-          }
-
-          if (e.keyCode === ESCAPE_KEY) {
-            this._setRowChanges(row, { [column]: value });
-            this._updateField(row, column);
-            this._renderBinds(row, column);
+            this._onBlurEditor(row);
           }
         }
       },
@@ -106,6 +104,7 @@ const GridEditorMixin = {
     ReactDOM.unmountComponentAtNode(element);
     delete this.state.editor[`${row}_${column}`];
     element.classList.remove('dgrid-input-wrapper');
+    this._updateField(row, column);
   },
 
   _onChangeEditor: function (row, column, values, editorContext, element) {
@@ -145,8 +144,7 @@ const GridEditorMixin = {
     }
   },
 
-  async _onBlurEditor(row, column) {
-    this._updateField(row, column);
+  async _onBlurEditor(row) {
     try {
       await this._checkWarnings(row);
     } catch (e) {
