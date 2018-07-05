@@ -70,10 +70,7 @@ const GridEditorMixin = {
           }
 
           this._unmountEditor(element, row, column);
-
-          if (e.keyCode === ENTER_KEY) {
-            this._onBlurEditor(row);
-          }
+          this._onBlurEditor(row);
         }
       },
       value: value

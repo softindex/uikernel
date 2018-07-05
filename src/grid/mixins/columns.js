@@ -17,7 +17,7 @@ const GridColumnsMixin = {
    * @returns {boolean}   Column visibility
    * @private
    */
-  _isViewColumn: function (id) {
+  _isViewColumn(id) {
     if (!this.props.viewColumns) {
       return true;
     }
@@ -35,7 +35,7 @@ const GridColumnsMixin = {
    * @returns {Object} Formed data
    * @private
    */
-  _formHeader: function () {
+  _formHeader() {
     const rows = [[/* top */], [/* bottom */]];
     const colGroup = [];
     let lastParent = {name: ''};
@@ -98,7 +98,7 @@ const GridColumnsMixin = {
    * @return {string[]}
    * @private
    */
-  _getFieldsToRender: function () {
+  _getFieldsToRender() {
     let i;
     const cols = this.props.cols;
     let columns = [];
@@ -115,7 +115,7 @@ const GridColumnsMixin = {
    * @return  {boolean}
    * @private
    */
-  _isFieldAffectsRender: function (field) {
+  _isFieldAffectsRender(field) {
     let i;
     const cols = this.props.cols;
     for (i in cols) {
@@ -127,29 +127,26 @@ const GridColumnsMixin = {
   },
 
   /**
-   * Get a dependent column
+   * Get a dependent columns
    *
    * @param   {string}    field
    * @return  {string[]}
    * @private
    */
-  _getDependentColumns: function (field) {
+  _getDependentColumns(field) {
     const dependentColumns = [];
     const dependencyFields = this.props.model.getValidationDependency([field]);
 
     for (const [column, columnData] of Object.entries(this.props.cols)) {
-      const renderFields = columnData.render.slice(0, columnData.render.length - 1);
-
-      if (renderFields.some(renderField => dependencyFields.includes(renderField))) {
+      if (columnData.render.some(renderField => dependencyFields.includes(renderField))) {
         dependentColumns.push(column);
-        continue;
       }
     }
 
     return dependentColumns;
   },
 
-  _getColumnClass: function (id) {
+  _getColumnClass(id) {
     return this.props.cols[id].className;
   }
 };
