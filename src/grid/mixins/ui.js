@@ -357,11 +357,7 @@ const GridUIMixin = {
     }
 
     if (this.state.data[row]) {
-      const viewColumns = Object.keys(this.props.cols).filter(this._isViewColumn);
-
-      for (const viewColumn of viewColumns) {
-        this._updateField(row, viewColumn);
-      }
+      this._renderBody();
     } else {
       await this.updateTable(); // TODO Check is it need
     }
