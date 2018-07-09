@@ -151,7 +151,7 @@ const GridComponent = createReactClass({
       editor: {},
       colsWithEscapeErrors: {},
       selectBlackListMode: false,
-      selected: this.props.selected,
+      selected: [...this.props.selected],
       showLoader: false
     };
   },
@@ -203,7 +203,7 @@ const GridComponent = createReactClass({
     }
 
     if (nextProps.selected) {
-      this.state.selected = nextProps.selected;
+      this.state.selected = [...nextProps.selected];
     }
     this.setState({}, function () {
       if (reset & RESET_SORT || reset & RESET_MODEL || reset & RESET_VIEW_COUNT) {
