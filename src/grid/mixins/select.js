@@ -170,10 +170,6 @@ const GridSelectMixin = {
     return this.props.selectAllStatus;
   },
 
-  _getAllSelected: function () {
-    return this.state.selected;
-  },
-
   /**
    * Trigger selected records count change handler
    *
