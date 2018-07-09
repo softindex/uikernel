@@ -101,6 +101,8 @@ const GridStatusesMixin = {
     // Remove element's class
     const elem = findDOMNode(this.body).querySelector(`tr[key="${rowId}"]`);
     elem && elem.classList.remove(status);
+
+    this._updateRow(rowId);
   },
 
   /**
