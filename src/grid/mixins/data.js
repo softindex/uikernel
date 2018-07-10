@@ -272,11 +272,10 @@ const GridDataMixin = {
     }
 
     // TODO done through _dataArrayToObject
-    let field;
     const row = this._getRowID(recordId);
 
     // Apply and redraw all record changes
-    for (field in data) {
+    for (const field in data) {
       this.state.data[row][field] = utils.cloneDeep(data[field]);
       this._renderBinds(row, field);
     }
