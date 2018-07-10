@@ -336,7 +336,9 @@ const GridUIMixin = {
 
   _updateField: function (rowId, column) {
     const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
-    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId));
+    const selected = this.isSelected(this.state.recordsInfo[rowId].id);
+
+    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), selected);
     cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
     const cellClassList = [];
     if (this._isChanged(rowId, this._getBindParam(column))) {
@@ -362,6 +364,7 @@ const GridUIMixin = {
       for (const viewColumn of viewColumns) {
         this._updateField(row, viewColumn);
       }
+      // this._renderBody();
     } else {
       await this.updateTable(); // TODO Check is it need
     }
