@@ -201,7 +201,7 @@ const GridUIMixin = {
    * @returns {string}    Table cell HTML
    * @private
    */
-  _getCellHTML: function (columnId, record, selected) {
+  _getCellHTML: function (columnId, record, selected = false) {
     const render = utils.last(this.props.cols[columnId].render);
     const cellHtml = render(this._escapeRecord(columnId, record), selected);
     return `${utils.isDefined(cellHtml) ? cellHtml : ''}`;
@@ -210,23 +210,23 @@ const GridUIMixin = {
   /**
    * Get table row HTML
    *
-   * @param       {number}    row         Row ID
+   * @param       {number}    rowId         Row ID
    * @param       {string}    className   <TR> class attribute
    * @returns     {string}    Table row HTML
    * @private
    */
-  _getRowHTML: function (row, className) {
+  _getRowHTML: function (rowId, className) {
     let colId;
-    const record = this._getRecord(row);
-    const selected = this.isSelected(this.state.recordsInfo[row].id);
-    let html = `<tr key="${row}" class="` +
+    const record = this._getRecord(rowId);
+    const selected = this.isSelected(this.state.recordsInfo[rowId].id);
+    let html = `<tr key="${rowId}" class="` +
       (className || '') +
-      ' ' + this._getRowStatusNames(row).join(' ') +
+      ' ' + this._getRowStatusNames(rowId).join(' ') +
       ' ' + (selected ? 'dgrid__row_selected' : '') +
       '">';
     for (colId in this.props.cols) {
       if (this._isViewColumn(colId)) {
-        html += `<td key="${colId}" class="dgrid-cell${this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : ''}${this._isChanged(row, this._getBindParam(colId)) ? ' dgrid-changed' : ''}${this._hasError(row, this._getBindParam(colId)) ? ' dgrid-error' : ''}${this._hasWarning(row, this._getBindParam(colId)) ? ' dgrid-warning' : ''}">${this._getCellHTML(colId, record, selected)}</td>`;
+        html += `<td key="${colId}" class="dgrid-cell${this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : ''}${this._isChanged(rowId, this._getBindParam(colId)) ? ' dgrid-changed' : ''}${this._hasError(rowId, this._getBindParam(colId)) ? ' dgrid-error' : ''}${this._hasWarning(rowId, this._getBindParam(colId)) ? ' dgrid-warning' : ''}">${this._getCellHTML(colId, record, selected)}</td>`;
       }
     }
     return `${html}</tr>`;
@@ -273,7 +273,8 @@ const GridUIMixin = {
       return;
     }
 
-    this._getDependentColumns(param).forEach(function (column) {
+    // Update column dependencies
+    this._getDependentColumns(param).forEach((column) => {
       if (this._isViewColumn(column) && !this._isEditorVisible(row, column)) {
         this._updateField(row, column);
       }
@@ -364,7 +365,6 @@ const GridUIMixin = {
       for (const viewColumn of viewColumns) {
         this._updateField(row, viewColumn);
       }
-      // this._renderBody();
     } else {
       await this.updateTable(); // TODO Check is it need
     }
