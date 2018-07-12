@@ -135,13 +135,13 @@ const GridColumnsMixin = {
    */
   _getDependentColumns(field) {
     const dependentColumns = [];
-    const dependencyFields = this.props.model.getValidationDependency([field]);
+    const dependencyFields = [
+      field,
+      ...this.props.model.getValidationDependency([field])
+    ];
 
     for (const [columnName, { render }] of Object.entries(this.props.cols)) {
-      if (
-        columnName === field
-        || render.some(renderField => dependencyFields.includes(renderField))
-      ) {
+      if (render.some(renderField => dependencyFields.includes(renderField))) {
         dependentColumns.push(columnName);
       }
     }
