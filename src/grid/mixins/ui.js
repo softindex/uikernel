@@ -18,7 +18,7 @@ const GridUIMixin = {
    *
    * @param {Event} event
    */
-  _handleBodyClick: function (event) {
+  _handleBodyClick(event) {
     const target = event.target;
     const refParent = utils.parents(target, '[ref]')[0];
 
@@ -45,7 +45,7 @@ const GridUIMixin = {
    * @param {HTMLElement}     element     Cell DOM element
    * @param {string}          ref         Click handler name in the table configuration
    */
-  _handleCellClick: function (event, element, ref) {
+  _handleCellClick(event, element, ref) {
     const colId = element.getAttribute('key');
     const row = element.parentNode.getAttribute('key');
     const columnConfig = this.props.cols[colId];
@@ -66,7 +66,7 @@ const GridUIMixin = {
   },
 
   // TODO Deprecated
-  _handleHeaderCellClick: function (col, event) {
+  _handleHeaderCellClick(col, event) {
     const target = event.target;
     const refParent = utils.parents(target, '[ref]')[0];
     const ref = (refParent || target).getAttribute('ref');
@@ -148,7 +148,7 @@ const GridUIMixin = {
     this.setState({showLoader: false});
   },
 
-  _getHeaderCellHTML: function (columnName) {
+  _getHeaderCellHTML(columnName) {
     const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
     if (cellHtml === undefined) {
       return '';
@@ -156,7 +156,7 @@ const GridUIMixin = {
     return cellHtml;
   },
 
-  _escapeRecord: function (columnId, record) {
+  _escapeRecord(columnId, record) {
     let field;
     let type;
     let i;
@@ -201,7 +201,7 @@ const GridUIMixin = {
    * @returns {string}    Table cell HTML
    * @private
    */
-  _getCellHTML: function (columnId, record, selected = false) {
+  _getCellHTML(columnId, record, selected) {
     const render = utils.last(this.props.cols[columnId].render);
     const cellHtml = render(this._escapeRecord(columnId, record), selected);
     return `${utils.isDefined(cellHtml) ? cellHtml : ''}`;
@@ -215,7 +215,7 @@ const GridUIMixin = {
    * @returns     {string}    Table row HTML
    * @private
    */
-  _getRowHTML: function (rowId, className) {
+  _getRowHTML(rowId, className) {
     let colId;
     const record = this._getRecord(rowId);
     const selected = this.isSelected(this.state.recordsInfo[rowId].id);
@@ -237,7 +237,7 @@ const GridUIMixin = {
    *
    * @private
    */
-  _renderBody: function () {
+  _renderBody() {
     if (!this.state.data) {
       return;
     }
@@ -267,25 +267,27 @@ const GridUIMixin = {
    * @param {string} param    Model parameter
    * @private
    */
-  _renderBinds: function (row, param) {
+  _renderBinds(row, param) {
     // If parameter does not affect on the redraw, do nothing
     if (!this._isFieldAffectsRender(param)) {
       return;
     }
 
+    const selected = this.isSelected(this.state.recordsInfo[row].id);
+
     // Update column dependencies
     this._getDependentColumns(param).forEach((column) => {
       if (this._isViewColumn(column) && !this._isEditorVisible(row, column)) {
-        this._updateField(row, column);
+        this._renderCell(row, column, selected);
       }
     }, this);
   },
 
-  _removeTR: function (rowId) {
+  _removeTR(rowId) {
     findDOMNode(this.body).removeRow(rowId);
   },
 
-  _renderTotals: function _renderTotals(isScrollable) {
+  _renderTotals(isScrollable) {
     let totalsDisplayed = false;
     let i;
     let className;
@@ -335,11 +337,10 @@ const GridUIMixin = {
     );
   },
 
-  _updateField: function (rowId, column) {
+  _renderCell(rowId, column, isSelected) {
     const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
-    const selected = this.isSelected(this.state.recordsInfo[rowId].id);
 
-    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), selected);
+    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), isSelected);
     cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
     const cellClassList = [];
     if (this._isChanged(rowId, this._getBindParam(column))) {
@@ -360,10 +361,11 @@ const GridUIMixin = {
     }
 
     if (this.state.data[row]) {
+      const selected = this.isSelected(this.state.recordsInfo[row].id);
       const viewColumns = Object.keys(this.props.cols).filter(this._isViewColumn);
 
       for (const viewColumn of viewColumns) {
-        this._updateField(row, viewColumn);
+        this._renderCell(row, viewColumn, selected);
       }
     } else {
       await this.updateTable(); // TODO Check is it need
