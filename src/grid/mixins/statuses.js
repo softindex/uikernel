@@ -36,6 +36,8 @@ const GridStatusesMixin = {
     const elem = findDOMNode(this.body).querySelector(`tr[key="${row}"]`);
     if (elem) {
       elem.classList.add(status);
+    } else {
+      this.updateTable();
     }
   },
 
