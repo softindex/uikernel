@@ -134,7 +134,7 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _getLabelFromModel(model, id) {
-    if (id === null || id === undefined) {
+    if (id === null || id === undefined || id === '') {
       return this._setLabelTo('', true);
     }
 
