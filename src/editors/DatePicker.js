@@ -40,6 +40,10 @@ class DatePickerEditor extends React.Component {
     window.addEventListener('resize', this.isWithPortal.bind(this));
   }
 
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.isWithPortal.bind(this));
+  }
+
   isWithPortal() {
     if (window.innerHeight <= MOBILE_HEIGHT || window.innerWidth <= MOBILE_WIDHT) {
       if (this.state.withPortal === true) {
