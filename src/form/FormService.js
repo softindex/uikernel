@@ -426,7 +426,7 @@ class FormService {
    */
   _onModelChange(changes) {
     this._data = { ...this._data, ...changes };
-    this._chagnes = utils.getRecordChanges(this.model, this._data, this._changes, changes);
+    this._changes = utils.getRecordChanges(this.model, this._data, this._changes, changes);
     this._setState();
   }
 

@@ -12,7 +12,14 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import {omit} from '../common/utils';
 
+const MOBILE_WIDHT = 576;
+const MOBILE_HEIGHT = 565;
+
 class DatePickerEditor extends React.Component {
+  state = {
+    withPortal: false
+  };
+
   static propTypes = {
     format: PropTypes.string,
     textFormat: PropTypes.string,
@@ -27,6 +34,25 @@ class DatePickerEditor extends React.Component {
   static defaultProps = {
     textFormat: 'YYYY-MM-DD'
   };
+
+  componentDidMount() {
+    this.isWithPortal();
+    window.addEventListener('resize', this.isWithPortal.bind(this));
+  }
+
+  isWithPortal() {
+    if (window.innerHeight <= MOBILE_HEIGHT || window.innerWidth <= MOBILE_WIDHT) {
+      if (this.state.withPortal === true) {
+        return;
+      }
+      this.setState({withPortal: true});
+    } else {
+      if (this.state.withPortal === false ) {
+        return;
+      }
+      this.setState({withPortal: false});
+    }
+  }
 
   onChange(date) {
     if (date) {
@@ -46,6 +72,7 @@ class DatePickerEditor extends React.Component {
         minDate={this.props.min && moment(this.props.min)}
         maxDate={this.props.max && moment(this.props.max)}
         todayButton={'Today'}
+        withPortal={this.state.withPortal}
       />
     );
   }
