@@ -18,8 +18,8 @@ function baseValidator(notNull, min, max, error, value) {
   }
 
   value = utils.toDate(value);
-  if (value.toString() === 'Invalid Date') {
-    return 'Invalid Date';
+  if (isNaN(value)) {
+    return error;
   }
 
   if (min && utils.toDate(min) > value) {

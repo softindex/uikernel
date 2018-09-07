@@ -17,4 +17,7 @@
   
   * SuggestBox Editor
     * [Fixed text overlapping on button](https://github.com/softindex/uikernel/pull/228)
+    
+  * Validators
+    * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
 </details>
