@@ -25,9 +25,9 @@ describe('applyGridFilters test', () => {
   it('Should apply all filters from previous calls', async () => {
     newModel = applyGridFilters(model, filters);
     newModel = applyGridFilters(newModel, {a: 1, b: 2});
-    newModel = applyGridFilters(newModel, {a: null, b: 4}, );
-    newModel = applyGridFilters(newModel, {c: 3}, );
-    newModel = applyGridFilters(newModel, {c: 5}, );
+    newModel = applyGridFilters(newModel, {a: null, b: 4});
+    newModel = applyGridFilters(newModel, {c: 3});
+    newModel = applyGridFilters(newModel, {c: 5});
 
     expect(await newModel.read({})).toEqual({filters: {a: null, b: 4, c: 5, search: '77'}});
   });

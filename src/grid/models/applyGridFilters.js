@@ -5,6 +5,8 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
+import callbackify from '../../common/callbackify';
+import utils from '../../common/utils';
 
 /**
  * Defines filter values while reading Grid model data
@@ -13,18 +15,15 @@
  * @param {Object}            filters                 Filter values
  */
 function applyGridFilters(model, filters) {
-  return Object.assign(
-    Object.create(model),
-    {
-      read: async function (options) {
-        options.filters = {
-          ...filters,
-          ...options.filters,
-        };
-        return await model.read(options);
-      }
-    }
-  );
+  return utils.decorate(model, {
+    read: callbackify(async options => {
+      options.filters = {
+        ...filters,
+        ...options.filters,
+      };
+      return await model.read(options);
+    })
+  });
 }
 
 export default applyGridFilters;
