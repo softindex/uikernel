@@ -18,6 +18,7 @@
   
   * SuggestBox Editor
     * [Fixed text overlapping on button](https://github.com/softindex/uikernel/pull/228)
+    * [Fixed bug with disabled list items with empty value (0, "", null)](https://github.com/softindex/uikernel/pull/241)
     
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
