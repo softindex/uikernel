@@ -517,7 +517,7 @@ class SuggestBoxEditor extends React.Component {
               optionClassNames.push(classes.optionFocused);
             }
 
-            if (option.id) {
+            if (option.id !== undefined) {
               optionClassNames.push(classes.optionSelectable);
             }
 
