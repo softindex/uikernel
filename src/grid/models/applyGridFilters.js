@@ -15,12 +15,12 @@ import utils from '../../common/utils';
  * @param {Object}            filters     Filter values
  */
 function applyGridFilters(model, filters) {
-  if (model instanceof utils.Decorator) {
-    model = Object.getPrototypeOf(model);
-  }
   return utils.decorate(model, {
     async read(options) {
-      options.filters = filters;
+      options.filters = {
+        ...filters,
+        ...options.filters
+      };
       return await model.read(options);
     }
   });
