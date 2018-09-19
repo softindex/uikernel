@@ -24,11 +24,7 @@ class ChildrenWrapper extends React.Component {
   }
 
   render() {
-    return (
-      <div {...this.props}>
-        {this.state.children}
-      </div>
-    );
+    return this.state.children;
   }
 }
 
@@ -51,13 +47,11 @@ class Portal extends React.Component {
     this.portal = portal;
     ReactDOM.render(
       <ChildrenWrapper
-        {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}
-        style={this.props.styles}
-        ref={(wrapper) => {
-          this.wrapper = wrapper;
-        }}
+        ref={wrapper => this.wrapper = wrapper}
       >
-        {this.props.children}
+        <div{...this._getChildrenProps(this.props)}>
+          {this.props.children}
+        </div>
       </ChildrenWrapper>,
       this.portal
     );
@@ -72,7 +66,18 @@ class Portal extends React.Component {
   }
 
   componentDidUpdate() {
-    this.wrapper.setChildren(this.props.children);
+    this.wrapper.setChildren(
+      <div{...this._getChildrenProps(this.props)}>
+        {this.props.children}
+      </div>
+    );
+  }
+
+  _getChildrenProps(props) {
+    return {
+      ...omit(props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles']),
+      style: props.styles
+    };
   }
 
   _isDocumentEventOwner(target) {

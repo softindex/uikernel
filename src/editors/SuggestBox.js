@@ -105,6 +105,7 @@ class SuggestBoxEditor extends React.Component {
       || this.state.selectedOptionKey !== nextState.selectedOptionKey
       || this.state.isOpened !== nextState.isOpened
       || this.state.options.length !== nextState.options.length
+      || JSON.stringify(this.state.popupStyles) !== JSON.stringify(nextState.popupStyles)
       || this.props.disabled !== nextProps.disabled;
   }
 
@@ -165,10 +166,15 @@ class SuggestBoxEditor extends React.Component {
     }
 
     if (this._isMounted) {
-      await this.setState({
+      await toPromise(::this.setState, true)({
         options,
         selectedOptionKey: null,
         loading: false
+      });
+      // after receiving new options, the size of list could have changed, so we recalculate position of the popup,
+      // but after new options was rerendered and we can figure out their new size
+      await toPromise(::this.setState, true)({
+        popupStyles: this._getComputedPopupStyles(),
       });
     }
 
@@ -194,7 +200,10 @@ class SuggestBoxEditor extends React.Component {
     await toPromise(::this.setState, true)({
       isOpened: true,
       loading: true,
-      popupStyles: this._setPopupStyles()
+    });
+    // recalculate position of the popup after loading component was rendered and we can figure content size
+    await toPromise(::this.setState, true)({
+      popupStyles: this._getComputedPopupStyles()
     });
     findDOMNode(this.input).select();
 
@@ -394,7 +403,9 @@ class SuggestBoxEditor extends React.Component {
       if (this.state.isOpened) {
         this._setLabelTo(this.state.lastValidLabel);
       }
-      this._closeList(true);
+      this.setState({
+        popupStyles: this._getComputedPopupStyles()
+      });
     }
   }
 
@@ -452,28 +463,41 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
-  _setPopupStyles() {
+  _getComputedPopupStyles() {
     const inputStyles = window.getComputedStyle(findDOMNode(this.input));
     let popupStyle = {};
 
     const inputOffset = findDOMNode(this.input).getBoundingClientRect();
     const inputWidth = inputStyles.width;
-    const inputHeight =inputStyles.height;
+    const inputHeight = inputStyles.height;
 
     let offsetTop = inputOffset.top + parseInt(inputHeight);
     const offsetLeft = inputOffset.left;
 
     if (typeof window !== 'undefined') {
       const availableSpace = window.innerHeight - offsetTop;
-      if (availableSpace < MIN_POPUP_HEIGHT) {
-        offsetTop = inputOffset.top - 300;
+      if (availableSpace < MIN_POPUP_HEIGHT) { // If popup doesn't fit under the input then show it above the input
+        const offsetBottom = inputOffset.top;
+        const containerMaxHeight = Math.max(offsetBottom, MIN_POPUP_HEIGHT);
+        let popupHeight;
+        // this.suggestBoxPopUpContent will be empty while there wasn't rendering yet, but then this method
+        // will be called again and we will figure out correct contentHeight
+        if (this.suggestBoxPopUpContent) {
+          const contentHeight = parseInt(window.getComputedStyle(findDOMNode(this.suggestBoxPopUpContent)).height);
+          popupHeight = Math.min(contentHeight, containerMaxHeight);
+        } else {
+          popupHeight = containerMaxHeight;
+        }
+        offsetTop = offsetBottom - popupHeight;
         popupStyle = {
-          bottom: '0',
+          bottom: offsetBottom,
           position: 'absolute',
-          height: '300'
+          // We need to set height else it becomes equal to 1 automatically
+          height: popupHeight
         };
       } else {
-        popupStyle.maxHeight = availableSpace;
+        // availableSpace will be too big in case of huge lists
+        popupStyle.maxHeight = Math.min(availableSpace, window.innerHeight);
       }
     }
 
@@ -550,7 +574,10 @@ class SuggestBoxEditor extends React.Component {
           onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
         >
-          <div className="__suggestBoxPopUp-content">
+          <div
+            ref={item => this.suggestBoxPopUpContent = item}
+            className="__suggestBoxPopUp-content"
+          >
             <ul>{options}</ul>
           </div>
         </Portal>
