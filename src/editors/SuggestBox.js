@@ -99,13 +99,8 @@ class SuggestBoxEditor extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return this.state.label !== nextState.label
+    return this.state !== nextState
       || !utils.isEqual(this.props.value, nextProps.value)
-      || this.state.loading !== nextState.loading
-      || this.state.selectedOptionKey !== nextState.selectedOptionKey
-      || this.state.isOpened !== nextState.isOpened
-      || this.state.options.length !== nextState.options.length
-      || JSON.stringify(this.state.popupStyles) !== JSON.stringify(nextState.popupStyles)
       || this.props.disabled !== nextProps.disabled;
   }
 
@@ -166,15 +161,10 @@ class SuggestBoxEditor extends React.Component {
     }
 
     if (this._isMounted) {
-      await toPromise(::this.setState, true)({
+      await this.setState({
         options,
         selectedOptionKey: null,
         loading: false
-      });
-      // after receiving new options, the size of list could have changed, so we recalculate position of the popup,
-      // but after new options was rerendered and we can figure out their new size
-      await toPromise(::this.setState, true)({
-        popupStyles: this._getComputedPopupStyles(),
       });
     }
 
@@ -200,10 +190,7 @@ class SuggestBoxEditor extends React.Component {
     await toPromise(::this.setState, true)({
       isOpened: true,
       loading: true,
-    });
-    // recalculate position of the popup after loading component was rendered and we can figure content size
-    await toPromise(::this.setState, true)({
-      popupStyles: this._getComputedPopupStyles()
+      popupStyles: this._setPopupStyles()
     });
     findDOMNode(this.input).select();
 
@@ -403,9 +390,7 @@ class SuggestBoxEditor extends React.Component {
       if (this.state.isOpened) {
         this._setLabelTo(this.state.lastValidLabel);
       }
-      this.setState({
-        popupStyles: this._getComputedPopupStyles()
-      });
+      this._closeList(true);
     }
   }
 
@@ -463,50 +448,32 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
-  _getComputedPopupStyles() {
+  _setPopupStyles() {
     const inputStyles = window.getComputedStyle(findDOMNode(this.input));
-    let popupStyle = {};
+    const popupStyle = {};
 
     const inputOffset = findDOMNode(this.input).getBoundingClientRect();
     const inputWidth = inputStyles.width;
-    const inputHeight = inputStyles.height;
+    const inputHeight =inputStyles.height;
 
-    let offsetTop = inputOffset.top + parseInt(inputHeight);
+    const offsetTop = inputOffset.top + parseInt(inputHeight);
     const offsetLeft = inputOffset.left;
 
     if (typeof window !== 'undefined') {
       const availableSpace = window.innerHeight - offsetTop;
-      if (availableSpace < MIN_POPUP_HEIGHT) { // If popup doesn't fit under the input then show it above the input
-        const offsetBottom = inputOffset.top;
-        const containerMaxHeight = Math.max(offsetBottom, MIN_POPUP_HEIGHT);
-        let popupHeight;
-        // this.suggestBoxPopUpContent will be empty while there wasn't rendering yet, but then this method
-        // will be called again and we will figure out correct contentHeight
-        if (this.suggestBoxPopUpContent) {
-          const contentHeight = parseInt(window.getComputedStyle(findDOMNode(this.suggestBoxPopUpContent)).height);
-          popupHeight = Math.min(contentHeight, containerMaxHeight);
-        } else {
-          popupHeight = containerMaxHeight;
-        }
-        offsetTop = offsetBottom - popupHeight;
-        popupStyle = {
-          bottom: offsetBottom,
-          position: 'absolute',
-          // We need to set height else it becomes equal to 1 automatically
-          height: popupHeight
-        };
+      if (availableSpace < MIN_POPUP_HEIGHT) {
+        popupStyle.maxHeight = inputOffset.top;
+        popupStyle.bottom = -inputOffset.top;
       } else {
-        // availableSpace will be too big in case of huge lists
-        popupStyle.maxHeight = Math.min(availableSpace, window.innerHeight);
+        popupStyle.maxHeight = availableSpace;
+        popupStyle.top = offsetTop;
       }
     }
 
-    return {
-      ...popupStyle,
-      minWidth: inputWidth,
-      top: offsetTop,
-      left: offsetLeft
-    };
+    popupStyle.minWidth = inputWidth;
+    popupStyle.left = offsetLeft;
+
+    return popupStyle;
   }
 
   focus() {
@@ -569,15 +536,12 @@ class SuggestBoxEditor extends React.Component {
       optionsPopup = (
         <Portal
           id={popupId}
-          styles={this.state.popupStyles}
+          style={this.state.popupStyles}
           onDocumentMouseDown={this._onDocumentMouseDown}
           onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'
         >
-          <div
-            ref={item => this.suggestBoxPopUpContent = item}
-            className="__suggestBoxPopUp-content"
-          >
+          <div className="__suggestBoxPopUp-content">
             <ul>{options}</ul>
           </div>
         </Portal>
