@@ -187,10 +187,15 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
+    const popupStyles = this._getComputedPopupStyles();
+    if (!popupStyles) {
+      return;
+    }
+
     await toPromise(::this.setState, true)({
       isOpened: true,
       loading: true,
-      popupStyles: this._setPopupStyles()
+      popupStyles
     });
     findDOMNode(this.input).select();
 
@@ -386,11 +391,16 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _onDocumentMouseScroll(e, isOwner) {
-    if (!isOwner) {
-      if (this.state.isOpened) {
+    if (!isOwner && this.state.isOpened) {
+      const popupStyles = this._getComputedPopupStyles();
+      if (popupStyles) {
+        this.setState({
+          popupStyles: this._getComputedPopupStyles()
+        });
+      } else {
         this._setLabelTo(this.state.lastValidLabel);
+        this._closeList(true);
       }
-      this._closeList(true);
     }
   }
 
@@ -448,15 +458,19 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
-  _setPopupStyles() {
+  _getComputedPopupStyles() {
     const inputStyles = window.getComputedStyle(findDOMNode(this.input));
     const popupStyle = {};
 
     const inputOffset = findDOMNode(this.input).getBoundingClientRect();
     const inputWidth = inputStyles.width;
-    const inputHeight =inputStyles.height;
+    const inputHeight = parseInt(inputStyles.height);
 
-    const offsetTop = inputOffset.top + parseInt(inputHeight);
+    if (inputOffset.top + inputHeight <= 0 || inputOffset.top >= window.innerHeight) {
+      return null;
+    }
+
+    const offsetTop = inputOffset.top + inputHeight;
     const offsetLeft = inputOffset.left;
 
     if (typeof window !== 'undefined') {

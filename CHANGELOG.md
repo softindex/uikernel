@@ -20,6 +20,7 @@
     * [Fixed text overlapping on button](https://github.com/softindex/uikernel/pull/228)
     * [Fixed bug with disabled list items with empty value (0, "", null)](https://github.com/softindex/uikernel/pull/241)
     * [Made moving popup of SuggestBox above the input if it doesn't fit under](https://github.com/softindex/uikernel/pull/242)
+    * [Prevented SuggestBox from closing when scrolling event is triggered](https://github.com/softindex/uikernel/pull/242)
     
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
