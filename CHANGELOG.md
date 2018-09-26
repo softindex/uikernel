@@ -5,6 +5,11 @@
     Click to see more.
   </summary>
 
+  ### New
+    
+  * FormService
+    * Allowed to get undefined fields from `getAll().fields` (used `Proxy`)
+
   ### Fixed
   
   * Grid
@@ -24,4 +29,5 @@
     
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
+    * Validator could not work with field name `constructor`
 </details>
