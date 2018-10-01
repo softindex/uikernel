@@ -134,16 +134,30 @@ class GridXhrModel extends AbstractGridModel {
     });
 
     body = JSON.parse(body);
+    const res = [];
 
-    if (body.changes.length) {
+    if (body.changes && body.changes.length) {
       this.trigger('update', body.changes);
+      res.push(...body.changes);
+    }
+    if (body.validation && body.validation.length) {
+      for (const error of body.validation) {
+        if (error && error[1]) {
+          error[1] = ValidationErrors.createFromJSON(error[1]);
+          res.push(error);
+        }
+      }
+    }
+    if (body.errors && body.errors.length) {
+      for (const error of body.errors) {
+        if (error && error[1]) {
+          error[1] = Object.assign(new Error(), error[1]); // Note, that Object spread operator won't work here
+          res.push(error);
+        }
+      }
     }
 
-    body.errors.forEach(error => {
-      error[1] = ValidationErrors.createFromJSON(error[1]);
-    });
-
-    return body.changes.concat(body.errors);
+    return res;
   }
 
   /**

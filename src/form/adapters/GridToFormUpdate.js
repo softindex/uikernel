@@ -109,9 +109,10 @@ class GridToFormUpdate extends Events {
   async submit(changes) {
     const record = utils.clone(changes);
     const model = this._adapter.model;
+
     let result = await model.update([[this._adapter.id, record]]);
     result = result[0][1];
-    if (result instanceof ValidationErrors) {
+    if (result instanceof Error || result instanceof ValidationErrors) {
       throw result;
     }
     return result;
