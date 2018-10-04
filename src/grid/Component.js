@@ -191,7 +191,10 @@ const GridComponent = createReactClass({
     if (this.props.viewCount !== nextProps.viewCount) {
       reset |= RESET_VIEW_COUNT;
     }
-    if (!utils.isEqual(this.props.selected, nextProps.selected)) {
+    if (
+      !utils.isEqual(this.props.selected, nextProps.selected)
+      || this.props.selectBlackListMode !== nextProps.selectBlackListMode
+    ) {
       reset |= RESET_SELECTED_COLUMNS;
     }
     if (!utils.isEqual(this.props.blackListMode, nextProps.blackListMode)) {
