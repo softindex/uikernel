@@ -186,9 +186,12 @@ class FormService {
   }
 
   async validateField(field, value) {
-    await this.set({
-      [field]: utils.parseValueFromEvent(value)
-    }, true);
+    await this.set(
+      {
+        [field]: utils.parseValueFromEvent(value)
+      },
+      true
+    );
   }
 
   /**
@@ -265,7 +268,6 @@ class FormService {
         this._errors = validationErrors;
       } else {
         this._errors = new ValidationErrors();
-        this._changes = {};
       }
     }
 
@@ -336,7 +338,7 @@ class FormService {
       this.validating = false;
 
       let field;
-      while (field = this._pendingClearValidation.pop()) {
+      while ((field = this._pendingClearValidation.pop())) {
         this._warnings.clearField(field);
         this._errors.clearField(field);
       }
@@ -349,7 +351,7 @@ class FormService {
 
     return {
       errors: !errorsWithPartialChecking.isEmpty() ? errorsWithPartialChecking : null,
-      warnings: !warningsWithPartialChecking.isEmpty() ? warningsWithPartialChecking : null,
+      warnings: !warningsWithPartialChecking.isEmpty() ? warningsWithPartialChecking : null
     };
   }
 
@@ -371,8 +373,7 @@ class FormService {
    * @returns {boolean}
    */
   _isLoaded() {
-    return this &&
-      Boolean(this._data);
+    return this && Boolean(this._data);
   }
 
   /**
@@ -380,7 +381,8 @@ class FormService {
    *
    * @return {{}}
    */
-  _getChangesFields() { // TODO _getChanges
+  _getChangesFields() {
+    // TODO _getChanges
     const changes = {};
     for (const field in this._changes) {
       if (!this._isDependentField(field)) {
@@ -426,7 +428,8 @@ class FormService {
    * @private
    */
   _onModelChange(changes) {
-    this._data = {...this._data, ...changes};
+    this._data = { ...this._data, ...changes };
+    this._changes = utils.getRecordChanges(this.model, this._data, this._changes, changes);
     this._setState();
   }
 
