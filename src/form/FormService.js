@@ -397,10 +397,9 @@ class FormService {
    * @returns {ValidationErrors} Form fields
    */
   _applyPartialErrorChecking(validationErrors) {
-    const filteredErrors = validationErrors;
+    const filteredErrors = validationErrors.clone();
 
-    // If gradual validation is on, we need
-    // to remove unchanged records from changes object
+    // If gradual validation is on, we need to remove unchanged records from changes object
     if (!this._partialErrorChecking) {
       return filteredErrors;
     }
