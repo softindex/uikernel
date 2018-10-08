@@ -222,7 +222,11 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputFocus(e) {
     await this._openList();
-    findDOMNode(this.input).select();
+    const inputElement = findDOMNode(this.input);
+    // Sometimes the component may become unmounted while waiting this._openList(), so inputElement will be unavailable
+    if (inputElement) {
+      inputElement.select();
+    }
     if (this.props.onFocus) {
       this.props.onFocus(e);
     }
@@ -569,7 +573,7 @@ class SuggestBoxEditor extends React.Component {
             {...utils.omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
                 'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
-            ref={(input) => this.input = input }
+            ref={(input) => this.input = input}
             type='text'
             onClick={this._openList}
             onFocus={this._onInputFocus}
