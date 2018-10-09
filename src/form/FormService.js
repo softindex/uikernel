@@ -63,7 +63,7 @@ class FormService {
     this._warningsValidator = settings.warningsValidator || new Validator();
 
     this.validating = false;
-    this._pendingClearValidation = [];
+    this._hiddenValidationFields = [];
     this.submitting = false;
     this._isNotInitialized = false;
 
@@ -158,23 +158,25 @@ class FormService {
     this.model.off('update', this._onModelChange);
   }
 
-  clearValidation(field) {
+  /**
+   * @param {String|String[]} fields
+   */
+  clearValidation(fields) {
     if (this._isNotInitialized) {
       return;
     }
 
-    if (this.validating) {
-      this._pendingClearValidation.push(field);
-    }
-
-    if (Array.isArray(field)) {
-      field.forEach(oneField => {
-        this._errors.clearField(oneField);
-        this._warnings.clearField(oneField);
-      });
+    // We keep info about _hiddenValidationFields for cases when clearValidation was called while validateForm was
+    // called and haven't finished, so then old validation result shouldn't show errors for _hiddenValidationFields
+    // fields, but the next called validations will clear _hiddenValidationFields so the fields will get errors again.
+    // Use case: a user changed field 'name', a validation started, the user focused field 'age' so we called
+    // clearValidation('age'), the validation finished and returned errors for fields 'name' and 'age', but we
+    // shouldn't show error for field 'age' because the user has just focused it. Then user blured field 'age', a new
+    // validation stated and it should show errors for field 'age'.
+    if (Array.isArray(fields)) {
+      this._hiddenValidationFields.push(...fields);
     } else {
-      this._errors.clearField(field);
-      this._warnings.clearField(field);
+      this._hiddenValidationFields.push(fields);
     }
 
     this._setState();
@@ -325,6 +327,12 @@ class FormService {
       return;
     }
 
+    // We should remove only those hiddenValidationFields that were present before validation started and keep those
+    // that were added after validation started (so it is possible and ok that field 'name' may be present 2 times:
+    // 1 for old validation call and 1 for the new).
+    // Take into account that _validateForm is throttled, so next calls will be skipped or scheduled after current call
+    // finishes. It means we don't need to care about parallel calls because they are impossible.
+    const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
     this.validating = true;
 
     try {
@@ -335,11 +343,7 @@ class FormService {
     } finally {
       this.validating = false;
 
-      let field;
-      while (field = this._pendingClearValidation.pop()) {
-        this._warnings.clearField(field);
-        this._errors.clearField(field);
-      }
+      this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
 
       this._setState();
     }
@@ -358,8 +362,12 @@ class FormService {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
       newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
-      newFields[fieldName].errors = errors ? errors.getFieldErrorMessages(fieldName) : null;
-      newFields[fieldName].warnings = warnings ? warnings.getFieldErrorMessages(fieldName) : null;
+      newFields[fieldName].errors = errors && !this._hiddenValidationFields.includes(fieldName) ?
+        errors.getFieldErrorMessages(fieldName) :
+        null;
+      newFields[fieldName].warnings = warnings && !this._hiddenValidationFields.includes(fieldName) ?
+        warnings.getFieldErrorMessages(fieldName) :
+        null;
       return newFields;
     }, {});
     return this._wrapFields(fields);
@@ -399,14 +407,11 @@ class FormService {
   _applyPartialErrorChecking(validationErrors) {
     const filteredErrors = validationErrors.clone();
 
-    // If gradual validation is on, we need to remove unchanged records from changes object
-    if (!this._partialErrorChecking) {
-      return filteredErrors;
-    }
-
     // Look through all form fields
-    for (const field in this._data) {
-      if (!this._changes.hasOwnProperty(field) || utils.isEqual(this._changes[field], this._data[field])) {
+    for (const field of Object.keys(this._data)) {
+      const isFieldPristine = !this._changes.hasOwnProperty(field) ||
+        utils.isEqual(this._changes[field], this._data[field]);
+      if (this._hiddenValidationFields.includes(field) || this._partialErrorChecking && isFieldPristine) {
         filteredErrors.clearField(field);
       }
     }
