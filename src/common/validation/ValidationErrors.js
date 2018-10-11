@@ -175,12 +175,18 @@ class ValidationErrors {
    *
    * @return {ValidationErrors}
    */
-  merge(error) {
-    // TODO Need deep merge
-    this._fields = new Map([
-      ...this._fields,
-      ...error.getErrors()
-    ]);
+  merge(validationErrors) {
+    for (const [field, newErrors] of validationErrors.getErrors()) {
+      let errors = this._fields.get(field);
+      if (!errors) {
+        errors = [];
+        this._fields.set(field, errors);
+      }
+      for (const newError of newErrors) {
+        errors.push(newError);
+      }
+    }
+
     return this;
   }
 
