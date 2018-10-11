@@ -33,7 +33,12 @@ const GridStatusesMixin = {
 
     this.state.statuses[row].sum |= this._getStatusBit(status);
 
-    this._updateRow(row);
+    const elem = findDOMNode(this.body).querySelector(`tr[key="${row}"]`);
+    if (elem) {
+      elem.classList.add(status);
+    } else {
+      this.updateTable();
+    }
   },
 
   /**
@@ -100,7 +105,9 @@ const GridStatusesMixin = {
 
     // Remove element's class
     const elem = findDOMNode(this.body).querySelector(`tr[key="${rowId}"]`);
-    elem && elem.classList.remove(status);
+    if (elem) {
+      elem.classList.remove(status);
+    }
   },
 
   /**
@@ -158,7 +165,9 @@ const GridStatusesMixin = {
       }
     }
     const elem = findDOMNode(this.body).querySelector(`.dgrid-body tr.${status}`);
-    elem && elem.classList.remove(status);
+    if (elem) {
+      elem.classList.remove(status);
+    }
   },
 
   /**

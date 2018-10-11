@@ -96,15 +96,18 @@ class FormService {
         fields: {},
         isSubmitting: false
       };
+
+      const fields = {};
       if (this.fields) {
         for (const field of this.fields) {
-          emptyData.fields[field] = {
+          fields[field] = {
             value: null,
             isChanged: false,
             errors: null
           };
         }
       }
+      emptyData.fields = this._wrapFields(fields);
       return emptyData;
     }
 
@@ -351,8 +354,7 @@ class FormService {
   }
 
   _getFields(data, changes, errors, warnings) {
-    const fields = this.fields;
-    return fields.reduce((newFields, fieldName) => {
+    const fields = this.fields.reduce((newFields, fieldName) => {
       newFields[fieldName] = {};
       newFields[fieldName].value = data[fieldName];
       newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
@@ -360,6 +362,7 @@ class FormService {
       newFields[fieldName].warnings = warnings ? warnings.getFieldErrorMessages(fieldName) : null;
       return newFields;
     }, {});
+    return this._wrapFields(fields, data, changes, errors, warnings);
   }
 
   /**
@@ -461,6 +464,19 @@ class FormService {
     if (utils.isEqual(data, getData())) {
       this[output] = validErrors;
     }
+  }
+
+  _wrapFields(fields, data = null, changes = null, errors = null, warnings = null) {
+    return new Proxy(fields, {
+      get(target, fieldName) {
+        return target[fieldName] || {
+          value: data && data[fieldName] ? data[fieldName] : null,
+          isChanged: changes ? changes.hasOwnProperty(fieldName) : false,
+          errors: errors ? errors.getFieldErrorMessages(fieldName) : null,
+          warnings: warnings ? warnings.getFieldErrorMessages(fieldName) : null
+        };
+      }
+    });
   }
 }
 

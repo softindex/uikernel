@@ -6,15 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../utils';
-
 class ValidationErrors {
   /**
    * Field errors control manager
    * @constructor
    */
   constructor() {
-    this._fields = {};
+    this._fields = new Map();
   }
 
   /**
@@ -65,12 +63,13 @@ class ValidationErrors {
    */
   add(field, error) {
     error = this._formErrorValue(error);
-    if (!this._fields[field]) {
-      this._fields[field] = [error];
+    if (!this._fields.has(field)) {
+      this._fields.set(field, [error]);
       return this;
     }
-    if (!this._fields[field].includes(error)) {
-      this._fields[field].push(error);
+    const fieldErrors = this._fields.get(field);
+    if (!fieldErrors.includes(error)) {
+      fieldErrors.push(error);
     }
     return this;
   }
@@ -82,7 +81,7 @@ class ValidationErrors {
    * @returns {boolean}
    */
   hasError(field) {
-    return this._fields.hasOwnProperty(field);
+    return this._fields.has(field);
   }
 
   /**
@@ -92,7 +91,7 @@ class ValidationErrors {
    * @returns {Array|null}  Errors array or null
    */
   getFieldErrors(field) {
-    return this._fields[field] || null;
+    return this._fields.get(field) || null;
   }
 
   /**
@@ -102,9 +101,9 @@ class ValidationErrors {
    * @returns {Array|null}  Errors array or null
    */
   getFieldErrorMessages(field) {
-    const errors = this._fields[field];
-    if (errors) {
-      return errors.map(err => err.message);
+    const fieldErrors = this._fields.get(field);
+    if (fieldErrors) {
+      return fieldErrors.map(error => error.message);
     }
     return null;
   }
@@ -115,7 +114,7 @@ class ValidationErrors {
    * @returns {string[]|null}
    */
   getFailedFields() {
-    const fields = Object.keys(this._fields);
+    const fields = [...this._fields.keys()];
     return fields.length ? fields : null;
   }
 
@@ -125,7 +124,7 @@ class ValidationErrors {
    * @returns {boolean} Errors presence
    */
   isEmpty() {
-    return utils.isEmpty(this._fields);
+    return this._fields.size === 0;
   }
 
   /**
@@ -135,7 +134,7 @@ class ValidationErrors {
    * @returns {ValidationErrors}
    */
   clearField(field) {
-    delete this._fields[field];
+    this._fields.delete(field);
     return this;
   }
 
@@ -145,17 +144,21 @@ class ValidationErrors {
    * @return {ValidationErrors}
    */
   clear() {
-    this._fields = {};
+    this._fields = new Map();
     return this;
   }
 
   /**
    * Convert errors to JSON
    *
-   * @return {Array}
+   * @return {{[string]: Array<string>}}
    */
   toJSON() {
-    return this._fields;
+    const json = {};
+    for (const [key, value] of this._fields) {
+      json[key] = value;
+    }
+    return json;
   }
 
   /**
@@ -174,7 +177,10 @@ class ValidationErrors {
    */
   merge(error) {
     // TODO Need deep merge
-    Object.assign(this._fields, error.toJSON());
+    this._fields = new Map([
+      ...this._fields,
+      ...error.getErrors()
+    ]);
     return this;
   }
 
@@ -184,7 +190,7 @@ class ValidationErrors {
    * @return {[string, string[]][]}
    */
   getErrors() {
-    return Object.entries(this._fields);
+    return this._fields;
   }
 
   _formErrorValue(error) {

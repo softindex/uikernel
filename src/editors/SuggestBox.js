@@ -99,12 +99,8 @@ class SuggestBoxEditor extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return this.state.label !== nextState.label
+    return this.state !== nextState
       || !utils.isEqual(this.props.value, nextProps.value)
-      || this.state.loading !== nextState.loading
-      || this.state.selectedOptionKey !== nextState.selectedOptionKey
-      || this.state.isOpened !== nextState.isOpened
-      || this.state.options.length !== nextState.options.length
       || this.props.disabled !== nextProps.disabled;
   }
 
@@ -191,10 +187,15 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
+    const popupStyles = this._getComputedPopupStyles();
+    if (!popupStyles) {
+      return;
+    }
+
     await toPromise(::this.setState, true)({
       isOpened: true,
       loading: true,
-      popupStyles: this._setPopupStyles()
+      popupStyles
     });
     findDOMNode(this.input).select();
 
@@ -390,11 +391,16 @@ class SuggestBoxEditor extends React.Component {
   }
 
   _onDocumentMouseScroll(e, isOwner) {
-    if (!isOwner) {
-      if (this.state.isOpened) {
+    if (!isOwner && this.state.isOpened) {
+      const popupStyles = this._getComputedPopupStyles();
+      if (popupStyles) {
+        this.setState({
+          popupStyles: this._getComputedPopupStyles()
+        });
+      } else {
         this._setLabelTo(this.state.lastValidLabel);
+        this._closeList(true);
       }
-      this._closeList(true);
     }
   }
 
@@ -452,37 +458,36 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
-  _setPopupStyles() {
+  _getComputedPopupStyles() {
     const inputStyles = window.getComputedStyle(findDOMNode(this.input));
-    let popupStyle = {};
+    const popupStyle = {};
 
     const inputOffset = findDOMNode(this.input).getBoundingClientRect();
     const inputWidth = inputStyles.width;
-    const inputHeight =inputStyles.height;
+    const inputHeight = parseInt(inputStyles.height);
 
-    let offsetTop = inputOffset.top + parseInt(inputHeight);
+    if (inputOffset.top + inputHeight <= 0 || inputOffset.top >= window.innerHeight) {
+      return null;
+    }
+
+    const offsetTop = inputOffset.top + inputHeight;
     const offsetLeft = inputOffset.left;
 
     if (typeof window !== 'undefined') {
       const availableSpace = window.innerHeight - offsetTop;
       if (availableSpace < MIN_POPUP_HEIGHT) {
-        offsetTop = inputOffset.top - 300;
-        popupStyle = {
-          bottom: '0',
-          position: 'absolute',
-          height: '300'
-        };
+        popupStyle.maxHeight = inputOffset.top;
+        popupStyle.bottom = -inputOffset.top;
       } else {
         popupStyle.maxHeight = availableSpace;
+        popupStyle.top = offsetTop;
       }
     }
 
-    return {
-      ...popupStyle,
-      minWidth: inputWidth,
-      top: offsetTop,
-      left: offsetLeft
-    };
+    popupStyle.minWidth = inputWidth;
+    popupStyle.left = offsetLeft;
+
+    return popupStyle;
   }
 
   focus() {
@@ -517,7 +522,7 @@ class SuggestBoxEditor extends React.Component {
               optionClassNames.push(classes.optionFocused);
             }
 
-            if (option.id) {
+            if (option.id !== undefined) {
               optionClassNames.push(classes.optionSelectable);
             }
 
@@ -545,7 +550,7 @@ class SuggestBoxEditor extends React.Component {
       optionsPopup = (
         <Portal
           id={popupId}
-          styles={this.state.popupStyles}
+          style={this.state.popupStyles}
           onDocumentMouseDown={this._onDocumentMouseDown}
           onDocumentMouseScroll={this._onDocumentMouseScroll}
           className='__suggestBoxPopUp'

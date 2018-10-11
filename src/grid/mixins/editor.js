@@ -101,7 +101,9 @@ const GridEditorMixin = {
     ReactDOM.unmountComponentAtNode(element);
     delete this.state.editor[`${row}_${column}`];
     element.classList.remove('dgrid-input-wrapper');
-    this._updateField(row, column);
+
+    const selected = this.isSelected(this.state.recordsInfo[row].id);
+    this._renderCell(row, column, selected);
   },
 
   _onChangeEditor: function (row, column, values, editorContext, element) {
