@@ -362,7 +362,7 @@ class FormService {
       newFields[fieldName].warnings = warnings ? warnings.getFieldErrorMessages(fieldName) : null;
       return newFields;
     }, {});
-    return this._wrapFields(fields);
+    return this._wrapFields(fields, data, changes, errors, warnings);
   }
 
   /**
@@ -466,14 +466,14 @@ class FormService {
     }
   }
 
-  _wrapFields(fields) {
+  _wrapFields(fields, data = null, changes = null, errors = null, warnings = null) {
     return new Proxy(fields, {
       get(target, fieldName) {
         return target[fieldName] || {
-          value: null,
-          isChanged: false,
-          errors: null,
-          warnings: null
+          value: data && data[fieldName] ? data[fieldName] : null,
+          isChanged: changes ? changes.hasOwnProperty(fieldName) : false,
+          errors: errors ? errors.getFieldErrorMessages(fieldName) : null,
+          warnings: warnings ? warnings.getFieldErrorMessages(fieldName) : null
         };
       }
     });
