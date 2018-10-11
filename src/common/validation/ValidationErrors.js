@@ -182,9 +182,7 @@ class ValidationErrors {
         errors = [];
         this._fields.set(field, errors);
       }
-      for (const newError of newErrors) {
-        errors.push(newError);
-      }
+      errors.push(...newErrors);
     }
 
     return this;

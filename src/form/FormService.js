@@ -159,7 +159,7 @@ class FormService {
   }
 
   /**
-   * @param {String|String[]} fields
+   * @param {string|string[]} fields
    */
   clearValidation(fields) {
     if (this._isNotInitialized) {
@@ -407,10 +407,9 @@ class FormService {
   _applyPartialErrorChecking(validationErrors) {
     const filteredErrors = validationErrors.clone();
 
-    // Look through all form fields
-    for (const field of Object.keys(this._data)) {
-      const isFieldPristine = !this._changes.hasOwnProperty(field) ||
-        utils.isEqual(this._changes[field], this._data[field]);
+    for (const field of validationErrors.getErrors().keys()) {
+      const isFieldPristine = !this._changes.hasOwnProperty(field)
+        || utils.isEqual(this._changes[field], this._data[field]);
       if (this._hiddenValidationFields.includes(field) || this._partialErrorChecking && isFieldPristine) {
         filteredErrors.clearField(field);
       }

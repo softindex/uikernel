@@ -7,8 +7,8 @@
 
   ### New
     
-  * FormService
-    * Allowed to get undefined fields from `getAll().fields` (used `Proxy`)
+  * Form
+    * Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)
 
   ### Fixed
   
@@ -22,14 +22,18 @@
     * [Apply grid filters by merging with previously applied ones](https://github.com/softindex/uikernel/pull/239)
     * Update GridComponent if `selectBlackListMode` prop has been changed
   
+  * Form
+    * [Fixed bug with `FormService.prototype.clearValidation` because of accidental mutations](https://github.com/softindex/uikernel/pull/244)
+  
   * SuggestBox Editor
     * [Fixed text overlapping on button](https://github.com/softindex/uikernel/pull/228)
     * [Fixed bug with disabled list items with empty value (0, "", null)](https://github.com/softindex/uikernel/pull/241)
     * [Made moving popup of SuggestBox above the input if it doesn't fit under](https://github.com/softindex/uikernel/pull/242)
     * [Prevented SuggestBox from closing when scrolling event is triggered](https://github.com/softindex/uikernel/pull/242)
+    * [Fixed small bag in trying to use dom element of unmounted SuggestBox](https://github.com/softindex/uikernel/pull/244)
     
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
     * Validator could not work with field name `constructor`
-    * Fixed merging of same fields in `ValidationErrors.prototype.merge` method.
+    * Fixed merging of same fields in `ValidationErrors.prototype.merge` method
 </details>

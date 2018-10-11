@@ -222,11 +222,11 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputFocus(e) {
     await this._openList();
-    const inputElement = findDOMNode(this.input);
-    // Sometimes the component may become unmounted while waiting this._openList(), so inputElement will be unavailable
-    if (inputElement) {
-      inputElement.select();
+    if (!this._isMounted) {
+      return;
     }
+
+    findDOMNode(this.input).select();
     if (this.props.onFocus) {
       this.props.onFocus(e);
     }
