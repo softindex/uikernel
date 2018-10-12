@@ -16,7 +16,7 @@ function jsPrecompile() {
   return gulp.src(['src/**/*.js'])
     .pipe(changed('lib', {hasChanged: changed.compareLastModifiedTime}))
     .pipe(count('babel transplit ## files'))
-    .pipe(babel({sourceMaps: argv.map ? 'inline' : false}))
+    .pipe(babel({sourceMap: argv.map ? 'inline' : false}))
     .pipe(gulp.dest('lib'));
 }
 

@@ -1,4 +1,14 @@
 {
-  "presets": ["react", "latest", "stage-0", "flow"],
-  "plugins": ["transform-runtime", "babel-plugin-add-module-exports"]
+  "presets": [
+    "@babel/preset-react",
+    "@babel/preset-env",
+    "@babel/preset-flow"
+  ],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    "babel-plugin-add-module-exports",
+
+    // Stage 0
+    "@babel/plugin-proposal-function-bind"
+  ]
 }

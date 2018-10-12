@@ -20,6 +20,7 @@
     * [Fixed update of grid after select/unselect](https://github.com/softindex/uikernel/pull/235)
     * [Fixed adding statuses (addRecordStatus)](https://github.com/softindex/uikernel/pull/235)
     * [Apply grid filters by merging with previously applied ones](https://github.com/softindex/uikernel/pull/239)
+    * [Fixed handling of plain Errors among changes returned from GridModel.prototype.update](https://github.com/softindex/uikernel/pull/243)
     * Update GridComponent if `selectBlackListMode` prop has been changed
   
   * Form

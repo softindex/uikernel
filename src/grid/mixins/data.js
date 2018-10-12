@@ -194,7 +194,7 @@ const GridDataMixin = {
       this.props.onChange(this.state.changes, this.state.data);
     }
 
-    const errorHandler = this.props.onError || console.error;
+    const errorHandler = this.props.onError || ::console.error;
     unhandledErrors.forEach(error => errorHandler(error));
 
     return data;
