@@ -8,7 +8,7 @@
   ### New
     
   * Form
-    * Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)
+    * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)
 
   ### Fixed
   

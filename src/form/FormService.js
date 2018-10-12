@@ -93,28 +93,16 @@ class FormService {
         changes: {},
         errors: new ValidationErrors(),
         warnings: new ValidationErrors(),
-        fields: {},
         isSubmitting: false
       };
-
-      const fields = {};
-      if (this.fields) {
-        for (const field of this.fields) {
-          fields[field] = {
-            value: null,
-            isChanged: false,
-            errors: null
-          };
-        }
-      }
-      emptyData.fields = this._wrapFields(fields);
+      emptyData.fields = this._getFields(emptyData.data, emptyData.changes, emptyData.errors, emptyData.warnings);
       return emptyData;
     }
 
     const data = this._getData();
     const changes = this._getChangesFields();
-    const errors = this._applyPartialErrorChecking(this._errors);
-    const warnings = this._applyPartialErrorChecking(this._warnings);
+    const errors = this._getDisplayedErrors(this._errors);
+    const warnings = this._getDisplayedErrors(this._warnings);
 
     return {
       isLoaded,
@@ -348,29 +336,35 @@ class FormService {
       this._setState();
     }
 
-    const errorsWithPartialChecking = this._applyPartialErrorChecking(this._errors);
-    const warningsWithPartialChecking = this._applyPartialErrorChecking(this._warnings);
+    const displayedErrors = this._getDisplayedErrors(this._errors);
+    const displayedWarning = this._getDisplayedErrors(this._warnings);
 
     return {
-      errors: !errorsWithPartialChecking.isEmpty() ? errorsWithPartialChecking : null,
-      warnings: !warningsWithPartialChecking.isEmpty() ? warningsWithPartialChecking : null,
+      errors: !displayedErrors.isEmpty() ? displayedErrors : null,
+      warnings: !displayedWarning.isEmpty() ? displayedWarning : null,
     };
   }
 
   _getFields(data, changes, errors, warnings) {
-    const fields = this.fields.reduce((newFields, fieldName) => {
-      newFields[fieldName] = {};
-      newFields[fieldName].value = data[fieldName];
-      newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
-      newFields[fieldName].errors = errors && !this._hiddenValidationFields.includes(fieldName) ?
-        errors.getFieldErrorMessages(fieldName) :
-        null;
-      newFields[fieldName].warnings = warnings && !this._hiddenValidationFields.includes(fieldName) ?
-        warnings.getFieldErrorMessages(fieldName) :
-        null;
-      return newFields;
-    }, {});
-    return this._wrapFields(fields, data, changes, errors, warnings);
+    const proxy = new Proxy({}, {
+      get(target, fieldName) {
+        return {
+          value: data[fieldName],
+          isChanged: changes.hasOwnProperty(fieldName),
+          errors: errors.getFieldErrorMessages(fieldName),
+          warnings: warnings.getFieldErrorMessages(fieldName)
+        };
+      }
+    });
+
+    // Explicit declaration of fields in an object
+    if (this.fields) {
+      for (const field of this.fields) {
+        proxy[field] = proxy[field];
+      }
+    }
+
+    return proxy;
   }
 
   /**
@@ -379,8 +373,7 @@ class FormService {
    * @returns {boolean}
    */
   _isLoaded() {
-    return this &&
-      Boolean(this._data);
+    return this._data !== null;
   }
 
   /**
@@ -399,12 +392,12 @@ class FormService {
   }
 
   /**
-   * Filter errors depending on the partialErrorChecking mode
+   * Filter errors depending on the partialErrorChecking mode and clearValidation method
    *
    * @param {ValidationErrors}  validationErrors
    * @returns {ValidationErrors} Form fields
    */
-  _applyPartialErrorChecking(validationErrors) {
+  _getDisplayedErrors(validationErrors) {
     const filteredErrors = validationErrors.clone();
 
     for (const field of validationErrors.getErrors().keys()) {
@@ -467,19 +460,6 @@ class FormService {
     if (utils.isEqual(data, getData())) {
       this[output] = validErrors;
     }
-  }
-
-  _wrapFields(fields, data = null, changes = null, errors = null, warnings = null) {
-    return new Proxy(fields, {
-      get(target, fieldName) {
-        return target[fieldName] || {
-          value: data && data[fieldName] ? data[fieldName] : null,
-          isChanged: changes ? changes.hasOwnProperty(fieldName) : false,
-          errors: errors ? errors.getFieldErrorMessages(fieldName) : null,
-          warnings: warnings ? warnings.getFieldErrorMessages(fieldName) : null
-        };
-      }
-    });
   }
 }
 
