@@ -153,18 +153,24 @@ const GridDataMixin = {
 
     this.state.partialErrorChecking = false;
 
-    data.forEach((record) => {
+    const unhandledErrors = [];
+    for (const record of data) {
       const row = this._getRowID(record[0]);
 
       // Skip records that are user changed while data processing
       if (!utils.isEqual(this.state.changes[row], changes[row])) {
-        return;
+        continue;
+      }
+
+      if (record[1] instanceof Error) {
+        unhandledErrors.push(record[1]);
+        continue;
       }
 
       // Process validation errors
       if (record[1] instanceof ValidationErrors) {
         this.state.errors[row] = record[1];
-        return;
+        continue;
       }
 
       // Cancel changed data status of the parameters, that are changed
@@ -181,13 +187,15 @@ const GridDataMixin = {
           this._removeRecord(row);
         }
       }
-    });
-
+    }
     this._renderBody();
 
     if (this.props.onChange) {
       this.props.onChange(this.state.changes, this.state.data);
     }
+
+    const errorHandler = this.props.onError || console.error;
+    unhandledErrors.forEach(error => errorHandler(error));
 
     return data;
   },

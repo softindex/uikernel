@@ -164,14 +164,22 @@ class GridExpressApi {
           return send(err, null, req, res, next);
         }
 
-        data = data.reduce((result, record) => {
-          if (record[1] instanceof ValidationErrors || record[1] instanceof Error) {
-            result.errors.push(record);
-          } else {
-            result.changes.push(record);
-          }
-          return result;
-        }, {changes: [], errors: []});
+        data = data.reduce(
+          (result, record) => {
+            if (!record) {
+              return result;
+            }
+            if (record[1] instanceof Error) {
+              result.errors.push(record);
+            } else if (record[1] instanceof ValidationErrors) {
+              result.validation.push(record);
+            } else {
+              result.changes.push(record);
+            }
+            return result;
+          },
+          {changes: [], errors: [], validation: []}
+        );
 
         send(null, data, req, res, next);
       };
