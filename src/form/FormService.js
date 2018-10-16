@@ -228,6 +228,7 @@ class FormService {
 
     this._isSubmitting = true;
     this._partialErrorChecking = false;
+    const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
 
     this._setState();
 
@@ -258,6 +259,8 @@ class FormService {
         this._changes = {};
       }
     }
+
+    this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
 
     this._setState();
 
