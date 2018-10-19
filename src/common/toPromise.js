@@ -7,6 +7,7 @@
  */
 
 import utils from '../common/utils';
+import jsonStringify from '../common/jsonStringify';
 
 const functionsNames = [];
 
@@ -43,13 +44,13 @@ function toPromise(func, hideWarning) {
       warn(
         `The return value is not a Promise in '${funcName}'.\n` +
         `Arguments: ${JSON.stringify(mainArguments)}\n` +
-        `Returns: ${JSON.stringify(promise)}`
+        `Returns: ${jsonStringify(promise, 'Error while stringifying promise')}`
       );
       return callbackPromise;
     } else {
       warn(
         `You are using callback in: '${funcName}'. Use promise instead.\n` +
-        `Arguments: ${JSON.stringify(mainArguments)}`
+        `Arguments: ${jsonStringify(mainArguments, 'Error while stringifying mainArguments')}`
       );
       return callbackPromise;
     }
