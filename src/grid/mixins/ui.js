@@ -11,6 +11,7 @@ import utils from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 import ThrottleError from '../../common/ThrottleError';
+import classNames from 'classnames';
 
 const GridUIMixin = {
   /**
@@ -195,15 +196,20 @@ const GridUIMixin = {
   /**
    * Get table cell HTML
    *
-   * @param   {number}    columnId  Column ID
-   * @param   {Object}    record    Table record
-   * @param   {bool}      selected  "Selected" row status
-   * @returns {string}    Table cell HTML
+   * @param   {number}   columnId       Column ID
+   * @param   {Object}   record         Table record (initial record + changes)
+   * @param   {boolean}  selected       "Selected" row status
+   * @param   {Object}   initialRecord  Initial record
+   * @returns {string}   Table cell HTML
    * @private
    */
-  _getCellHTML(columnId, record, selected) {
+  _getCellHTML(columnId, record, selected, initialRecord) {
     const render = utils.last(this.props.cols[columnId].render);
-    const cellHtml = render(this._escapeRecord(columnId, record), selected);
+    const cellHtml = render(
+      this._escapeRecord(columnId, record),
+      selected,
+      this._escapeRecord(columnId, initialRecord)
+    );
     return `${utils.isDefined(cellHtml) ? cellHtml : ''}`;
   },
 
@@ -218,15 +224,26 @@ const GridUIMixin = {
   _getRowHTML(rowId, className) {
     let colId;
     const record = this._getRecord(rowId);
+    const initialRecord = this._getRecord(rowId, false);
     const selected = this.isSelected(this.state.recordsInfo[rowId].id);
-    let html = `<tr key="${rowId}" class="` +
-      (className || '') +
-      ' ' + this._getRowStatusNames(rowId).join(' ') +
-      ' ' + (selected ? 'dgrid__row_selected' : '') +
-      '">';
-    for (colId in this.props.cols) {
+    const gridRowClass = classNames(
+      className,
+      this._getRowStatusNames(rowId).join(' '),
+      {'dgrid__row_selected': selected}
+    );
+    let html = `<tr key="${rowId}" class="${gridRowClass}">`;
+    for (colId of Object.keys(this.props.cols)) {
       if (this._isViewColumn(colId)) {
-        html += `<td key="${colId}" class="dgrid-cell${this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : ''}${this._isChanged(rowId, this._getBindParam(colId)) ? ' dgrid-changed' : ''}${this._hasError(rowId, this._getBindParam(colId)) ? ' dgrid-error' : ''}${this._hasWarning(rowId, this._getBindParam(colId)) ? ' dgrid-warning' : ''}">${this._getCellHTML(colId, record, selected)}</td>`;
+        const gridCellClass = classNames(this._getColumnClass(colId), {
+          'dgrid-cell': true,
+          'dgrid-changed': this._isChanged(rowId, this._getBindParam(colId)),
+          'dgrid-error': this._hasError(rowId, this._getBindParam(colId)),
+          'dgrid-warning': this._hasWarning(rowId, this._getBindParam(colId))
+        });
+        html += `
+          <td key="${colId}" class="${gridCellClass}">
+            ${this._getCellHTML(colId, record, selected, initialRecord)}
+          </td>`;
       }
     }
     return `${html}</tr>`;
@@ -296,7 +313,7 @@ const GridUIMixin = {
 
     // If data for result line display exists, form it
     if (this.state.totals) {
-      for (i in this.props.cols) {
+      for (i of Object.keys(this.props.cols)) {
         if (!this._isViewColumn(i)) {
           continue;
         }
@@ -309,7 +326,7 @@ const GridUIMixin = {
         }
 
         if (this.state.totals.hasOwnProperty(i)) {
-          totalsRowHTML += this._getCellHTML(i, this.state.totals, false);
+          totalsRowHTML += this._getCellHTML(i, this.state.totals, false, this.state.data);
           totalsDisplayed = true;
         }
 
@@ -340,7 +357,7 @@ const GridUIMixin = {
   _renderCell(rowId, column, isSelected) {
     const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
 
-    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), isSelected);
+    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), isSelected, this._getRecord(rowId, false));
     cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
     const cellClassList = [];
     if (this._isChanged(rowId, this._getBindParam(column))) {
