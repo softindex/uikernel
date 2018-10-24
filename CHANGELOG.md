@@ -22,6 +22,7 @@
     * [Apply grid filters by merging with previously applied ones](https://github.com/softindex/uikernel/pull/239)
     * [Fixed handling of plain Errors among changes returned from GridModel.prototype.update](https://github.com/softindex/uikernel/pull/243)
     * Update GridComponent if `selectBlackListMode` prop has been changed
+    * Fixed applying GridComponent.prototype.setSelectedRecords
   
   * Form
     * [Fixed bug with `FormService.prototype.clearValidation` because of accidental mutations](https://github.com/softindex/uikernel/pull/244)
