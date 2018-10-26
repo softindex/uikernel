@@ -127,7 +127,7 @@ const GridColumnsMixin = {
   },
 
   /**
-   * Get a dependent columns
+   * Get dependent columns
    *
    * @param   {string}    field
    * @return  {string[]}

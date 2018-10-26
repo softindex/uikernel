@@ -276,11 +276,11 @@ const GridUIMixin = {
     const selected = this.isSelected(this.state.recordsInfo[row].id);
 
     // Update column dependencies
-    this._getDependentColumns(param).forEach((column) => {
+    for (const column of this._getDependentColumns(param)) {
       if (this._isViewColumn(column) && !this._isEditorVisible(row, column)) {
         this._renderCell(row, column, selected);
       }
-    }, this);
+    }
   },
 
   _removeTR(rowId) {
@@ -340,7 +340,13 @@ const GridUIMixin = {
   _renderCell(rowId, column, isSelected) {
     const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
 
-    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), isSelected);
+    try {
+      cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), isSelected);
+    } catch (e) {
+      // Sometimes it is possible a situation when rerendering of the cell is called in the middle of performing of an
+      // event in that cell which may cause an error like "DOMException: The node to be removed is no longer a child
+      // of this node", so just ignore it
+    }
     cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
     const cellClassList = [];
     if (this._isChanged(rowId, this._getBindParam(column))) {
@@ -365,7 +371,9 @@ const GridUIMixin = {
       const viewColumns = Object.keys(this.props.cols).filter(this._isViewColumn);
 
       for (const viewColumn of viewColumns) {
-        this._renderCell(row, viewColumn, selected);
+        if (!this._isEditorVisible(row, viewColumn)) {
+          this._renderCell(row, viewColumn, selected);
+        }
       }
     } else {
       await this.updateTable(); // TODO Check is it need
