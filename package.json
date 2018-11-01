@@ -31,7 +31,8 @@
     "react-datepicker": "1.1.0",
     "react-dom": "^16.5.2",
     "react-dom-factories": "^1.0.2",
-    "xhr": "^2.5.0"
+    "xhr": "^2.5.0",
+    "classnames": "^2.2.6"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",

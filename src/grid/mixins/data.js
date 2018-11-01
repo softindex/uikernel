@@ -415,12 +415,16 @@ const GridDataMixin = {
    * Get table record
    *
    * @param {string} row Row ID
+   * @param {boolean} withChanges
    * @returns {Object} Required table data record
    * @private
    */
-  _getRecord: function (row) {
+  _getRecord: function (row, withChanges = true) {
     if (this.state.data[row]) {
-      return Object.assign({}, this.state.data[row], this.state.changes[row]);
+      if (withChanges) {
+        return {...this.state.data[row], ...this.state.changes[row]};
+      }
+      return this.state.data[row];
     }
     return null;
   },
