@@ -51,7 +51,7 @@ const GridUIMixin = {
     const row = element.parentNode.getAttribute('key');
     const columnConfig = this.props.cols[colId];
     const recordId = this.state.recordsInfo[row].id;
-    const record = this._getRecord(row);
+    const record = this._getRecordWithChanges(row);
 
     // Trigger click handler on the table configuration
     if (ref) {
@@ -223,8 +223,8 @@ const GridUIMixin = {
    */
   _getRowHTML(rowId, className) {
     let colId;
-    const record = this._getRecord(rowId);
-    const initialRecord = this._getRecord(rowId, false);
+    const record = this._getRecordWithChanges(rowId);
+    const initialRecord = this.state.data[rowId] || null;
     const selected = this.isSelected(this.state.recordsInfo[rowId].id);
     const gridRowClass = classNames(
       className,
@@ -326,7 +326,7 @@ const GridUIMixin = {
         }
 
         if (this.state.totals.hasOwnProperty(i)) {
-          totalsRowHTML += this._getCellHTML(i, this.state.totals, false, this.state.data);
+          totalsRowHTML += this._getCellHTML(i, this.state.totals, false, this.state.totals);
           totalsDisplayed = true;
         }
 
@@ -356,8 +356,9 @@ const GridUIMixin = {
 
   _renderCell(rowId, column, isSelected) {
     const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
+    const initialRecord = this.state.data[rowId] || null;
 
-    cell.innerHTML = this._getCellHTML(column, this._getRecord(rowId), isSelected, this._getRecord(rowId, false));
+    cell.innerHTML = this._getCellHTML(column, this._getRecordWithChanges(rowId), isSelected, initialRecord);
     cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
     const cellClassList = [];
     if (this._isChanged(rowId, this._getBindParam(column))) {

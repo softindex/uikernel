@@ -28,7 +28,7 @@ const GridEditorMixin = {
    */
   _renderEditor: function (element, row, column) {
     const binds = this._getBindParam(column);
-    const record = this._getRecord(row);
+    const record = this._getRecordWithChanges(row);
     let value = utils.at(record, binds);
     let focusDone = false;
 
@@ -111,7 +111,7 @@ const GridEditorMixin = {
 
     values = utils.cloneDeep(utils.parseValueFromEvent(values));
 
-    const record = this._getRecord(row);
+    const record = this._getRecordWithChanges(row);
     const context = utils.cloneDeep(editorContext);
     context.props.value = values;
     const Component = this.props.cols[column].editor.call(context, record, this);

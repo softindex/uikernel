@@ -6,6 +6,9 @@
   </summary>
 
   ### New
+
+  * Grid
+    * [Added argument initialRecord to grid columns render function](https://github.com/softindex/uikernel/pull/249)
     
   * Form
     * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)

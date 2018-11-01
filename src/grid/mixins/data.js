@@ -41,7 +41,7 @@ const GridDataMixin = {
    */
   getRecord: function (recordId) {
     const row = this._getRowID(recordId);
-    return utils.cloneDeep(this._getRecord(row));
+    return utils.cloneDeep(this._getRecordWithChanges(row));
   },
 
   /**
@@ -130,7 +130,7 @@ const GridDataMixin = {
     const changes = utils.reduce(this.state.changes, (result, rowChanges, row) => {
       if (!errors || !errors[row]) {
         if (this.props.saveFullRecord) {
-          result[row] = this._getRecord(row);
+          result[row] = this._getRecordWithChanges(row);
         } else {
           result[row] = {};
           Object.assign(result[row], rowChanges, utils.pick(
@@ -412,19 +412,15 @@ const GridDataMixin = {
   },
 
   /**
-   * Get table record
+   * Get table record with changes
    *
    * @param {string} row Row ID
-   * @param {boolean} withChanges
    * @returns {Object} Required table data record
    * @private
    */
-  _getRecord: function (row, withChanges = true) {
+  _getRecordWithChanges: function (row) {
     if (this.state.data[row]) {
-      if (withChanges) {
-        return {...this.state.data[row], ...this.state.changes[row]};
-      }
-      return this.state.data[row];
+      return Object.assign({}, this.state.data[row], this.state.changes[row]);
     }
     return null;
   },
@@ -607,7 +603,12 @@ const GridDataMixin = {
     if (!this.props.warningsValidator) {
       return;
     }
-    return this._checkValidatorErrors(row, this.props.warningsValidator, this._getRecord, this.state.warnings);
+    return this._checkValidatorErrors(
+      row,
+      this.props.warningsValidator,
+      this._getRecordWithChanges,
+      this.state.warnings
+    );
   },
 
   _validateRow: function (row) {
