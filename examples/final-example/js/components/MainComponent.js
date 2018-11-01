@@ -115,7 +115,7 @@ class MainComponent extends React.Component {
         </div>
         <div className="panel-footer">
           <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
-            <i className="fa fa-th-list"></i>{' '}Columns
+            <i className="fa fa-th-list"/>{' '}Columns
           </a>
           <a className="btn btn-success" onClick={() => this.deleteSelectedRecords()}>Delete selected</a>
           {numText}
@@ -126,7 +126,8 @@ class MainComponent extends React.Component {
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
             viewColumns={this.state.cols}
-            viewCount={10} // 10 records limit to display by default
+            defaultViewCount={10} // 10 records limit to display by default
+            viewVariants={[10, 20, 50, 100]}
             onSelectedChange={(records) => this.onSelectedChange(records)}
           />
         </div>
