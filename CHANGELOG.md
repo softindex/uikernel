@@ -24,6 +24,7 @@
     * [Fixed adding statuses (addRecordStatus)](https://github.com/softindex/uikernel/pull/235)
     * [Apply grid filters by merging with previously applied ones](https://github.com/softindex/uikernel/pull/239)
     * [Fixed handling of plain Errors among changes returned from GridModel.prototype.update](https://github.com/softindex/uikernel/pull/243)
+    * [Fixed bugs concerned with editing of grids](https://github.com/softindex/uikernel/pull/250)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
   
