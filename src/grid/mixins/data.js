@@ -409,6 +409,10 @@ const GridDataMixin = {
     for (const column of Object.keys(data)) {
       this._renderBinds(row, column);
     }
+
+    if (this.props.onChange) {
+      this.props.onChange(this.state.changes, this.state.data);
+    }
   },
 
   /**
