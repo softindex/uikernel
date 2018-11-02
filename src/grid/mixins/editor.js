@@ -159,7 +159,13 @@ const GridEditorMixin = {
       }
       this.save(this.props.onRealtimeSubmit);
     } else {
-      this._validateRow(row);
+      try {
+        await this._validateRow(row);
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
+      }
     }
     if (this.props.onChange) {
       this.props.onChange(this.state.changes, this.state.data);
