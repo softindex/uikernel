@@ -67,7 +67,7 @@ class CreateForm extends React.Component {
                 placeholder="Alyx"
                 className="form-control"
                 onChange={this.form.updateField.bind(this.form, 'name')}
-                onFocus={this.form.clearError.bind(this.form, 'name')}
+                onFocus={this.form.clearValidation.bind(this.form, 'name')}
                 onBlur={this.form.validateForm}
                 value={this.state.fields.name.value}
               />
@@ -85,7 +85,7 @@ class CreateForm extends React.Component {
                 placeholder="Vance"
                 className="form-control"
                 onChange={this.form.updateField.bind(this.form, 'surname')}
-                onFocus={this.form.clearError.bind(this.form, 'surname')}
+                onFocus={this.form.clearValidation.bind(this.form, 'surname')}
                 onBlur={this.form.validateForm}
                 value={this.state.fields.surname.value}
               />
@@ -103,7 +103,7 @@ class CreateForm extends React.Component {
                 placeholder="555-0100"
                 className="form-control"
                 onChange={this.form.updateField.bind(this.form, 'phone')}
-                onFocus={this.form.clearError.bind(this.form, 'phone')}
+                onFocus={this.form.clearValidation.bind(this.form, 'phone')}
                 onBlur={this.form.validateForm}
                 value={this.state.fields.phone.value}
               />
@@ -120,7 +120,7 @@ class CreateForm extends React.Component {
                 placeholder="18"
                 className="form-control"
                 onChange={this.form.updateField.bind(this.form, 'age')}
-                onFocus={this.form.clearError.bind(this.form, 'age')}
+                onFocus={this.form.clearValidation.bind(this.form, 'age')}
                 onBlur={this.form.validateForm}
                 value={this.state.fields.age.value}
               />
@@ -139,7 +139,7 @@ class CreateForm extends React.Component {
                 ]}
                 className="form-control"
                 onChange={this.form.updateField.bind(this.form, 'gender')}
-                onFocus={this.form.clearError.bind(this.form, 'gender')}
+                onFocus={this.form.clearValidation.bind(this.form, 'gender')}
                 onBlur={this.form.validateForm}
                 value={this.state.fields.gender.value}
               />

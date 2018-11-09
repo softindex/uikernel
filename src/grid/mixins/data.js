@@ -644,30 +644,37 @@ const GridDataMixin = {
     }
   },
 
-  async _onRecordCreated(recordId) {
-    await this.updateTable();
-    const ids = Array.isArray(recordId) ? recordId : [recordId];
-    for (const id of ids) {
-      if (this._isRecordLoaded(id)) {
-        try {
-          await this._checkWarnings(this._getRowID(id));
-        } catch (e) {
-          if (!(e instanceof ThrottleError)) {
-            throw e;
-          }
-        }
-      }
+  /**
+   * Handler for "create" event of GridModel
+   *
+   * @param {*[]|*} recordIds
+   * @return {void}
+   * @private
+   */
+  _onRecordsCreated(recordIds) {
+    if (!Array.isArray(recordIds)) {
+      utils.warn('Not array recordsIds in "create" event is deprecated');
+      recordIds = [recordIds];
     }
-  },
 
-  _onRecordsCreated: function (recordsId) {
-    this.updateTable().then(() => {
-      recordsId.forEach(async (recordId) => {
-        if (this._isRecordLoaded(recordId)) {
-          await this._checkWarnings(this._getRowID(recordId));
-        }
-      });
-    });
+    this.updateTable().then(
+      Promise.all(
+        recordIds.map(async recordId => {
+          if (!this._isRecordLoaded(recordId)) {
+            return;
+          }
+
+          const rowId = this._getRowID(recordId);
+          try {
+            await this._checkWarnings(rowId);
+          } catch (e) {
+            if (!(e instanceof ThrottleError)) {
+              throw e;
+            }
+          }
+        })
+      )
+    );
   }
 };
 

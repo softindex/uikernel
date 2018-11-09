@@ -43,4 +43,9 @@
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
     * Validator could not work with field name `constructor`
     * Fixed merging of same fields in `ValidationErrors.prototype.merge` method
+    
+  ## Changes
+  
+  * Grid
+    * "create" event in GridModel has `Array` type
 </details>

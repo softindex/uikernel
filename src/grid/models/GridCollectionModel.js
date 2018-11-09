@@ -78,7 +78,7 @@ class GridCollectionModel extends AbstractGridModel {
     this.data = utils.cloneDeep(data);
 
     if (createdRecordsIds.length) {
-      this.trigger('create', createdRecordsIds);
+      this.trigger('create', [createdRecordsIds]);
     }
 
     if (deletedRecordsIds.length) {
@@ -315,7 +315,7 @@ class GridCollectionModel extends AbstractGridModel {
 
   _create(record, id) {
     this.data.push([id, record]);
-    this.trigger('create', id);
+    this.trigger('create', [id]);
     return id;
   }
 }

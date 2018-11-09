@@ -54,7 +54,7 @@ class GridXhrModel extends AbstractGridModel {
       throw ValidationErrors.createFromJSON(body.error);
     }
 
-    this.trigger('create', body.data);
+    this.trigger('create', [body.data]);
 
     return body.data;
   }

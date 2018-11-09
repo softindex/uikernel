@@ -70,7 +70,7 @@ class RecordForm extends React.Component {
                     type="text"
                     className="form-control"
                     onChange={this.form.updateField.bind(this.form, 'name')}
-                    onFocus={this.form.clearError.bind(this.form, 'name')}
+                    onFocus={this.form.clearValidation.bind(this.form, 'name')}
                     onBlur={this.form.validateForm}
                     value={this.state.form.fields.name.value}
                   />
@@ -84,7 +84,7 @@ class RecordForm extends React.Component {
                     type="text"
                     className="form-control"
                     onChange={this.form.updateField.bind(this.form, 'surname')}
-                    onFocus={this.form.clearError.bind(this.form,'surname')}
+                    onFocus={this.form.clearValidation.bind(this.form,'surname')}
                     onBlur={this.form.validateForm}
                     value={this.state.form.fields.surname.value}
                   />
@@ -98,7 +98,7 @@ class RecordForm extends React.Component {
                     type="text"
                     className="form-control"
                     onChange={this.form.updateField.bind(this.form, 'phone')}
-                    onFocus={this.form.clearError.bind(this.form,'phone')}
+                    onFocus={this.form.clearValidation.bind(this.form,'phone')}
                     onBlur={this.form.validateForm}
                     value={this.state.form.fields.phone.value}
                   />
@@ -112,7 +112,7 @@ class RecordForm extends React.Component {
                     type="number"
                     className="form-control"
                     onChange={this.form.updateField.bind(this.form, 'age')}
-                    onFocus={this.form.clearError.bind(this.form,'age')}
+                    onFocus={this.form.clearValidation.bind(this.form,'age')}
                     onBlur={this.form.validateForm}
                     value={this.state.form.fields.age.value}
                   />
@@ -129,7 +129,7 @@ class RecordForm extends React.Component {
                     ]}
                     className="form-control"
                     onChange={this.form.updateField.bind(this.form, 'gender')}
-                    onFocus={this.form.clearError.bind(this.form,'gender')}
+                    onFocus={this.form.clearValidation.bind(this.form,'gender')}
                     onBlur={this.form.validateForm}
                     value={this.state.form.fields.gender.value}
                   />
