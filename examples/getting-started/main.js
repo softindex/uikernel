@@ -25,3 +25,23 @@ const model = new UIKernel.Models.Grid.Collection({
     }]
   ]
 });
+
+const columns = {
+  name: {
+    name: 'First Name',
+    render: ['name', record => record.name]
+  },
+  surname: {
+    name: 'Last Name',
+    render: ['surname', record => record.surname]
+  },
+  age: {
+    name: 'Age',
+    render: ['age', record => record.age]
+  }
+};
+
+ReactDOM.render(
+  <UIKernel.Grid cols={columns} model={model}/>,
+  document.getElementById('example')
+);

@@ -7,7 +7,7 @@
  */
 
 import utils from '../../common/utils';
-import React from 'react';
+import DOM from 'react-dom-factories';
 
 const GridColumnsMixin = {
   /**
@@ -17,7 +17,7 @@ const GridColumnsMixin = {
    * @returns {boolean}   Column visibility
    * @private
    */
-  _isViewColumn: function (id) {
+  _isViewColumn(id) {
     if (!this.props.viewColumns) {
       return true;
     }
@@ -35,7 +35,7 @@ const GridColumnsMixin = {
    * @returns {Object} Formed data
    * @private
    */
-  _formHeader: function () {
+  _formHeader() {
     const rows = [[/* top */], [/* bottom */]];
     const colGroup = [];
     let lastParent = {name: ''};
@@ -47,7 +47,7 @@ const GridColumnsMixin = {
       }
 
       colGroup.push(
-        React.DOM.col({
+        DOM.col({
           key: columnId,
           width: this.props.cols[columnId].width,
           className: this._getColumnClass(columnId)
@@ -98,7 +98,7 @@ const GridColumnsMixin = {
    * @return {string[]}
    * @private
    */
-  _getFieldsToRender: function () {
+  _getFieldsToRender() {
     let i;
     const cols = this.props.cols;
     let columns = [];
@@ -115,7 +115,7 @@ const GridColumnsMixin = {
    * @return  {boolean}
    * @private
    */
-  _isFieldAffectsRender: function (field) {
+  _isFieldAffectsRender(field) {
     let i;
     const cols = this.props.cols;
     for (i in cols) {
@@ -127,27 +127,29 @@ const GridColumnsMixin = {
   },
 
   /**
-   * Get a dependent column
+   * Get dependent columns
    *
    * @param   {string}    field
    * @return  {string[]}
    * @private
    */
-  _getDependentColumns: function (field) {
-    let i;
-    const cols = this.props.cols;
-    const columns = [];
+  _getDependentColumns(field) {
+    const dependentColumns = [];
+    const dependencyFields = [
+      field,
+      ...this.props.model.getValidationDependency([field])
+    ];
 
-    for (i in cols) {
-      if (cols[i].render.indexOf(field) < 0) {
-        continue;
+    for (const [columnName, { render }] of Object.entries(this.props.cols)) {
+      if (render.some(renderField => dependencyFields.includes(renderField))) {
+        dependentColumns.push(columnName);
       }
-      columns.push(i);
     }
-    return columns;
+
+    return dependentColumns;
   },
 
-  _getColumnClass: function (id) {
+  _getColumnClass(id) {
     return this.props.cols[id].className;
   }
 };

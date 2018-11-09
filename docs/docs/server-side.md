@@ -5,7 +5,7 @@ prev: creating-records.html
 next: server-routes.html
 ---
 
-In this tutorial, we'll be writing a server-side part of the app which will use UIKernel.
+In this tutorial, we'll be writing an example of the server-side part of the app which will use UIKernel.
 We are going to use Node.js, Express and MySql.
 
 Our app will have the following structure:
@@ -22,7 +22,6 @@ Our app will have the following structure:
                 router.js
                 validation.js
         api.js
-        index.js
 package.json
 server.js
 {% endhighlight %}
@@ -34,17 +33,15 @@ First, we'll define packages in `package.json`.
 {
   "name": "uikernel-server-example",
   "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "body-parser": "^1.15.2",
-    "config": "^1.24.0",
-    "es6-promisify": "^5.0.0",
     "express": "^4.14.0",
     "mysql": "^2.12.0",
     "squel": "^5.5.0",
-    "uikernel": "git+ssh://git@github.com/softindex/uikernel.git#v0.17.0-dev18"
-  },
-  "scripts": {
-    "start": "node server.js"
+    "uikernel": "^0.17.0"
   }
 }
 {% endhighlight %}
@@ -55,10 +52,9 @@ Next, let's configure the server.
 
 `server.js`:
 {% highlight javascript %}
-import express from 'express';
-import bodyParser from 'body-parser';
-import config from '<your-config-module>';
-import api from './api';
+const express = require('express');
+const bodyParser = require('body-parser');
+const api = require('./api');
 
 // define our app using express
 const app = express();
@@ -76,12 +72,12 @@ app.use('/api', api);
 // define error handling middleware
 app.use((err, req, res, next) => {
   console.error(err);
-  var statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || 500;
   res.sendStatus(statusCode);
 });
 
 // set our port
-const port = process.env.PORT || config.get('defaultPort');
+const port = process.env.PORT || 8000;
 
 // start the server
 app.listen(port, () => {
@@ -92,18 +88,20 @@ app.listen(port, () => {
 In the next section of the tutorial, we'll define routes for our app.
 
 The client-side part of the app is similar to the one described in the previous part of the tutorial,
-the only difference is that the data model at the client-side part will be an instance of UIKernel.Models.Grid.Xhr
+the only difference is that the data model on the client-side part will be an instance of UIKernel.Models.Grid.Xhr
 instead of UIKernel.Models.Grid.Collection, so that the client-side part will fetch grid data and synchronize it
 with the server's model:
 
 `client/js/model/model.js`
 {% highlight javascript %}
+const UIKernel = require('uikernel');
+
 const model = new UIKernel.Models.Grid.Xhr({
   api: '/api/records',
   validator,
 });
 
-// do not forget to define delete method for UserGridModel
+// do not forget to define a delete method for UserGridModel
 model.deleteItem = async function (recordId) {
   await this._xhr({
     method: 'DELETE',

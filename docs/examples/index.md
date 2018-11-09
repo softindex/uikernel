@@ -26,8 +26,4 @@ id: examples
 2. Dynamic columns - [Demo](/examples/dynamic-columns){:target='_blank'}, [Source](/docs/dynamic-columns.html)
 3. Bulk operations - [Demo](/examples/bulk-operations){:target='_blank'}, [Source](/docs/bulk-operations.html)
 4. Suggestbox - [Demo](/examples/suggest-box){:target='_blank'}, [Source](/docs/suggest-box.html)
-
-### Reports
-
-1. Reports - [Demo](/examples/reports){:target='_blank'}, [Source](/docs/reports-example.html)
-2. Reports demo - [Demo](/examples/reports-demo){:target='_blank'}
+5. Final Example - [Demo](/examples/final-example){:target='_blank'}, [Source]({{ site.github }}/examples/final-example){:target="_blank"}

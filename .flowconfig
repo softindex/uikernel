@@ -1,0 +1,9 @@
+[ignore]
+<PROJECT_ROOT>/node_modules/.*
+
+[options]
+include_warnings=true
+emoji=true
+max_header_tokens=1
+munge_underscores=true
+suppress_type=$FlowTODO

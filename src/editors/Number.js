@@ -10,18 +10,19 @@ import floatValidator from '../common/validation/rules/float';
 import utils from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const isInvalidFloat = floatValidator(null, null, true);
 
 class NumberEditor extends React.Component {
   static propTypes = {
-    onChange: React.PropTypes.func.isRequired,
-    value: React.PropTypes.oneOfType([
+    onChange: PropTypes.func.isRequired,
+    value: PropTypes.oneOfType([
+      PropTypes.number,
       // String should be allowed, because when we start typing negative number,
       // there is appearing a warning in console after '-' symbol
-      React.PropTypes.string,
-      React.PropTypes.number,
-    ]),
+      PropTypes.string
+    ])
   };
 
   constructor(props) {
@@ -33,7 +34,7 @@ class NumberEditor extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (!utils.isEqual(this.state.value, nextProps.value)) {
-      findDOMNode(this.refs.input).value = this.state.value = nextProps.value;
+      findDOMNode(this.input).value = this.state.value = nextProps.value;
     }
   }
 
@@ -51,25 +52,14 @@ class NumberEditor extends React.Component {
     this.props.onChange(this.state.value);
   }
 
-  _onKeyPressHandler(e) {
-    const keyCode = e.keyCode || e.which;
-    const char = String.fromCharCode(keyCode);
-
-    // Problem in FireFox. Allow write only numbers
-    if (!/\d|\+|-|[Ee]|\./.test(char)) {
-      e.preventDefault();
-    }
-  }
-
   render() {
     return (
       <input
         step="any"
         {...utils.omit(this.props, 'value')}
         type="number"
-        ref="input"
-        onChange={this::this._onChangeHandler}
-        onKeyPress={this::this._onKeyPressHandler}
+        ref={(input) => this.input = input}
+        onChange={::this._onChangeHandler}
         defaultValue={this.props.value}
       />
     );

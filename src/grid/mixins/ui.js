@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
 import toPromise from '../../common/toPromise';
 import utils from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 import ThrottleError from '../../common/ThrottleError';
+import classNames from 'classnames';
 
 const GridUIMixin = {
   /**
@@ -19,19 +19,23 @@ const GridUIMixin = {
    *
    * @param {Event} event
    */
-  _handleBodyClick: function (event) {
-    const $target = $(event.target);
-    const $refParent = $target.parents('[ref]');
+  _handleBodyClick(event) {
+    const target = event.target;
+    const refParent = utils.parents(target, '[ref]')[0];
+
     let element;
 
-    if ($target.hasClass('dgrid-cell')) {
+    if (target.classList.contains('dgrid-cell')) {
       element = event.target;
     } else {
-      element = $target.parents('td.dgrid-cell').get(0);
+      element = utils.parents(target, 'td.dgrid-cell')[0];
     }
 
-    if (element && !$refParent.attr('disabled')) {
-      this._handleCellClick(event, element, $refParent.attr('ref') || event.target.getAttribute('ref'));
+    if (
+      element
+      && !(refParent && refParent.hasAttribute('disabled'))
+    ) {
+      this._handleCellClick(event, element, (refParent || event.target).getAttribute('ref'));
     }
   },
 
@@ -42,12 +46,12 @@ const GridUIMixin = {
    * @param {HTMLElement}     element     Cell DOM element
    * @param {string}          ref         Click handler name in the table configuration
    */
-  _handleCellClick: function (event, element, ref) {
-    const colId = $(element).attr('key');
-    const row = $(element).parent().attr('key');
+  _handleCellClick(event, element, ref) {
+    const colId = element.getAttribute('key');
+    const row = element.parentNode.getAttribute('key');
     const columnConfig = this.props.cols[colId];
     const recordId = this.state.recordsInfo[row].id;
-    const record = this._getRecord(row);
+    const record = this._getRecordWithChanges(row);
 
     // Trigger click handler on the table configuration
     if (ref) {
@@ -63,10 +67,10 @@ const GridUIMixin = {
   },
 
   // TODO Deprecated
-  _handleHeaderCellClick: function (col, event) {
-    const $target = $(event.target);
-    const $refParent = $target.parents('[ref]');
-    const ref = $refParent.attr('ref') || event.target.getAttribute('ref');
+  _handleHeaderCellClick(col, event) {
+    const target = event.target;
+    const refParent = utils.parents(target, '[ref]')[0];
+    const ref = (refParent || target).getAttribute('ref');
     let handler;
 
     if (ref && col.onClickRefs) {
@@ -84,8 +88,8 @@ const GridUIMixin = {
   /**
    * Fetch server data
    */
-  updateTable: callbackify(async function () {
-    this._showLoader(true);
+  updateTable: async function () {
+    this.setState({showLoader: true});
 
     if (!this.props.model) {
       return;
@@ -128,39 +132,24 @@ const GridUIMixin = {
 
     const data = this._dataArrayToObject(obj.records);
     const extra = this._dataArrayToObject(obj.extraRecords || []);
-    const rowIds = Object.keys(data.records).concat(Object.keys(extra.records)).map(utils.toEncodedString);
-    const encodeKey = (value, key) => utils.toEncodedString(key);
+    const recordIds = Object.keys(data.records).concat(Object.keys(extra.records));
 
     await toPromise(this.setState.bind(this), true)({
-      data: utils.mapKeys(Object.assign({}, data.records, extra.records), encodeKey),
-      mainIds: Object.keys(data.records).map(utils.toEncodedString),
+      data: Object.assign({}, data.records, extra.records),
+      mainIds: Object.keys(data.records),
       count: obj.count,
       totals: obj.totals,
-      recordsInfo: utils.mapKeys(Object.assign({}, extra.info, data.info), encodeKey),
-      errors: utils.pick(this.state.errors, rowIds),
-      changes: utils.pick(this.state.changes, rowIds),
-      statuses: utils.pick(this.state.statuses, rowIds)
+      recordsInfo: Object.assign({}, extra.info, data.info),
+      errors: utils.pick(this.state.errors, recordIds),
+      changes: utils.pick(this.state.changes, recordIds),
+      statuses: utils.pick(this.state.statuses, recordIds)
     });
 
     this._renderBody();
-    this._showLoader(false);
-  }),
-
-  /**
-   * Show/hide loading icon
-   *
-   * @param {boolean} show True - Show, False - Hide
-   * @private
-   */
-  _showLoader: function (show) {
-    if (show) {
-      $(findDOMNode(this.refs.loader)).addClass('dgrid-loader');
-    } else {
-      $(findDOMNode(this.refs.loader)).removeClass('dgrid-loader');
-    }
+    this.setState({showLoader: false});
   },
 
-  _getHeaderCellHTML: function (columnName) {
+  _getHeaderCellHTML(columnName) {
     const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
     if (cellHtml === undefined) {
       return '';
@@ -168,7 +157,7 @@ const GridUIMixin = {
     return cellHtml;
   },
 
-  _escapeRecord: function (columnId, record) {
+  _escapeRecord(columnId, record) {
     let field;
     let type;
     let i;
@@ -190,10 +179,10 @@ const GridUIMixin = {
         if (type === 'object' && record[field] && !this.state.colsWithEscapeErrors[columnId]) {
           this.state.colsWithEscapeErrors[columnId] = true;
           console.error(
-            `UIKernel.Grid warning: 
-You send record with fields of Object type in escaped column "${columnId}". 
-To use Objects, set column config "escape" to false, 
-and escape "${columnId}" field in render function by yourself`
+            `UIKernel.Grid warning: ` +
+            `You send record with fields of Object type in escaped column "${columnId}". ` +
+            `To use Objects, set column config "escape" to false, ` +
+            `and escape "${columnId}" field in render function by yourself`
           );
         }
       }
@@ -207,38 +196,54 @@ and escape "${columnId}" field in render function by yourself`
   /**
    * Get table cell HTML
    *
-   * @param   {number}    columnId  Column ID
-   * @param   {Object}    record    Table record
-   * @param   {bool}      selected  "Selected" row status
-   * @returns {string}    Table cell HTML
+   * @param   {number}   columnId       Column ID
+   * @param   {Object}   record         Table record (initial record + changes)
+   * @param   {boolean}  selected       "Selected" row status
+   * @param   {Object}   initialRecord  Initial record
+   * @returns {string}   Table cell HTML
    * @private
    */
-  _getCellHTML: function (columnId, record, selected) {
+  _getCellHTML(columnId, record, selected, initialRecord) {
     const render = utils.last(this.props.cols[columnId].render);
-    const cellHtml = render(this._escapeRecord(columnId, record), selected);
+    const cellHtml = render(
+      this._escapeRecord(columnId, record),
+      selected,
+      this._escapeRecord(columnId, initialRecord)
+    );
     return `${utils.isDefined(cellHtml) ? cellHtml : ''}`;
   },
 
   /**
    * Get table row HTML
    *
-   * @param       {number}    row         Row ID
+   * @param       {number}    rowId         Row ID
    * @param       {string}    className   <TR> class attribute
    * @returns     {string}    Table row HTML
    * @private
    */
-  _getRowHTML: function (row, className) {
+  _getRowHTML(rowId, className) {
     let colId;
-    const record = this._getRecord(row);
-    const selected = this.isSelected(this.state.recordsInfo[row].id);
-    let html = `<tr key="${row}" class="` +
-      (className || '') +
-      ' ' + this._getRowStatusNames(row).join(' ') +
-      ' ' + (selected ? 'dgrid__row_selected' : '') +
-      '">';
-    for (colId in this.props.cols) {
+    const record = this._getRecordWithChanges(rowId);
+    const initialRecord = this.state.data[rowId] || null;
+    const selected = this.isSelected(this.state.recordsInfo[rowId].id);
+    const gridRowClass = classNames(
+      className,
+      this._getRowStatusNames(rowId).join(' '),
+      {'dgrid__row_selected': selected}
+    );
+    let html = `<tr key="${rowId}" class="${gridRowClass}">`;
+    for (colId of Object.keys(this.props.cols)) {
       if (this._isViewColumn(colId)) {
-        html += `<td key="${colId}" class="dgrid-cell${this._getColumnClass(colId) ? ' ' + this._getColumnClass(colId) : ''}${this._isChanged(row, this._getBindParam(colId)) ? ' dgrid-changed' : ''}${this._hasError(row, this._getBindParam(colId)) ? ' dgrid-error' : ''}${this._hasWarning(row, this._getBindParam(colId)) ? ' dgrid-warning' : ''}">${this._getCellHTML(colId, record, selected)}</td>`;
+        const gridCellClass = classNames(this._getColumnClass(colId), {
+          'dgrid-cell': true,
+          'dgrid-changed': this._isChanged(rowId, this._getBindParam(colId)),
+          'dgrid-error': this._hasError(rowId, this._getBindParam(colId)),
+          'dgrid-warning': this._hasWarning(rowId, this._getBindParam(colId))
+        });
+        html += `
+          <td key="${colId}" class="${gridCellClass}">
+            ${this._getCellHTML(colId, record, selected, initialRecord)}
+          </td>`;
       }
     }
     return `${html}</tr>`;
@@ -249,7 +254,7 @@ and escape "${columnId}" field in render function by yourself`
    *
    * @private
    */
-  _renderBody: function () {
+  _renderBody() {
     if (!this.state.data) {
       return;
     }
@@ -269,7 +274,7 @@ and escape "${columnId}" field in render function by yourself`
       }
     }
 
-    findDOMNode(this.refs.tbody).innerHTML = htmlExtra + htmlBody;
+    this.tBody.innerHTML = htmlExtra + htmlBody;
   },
 
   /**
@@ -279,26 +284,27 @@ and escape "${columnId}" field in render function by yourself`
    * @param {string} param    Model parameter
    * @private
    */
-  _renderBinds: function (row, param) {
+  _renderBinds(row, param) {
     // If parameter does not affect on the redraw, do nothing
     if (!this._isFieldAffectsRender(param)) {
       return;
     }
 
-    this._getDependentColumns(param).forEach(function (column) {
+    const selected = this.isSelected(this.state.recordsInfo[row].id);
+
+    // Update column dependencies
+    for (const column of this._getDependentColumns(param)) {
       if (this._isViewColumn(column) && !this._isEditorVisible(row, column)) {
-        this._updateField(row, column);
+        this._renderCell(row, column, selected);
       }
-    }, this);
+    }
   },
 
-  _removeTR: function (rowId) {
-    $(findDOMNode(this.refs.body))
-      .find(`tr[key="${rowId}"]`)
-      .remove();
+  _removeTR(rowId) {
+    findDOMNode(this.body).removeRow(rowId);
   },
 
-  _renderTotals: function _renderTotals(isScrollable) {
+  _renderTotals(isScrollable) {
     let totalsDisplayed = false;
     let i;
     let className;
@@ -307,7 +313,7 @@ and escape "${columnId}" field in render function by yourself`
 
     // If data for result line display exists, form it
     if (this.state.totals) {
-      for (i in this.props.cols) {
+      for (i of Object.keys(this.props.cols)) {
         if (!this._isViewColumn(i)) {
           continue;
         }
@@ -320,7 +326,7 @@ and escape "${columnId}" field in render function by yourself`
         }
 
         if (this.state.totals.hasOwnProperty(i)) {
-          totalsRowHTML += this._getCellHTML(i, this.state.totals, false);
+          totalsRowHTML += this._getCellHTML(i, this.state.totals, false, this.state.totals);
           totalsDisplayed = true;
         }
 
@@ -348,21 +354,32 @@ and escape "${columnId}" field in render function by yourself`
     );
   },
 
-  _updateField: function (rowId, column) {
-    $(findDOMNode(this.refs.body))
-      .find(`tr[key="${rowId}"]`)
-      .find(`td[key=${column}]`)
-      .html(this._getCellHTML(column, this._getRecord(rowId)))
-      .removeClass('dgrid-changed dgrid-error dgrid-warning')
-      .addClass(`${this._isChanged(
-        rowId,
-        this._getBindParam(column)) ? 'dgrid-changed' : ''}`)
-      .addClass(`${this._hasError(
-        rowId,
-        this._getBindParam(column)) ? 'dgrid-error' : ''}`)
-      .addClass(`${this._hasWarning(
-        rowId,
-        this._getBindParam(column)) ? 'dgrid-warning' : ''}`);
+  _renderCell(rowId, column, isSelected) {
+    const cell = findDOMNode(this.body).querySelector(`tr[key="${rowId}"] td[key=${column}]`);
+    const initialRecord = this.state.data[rowId] || null;
+
+    const cellHTML = this._getCellHTML(column, this._getRecordWithChanges(rowId), isSelected, initialRecord);
+
+    try {
+      cell.innerHTML = cellHTML;
+    } catch (e) {
+      // Sometimes it is possible a situation when rerendering of the cell is called in the middle of performing of an
+      // event in that cell which may cause an error like "DOMException: The node to be removed is no longer a child
+      // of this node", so just ignore it
+    }
+
+    cell.classList.remove('dgrid-changed', 'dgrid-error', 'dgrid-warning');
+    const cellClassList = [];
+    if (this._isChanged(rowId, this._getBindParam(column))) {
+      cellClassList.push('dgrid-changed');
+    }
+    if (this._hasError(rowId, this._getBindParam(column))) {
+      cellClassList.push('dgrid-error');
+    }
+    if (this._hasWarning(rowId, this._getBindParam(column))) {
+      cellClassList.push('dgrid-warning');
+    }
+    cell.classList.add(...cellClassList);
   },
 
   async _updateRow(row) {
@@ -371,7 +388,14 @@ and escape "${columnId}" field in render function by yourself`
     }
 
     if (this.state.data[row]) {
-      this._renderBody();
+      const selected = this.isSelected(this.state.recordsInfo[row].id);
+      const viewColumns = Object.keys(this.props.cols).filter(this._isViewColumn);
+
+      for (const viewColumn of viewColumns) {
+        if (!this._isEditorVisible(row, viewColumn)) {
+          this._renderCell(row, viewColumn, selected);
+        }
+      }
     } else {
       await this.updateTable(); // TODO Check is it need
     }

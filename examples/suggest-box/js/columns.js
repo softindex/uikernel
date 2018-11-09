@@ -11,8 +11,8 @@ const columns = {
     width: '40px',
     render: [() => '<button ref="edit" class="btn btn-outline btn-success btn-xs"><i class="fa fa-pencil"></i></button>'],
     onClickRefs: {
-      edit: (function (e, recordId, record, grid) {
-        var editPopup = popup.open(Form, {
+      edit(e, recordId, record, grid) {
+        const editPopup = popup.open(Form, {
           model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),
           changes: grid.getRecordChanges(recordId),
           onSubmit: () => {
@@ -20,7 +20,7 @@ const columns = {
             grid.clearRecordChanges(recordId);
           }
         });
-      })
+      }
     }
   },
   name: {

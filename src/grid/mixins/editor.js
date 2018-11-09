@@ -28,8 +28,7 @@ const GridEditorMixin = {
    */
   _renderEditor: function (element, row, column) {
     const binds = this._getBindParam(column);
-    const record = this._getRecord(row);
-    const $element = $(element);
+    const record = this._getRecordWithChanges(row);
     let value = utils.at(record, binds);
     let focusDone = false;
 
@@ -61,30 +60,17 @@ const GridEditorMixin = {
         // Remove Editor
         if (focusDone) {
           this._unmountEditor(element, row, column);
-          this._onBlurEditor(row, column);
+          this._onBlurEditor(row);
         }
       },
       onKeyUp: (e) => {
         if (focusDone && [ENTER_KEY, ESCAPE_KEY].includes(e.keyCode)) {
-          this._unmountEditor(element, row, column);
-
-          if (e.keyCode === ENTER_KEY) {
-            this._onBlurEditor(row, column);
-          }
-
           if (e.keyCode === ESCAPE_KEY) {
-            if (this.state.data[row][column] !== value) {
-              this._setRowChanges(row, {[column]: value});
-              this._validateRow(row);
-              return;
-            }
-
-            if (this.state.changes[row]) {
-              delete this.state.changes[row][column];
-            }
-
-            this._updateField(row, column);
+            this._setRowChanges(row, { [column]: value });
           }
+
+          this._unmountEditor(element, row, column);
+          this._onBlurEditor(row);
         }
       },
       value: value
@@ -93,14 +79,14 @@ const GridEditorMixin = {
     editorContext.props = props;
 
     // Display Editor
-    const Component = this.props.cols[column].editor.call(editorContext, record);
+    const Component = this.props.cols[column].editor.call(editorContext, record, this);
 
     if (!Component) {
       return;
     }
 
     this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element, function () {
-      $element.addClass('dgrid-input-wrapper');
+      element.classList.add('dgrid-input-wrapper');
 
       if (typeof this.focus === 'function') {
         this.focus();
@@ -114,7 +100,10 @@ const GridEditorMixin = {
   _unmountEditor(element, row, column) {
     ReactDOM.unmountComponentAtNode(element);
     delete this.state.editor[`${row}_${column}`];
-    $(element).removeClass('dgrid-input-wrapper');
+    element.classList.remove('dgrid-input-wrapper');
+
+    const selected = this.isSelected(this.state.recordsInfo[row].id);
+    this._renderCell(row, column, selected);
   },
 
   _onChangeEditor: function (row, column, values, editorContext, element) {
@@ -122,10 +111,10 @@ const GridEditorMixin = {
 
     values = utils.cloneDeep(utils.parseValueFromEvent(values));
 
-    const record = this._getRecord(row);
+    const record = this._getRecordWithChanges(row);
     const context = utils.cloneDeep(editorContext);
     context.props.value = values;
-    const Component = this.props.cols[column].editor.call(context, record);
+    const Component = this.props.cols[column].editor.call(context, record, this);
     this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element);
 
     if (!Array.isArray(binds)) {
@@ -154,8 +143,7 @@ const GridEditorMixin = {
     }
   },
 
-  async _onBlurEditor(row, column) {
-    this._updateField(row, column);
+  async _onBlurEditor(row) {
     try {
       await this._checkWarnings(row);
     } catch (e) {
@@ -171,7 +159,13 @@ const GridEditorMixin = {
       }
       this.save(this.props.onRealtimeSubmit);
     } else {
-      this._validateRow(row);
+      try {
+        await this._validateRow(row);
+      } catch (e) {
+        if (!(e instanceof ThrottleError)) {
+          throw e;
+        }
+      }
     }
     if (this.props.onChange) {
       this.props.onChange(this.state.changes, this.state.data);

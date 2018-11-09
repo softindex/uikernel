@@ -17,14 +17,14 @@ class MainComponent extends React.Component {
   }
 
   saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(function () {
         alert('Error');
       });
   }
 
   clearChanges() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
@@ -37,18 +37,18 @@ class MainComponent extends React.Component {
               model={this.state.model} // Grid model
               cols={columns} // columns configuration
               viewCount={10}
-              realtime={true}
+              autoSubmit={true}
             />
           </div>
           <div className="col-sm-6">
             <h3>Grid without autosave</h3>
             <UIKernel.Grid
-              ref="grid"
+              ref={(grid) => this.grid = grid}
               model={this.state.model}
               cols={columns}
               viewCount={10}
             />
-            <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+            <a className="btn btn-default" onClick={this.clearChanges}>Clear</a>
             {' '}
             <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
           </div>

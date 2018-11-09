@@ -6,21 +6,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../common/toPromise';
 import React from 'react';
+import PropTypes from 'prop-types';
 import utils from '../common/utils';
 
 class SelectEditor extends React.Component {
   static propTypes = {
-    options: React.PropTypes.array,
-    model: React.PropTypes.shape({
-      read: React.PropTypes.func
+    options: PropTypes.array, // shape: [[value, label, props], ...] or [label1, label2, ...]
+    //                           `props` will be passed to each corresponding <option />
+    model: PropTypes.shape({
+      read: PropTypes.func
     }),
-    disabled: React.PropTypes.bool,
-    onChange: React.PropTypes.func.isRequired,
-    onLabelChange: React.PropTypes.func,
-    value: React.PropTypes.any
+    disabled: PropTypes.bool,
+    onChange: PropTypes.func.isRequired,
+    onLabelChange: PropTypes.func,
+    value: PropTypes.any
   };
+
   static defaultProps = {
     options: []
   };
@@ -35,7 +37,7 @@ class SelectEditor extends React.Component {
 
   componentDidMount() {
     if (this.props.model) {
-      toPromise(this.props.model.read.bind(this.props.model))('')
+      this.props.model.read('')
         .then(data => {
           data.unshift([null, '']);
 
@@ -73,16 +75,19 @@ class SelectEditor extends React.Component {
 
     return (
       <select
-        {...utils.omit(this.props, 'value')}
+        {...utils.omit(this.props, ['value', 'options'])}
         value={valueIndex}
         onChange={this::this.handleChange}
         disabled={this.props.disabled || this.state.loading}
       >
-        {options.map((item, index) => (
-          <option key={index} value={index}>
-            {item instanceof Array ? item[1] : item}
-          </option>
-        ), this)}
+        {options.map((item, index) => {
+          const optionProps = ((item instanceof Array) && (item[2] instanceof Object)) ? item[2] : {};
+          return (
+            <option key={index} value={index} {...optionProps}>
+              {item instanceof Array ? item[1] : item}
+            </option>
+          );
+        })}
       </select>
     );
   }

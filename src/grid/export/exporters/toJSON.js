@@ -6,9 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../../common/callbackify';
-
-const toJSON = callbackify(async function toJSON(data) {
+async function toJSON(data) {
   return {
     mime: 'application/json',
     data: {
@@ -16,6 +14,6 @@ const toJSON = callbackify(async function toJSON(data) {
       totals: data.totals
     }
   };
-});
+}
 
 export default toJSON;

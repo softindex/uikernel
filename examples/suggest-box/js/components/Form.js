@@ -60,20 +60,22 @@ class Form extends React.Component {
           <div className="modal-body">
             <form>
               <table className="table my-form">
-                <tr
-                  className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.errors.hasError('country') ? ' error' : '')}
-                >
-                  <td>Country:</td>
-                  <td>
-                    <UIKernel.Editors.SuggestBox
-                      model={countries}
-                      onChange={this.form.validateField.bind(this.form, 'country')}
-                      onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
-                      select={true}
-                      value={this.state.form.data.country}
-                    />
-                  </td>
-                </tr>
+                <tbody>
+                  <tr
+                    className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.fields.country.errors ? ' error' : '')}
+                  >
+                    <td>Country:</td>
+                    <td>
+                      <UIKernel.Editors.SuggestBox
+                        model={countries}
+                        onChange={this.form.validateField.bind(this.form, 'country')}
+                        onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
+                        select={true}
+                        value={this.state.form.data.country}
+                      />
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </form>
           </div>

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash -l
 
-gulp buildSite
-cd _site
-jekyll serve
+rm -rf _site\
+  && npm run build -- buildSite\
+  && cd _site\
+  && jekyll serve

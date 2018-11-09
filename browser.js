@@ -7,13 +7,13 @@
  */
 
 if (!global._babelPolyfill) {
-  require('babel-polyfill');
+  require('@babel/polyfill');
 }
 
 require('./lib/common/setImmediate');
-const variables = require('./lib/common/variables');
+var variables = require('./lib/common/variables');
 
-const Module = {
+var Module = {
   applyGridFilters: require('./lib/grid/models/applyGridFilters'),
   Grid: require('./lib/grid/Component'),
   Form: require('./lib/form/FormService'),
@@ -22,6 +22,7 @@ const Module = {
   createXhrValidator: require('./lib/common/validation/validators/XhrValidator').create,
   exportGridData: require('./lib/grid/export/exportGridData'),
   toJSON: require('./lib/grid/export/exporters/toJSON'),
+  ValidationErrors: require('./lib/common/validation/ValidationErrors'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
@@ -30,7 +31,7 @@ const Module = {
     Events: require('./lib/common/Events'),
     Form: require('./lib/form/FormModel'),
     FormXhr: require('./lib/form/FormXhrModel'),
-    ValidationErrors: require('./lib/common/validation/ValidationErrors'),
+    ValidationErrors: require('./lib/common/validation/ValidationErrors'), // Deprecated. Use UIKernel.ValidationErrors
     List: {
       Xhr: require('./lib/list/ListXhrModel')
     }

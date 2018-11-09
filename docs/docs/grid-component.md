@@ -5,7 +5,7 @@ prev: list-express-api.html
 next: grid-columns.html
 ---
 
-Grid is a simple React component with huge capabilities 
+Grid is a simple React component with huge capabilities
 which helps to create data driven spreadsheets with capabilities of:
 
 * [Sorting and pagination](/examples/sorting-and-pagination/){:target="_blank"}
@@ -18,7 +18,7 @@ which helps to create data driven spreadsheets with capabilities of:
 
 {% highlight html tabsize=2 %}
   <UIKernel.Grid
-    ref="grid"
+    ref={(grid) => this.grid = grid}
     model={model}
     cols={columns}
     viewColumns={viewColumns}
@@ -151,7 +151,7 @@ which helps to create data driven spreadsheets with capabilities of:
   grid.set(recordId, data);
 {% endhighlight %}
 
-Change grid record. The method marks changed fields and validates them. 
+Change grid record. The method marks changed fields and validates them.
 If `autoSubmit` is turned on, method `grid.save()` will be called.
 
 **Parameters**:
@@ -177,7 +177,7 @@ Get record data by `recordId`. If the record has changes the result data will co
 |----------|----------------|----------------------------------------------------|
 | Any      | recordId       | *Required*. ID of the record to get data of        |
 
-**Returns**: *Object* with record data which has the following structure: 
+**Returns**: *Object* with record data which has the following structure:
              `{field1: 'value1', ..., fieldN: 'valueN'}`.
 
 ---
@@ -196,7 +196,7 @@ Get record changes by `recordId`. If the record has no changes an empty object w
 |----------|----------------|----------------------------------------------------|
 | Any      | recordId       | *Required*. ID of the record to get changes of        |
 
-**Returns**: *Object* with record changes which has the following structure: 
+**Returns**: *Object* with record changes which has the following structure:
              `{field1: 'changes1', ..., fieldN: 'changesN'}`.
 
 ---
@@ -227,7 +227,7 @@ Get validation errors of the record with specified `recordId`.
 
 Get validation errors of all grid records.
 
-**Returns**: `null` if there is no errors else *Array* of record entries in format: 
+**Returns**: `null` if there is no errors else *Array* of record entries in format:
 [['recId1', validationErrorsInstance1], ..., ['recIdN', validationErrorsInstanceN]].
 
 ---
@@ -250,9 +250,9 @@ Get grid model(which was passed to the grid as `props.model`).
   const result = await grid.save();
 {% endhighlight %}
 
-Save grid changes: calls `props.model.update` with current grid changes and resolves it's response. 
-If the result of that call contains ValidationErrors, they will be added to internal errors list. 
-Successfully saved changes will be cleared form changes list. 
+Save grid changes: calls `props.model.update` with current grid changes and resolves it's response.
+If the result of that call contains ValidationErrors, they will be added to internal errors list.
+Successfully saved changes will be cleared form changes list.
 
 **Returns**: promise which resolves with response from `props.model.update`.
 
@@ -300,10 +300,10 @@ Reset grid to its initial state: set page = 1 and reset sorting.
   grid.handleChangeViewCount(event);
 {% endhighlight %}
 
-Event handler of displayed rows count change in a grid. 
-The method is useful if you would like to implement your own 
-component for selecting amount of records per page, 
-so you would add this event handler to your component and when 
+Event handler of displayed rows count change in a grid.
+The method is useful if you would like to implement your own
+component for selecting amount of records per page,
+so you would add this event handler to your component and when
 it is called the grid will perform the event.
 
 **Parameters**:
@@ -320,9 +320,9 @@ it is called the grid will perform the event.
   grid.handleFirstPage(event);
 {% endhighlight %}
 
-Event handler of moving to the first page in the grid pagination. 
-The method is useful if you'd like to implement your own grid pagination, 
-so you would add this event handler to your component and when 
+Event handler of moving to the first page in the grid pagination.
+The method is useful if you'd like to implement your own grid pagination,
+so you would add this event handler to your component and when
 it is called the grid will perform the event.
 
 **Parameters**:
@@ -339,10 +339,10 @@ it is called the grid will perform the event.
   grid.handleLastPage(event);
 {% endhighlight %}
 
-Event handler of moving to the last page in the grid pagination. 
-The method is useful if you'd like to implement your own grid pagination, 
-so you would add this event handler to your component and when 
-it is called the grid will perform the event. 
+Event handler of moving to the last page in the grid pagination.
+The method is useful if you'd like to implement your own grid pagination,
+so you would add this event handler to your component and when
+it is called the grid will perform the event.
 
 **Parameters**:
 
@@ -358,10 +358,10 @@ it is called the grid will perform the event.
   grid.handlePrevPage(event);
 {% endhighlight %}
 
-Event handler of moving to the previous page in the grid pagination. 
-The method is useful if you'd like to implement your own grid pagination, 
-so you would add this event handler to your component and when 
-it is called the grid will perform the event. 
+Event handler of moving to the previous page in the grid pagination.
+The method is useful if you'd like to implement your own grid pagination,
+so you would add this event handler to your component and when
+it is called the grid will perform the event.
 
 **Parameters**:
 
@@ -377,10 +377,10 @@ it is called the grid will perform the event.
   grid.handleNextPage(event);
 {% endhighlight %}
 
-Event handler of moving to the next page in the grid pagination. 
-The method is useful if you'd like to implement your own grid pagination, 
-so you would add this event handler to your component and when 
-it is called the grid will perform the event. 
+Event handler of moving to the next page in the grid pagination.
+The method is useful if you'd like to implement your own grid pagination,
+so you would add this event handler to your component and when
+it is called the grid will perform the event.
 
 **Parameters**:
 
@@ -409,7 +409,7 @@ Get current page index (pagination item number) (numeration from 0).
 {% endhighlight %}
 
 Get overall number of records in the grid
-(including all pagination pages, even if those pages aren't fetched yet). 
+(including all pagination pages, even if those pages aren't fetched yet).
 
 **Returns**: `Number`. If the grid has no records the method will return `0`.
 
@@ -431,7 +431,7 @@ Set current page index(pagination item number) (numeration from 0).
   grid.setViewCount(viewCount);
 {% endhighlight %}
 
-Set number of displayed elements(table rows) for each page. 
+Set number of displayed elements(table rows) for each page.
 
 > This method is only available if `props.viewCount` isn't set.
 
@@ -461,9 +461,9 @@ Get number of pages in pagination.
   grid.sort(string field, string direction)
 {% endhighlight %}
 
-Add sorting of grid records by specified `field` in specified `direction`: 
-if `props.multipleSorting` is set - the specified rule will be added to an internal sorting queue, 
-else an internal sorting queue will be set to the specified rule. 
+Add sorting of grid records by specified `field` in specified `direction`:
+if `props.multipleSorting` is set - the specified rule will be added to an internal sorting queue,
+else an internal sorting queue will be set to the specified rule.
 The grid will be rerenderead and `props.onSorting` will be called afterwards.
 
 > This method is only available if `props.sort` isn't set.
@@ -487,9 +487,9 @@ The grid will be rerenderead and `props.onSorting` will be called afterwards.
 
 Get current sorting rules.
 
-**Returns**: `null` if no sorting rules is set, 
-else returns `object` if `props.multipleSorting` isn't set 
-else returns `object[]` with sorting rules. 
+**Returns**: `null` if no sorting rules is set,
+else returns `object` if `props.multipleSorting` isn't set
+else returns `object[]` with sorting rules.
 The object will consist of fields "column" and "direction".
 
 ---
@@ -500,7 +500,7 @@ The object will consist of fields "column" and "direction".
   grid.resetSorting();
 {% endhighlight %}
 
-Reset sorting rules to default parameters(`props.defaultSort`). 
+Reset sorting rules to default parameters(`props.defaultSort`).
 Calls `props.onSorting` and rerenders grid table afterwards.
 
 > This method is only available if `props.sort` isn't set.
@@ -513,7 +513,7 @@ Calls `props.onSorting` and rerenders grid table afterwards.
   grid.addRecordStatus(recordId, status);
 {% endhighlight %}
 
-Add record status(the status will be stored in internal hash map 
+Add record status(the status will be stored in internal hash map
 and it will be set className with the `status` value to the corresponding row in the grid).
 
 **Parameters**:
@@ -532,7 +532,7 @@ and it will be set className with the `status` value to the corresponding row in
 {% endhighlight %}
 
 Add status to records group(to each record of the specified array `group`)
-(the status will be stored in an internal hash map 
+(the status will be stored in an internal hash map
 and it will be set className with the `status` value to the corresponding row in the grid).
 
 **Parameters**:
@@ -550,7 +550,7 @@ and it will be set className with the `status` value to the corresponding row in
   grid.removeRecordStatus(recordId, status);
 {% endhighlight %}
 
-Remove record status(the status will be removed from the internal hash map 
+Remove record status(the status will be removed from the internal hash map
 and it will be removed className with the `status` value from the corresponding row in the grid).
 
 **Parameters**:
@@ -577,7 +577,7 @@ Check record status presence.
 | Any      | recordId  | *Required*. ID of the record to check status of.         |
 | String   | status    | *Required*. Status value.                                |
 
-**Returns**: *Boolean*. `true` - record with id = `recordId` has `status`, 
+**Returns**: *Boolean*. `true` - record with id = `recordId` has `status`,
              else returns `false`.
 
 ---
@@ -596,8 +596,8 @@ Get all record IDs that have the specified `status`.
 |----------|-----------|-------------------------------------|
 | String   | status    | *Required*. Status value.           |
 
-**Returns**: *Array* with IDs of records that have specified `status`. 
-             If there is no records that have the specified `status`, 
+**Returns**: *Array* with IDs of records that have specified `status`.
+             If there is no records that have the specified `status`,
              an empty array will be returned.
 
 ---
@@ -683,8 +683,8 @@ Check if a record is selected.
 |----------|-----------|-----------------------------------------------|
 | Any      | recordId  | *Required*. Record id to check selection of.  |
 
-**Returns**: *Boolean*. Record selection state: 
-             `true` - record is selected and records selection mode = 'Whitelist', 
+**Returns**: *Boolean*. Record selection state:
+             `true` - record is selected and records selection mode = 'Whitelist',
              else returns `false`.
 
 ---
@@ -695,8 +695,8 @@ Check if a record is selected.
   grid.toggleSelected(recordId);
 {% endhighlight %}
 
-Switch selection of the specified record: 
-if the record is selected, it will be called `grid.unselectRecord()`, 
+Switch selection of the specified record:
+if the record is selected, it will be called `grid.unselectRecord()`,
 else it will be called `grid.selectRecord()`.
 
 **Parameters**:
@@ -713,7 +713,7 @@ else it will be called `grid.selectRecord()`.
   grid.toggleSelectAll();
 {% endhighlight %}
 
-Switch records selection mode: if current state is "blacklist", 
+Switch records selection mode: if current state is "blacklist",
 calls `grid.unselectAll()`, else calls `grid.selectAll()`.
 
 ---
@@ -724,7 +724,7 @@ calls `grid.unselectAll()`, else calls `grid.selectAll()`.
   grid.selectAll();
 {% endhighlight %}
 
-Select all records: switches records selection mode to "blacklist", 
+Select all records: switches records selection mode to "blacklist",
 clears list of selected records, rerenders grid table and calls `props.onSelectedChange()`.
 
 ---
@@ -735,7 +735,7 @@ clears list of selected records, rerenders grid table and calls `props.onSelecte
   grid.unselectAll();
 {% endhighlight %}
 
-Unselect all records: switches records selection mode to "whitelist", 
+Unselect all records: switches records selection mode to "whitelist",
 clears list of selected records, rerenders grid table and calls `props.onSelectedChange()`.
 
 ---
@@ -770,8 +770,8 @@ Get IDs of selected records. Note that if Blacklist is turned on, it will be ret
   await grid.updateTable();
 {% endhighlight %}
 
-Update table (it will fetch table data calling `props.model.read()`). 
-Note that it will be fetched only visible data, so if the grid has several pages of data, 
+Update table (it will fetch table data calling `props.model.read()`).
+Note that it will be fetched only visible data, so if the grid has several pages of data,
 it will be fetched only data of the current page.
 
 ---
@@ -781,13 +781,13 @@ it will be fetched only data of the current page.
 {% highlight html tabsize=2 %}
 class ExampleComponent extends React.Component {
   clearChanges() {
-    this.refs.grid.clearAllChanges();      //here we use one of the grid component methods
+    this.grid.clearAllChanges();      //here we use one of the grid component methods
   }
 
   render() {
     return (
       <UIKernel.Grid
-        ref="grid"
+        ref={(grid) => this.grid = grid}
         model={this.state.model}                             // Grid model
         cols={columns}                                       // columns configuration
         viewCount={10}                                       // display 10 records per page

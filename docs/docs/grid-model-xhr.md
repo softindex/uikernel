@@ -5,7 +5,7 @@ prev: grid-interface.html
 next: grid-model-collection.html
 ---
 
-Grid Xhr Model is a class that interacts with the server API keeping there its data.
+Grid Xhr Model is a class that interacts with the server API holding the data.
 
 *Grid Xhr Model implements [Grid Model Interface](/docs/grid-interface.html){:target="_blank"}*
 
@@ -197,13 +197,12 @@ In successful case(response status == 200) returns server response, otherwise th
 Applies records changes.
 It sends `PUT` request with header `{'Content-type': 'application/json'}` and `body = JSON.stringify(changes)`
 to the URI = settings.api parameter taken in the constructor.
-Validation is supposed to be performed at the server
-(but you can also do explicit local validation calling gridXhrModel.isValidRecord(record) before).
-If the server response is successful(Status 200) and it has field `errors`(which is expected to be validation errors),
-the ValidationErrors instance will be thrown.
+Validation is supposed to be performed at the server (but you can also perform an explicit local validation calling
+gridXhrModel.isValidRecord(record) before).
+If the server response is successful(Status 200) then it will be resolved an array containing joined items of parsed 
+server response from `serverResponse.changes`, `serverResponse.validation` (ValidationErrors instance will be created
+for corresponding items) and `serverResponse.errors` (Error instance will be created for corresponding items).
 In case of unexpected error(e.g. server response status !== 200) an Error instance will be thrown.
-If the server response is successful(Status 200) and it doesn't have the field `error`,
-so `serverResponse.data` will be resolved.
 
 **Parameters**:
 
@@ -218,19 +217,38 @@ so `serverResponse.data` will be resolved.
     const gridUpdateResult = await gridXhrModel.update(
       [
         [4, {"name": "George", "gender": 1}],
+        [5, 'something very wrong'],
         [7, {"name": "Alex", "gender": 'tomato'}]
       ]
     );
+    
+    /*
+      Let's supose our server returned such a response in the HTTP body:
+      {
+        "changes": [
+          [4, {"name": "George", "gender": 1}]
+        ],
+        "validation": [
+          [7, {"gender": ["Invalid gender."]}]
+        ],
+        "errors": [
+          // Note that such error should be put here if it is about some record,
+          // else it should be returned appropriate server status
+          [5, {"message": "Invalid record shape"}]
+        ]
+      }
+    */
+    
     console.log(gridUpdateResult);
     /*
-    {
-      "changes": [
-        [4, {"name": "George", "gender": 1}]        // Applied valid record changes item
-      ],
-      "errors": [
-        [7, {"gender": ["Invalid gender."]}]        // ValidationErrors instance
-      ]
-    }
+    [
+      // Applied valid record changes item
+      [4, {"name": "George", "gender": 1}],
+      // Error instance
+      [5, Error("Invalid record shape")],
+      // Shape: [recordId, validationErrorsInstance]
+      [7, {"gender": ["Invalid gender."]}]
+    ]
     */
   } catch(err) {
     console.log(err);

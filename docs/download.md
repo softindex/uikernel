@@ -35,10 +35,3 @@ The compressed, production version of UI Kernel core.
 {% highlight bash %}
 $ npm install uikernel
 {% endhighlight %}
-
-### Bower
-To install static files:
-
-{% highlight bash %}
-$ bower install uikernel
-{% endhighlight %}

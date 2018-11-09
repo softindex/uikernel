@@ -14,15 +14,15 @@ This example demonstrates how to select grid records and perform on them some ac
 - To select/unselect all records, we use `grid.toggleSelectAll` method.
 - To get all selected records, we use `grid.getAllSelected` method.
 
-Lets implement a simple grid which will consist of 
-'name', 'surname', 'phone', 'age', 'gender' fields 
+Let's implement a simple grid which will consist of
+'name', 'surname', 'phone', 'age', 'gender' fields
 and first column 'bulk' containing checkboxes for toggling selection of records.
 
 In our example
  - **selecting of 1 record** will be performed in `columns.onClickRefs()` at `columns.js`
-by calling `grid.toggleSelected(recordId)`. 
-- **Selecting of all records** will be performed in method `toggleSelectMode()` 
-by calling `this.refs.grid.toggleSelectAll()` at `MainComponent.js`
+by calling `grid.toggleSelected(recordId)`.
+- **Selecting of all records** will be performed in method `toggleSelectMode()`
+by calling `this.grid.toggleSelectAll()` at `MainComponent.js`
 
 `MainComponent.js`:
 {% highlight javascript %}
@@ -49,11 +49,11 @@ class MainComponent extends React.Component {
     this.setState({
       bulkMode: !this.state.bulkMode
     });
-    this.refs.grid.toggleSelectAll();
+    this.grid.toggleSelectAll();
   }
 
   someAction() { // this function can do anything what you need
-    const records = this.refs.grid.getAllSelected();
+    const records = this.grid.getAllSelected();
     alert('BulkMode: ' + this.state.bulkMode + ' Records: ' + records.join(', '));
   }
 
@@ -74,7 +74,7 @@ class MainComponent extends React.Component {
             <a className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>
             {numText}
             <UIKernel.Grid
-              ref="grid"
+              ref={(grid) => this.grid = grid}
               cols={columns}
               model={this.state.model}
               viewCount={10}

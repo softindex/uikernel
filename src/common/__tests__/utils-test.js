@@ -15,7 +15,7 @@ async function makeRequest(data) {
   });
 }
 
-describe('Throttle promise', () => {
+describe('Throttle', () => {
   it('Should handle one by one if called in turn', async () => {
     const request = throttle(makeRequest);
 
@@ -85,33 +85,5 @@ describe('Throttle promise', () => {
     ]);
 
     expect(hasUnhandledRejection).toBeFalsy();
-  });
-});
-
-describe('Throttle callback', () => {
-  it('Should handle last if called simultaneously', () => {
-    let resolve;
-    const requestCallback = jest.fn(cbWrapper => resolve = cbWrapper);
-    const request = throttle(requestCallback);
-
-    request(jest.fn()); // request 1 start
-    expect(requestCallback).toHaveBeenCalledTimes(1);
-    resolve();// request 1 done
-
-    request(jest.fn());
-    expect(requestCallback).toHaveBeenCalledTimes(2); // request 2 start
-
-    request(jest.fn());
-    expect(requestCallback).toHaveBeenCalledTimes(2); // request 3 wait
-
-    let isLastCbHandled;
-    request(jest.fn(() => isLastCbHandled = true));
-
-    expect(requestCallback).toHaveBeenCalledTimes(2); // request 4 wait
-    resolve();// request 2 done
-    expect(requestCallback).toHaveBeenCalledTimes(3); // request 4 start
-    resolve();// request 4 done
-
-    expect(isLastCbHandled).toBeTruthy();
   });
 });

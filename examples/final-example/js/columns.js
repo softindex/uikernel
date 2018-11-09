@@ -6,35 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-var columns = {
+const columns = {
+  bulk: selectRecordsHandler,
   tools: {
-    width: 100,
+    width: 70,
+    className: 'text-center',
     render: [function () {
-      return '<center>\
-        <a href="javascript:void(0)" ref="create" class="text-success action"><span class="glyphicon glyphicon-file"></span></a>\
+      return '<div>\
         <a href="javascript:void(0)" ref="edit" class="text-info action"><span class="glyphicon glyphicon-pencil"></span></a>\
         <a href="javascript:void(0)" ref="remove" class="text-danger action"><span class="glyphicon glyphicon-remove"></span></a>\
-      </center>';
+      </div>';
     }],
     onClickRefs: {
-      create: function(event, recordId, record, grid) { // ref="create" click handler
-        var createPopup = Popup.open(RecordForm, {
-          model: new UIKernel.Adapters.Grid.ToFormCreate(grid.getModel(), {
-            name: '',
-            surname: '',
-            phone: '',
-            age: '',
-            gender: 1
-          }),
-          mode: 'create',
-          onSubmit(recordId) {
-            createPopup.close();
-            grid.addRecordStatus(recordId, 'new');
-          }
-        });
-      },
-      edit: function(event, recordId, record, grid) { // ref="edit" click handler
-        var editPopup = Popup.open(RecordForm, {
+      edit(event, recordId, record, grid) { // ref="edit" click handler
+        const editPopup = Popup.open(RecordForm, {
           model: new UIKernel.Adapters.Grid.ToFormUpdate(grid.getModel(), recordId),
           mode: 'edit',
           changes: grid.getRecordChanges(recordId),
@@ -44,7 +29,7 @@ var columns = {
           }
         });
       },
-      remove: function (event, recordId, record, grid) { // ref="remove" click handler
+      remove(event, recordId, record, grid) {
         grid.getModel().delete(recordId, function (err) {
           if (!err) {
             grid.updateTable();
@@ -52,6 +37,15 @@ var columns = {
         });
       }
     }
+  },
+  id: {
+    name: 'ID',
+    width: 30,
+    className: 'text-center',
+    sortCycle: ['asc', 'desc', 'default'],
+    render: ['id', function (record) {
+      return record.id;
+    }]
   },
   name: {
     name: 'First Name', // columns title

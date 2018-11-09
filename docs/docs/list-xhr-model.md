@@ -5,7 +5,7 @@ prev: list-model.html
 next: list-express-api.html
 ---
 
-List XHR Model is a class that interacts with the server API keeping there its data.
+List XHR Model is a class that interacts with the server API holding the data.
 
 *List XHR Model implements [List Model Interface](/docs/list-model.html){:target="_blank"}*
 

@@ -25,6 +25,8 @@ const GridSelectMixin = {
     }
 
     this.forceUpdate();
+    this._renderBody();
+    this._emitChangeSelectedNum();
   },
 
   /**
@@ -168,10 +170,6 @@ const GridSelectMixin = {
 
   getSelectAllStatus() {
     return this.props.selectAllStatus;
-  },
-
-  _getAllSelected: function () {
-    return this.state.selected;
   },
 
   /**

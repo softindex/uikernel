@@ -177,9 +177,14 @@ a:hover {
 .home-content h2 {
   font-family: "Proximanova-Soft-Bold";
   font-size: 20pt;
-  margin: 20px 0;
+  margin: 100px 0 20px 0;
   text-align: center;
 }
+
+.home-content #example h2 {
+  margin: 20px 0;
+}
+
 .home-content h3 {
   font-family: "Proximanova-Soft-Semibold";
   font-size: 16pt;
@@ -199,7 +204,7 @@ a:hover {
 }
 .home-copyright .actions a {
   color: #ffffff;
-  margin: 0 50px;
+  margin: 0 20px;
   text-transform: uppercase;
 }
 .docs-menu {
@@ -322,4 +327,9 @@ a:hover {
 .footer {
   background-color: #2B2B2B;
   color: white;
+}
+
+h3 i.fa {
+  color: #00a6e2;
+  margin-right: .5em;
 }

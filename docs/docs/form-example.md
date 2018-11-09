@@ -43,7 +43,7 @@ class Form extends React.Component {
     if (!_.isEqual(this.props.state.fields, newFormState.fields)) {
       this.form.submit()
         .catch((err) => {
-          if (err && !(err instanceof UIKernel.Models.ValidationErrors)) { // If error is not a validation one
+          if (err && !(err instanceof UIKernel.ValidationErrors)) { // If error is not a validation one
             alert('Error');
           }
         });
@@ -192,7 +192,7 @@ class MainComponent extends React.Component {
               </div>
               <div className="panel-body padding0">
                 <UIKernel.Grid
-                  ref="grid"
+                  ref={(grid) => this.grid = grid}
                   model={model}
                   cols={columns}
                   autoSubmit={true}

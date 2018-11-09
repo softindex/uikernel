@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import callbackify from '../../common/callbackify';
-import toPromise from '../../common/toPromise';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import Events from '../../common/Events';
 import utils from '../../common/utils';
@@ -94,6 +92,43 @@ class GridToFormUpdate extends Events {
   }
 
   /**
+   * Get data
+   *
+   * @param {Array}     fields     Required fields
+   */
+  async getData(fields) {
+    const model = this._adapter.model;
+    return await model.getRecord(this._adapter.id, fields);
+  }
+
+  /**
+   * Apply changes
+   *
+   * @param   {Object}      changes     Form data
+   */
+  async submit(changes) {
+    const record = utils.clone(changes);
+    const model = this._adapter.model;
+
+    let result = await model.update([[this._adapter.id, record]]);
+    result = result[0][1];
+    if (result instanceof Error || result instanceof ValidationErrors) {
+      throw result;
+    }
+    return result;
+  }
+
+  /**
+   * Record validity check
+   *
+   * @param {Object}      record  Record object
+   */
+  async isValidRecord(record) {
+    const model = this._adapter.model;
+    return await model.isValidRecord(record);
+  }
+
+  /**
    * Get all dependent fields, that are required for validation
    *
    * @param   {Array}  fields  Fields list
@@ -103,44 +138,5 @@ class GridToFormUpdate extends Events {
     return this._adapter.model.getValidationDependency(fields);
   }
 }
-
-/**
- * Get data
- *
- * @param {Array}     fields     Required fields
- * @param {Function}  cb         CallBack function
- */
-GridToFormUpdate.prototype.getData = callbackify(function (fields) {
-  const model = this._adapter.model;
-  return toPromise(model.getRecord.bind(model))(this._adapter.id, fields);
-});
-
-/**
- * Apply changes
- *
- * @param   {Object}      changes     Form data
- * @param   {Function}    cb          CallBack function
- */
-GridToFormUpdate.prototype.submit = callbackify(async function (changes) {
-  const record = utils.clone(changes);
-  const model = this._adapter.model;
-  let result = await toPromise(model.update.bind(model))([[this._adapter.id, record]]);
-  result = result[0][1];
-  if (result instanceof ValidationErrors) {
-    throw result;
-  }
-  return result;
-});
-
-/**
- * Record validity check
- *
- * @param {Object}      record  Record object
- * @param {Function}    cb      CallBack function
- */
-GridToFormUpdate.prototype.isValidRecord = callbackify(async function (record) {
-  const model = this._adapter.model;
-  return await toPromise(model.isValidRecord.bind(model))(record);
-});
 
 export default GridToFormUpdate;

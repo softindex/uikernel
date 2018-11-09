@@ -52,22 +52,21 @@ describe('Check props', () => {
     const renderedComponent = mount(
       <Number value={1} onChange={jest.fn()}/>
     );
-    const input = renderedComponent.find('input').get(0);
+    const inputDOMNode = renderedComponent.find('input').getDOMNode();
 
     renderedComponent.setProps({value: 2});
 
-    expect(input.value).toBe('2');
+    expect(inputDOMNode.value).toBe('2');
   });
 
   it('Same value prop should not change input value', () => {
     const renderedComponent = mount(
       <Number value={1} onChange={jest.fn()}/>
     );
-
     // Handle input.value setter
     const onSetInputValue = jest.fn();
-    const input = renderedComponent.find('input').get(0);
-    Object.defineProperty(input, 'value', {
+    const inputDOMNode = renderedComponent.find('input').getDOMNode();
+    Object.defineProperty(inputDOMNode, 'value', {
       set: onSetInputValue
     });
 

@@ -7,7 +7,6 @@
  */
 
 import EventEmitter from '../common/Events';
-import toPromise from '../common/toPromise';
 import Validator from '../common/validation/validators/common';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import utils from '../common/utils';
@@ -23,10 +22,12 @@ class FormService {
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
     this.fields = fields;
-    this.validateForm = utils.throttle(this.validateForm.bind(this));
+    this._validateForm = utils.throttle(this._validateForm.bind(this));
+    this.validateForm = this.validateForm.bind(this);
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
+    this.clearValidation = this.clearValidation.bind(this);
     this.updateField = this.updateField.bind(this);
     this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
@@ -62,7 +63,7 @@ class FormService {
     this._warningsValidator = settings.warningsValidator || new Validator();
 
     this.validating = false;
-    this.pendingClearErrors = [];
+    this._hiddenValidationFields = [];
     this.submitting = false;
     this._isNotInitialized = false;
 
@@ -70,20 +71,14 @@ class FormService {
       this.fields = settings.fields;
     }
     if (!this._data) {
-      this._data = await toPromise(settings.model.getData.bind(settings.model))(this.fields);
+      this._data = await settings.model.getData(this.fields);
     }
 
     this.model.on('update', this._onModelChange);
     this._setState();
 
     if (!settings.partialErrorChecking) {
-      try {
-        await this.validateForm();
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
-        }
-      }
+      await this.validateForm();
     }
   }
 
@@ -96,30 +91,29 @@ class FormService {
         data: {},
         originalData: {},
         changes: {},
-        fields: {},
+        errors: new ValidationErrors(),
+        warnings: new ValidationErrors(),
         isSubmitting: false
       };
-      if (this.fields) {
-        for (const field of this.fields) {
-          emptyData.fields[field] = {
-            value: null,
-            isChanged: false,
-            errors: null
-          };
-        }
-      }
+      emptyData.fields = this._getFields(emptyData.data, emptyData.changes, emptyData.errors, emptyData.warnings);
       return emptyData;
     }
 
     const data = this._getData();
     const changes = this._getChangesFields();
+    const errors = this._getDisplayedErrors(this._errors);
+    const warnings = this._getDisplayedErrors(this._warnings);
 
     return {
       isLoaded,
       data,
       originalData: this._data,
       changes,
-      fields: this._getFields(data, changes),
+      errors,
+      warnings,
+      // Note that we return errors and warnings both in bunch as a property and for each field separately
+      // - it is redundantly, but handy :)
+      fields: this._getFields(data, changes, errors, warnings),
       isSubmitting: this._isSubmitting
     };
   }
@@ -152,26 +146,33 @@ class FormService {
     this.model.off('update', this._onModelChange);
   }
 
-  clearError(field) {
+  /**
+   * @param {string|string[]} fields
+   */
+  clearValidation(fields) {
     if (this._isNotInitialized) {
       return;
     }
 
-    if (this.validating) {
-      this.pendingClearErrors.push(field);
-    }
-
-    if (Array.isArray(field)) {
-      field.forEach(oneField => {
-        this._errors.clearField(oneField);
-        this._warnings.clearField(oneField);
-      });
+    // We keep info about _hiddenValidationFields for cases when clearValidation was called while validateForm was
+    // called and haven't finished, so then old validation result shouldn't show errors for _hiddenValidationFields
+    // fields, but the next called validations will clear _hiddenValidationFields so the fields will get errors again.
+    // Use case: a user changed field 'name', a validation started, the user focused field 'age' so we called
+    // clearValidation('age'), the validation finished and returned errors for fields 'name' and 'age', but we
+    // shouldn't show error for field 'age' because the user has just focused it. Then user blured field 'age', a new
+    // validation stated and it should show errors for field 'age'.
+    if (Array.isArray(fields)) {
+      this._hiddenValidationFields.push(...fields);
     } else {
-      this._errors.clearField(field);
-      this._warnings.clearField(field);
+      this._hiddenValidationFields.push(fields);
     }
 
     this._setState();
+  }
+
+  clearError(field) {
+    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidation"');
+    this.clearValidation(field);
   }
 
   async validateField(field, value) {
@@ -227,6 +228,7 @@ class FormService {
 
     this._isSubmitting = true;
     this._partialErrorChecking = false;
+    const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
 
     this._setState();
 
@@ -257,6 +259,8 @@ class FormService {
         this._changes = {};
       }
     }
+
+    this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
 
     this._setState();
 
@@ -300,10 +304,26 @@ class FormService {
   }
 
   async validateForm() {
+    try {
+      return await this._validateForm();
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
+  }
+
+  async _validateForm() {
     if (this._isNotInitialized) {
       return;
     }
 
+    // We should remove only those hiddenValidationFields that were present before validation started and keep those
+    // that were added after validation started (so it is possible and ok that field 'name' may be present 2 times:
+    // 1 for old validation call and 1 for the new).
+    // Take into account that _validateForm is throttled, so next calls will be skipped or scheduled after current call
+    // finishes. It means we don't need to care about parallel calls because they are impossible.
+    const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
     this.validating = true;
 
     try {
@@ -314,29 +334,40 @@ class FormService {
     } finally {
       this.validating = false;
 
-      let field;
-      while (field = this.pendingClearErrors.pop()) {
-        this._warnings.clearField(field);
-        this._errors.clearField(field);
-      }
+      this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
 
       this._setState();
     }
 
-    const errorsWithPartialChecking = this._getValidationErrors();
-    return errorsWithPartialChecking.isEmpty() ? null : errorsWithPartialChecking;
+    const displayedErrors = this._getDisplayedErrors(this._errors);
+    const displayedWarning = this._getDisplayedErrors(this._warnings);
+
+    return {
+      errors: !displayedErrors.isEmpty() ? displayedErrors : null,
+      warnings: !displayedWarning.isEmpty() ? displayedWarning : null,
+    };
   }
 
-  _getFields(data, changes) {
-    const fields = this.fields;
-    const errors = this._getValidationErrors();
-    return fields.reduce((newFields, fieldName) => {
-      newFields[fieldName] = {};
-      newFields[fieldName].value = data[fieldName];
-      newFields[fieldName].isChanged = changes.hasOwnProperty(fieldName);
-      newFields[fieldName].errors = errors ? errors.getFieldErrorMessages(fieldName) : null;
-      return newFields;
-    }, {});
+  _getFields(data, changes, errors, warnings) {
+    const proxy = new Proxy({}, {
+      get(target, fieldName) {
+        return {
+          value: data[fieldName],
+          isChanged: changes.hasOwnProperty(fieldName),
+          errors: errors.getFieldErrorMessages(fieldName),
+          warnings: warnings.getFieldErrorMessages(fieldName)
+        };
+      }
+    });
+
+    // Explicit declaration of fields in an object
+    if (this.fields) {
+      for (const field of this.fields) {
+        proxy[field] = proxy[field];
+      }
+    }
+
+    return proxy;
   }
 
   /**
@@ -345,8 +376,7 @@ class FormService {
    * @returns {boolean}
    */
   _isLoaded() {
-    return this &&
-      Boolean(this._data);
+    return this._data !== null;
   }
 
   /**
@@ -365,28 +395,23 @@ class FormService {
   }
 
   /**
-   * Get form errors
+   * Filter errors depending on the partialErrorChecking mode and clearValidation method
    *
-   * @returns {ValidationErrors} Form errors
+   * @param {ValidationErrors}  validationErrors
+   * @returns {ValidationErrors} Form fields
    */
-  _getValidationErrors() {
-    const errors = ValidationErrors.merge(this._errors, this._warnings);
+  _getDisplayedErrors(validationErrors) {
+    const filteredErrors = validationErrors.clone();
 
-    // If gradual validation is on, we need
-    // to remove unchanged records from errors object
-    if (!this._partialErrorChecking) {
-      return errors;
-    }
-
-    // Look through all form fields
-    for (const field in this._data) {
-      // If field is unchanged, remove errors, that regard to this field
-      if (!this._changes.hasOwnProperty(field)|| utils.isEqual(this._changes[field], this._data[field])) {
-        errors.clearField(field);
+    for (const field of validationErrors.getErrors().keys()) {
+      const isFieldPristine = !this._changes.hasOwnProperty(field)
+        || utils.isEqual(this._changes[field], this._data[field]);
+      if (this._hiddenValidationFields.includes(field) || this._partialErrorChecking && isFieldPristine) {
+        filteredErrors.clearField(field);
       }
     }
 
-    return errors;
+    return filteredErrors;
   }
 
   _setState() {
@@ -422,6 +447,10 @@ class FormService {
 
   async _runValidator(validator, getData, output) {
     const data = getData();
+    if (utils.isEmpty(data)) {
+      this[output].clear();
+      return;
+    }
     let validErrors;
 
     try {

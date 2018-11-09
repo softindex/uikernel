@@ -9,14 +9,20 @@
 import variables from './variables';
 import xhr from 'xhr';
 
-const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
-  xhr(settings, (err, response, body) => {
-    if (response.statusCode !== 200) {
+function defaultXhr(settings) {
+  return new Promise((resolve, reject) => {
+    xhr(settings, (err, response, body) => {
+      if (response.statusCode === 200) {
+        resolve(body);
+        return;
+      }
+
       if (!err) {
         err = new Error();
         err.statusCode = response.statusCode;
         err.message = 'Status Code: ' + err.statusCode;
       }
+
       if (body) {
         try {
           const parsedBody = JSON.parse(body);
@@ -25,18 +31,14 @@ const defaultXhr = (settings, cb) => new Promise((resolve, reject) => {
           err.message = body;
         }
       }
-      reject(err);
-    }
 
-    if (cb) {
-      cb(err, body);
-    }
-    resolve(body);
+      reject(err);
+    });
   });
-});
+}
 
 if (!variables.get('xhr')) {
   variables.set('xhr', defaultXhr);
 }
 
-export default (settings, cb) => variables.get('xhr')(settings, cb);
+export default (settings) => variables.get('xhr')(settings);

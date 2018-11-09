@@ -15,28 +15,96 @@ const DEFAULT_FILTERS = {
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { model };
+    this.state = {
+      filters: DEFAULT_FILTERS,
+      model,
+      cols: {
+        // display id, name, surname, phone by default
+        bulk: true,
+        tools: true,
+        id: true,
+        name: true,
+        surname: true,
+        phone: true,
+        // hide age, gender
+        age: false,
+        gender: false
+      },
+      selectedNum: 0
+    };
   }
 
-  applyFilters(filters) {
+  getSelectedRecords() {
+    const isBlackMode =this.grid.state.selectBlackListMode;
+    let selected =this.grid.getAllSelected();
+
+    if (isBlackMode) {
+      const allData = this.state.model.data.map(item => item[0]);
+      selected = allData.filter(el => !selected.includes(el));
+    }
+
+    this.setState({ selectedNum: selected.length });
+    return selected;
+  }
+
+  onFiltersChange(filters) {
     this.setState({
+      filters,
       model: UIKernel.applyGridFilters(model, filters)
     });
   }
 
+  onSelectedChange() {
+    const num = this.getSelectedRecords().length;
+    this.setState({
+      selectedNum: num
+    });
+  }
+
+  deleteSelectedRecords() {
+    const records = this.getSelectedRecords();
+
+    records.forEach((recordId) => {
+      this.state.model.delete(recordId, (err) => {
+        if (!err) {
+          this.grid.updateTable();
+        }
+      });
+    });
+
+    this.grid.unselectAll();
+  }
+
+  highlightNewRecord(recordId) {
+    this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+  }
+
+  openColumnsForm() {
+    //open modal with our information (you can use your own modal)
+    const columnsWindow = Popup.open(DynamicColumnsForm, {
+      cols: this.state.cols,
+      onChange: (cols) => {
+        columnsWindow.close();
+        this.setState({cols});
+      }
+    }, 'opened');
+  }
+
   onSave() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   }
 
   onClear() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
-    return (
+    const numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
+
+    return [
       <div className="panel">
         <div className="panel-heading">
           <FiltersForm
@@ -45,20 +113,38 @@ class MainComponent extends React.Component {
             onClear={() => this.onFiltersChange(DEFAULT_FILTERS)}
           />
         </div>
+        <div className="panel-footer">
+          <a className="btn btn-default" onClick={() => this.openColumnsForm()}>
+            <i className="fa fa-th-list"/>{' '}Columns
+          </a>
+          <a className="btn btn-success" onClick={() => this.deleteSelectedRecords()}>Delete selected</a>
+          {numText}
+        </div>
         <div className="panel-body padding0">
           <UIKernel.Grid
-            ref="grid"
+            ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
             cols={columns} // columns configuration
-            viewCount={10} // 10 records limit to display by default
+            viewColumns={this.state.cols}
+            defaultViewCount={10} // 10 records limit to display by default
+            viewVariants={[10, 20, 50, 100]}
+            onSelectedChange={(records) => this.onSelectedChange(records)}
           />
         </div>
         <div className="panel-footer">
-          <a className="btn btn-success" onClick={() => this.onClear()}>Clear</a>
+          <a className="btn btn-default" onClick={() => this.onClear()}>Clear changes</a>
           {' '}
           <a className="btn btn-primary" onClick={() => this.onSave()}>Save</a>
         </div>
+      </div>,
+      <div className="panel">
+        <div className="panel-heading">
+          <h2 className="panel-title">Add record</h2>
+        </div>
+        <div className="panel-body">
+          <CreateForm onSubmit={(recordId) => this.highlightNewRecord(recordId)}/>
+        </div>
       </div>
-    );
+    ];
   }
 }

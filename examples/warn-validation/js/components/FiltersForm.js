@@ -70,7 +70,7 @@ var FiltersForm = (function () {
           </div>
           <div className="col-sm-1">
             <label className="control-label">&nbsp;</label>
-            <a className="btn btn-success show" onClick={this.onClear}>
+            <a className="btn btn-default show" onClick={this.onClear}>
               Clear
             </a>
           </div>

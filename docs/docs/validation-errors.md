@@ -13,7 +13,9 @@ Returns an instance of the ValidationErrors class.
 
 **Example**:
 {% highlight javascript %}
-  const myErrorsInstance1 = new ValidationErrors();
+  import {ValidationErrors} from 'uikernel';
+
+  const validationErrors = new ValidationErrors();
 {% endhighlight %}
 
 ---
@@ -21,14 +23,15 @@ Returns an instance of the ValidationErrors class.
 ## Methods
 
 - [(static) createFromJSON(jsonObject)](#static-createfromjson)
+- [(static) createWithError(field, error)](#static-createwitherror)
 - [(static) merge(error1, error2, ..., errorN)](#static-merge)
-- [add(field, errorText)](#add)
+- [add(field, error)](#add)
 - [clear()](#clear)
 - [clearField(field)](#clearfield)
 - [clone()](#clone)
 - [getErrors()](#geterrors)
 - [getFailedFields()](#getfailedfields)
-- [getFieldErrors(field)](#getfielderrors)
+- [getFieldErrorMessages(field)](#getfielderrormessages)
 - [hasError(field)](#haserror)
 - [isEmpty(field)](#isempty)
 - [toJSON()](#tojson)
@@ -38,7 +41,7 @@ Returns an instance of the ValidationErrors class.
 ### (static) createFromJSON
 
 {% highlight javascript %}
-  const myErrorsInstance2 = ValidationErrors.createFromJSON(jsonObject);
+  const validationErrors = ValidationErrors.createFromJSON(jsonObject);
 {% endhighlight %}
 
 Convert object with a description of errors into ValidationErrors instance.
@@ -47,14 +50,14 @@ Convert object with a description of errors into ValidationErrors instance.
 
 | Type    | Name       | Description                                                                                       |
 |---------|------------|---------------------------------------------------------------------------------------------------|
-| Object  | jsonObject | *Required*. An ValidationErrors description Object that will be turned into its instance. Expected structure: |
+| Object  | jsonObject | An ValidationErrors description Object that will be turned into its instance. Expected structure: |
 |         |            | {field1: ["field1 error1"], field2: ["field2 error1", "field2 error2"], ...}  |
 
 **Returns**: new `ValidationErrors` instance.
 
 **Example**:
 {% highlight javascript %}
-  const myErrorsInstance2 = ValidationErrors.createFromJSON({
+  const validationErrors = ValidationErrors.createFromJSON({
     login: "invalid login!",
     pass: "invalid password!"
   });
@@ -62,10 +65,30 @@ Convert object with a description of errors into ValidationErrors instance.
 
 ---
 
+### (static) createWithError
+
+Create ValidationErrors instance with one error.
+
+**Parameters**:
+
+| Type    | Name  | Description |
+|---------|-------|-------------|
+| string  | field | Field name  |
+| string  | error | Error text  |
+
+**Returns**: new `ValidationErrors` instance.
+
+**Example**:
+{% highlight javascript %}
+  const validationErrors = ValidationErrors.createWithError('message', 'Massage is required');
+{% endhighlight %}
+
+---
+
 ### (static) merge
 
 {% highlight javascript %}
-  const myErrorsInstance3 = ValidationErrors.merge(error1, error2, ..., errorN);
+  const validationErrors = ValidationErrors.merge(error1, error2, ..., errorN);
 {% endhighlight %}
 
 Unites several ValidationErrors instances into one.
@@ -74,9 +97,9 @@ Unites several ValidationErrors instances into one.
 
 | Type              | Name        | Description                                                                           |
 |-------------------|-------------|---------------------------------------------------------------------------------------|
-| ValidationErrors  | error1      | *Required*. A ValidationErrors instance to be united with others passed in arguments  |
-| ValidationErrors  | error2      | *Optional*. A ValidationErrors instance to be united with others passed in arguments  |
-| ValidationErrors  | errorN      | *Optional*. A ValidationErrors instance to be united with others passed in arguments  |
+| ValidationErrors  | error1      | A ValidationErrors instance to be united with others passed in arguments  |
+| ValidationErrors  | error2      | *(Optional)* A ValidationErrors instance to be united with others passed in arguments  |
+| ValidationErrors  | errorN      | *(Optional)* A ValidationErrors instance to be united with others passed in arguments  |
 
 **Returns**: new `ValidationErrors` instance.
 
@@ -85,7 +108,7 @@ Unites several ValidationErrors instances into one.
 ### add
 
 {% highlight javascript %}
-  myErrorsInstance3.add(field, errorText);
+  validationErrors.add(field, errorText);
 {% endhighlight %}
 
 Add en error into the ValidationErrors instance.
@@ -94,14 +117,14 @@ Add en error into the ValidationErrors instance.
 
 | Type    | Name         | Description |
 |---------|--------------|-------------|
-| String  | field        | *Required*. Field name  |
-| String  | errorText    | *Required*. Error text  |
+| string  | field        | Field name  |
+| string  | errorText    | Error text  |
 
 **Returns**: this
 
 **Example**:
 {% highlight javascript %}
-  myErrorsInstance3
+  validationErrors
     .add("email", "The email field is invalid!")
     .add("phone", "The phone number field is invalid!");
 {% endhighlight %}
@@ -111,7 +134,7 @@ Add en error into the ValidationErrors instance.
 ### clear
 
 {% highlight javascript %}
-  myErrorsInstance1.clear();
+  validationErrors.clear();
 {% endhighlight %}
 
 Clear errors list.
@@ -123,7 +146,7 @@ Clear errors list.
 ### clearField
 
 {% highlight javascript %}
-  myErrorsInstance3.clearField(field);
+  validationErrors.clearField(field);
 {% endhighlight %}
 
 Clear errors of the specified field.
@@ -132,13 +155,13 @@ Clear errors of the specified field.
 
 | Type    | Name     | Description                           |
 |---------|----------|---------------------------------------|
-| String  | field    | *Required*. Name of the field to be cleared from errors  |
+| string  | field    | Name of the field to be cleared from errors  |
 
 **Returns**: this
 
 **Example**:
 {% highlight javascript %}
-  myErrorsInstance3.clearField("email");
+  validationErrors.clearField("email");
 {% endhighlight %}
 
 ---
@@ -146,7 +169,7 @@ Clear errors of the specified field.
 ### clone
 
 {% highlight javascript %}
-  const myErrorsInstance3copy = myErrorsInstance3.clone();
+  const validationErrors2 = validationErrors.clone();
 {% endhighlight %}
 
 Return a new instance cloning this, so that the new instance will have the same structure,
@@ -159,7 +182,7 @@ but a new memory address.
 ### getErrors
 
 {% highlight javascript %}
-  const myErrors = myErrorsInstance.getErrors();
+  const myErrors = validationErrors.getErrors();
 {% endhighlight %}
 
 Get errors entries of this ValidationErrors instance.
@@ -168,7 +191,7 @@ Get errors entries of this ValidationErrors instance.
 
 **Example**:
 {% highlight javascript %}
-  for(let [field, error] of myErrorsInstance3.getErrors())
+  for(let [field, error] of validationErrors.getErrors())
     console.log(field, ": ", error);
 {% endhighlight %}
 
@@ -177,40 +200,40 @@ Get errors entries of this ValidationErrors instance.
 ### getFailedFields
 
 {% highlight javascript %}
-  const fieldsWithErrors = myErrorsInstance.getFailedFields();
+  const fieldsWithErrors = validationErrors.getFailedFields();
 {% endhighlight %}
 
 Get field names array, that contain errors.
 
-**Returns**: *String[]* or *null*(if there is no errors)
+**Returns**: *string[]* or *null*(if there is no errors)
 
 **Example**:
 {% highlight javascript %}
-  const fieldsWithErrors3 = myErrorsInstance3.getFailedFields();   //["login", "pass", "phone"]
-  const fieldsWithErrors7 = myErrorsInstance7.getFailedFields();   //null
+  const fieldsWithErrors3 = validationErrors.getFailedFields();   //["login", "pass", "phone"]
+  const fieldsWithErrors7 = validationErrors.getFailedFields();   //null
 {% endhighlight %}
 
 ---
 
-### getFieldErrors
+### getFieldErrorMessages
 
 {% highlight javascript %}
-  const loginErrors = myErrorsInstance3.getFieldErrors(field);
+  const loginErrors = validationErrors.getFieldErrorMessages(field);
 {% endhighlight %}
 
-Get errors of the specified field.
+Get errors messages of the specified field.
 
 **Parameters**:
 
 | Type    | Name      | Description                   |
 |---------|-----------|-------------------------------|
-| String  | field     | *Required*. Field name to get errors of   |
+| string  | field     | Field name to get errors of   |
 
-**Returns**: *String[]* or *null*(if there is no errors)
+**Returns**: *string[]* or *null*(if there is no errors)
 
 **Example**:
 {% highlight javascript %}
-  const loginErrors = myErrorsInstance3.getFieldErrors("login");   //["invalid login!"]
+  const loginErrors = validationErrors.getFieldErrorMessages("login");   //["invalid login!"]
 {% endhighlight %}
 
 ---
@@ -218,7 +241,7 @@ Get errors of the specified field.
 ### hasError
 
 {% highlight javascript %}
-  const loginIsValid = myErrorsInstance.hasError(field);
+  const loginIsValid = validationErrors.hasError(field);
 {% endhighlight %}
 
 Check if the field has any errors.
@@ -227,13 +250,13 @@ Check if the field has any errors.
 
 | Type    | Name      | Description                   |
 |---------|-----------|-------------------------------|
-| String  | field     | *Required*. Field name to check validity of   |
+| string  | field     | Field name to check validity of   |
 
 **Returns**: *Boolean*
 
 **Example**:
 {% highlight javascript %}
-  const loginIsValid = myErrorsInstance3.hasError("login");   //false
+  const loginIsValid = validationErrors.hasError("login");   //false
 {% endhighlight %}
 
 ---
@@ -241,7 +264,7 @@ Check if the field has any errors.
 ### isEmpty
 
 {% highlight javascript %}
-  const formIsValid = myErrorsInstance1.isEmpty(field);
+  const formIsValid = validationErrors.isEmpty(field);
 {% endhighlight %}
 
 Check if this ValidationErrors instance has any field with errors.
@@ -250,7 +273,7 @@ Check if this ValidationErrors instance has any field with errors.
 
 **Example**:
 {% highlight javascript %}
-  const formIsValid = myErrorsInstance1.isEmpty();   //true
+  const formIsValid = validationErrors.isEmpty();   //true
 {% endhighlight %}
 
 ---
@@ -258,7 +281,7 @@ Check if this ValidationErrors instance has any field with errors.
 ### toJSON
 
 {% highlight javascript %}
-  const formErrorsObj = myErrorsInstance3.toJSON();
+  const formErrorsObj = validationErrors.toJSON();
 {% endhighlight %}
 
 Convert this ValidationErrors instance to plain JS Object.
@@ -267,8 +290,12 @@ Convert this ValidationErrors instance to plain JS Object.
 
 **Example**:
 {% highlight javascript %}
-  const formErrorsObj = myErrorsInstance3.toJSON();
-  //formErrorsObj === {login: ["invalid login!"], pass: ["invalid password!"], phone: ["The phone number field is invalid!"]}
+  const formErrorsObj = validationErrors.toJSON();
+  // formErrorsObj === {
+  //   login: ["invalid login!"],
+  //   pass: ["invalid password!"],
+  //   phone: ["The phone number field is invalid!"]
+  // }
 {% endhighlight %}
 
 

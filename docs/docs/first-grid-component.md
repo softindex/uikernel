@@ -6,7 +6,7 @@ next: sorting-and-pagination.html
 ---
 
 * [Live demo](/examples/first-grid-component/){:target="_blank"}
-* [Code]({{ site.github }}examples/first-grid-component){:target="_blank"}
+* [Code]({{ site.github }}/examples/first-grid-component/){:target="_blank"}
 
 
 First, let's create a client model for our grid and pass it some fake data.
@@ -97,7 +97,7 @@ class MainComponent extends React.Component {
 }
 {% endhighlight %}
 
-Finally, let's render `MainComponent` in a separate file.
+Finally, let's render `MainComponent`.
 
 `main.js`:
 {% highlight javascript %}

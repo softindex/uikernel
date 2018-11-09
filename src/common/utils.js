@@ -90,6 +90,7 @@ exports.throttle = function (func) {
     }
   };
 
+  // it is still used in FormMixin._validateForm so we can't remove it yet
   function throttleCallback(func) {
     return function run() {
       const ctx = this; // Function context
@@ -473,4 +474,14 @@ exports.asyncHandler = function (router) {
     }
     next(new Error('asyncHandler expected to take async function.'));
   };
+};
+
+exports.parents = function (element, selector) {
+  const result = [];
+  while ((element = element.parentElement)) {
+    if (element.matches(selector)) {
+      result.push(element);
+    }
+  }
+  return result;
 };

@@ -20,6 +20,10 @@ function connectForm(fields = null) {
     }
 
     async componentDidMount() {
+      const state = this.form.getAll();
+      if (state.isLoaded) {
+        this.setState(state);
+      }
       this.form.addChangeListener(this.onFormChange);
     }
 

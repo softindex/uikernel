@@ -24,7 +24,7 @@ class MainComponent extends React.Component {
   }
 
   handleLabelChange(newLabel) {
-    this.setState({label: newLabel})
+    this.setState({label: newLabel});
   }
 
   render() {
@@ -33,7 +33,7 @@ class MainComponent extends React.Component {
         <span>Selected: {this.state.label}</span>
         <br />
         <UIKernel.Editors.Select
-          ref="select"
+          ref={(select) => this.select = select}
           onChange={this.handleChange}
           onLabelChange={this.handleLabelChange}
           value={this.state.value}

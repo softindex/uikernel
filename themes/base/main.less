@@ -2,6 +2,12 @@
  * Copyright 2015, SoftIndex LLC.
  */
 
+@import (less) 'node_modules/react-datepicker/dist/react-datepicker.css';
+
+html {
+  font-size: 14px;
+}
+
 .data-grid {
   color: #000;
   display: table;
@@ -202,16 +208,14 @@
   background-color: #F0F09A;
 }
 
-.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
   background-color: #FFBDC4;
 }
 
-.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error {
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-error,
+.data-grid tbody.dgrid-body-table tr:nth-child(even) td.dgrid-warning {
   background-color: #ffcccc;
-}
-
-.data-grid tbody.dgrid-body-table tr:nth-child(odd) td.dgrid-warning {
-  border: 2px solid #dea4ff
 }
 
 .data-grid tbody.dgrid-body-table tr:hover {
@@ -261,7 +265,7 @@
 
 /* Portal */
 .__portal {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 0;
   z-index: 3000;
@@ -275,6 +279,7 @@
 }
 .__suggestBox input[type="text"] {
   cursor: default;
+  padding-right: 25px;
 }
 .__suggestBox input[type="text"]:focus {
   cursor: auto;
@@ -286,7 +291,7 @@
   position: absolute;
   top: 1px;
   right: 1px;
-  width: 35px;
+  width: 25px;
   height: calc(100% - 2px);
   background-color: inherit;
 }
@@ -294,7 +299,7 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  margin-left: -4px;
+  margin-left: -5px;
   margin-top: -2px;
   border-color: #888 transparent transparent transparent;
   border-style: solid;
@@ -306,13 +311,19 @@
 }
 .__suggestBoxPopUp {
   position: absolute;
-  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
   display: block;
-  border: 1px solid #e5e6e7;
-  background-color: #fff;
+  border-bottom: 1px solid #e5e6e7;
 }
+
+.__suggestBoxPopUp-content {
+  border: 1px solid #e5e6e7;
+  border-bottom: 0;
+  background-color: #fff;
+  width: 100%;
+}
+
 .__suggestBoxPopUp ul {
   list-style-type: none;
   padding: 0;
@@ -331,6 +342,7 @@
   display: table-cell;
   margin: 0 10px;
   padding: 5px 10px;
+  word-break: break-all;
 }
 .__suggestBoxPopUp-option:not(.__suggestBoxPopUp-option-selectable) {
   color: #aaa;

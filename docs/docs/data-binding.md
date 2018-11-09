@@ -6,7 +6,7 @@ next: select.html
 ---
 
 The grids in this example share one model.
-When we modify records in one of the grids, another grid updates too.
+When we modify records in one of the grids, the other grid updates, too.
 
 * [Live demo](/examples/data-binding/){:target="_blank"}
 * [Code]({{ site.github }}/examples/data-binding){:target="_blank"}
@@ -118,14 +118,14 @@ class MainComponent extends React.Component {
   }
 
   saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(function () {
         alert('Error');
       });
   }
 
   clearChanges() {
-    this.refs.grid.clearAllChanges();
+    this.grid.clearAllChanges();
   }
 
   render() {
@@ -144,7 +144,7 @@ class MainComponent extends React.Component {
           <div className="col-sm-6">
             <h3>Grid without autosave</h3>
             <UIKernel.Grid
-              ref="grid"
+              ref={(grid) => this.grid = grid}
               model={this.state.model}
               cols={columns}
               viewCount={10}

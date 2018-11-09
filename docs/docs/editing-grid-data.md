@@ -5,7 +5,7 @@ prev: applying-filters.html
 next: removing-records.html
 ---
 * [Live demo](/examples/editing-grid-data/){:target="_blank"}
-* [Code]({{ site.github }}/examples/editing-grid-data){:target="_blank"}
+* [Code]({{ site.github }}/examples/editing-grid-data/){:target="_blank"}
 
 Our grid already has sorting, pagination, and filtering. Now it's time to make it editable.
 
@@ -81,9 +81,7 @@ Here, we've called `UIKernel.createValidator` to create a validator.
 
 `field` is the method of validator which accepts two parameters: a column name and a validation function.
 
-In this example, we've used only `UIKernel.Validators.regExp`. There are much more UIKernel validation functions.
-
-You can check them [here](validator.html).
+In this example, we've used only `UIKernel.Validators.regExp`. There are many more UIKernel validation functions, see them all [here](validator.html).
 
 ---
 
@@ -105,14 +103,14 @@ So we'll define the `saveChanges` and `clearChanges` methods in our `MainCompone
 // ...
 
 saveChanges() {
-    this.refs.grid.save()
+    this.grid.save()
       .catch(() => {
         alert('Error');
       });
   },
 
 clearChanges() {
-  this.refs.grid.clearAllChanges();
+  this.grid.clearAllChanges();
 }
 {% endhighlight %}
 
@@ -126,7 +124,7 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
 {% highlight javascript %}
 // ...
 <UIKernel.Grid
-  ref="grid"
+  ref={(grid) => this.grid = grid}
   model={this.state.model}
   cols={columns}
   viewCount={10}

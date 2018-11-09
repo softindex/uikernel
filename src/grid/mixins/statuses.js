@@ -33,7 +33,12 @@ const GridStatusesMixin = {
 
     this.state.statuses[row].sum |= this._getStatusBit(status);
 
-    this._updateRow(row);
+    const elem = findDOMNode(this.body).querySelector(`tr[key="${row}"]`);
+    if (elem) {
+      elem.classList.add(status);
+    } else {
+      this.updateTable();
+    }
   },
 
   /**
@@ -99,9 +104,10 @@ const GridStatusesMixin = {
     }
 
     // Remove element's class
-    $(findDOMNode(this.refs.body))
-      .find(`tr[key="${rowId}"]`)
-      .removeClass(status);
+    const elem = findDOMNode(this.body).querySelector(`tr[key="${rowId}"]`);
+    if (elem) {
+      elem.classList.remove(status);
+    }
   },
 
   /**
@@ -158,13 +164,14 @@ const GridStatusesMixin = {
         delete this.state.statuses[i];
       }
     }
-    $(findDOMNode(this.refs.body))
-      .find(`.dgrid-body tr.${status}`)
-      .removeClass(status);
+    const elem = findDOMNode(this.body).querySelector(`.dgrid-body tr.${status}`);
+    if (elem) {
+      elem.classList.remove(status);
+    }
   },
 
   /**
-   * Get all status names that are applyed to the row
+   * Get all status names that are applied to the row
    *
    * @param   {string}    row    Row ID
    * @return  {Array}  Status names array

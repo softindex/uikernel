@@ -6,7 +6,7 @@ next: server-side.html
 ---
 
 * [Live demo](/examples/creating-records/){:target="_blank"}
-* [Code]({{ site.github }}/examples/creating-records){:target="_blank"}
+* [Code]({{ site.github }}/examples/creating-records/){:target="_blank"}
 
 First, let's create a form for adding new records to our grid.
 
@@ -102,7 +102,7 @@ handleSubmit(e) {
 {% endhighlight %}
 
 `handleSubmit` calls the `this.form.submit` method which sends data to our model.
-On successful submitting, the  callback from  `MainComponent` is invoked.
+On successful submission, the  callback from  `MainComponent` is invoked.
 
 ---
 
@@ -256,7 +256,7 @@ Next up, let's modify `MainComponent`.
 {% highlight javascript %}
 
 highlightNewRecord(recordId) {
-  this.refs.grid.addRecordStatus(recordId, 'new'); // mark the record as new
+  this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
 }
 
 // ...
@@ -297,7 +297,7 @@ render() {
                 <h3 className="panel-title">Records</h3>
               </div>
               <UIKernel.Grid
-                ref="grid"
+                ref={(grid) => this.grid = grid}
                 model={this.state.model} // Grid model
                 cols={columns} // columns configuration
                 viewCount={10} // display 10 records per page

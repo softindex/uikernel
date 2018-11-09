@@ -20,8 +20,8 @@ const LICENSE_TEMPLATE =
 
 function addLicense() {
   return gulp.src(['**/*.js', '!node_modules/**/*.*', '!**/libs/*.js'])
-    .pipe(licenser(LICENSE_TEMPLATE))
-    .pipe(gulp.dest(''));
+    .pipe(licenser(LICENSE_TEMPLATE));
 }
 
+export {LICENSE_TEMPLATE};
 export default addLicense;

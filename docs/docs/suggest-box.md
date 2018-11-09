@@ -2,7 +2,6 @@
 title: Suggest Box
 id: suggest-box
 prev: datepicker.html
-next: reports-example.html
 ---
 
 * [Live demo](/examples/suggest-box-simple/){:target="_blank"}

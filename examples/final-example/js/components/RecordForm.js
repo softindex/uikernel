@@ -10,7 +10,9 @@ class RecordForm extends React.Component {
   constructor(props) {
     super(props);
     this.form = new UIKernel.Form();
-    this.state = this.form.getAll();
+    this.state = {
+      form: this.form.getAll()
+    };
     this.onFormChange = this.onFormChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -18,9 +20,7 @@ class RecordForm extends React.Component {
   componentDidMount() {
     this.form.init({
       fields: ['name', 'surname', 'phone', 'age', 'gender'],
-      model: new UIKernel.Adapters.Grid.ToFormCreate(model, {
-        gender: 1,
-      }),
+      model: this.props.model,
       submitAll: true,
       partialErrorChecking: true,
     });
@@ -35,7 +35,7 @@ class RecordForm extends React.Component {
     this.setState({form: newFormState});
   }
 
-  save(e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.form.submit()
       .then((recordId) => {
@@ -44,7 +44,7 @@ class RecordForm extends React.Component {
   }
 
   render() {
-    if (!this.state.isLoaded) {
+    if (!this.state.form.isLoaded) {
       return <span>Loading...</span>;
     }
 
@@ -138,7 +138,7 @@ class RecordForm extends React.Component {
             </div>
           </div>
           <div className="modal-footer">
-            <button type="submit" className="btn btn-primary" onClick={this.save}>Save</button>
+            <button type="submit" className="btn btn-primary" onClick={this.handleSubmit}>Save</button>
             <button type="button" className="btn btn-default" onClick={this.form.clearChanges}>Discard</button>
             <button type="button" className="btn btn-default" data-dismiss="modal">Cancel</button>
           </div>
@@ -146,4 +146,4 @@ class RecordForm extends React.Component {
       </div>
     );
   }
-};
+}

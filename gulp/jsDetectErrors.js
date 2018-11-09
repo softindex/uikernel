@@ -18,7 +18,7 @@ function isFixed(file) {
 }
 
 function jsDetectErrors() {
-  return gulp.src(['*.js', 'src/**/*.js', 'gulp/**/*.js'], {base: '.'})
+  return gulp.src(['src/**/*.js', 'gulp/**/*.js'], {base: '.'})
     .pipe(eslint({fix: true}))
     .pipe(eslint.format())
     .pipe(gulpIf(isFixed, gulp.dest('.')));
