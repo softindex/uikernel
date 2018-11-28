@@ -298,10 +298,10 @@ render() {
               </div>
               <UIKernel.Grid
                 ref={(grid) => this.grid = grid}
-                model={this.state.model} // Grid model
-                cols={columns} // columns configuration
-                viewCount={10} // display 10 records per page
-                defaultSort={{column: "name", direction: "asc"}} // default sorting
+                model={this.state.model}
+                cols={columns}
+                viewCount={10}
+                defaultSort={ {column: "name", direction: "asc"} } // default sorting
               />
               <div className="panel-footer">
                 <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>

@@ -58,6 +58,19 @@ Filters themselves will be defined in `MainComponent` in the next way:
  };
  // ..
   {% endhighlight %}
+  
+Init filters object in state.
+
+`MainComponent.js`:
+{% highlight javascript %}
+  constructor(props) {
+    super(props);
+    // ...
+    this.state = {
+      filters: { }
+    }
+  }
+{% endhighlight %}
 
 
 Next, we'll define the `onFiltersChange` method in our `MainComponent`.
@@ -173,9 +186,9 @@ Finally, let's add our form into the `render` method of `MainComponent`.
               <h3 className="panel-title">Records</h3>
             </div>
             <UIKernel.Grid
-              model={this.state.model} // Grid model
-              cols={columns} // columns configuration
-              viewCount={10} // display 10 records per page
+              model={this.state.model}
+              cols={columns}
+              viewCount={10}
             />
           </div>
         </div>

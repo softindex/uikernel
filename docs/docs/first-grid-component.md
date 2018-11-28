@@ -40,15 +40,15 @@ Next, we'll configure columns.
 const columns = {
   name: {
     name: 'First Name', // column title
-    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
+    render: ['name', record => record.name] // method for rendering of table cells
   },
   surname: {
     name: 'Last Name',
-    render: ['surname', record => _.escape(record.surname)]
+    render: ['surname', record => record.surname]
   },
   phone: {
     name: 'Phone',
-    render: ['phone', record => _.escape(record.phone)]
+    render: ['phone', record => record.phone]
   },
   age: {
     name: 'Age',

@@ -5,7 +5,7 @@ prev: labels.html
 next: list-xhr-model.html
 ---
 
-Definition of the model used by one-to-many editors like SuggestBox and Select.
+Definition of the model that describes the basic necessary methods (without a specific implementation) used by one-to-many editors like SuggestBox and Select.
 
 ## Implementations
 
@@ -14,25 +14,28 @@ Definition of the model used by one-to-many editors like SuggestBox and Select.
 ## Constructor
 
 {% highlight javascript %}
-  const abstractListModel = new UIKernel.AbstractModels.List();
+  const ownModelImplementation = new UIKernel.AbstractModels.List();
 {% endhighlight %}
 
 ## Methods
 
-### (abstract) async read
+### async read
 
 {% highlight javascript %}
  async read(string search)
 {% endhighlight %}
 
-Get options list for a Select or SuggestBox editor taking into account list labels `search` filter(case insensitive).
+**Returns**: Promise which resolves with the parsed server response.
 
 ---
 
-### (abstract) async getLabel
+### async getLabel
 
 {% highlight javascript %}
  async getLabel(number id)
 {% endhighlight %}
 
 Get an option name which matches specified ID.
+
+**Returns** In successful case(server response status == 200) returns parsed server response
+(which is assumed to be a string value of the corresponding label), otherwise throws an error.
