@@ -1,21 +1,23 @@
 ---
-title: Form Model interface
+title: Form Model Interface
 id: form-interface
 prev: form-service.html
 next: form-model.html
 ---
 
-A standard model that describes the basic necessary methods (without a specific implementation) for keeping and performing data of your forms. It is recommended for inheritance when creating your own models on the client side. 
+A standard model that describes the basic necessary methods (without a specific implementation) for keeping and performing data of your forms.
 
 ## Implementations
 * [Form XHR Model](/docs/form-xhr-model.html)
 * [Form Collection Model](/docs/form-model.html)
 
-## Constructor
+## Abstract Model
 
 {% highlight javascript %}
   const ownModelImplementation = new UIKernel.AbstractModels.Form();
 {% endhighlight %}
+
+It is recommended for inheritance when creating your own models on the client side. 
 
 ## Methods
 

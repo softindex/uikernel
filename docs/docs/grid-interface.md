@@ -5,13 +5,15 @@ prev: grid-columns.html
 next: grid-model-xhr.html
 ---
 
-A standard model that describes the basic methods  (creation, reading, editing, deletion and validation) of grids without a specific implementation. It is recommended for inheritance when creating your own models on the client side.
+A standard model that describes the basic methods  (creation, reading, editing, deletion and validation) of grids without a specific implementation.
 
 ## Implementations
 * [Grid Xhr Model](/docs/grid-model-xhr.html)
 * [Grid Collection Model](/docs/grid-model-collection.html)
 
-## Constructor
+It is recommended for inheritance when creating your own models on the client side.
+
+## Abstract Model
 
 {% highlight javascript %}
   const ownModelImplementation = new UIKernel.AbstractModels.Grid();

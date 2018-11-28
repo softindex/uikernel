@@ -11,12 +11,6 @@ Definition of the model that describes the basic necessary methods (without a sp
 
 * [List XHR Model](list-xhr-model.html)
 
-## Constructor
-
-{% highlight javascript %}
-  const ownModelImplementation = new UIKernel.AbstractModels.List();
-{% endhighlight %}
-
 ## Methods
 
 ### async read
