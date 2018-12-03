@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, {Fragment} from 'react';
 
 const GridPaginationMixin = {
   /**
@@ -144,22 +144,25 @@ const GridPaginationMixin = {
 
   _renderPagination: function _renderPagination() {
     const viewCount = this.getViewCount();
-    return viewCount ? (
+    return Boolean(viewCount) && (
       <div className="dgrid-footer">
-        {this.props.viewVariants ? [
-          <div key="0">Page Size</div>,
-          <div key="1">
-            <select
-              value={this.props.viewVariants.indexOf(viewCount)}
-              onChange={this.handleChangeViewCount}
-            >
-              {this.props.viewVariants.map((option, key) => <option key={key} value={key}>{option}</option>, this)}
-            </select>
-          </div>
-        ] : null}
+        {Boolean(this.props.viewVariants) && (
+          <Fragment>
+            <div key="0" className="dgrid-pagination-page-size"> Page Size </div>
+            <div key="1" className="dgrid-pagination-view-variants">
+              <select
+                className="dgrid-pagination-view-variants-select"
+                value={this.props.viewVariants.indexOf(viewCount)}
+                onChange={this.handleChangeViewCount}
+              >
+                {this.props.viewVariants.map((option, key) => <option key={key} value={key}>{option}</option>, this)}
+              </select>
+            </div>
+          </Fragment>
+        )}
         <a href="#" className="btn-first-page" onClick={this.handleFirstPage}/>
         <a href="#" className="btn-prev-page" onClick={this.handlePrevPage}/>
-        {this.state.count ? (
+        {Boolean(this.state.count) && (
           <div>
             {(this.state.page * viewCount) + 1}
             {' - '}
@@ -170,12 +173,12 @@ const GridPaginationMixin = {
             {' of '}
             {this.state.count}
           </div>
-        ) : null}
+        )}
         <a href="#" className="btn-next-page" onClick={this.handleNextPage}/>
         <a href="#" className="btn-last-page" onClick={this.handleLastPage}/>
         <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}/>
       </div>
-    ) : null;
+    );
   }
 };
 
