@@ -7,7 +7,6 @@
  */
 
 import ValidationError from '../ValidationErrors';
-
 import boolean from '../rules/boolean';
 import date from '../rules/date';
 import enumValidator from '../rules/enum';
@@ -16,8 +15,7 @@ import notNull from '../rules/notNull';
 import number from '../rules/number';
 import regExp from '../rules/regExp';
 import set from '../rules/set';
-
-import Validator from '../validators/common';
+import Validator from '../Validator';
 
 describe('ValidationError', () => {
   describe('Check "static createWithError" method', () => {

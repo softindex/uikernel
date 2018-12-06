@@ -55,7 +55,7 @@ class GridToFormCreate extends Events {
    */
   async isValidRecord(record) {
     const model = this._adapter.model;
-    return await model.isValidRecord(record);
+    return await model.isValidRecord(record, null);
   }
 
   /**

@@ -9,6 +9,7 @@
 
   * Grid
     * [Added argument initialRecord to grid columns render function](https://github.com/softindex/uikernel/pull/249)
+    * Added `recordId` property to GridModel.prototype.isValidRecord
     
   * Form
     * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)
@@ -45,6 +46,10 @@
     * Fixed merging of same fields in `ValidationErrors.prototype.merge` method
     
   ## Changes
+  
+  * Common
+    * Removed `UIKernel.createXhrValidator` (use createValidator)
+    * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
   
   * Grid
     * "create" event in GridModel has `Array` type

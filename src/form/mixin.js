@@ -8,7 +8,7 @@
 
 import utils from '../common/utils';
 import toPromise from '../common/toPromise';
-import Validator from '../common/validation/validators/common';
+import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import callbackify from '../common/callbackify';
 

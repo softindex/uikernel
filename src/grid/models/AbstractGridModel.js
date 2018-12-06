@@ -75,9 +75,10 @@ class AbstractGridModel extends EventsModel {
    * Validation check
    *
    * @param {Object}      record
+   * @param {*|null}      recordId
    * @abstract
    */
-  isValidRecord(/*record*/) {
+  isValidRecord(/*record, recordId*/) {
     return Promise.resolve(new ValidationErrors());
   }
 

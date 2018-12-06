@@ -56,7 +56,7 @@ class GridExpressApi {
         const model = this._getModel(req, res);
         const result = this._result('validate');
         try {
-          const errors = await model.isValidRecord(req.body);
+          const errors = await model.isValidRecord(req.body.record, req.body.id);
           result(null, errors, req, res, next);
         } catch (err) {
           result(err, null, req, res, next);

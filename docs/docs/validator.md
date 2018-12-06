@@ -12,17 +12,10 @@ before submitting a form or changes in an editable grid.
 ### createValidator
 
 {% highlight javascript %}
-  const validator = UIKernel.createValidator(serverValidationUrl, xhr);
+  const validator = UIKernel.createValidator();
 {% endhighlight %}
 
 Returns a builder that allows to define validation rules.
-
-**Parameters**:
-
-| Type       | Name                 | Description                                                                      |
-|------------|----------------------|----------------------------------------------------------------------------------|
-| String     | serverValidationUrl  | *Optional*. URI to send requests when `validatorInstance.isValidRecord()` is called. If this parameter is specified, validation will be performed remotely. If this parameter is omitted or requests cause Error 413, validation will be performed locally by means of validators specified below. |
-| Function   | xhr                  | *Optional*. function sending requests to the server when `validatorInstance.isValidRecord()` is called. By default is used built-in xhr function, but you can override it here. |
 
 ---
 
@@ -105,8 +98,7 @@ Specify server validation dependencies in a client validator.
 
 `/validation/client.js`
 {% highlight javascript %}
-  //here we are specifying server validation URI as a parameter of createValidator
-  const clientValidator = UIKernel.createValidator(`/api/keywords/validation`)
+  const clientValidator = UIKernel.createValidator()
     //...here might be some other fields
     .asyncDependence(['recordId', 'keywords']);
 {% endhighlight %}

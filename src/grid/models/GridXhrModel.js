@@ -7,7 +7,7 @@
  */
 
 import ValidationErrors from '../../common/validation/ValidationErrors';
-import Validator from '../../common/validation/validators/common';
+import Validator from '../../common/validation/Validator';
 import defaultXhr from '../../common/defaultXhr';
 import AbstractGridModel from './AbstractGridModel';
 import url from 'url';
@@ -17,8 +17,9 @@ import url from 'url';
  *
  * @param {Object}    settings                          Model settings
  * @param {string}    settings.api                      API address
- * @param {Validator} [settings.validator]        General validator
+ * @param {Validator} [settings.validator]              General validator
  * @param {Function}  [settings.xhr]                    XHR interface
+ * @param {boolean}   [settings.validateOnClient=false] Don't send validation request to server
  * @constructor
  */
 class GridXhrModel extends AbstractGridModel {
@@ -30,6 +31,7 @@ class GridXhrModel extends AbstractGridModel {
 
     this._validator = settings.validator || new Validator();
     this._xhr = settings.xhr || defaultXhr;
+    this._validateOnClient = settings.validateOnClient || false;
     this._apiUrl = settings.api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
@@ -163,17 +165,49 @@ class GridXhrModel extends AbstractGridModel {
   /**
    * Validation check
    *
-   * @param {Object}      record
+   * @param {{[string]: *}} record
+   * @param {Promise<*>}    recordId
    */
-  isValidRecord(record) {
-    return this._validator.isValidRecord(record);
+  async isValidRecord(record, recordId) {
+    if (this._validateOnClient) {
+      return await this._validator.isValidRecord(record);
+    }
+
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
+
+    let response;
+    try {
+      response = await this._xhr({
+        method: 'POST',
+        uri: url.format(parsedUrl),
+        body: {
+          record,
+          id: recordId
+        },
+        json: true
+      });
+    } catch (err) {
+      if (err.statusCode === 413) {
+        // When request exceeds server limits and
+        // client validators are able to find errors,
+        // we need to return these errors{
+        const validationErrors = await this._validator.isValidRecord(record);
+        if (!validationErrors.isEmpty()) {
+          return validationErrors;
+        }
+      }
+      throw err;
+    }
+
+    return ValidationErrors.createFromJSON(response);
   }
 
   /**
    * Get all dependent fields, that are required for validation
    *
-   * @param   {Array}  fields   Fields list
-   * @returns {Array}  Dependencies
+   * @param   {string[]}  fields   Fields list
+   * @returns {string[]}  Dependencies
    */
   getValidationDependency(fields) {
     return this._validator.getValidationDependency(fields);

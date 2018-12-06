@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../ValidationErrors';
-import ArgumentsError from '../../ArgumentsError';
-import utils from '../../utils';
+import ValidationErrors from './ValidationErrors';
+import ArgumentsError from '../ArgumentsError';
+import utils from '../utils';
 
 class Validator {
   /**

@@ -629,9 +629,10 @@ const GridDataMixin = {
    * @private
    */
   async _checkValidatorErrors(row, validator, getData, result) {
+    const recordId = this.state.recordsInfo[row].id;
     const record = getData(row);
 
-    const validErrors = await validator.isValidRecord(record);
+    const validErrors = await validator.isValidRecord(record, recordId);
 
     if (utils.isEqual(record, getData(row))) {
       if (validErrors.isEmpty()) {

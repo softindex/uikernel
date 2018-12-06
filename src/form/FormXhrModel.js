@@ -7,7 +7,7 @@
  */
 
 import ValidationErrors from '../common/validation/ValidationErrors';
-import Validator from '../common/validation/validators/common';
+import Validator from '../common/validation/Validator';
 import defaultXhr from '../common/defaultXhr';
 import EventsModel from '../common/Events';
 import url from 'url';

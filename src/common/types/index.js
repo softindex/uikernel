@@ -16,7 +16,7 @@ export type ReadSettings<F> = {
 };
 
 export interface IServerGridModel<K, R, F> {
-  isValidRecord(record: R): Promise<ValidationErrors>;
+  isValidRecord(record: R, recordId: K | null): Promise<ValidationErrors>;
   getValidationDependency(fields: Array<string>): Array<string>;
   getRecord(id: K, fields: Array<string>): Promise<R>;
   read(settings: ReadSettings<F>): Promise<Records<K, R>>;

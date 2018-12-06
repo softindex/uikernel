@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import Validator from '../common/validation/validators/common';
+import Validator from '../common/validation/Validator';
 import AbstractFormModel from './AbstractFormModel';
 import utils from '../common/utils';
 
