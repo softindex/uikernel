@@ -6,9 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import express from 'express';
+import {Router} from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import {asyncHandler} from '../../common/utils';
+import multer from 'multer';
 
 /**
  * Form Express API for Grid model interaction
@@ -17,11 +18,13 @@ import {asyncHandler} from '../../common/utils';
  * @constructor
  */
 class GridExpressApi {
-  static create() {
-    return new GridExpressApi();
+  static create(handleMultipartFormData) {
+    return new GridExpressApi(handleMultipartFormData);
   }
 
-  constructor() {
+  constructor(handleMultipartFormData = false) {
+    const upload = multer();
+
     this.middlewares = {
       read: [asyncHandler(async (req, res, next) => {
         const settings = {};
@@ -74,26 +77,59 @@ class GridExpressApi {
           result(err, null, req, res, next);
         }
       })],
-      update: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        const result = this._result('update');
-        try {
-          const data = await model.update(req.body);
-          result(null, data, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
-        }
-      })],
-      create: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        const result = this._result('create');
-        try {
-          const data = await model.create(req.body);
-          result(null, data, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
-        }
-      })]
+      update: [
+        ...(handleMultipartFormData ? [upload.any()] : []),
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          const result = this._result('update');
+
+          let body = req.body.changes;
+
+          if (handleMultipartFormData) {
+            body = JSON.parse(body).map(([recordId, record]) => {
+              // expect files sent as formData field named as '<recordId>__<formField>'
+              const recordFiles = req.files.filter(file =>
+                file.fieldname.match(/\d+__\w+/, 'g') &&
+                Number(file.fieldname.split('__')[0]) === recordId
+              );
+
+              if (recordFiles.length) {
+                for (const {fieldname, buffer} of recordFiles) {
+                  record[fieldname.split('__')[1]] = buffer.toString();
+                }
+              }
+
+              return [recordId, record];
+            });
+          }
+
+          try {
+            const data = await model.update(body);
+            result(null, data, req, res, next);
+          } catch (err) {
+            result(err, null, req, res, next);
+          }
+        })],
+      create: [
+        ...(handleMultipartFormData ? [upload.any()] : []),
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          const result = this._result('create');
+          const body = req.body;
+
+          if (handleMultipartFormData) {
+            for (const {fieldname, buffer} of req.files) {
+              body[fieldname] = buffer.toString();
+            }
+          }
+
+          try {
+            const data = await model.create(body);
+            result(null, data, req, res, next);
+          } catch (err) {
+            result(err, null, req, res, next);
+          }
+        })]
     };
   }
 
@@ -113,7 +149,7 @@ class GridExpressApi {
   }
 
   getRouter() {
-    return new express.Router()
+    return new Router()
       .get('/', this.middlewares.read)
       .post('/validation', this.middlewares.validate)
       .get('/:recordId', this.middlewares.getRecord)
