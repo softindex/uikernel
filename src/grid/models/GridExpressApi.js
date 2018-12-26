@@ -18,12 +18,12 @@ import multer from 'multer';
  * @constructor
  */
 class GridExpressApi {
-  static create(handleMultipartFormData) {
-    return new GridExpressApi(handleMultipartFormData);
+  static create(handleMultipartFormData, maxFileSize) {
+    return new GridExpressApi(handleMultipartFormData, maxFileSize);
   }
 
-  constructor(handleMultipartFormData = false) {
-    const upload = multer();
+  constructor(handleMultipartFormData = false, maxFileSize = 104857600) { // 100 MB
+    const upload = multer({limits: {fileSize: maxFileSize}});
 
     this.middlewares = {
       read: [asyncHandler(async (req, res, next) => {
