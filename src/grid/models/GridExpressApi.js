@@ -83,7 +83,7 @@ class GridExpressApi {
           const model = this._getModel(req, res);
           const result = this._result('update');
 
-          let body = req.body.changes;
+          let body = req.body.changes || req.body;
 
           if (handleMultipartFormData) {
             body = JSON.parse(body).map(([recordId, record]) => {
