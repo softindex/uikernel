@@ -25,7 +25,11 @@ describe('Can be empty', () => {
   });
 
   it('Should return error if date incorrect', () => {
-    expect(dateValidator(null, null, 'test')('abc')).toEqual('test');
+    expect(dateValidator(null, null, 'error msg')('abc')).toEqual('error msg');
+    expect(dateValidator(null, null, 'error msg')(true)).toEqual('error msg');
+    expect(dateValidator(null, null, 'error msg')(false)).toEqual('error msg');
+    expect(dateValidator(null, null, 'error msg')(function () {})).toEqual('error msg');
+    expect(dateValidator(null, null, 'error msg')([])).toEqual('error msg');
   });
 
   it('Should return error if date < minDate', () => {

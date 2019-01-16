@@ -10,6 +10,11 @@ import utils from '../../utils';
 
 function baseValidator(notNull, min, max, error, value) {
   error = error || 'Invalid date';
+
+  if (!['number', 'string', 'object'].includes(typeof value)) {
+    return error;
+  }
+
   if (!utils.isDefined(value)) {
     if (notNull) {
       return error;
