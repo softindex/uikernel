@@ -266,6 +266,8 @@ Promise which resolves with an Array where each item is an array of 2 fields:
   const dependantFields = gridCollectionModel.getValidationDependency(fields);
 {% endhighlight %}
 
+**Returns**
+
 Return fields(Array of string values) that need to be sent additionally to validate fields specified in passed parameters.
 This method is required for creating group validators\(read details [here](/validator.html)\).
 

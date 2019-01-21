@@ -1,62 +1,69 @@
 ---
-title: Form Model interface
+title: Form Model Interface
 id: form-interface
 prev: form-service.html
 next: form-model.html
 ---
 
-Definition of the model for keeping and performing data of your forms.
+A standard model that describes the basic necessary methods (without a specific implementation) for keeping and performing data of your forms.
 
 ## Implementations
 * [Form XHR Model](/docs/form-xhr-model.html)
 * [Form Collection Model](/docs/form-model.html)
 
-## Constructor
+## Abstract Model
 
 {% highlight javascript %}
-  const abstractFormModel = new UIKernel.AbstractModels.Form();
+  const ownModelImplementation = new UIKernel.AbstractModels.Form();
 {% endhighlight %}
+
+It is recommended for inheritance when creating your own models on the client side. 
 
 ## Methods
 
-### (abstract) async getData
+### async getData
 
 {% highlight javascript %}
  async getData(string[] fields)
 {% endhighlight %}
 
-Return all requested fields.
+**Returns**: Promise which resolves with *Object* with form data. It has the following structure: `{field1dName: 'value1', ..., fieldNName: 'valueN'}`.
 
 ----
 
-### (abstract) submit
+### async submit
 
 {% highlight javascript %}
  async submit(Object changes)
 {% endhighlight %}
 
-Process form data.
+Process form data(changes): validate it(by means of the validator passed in the constructor, or the default one)
+and save it in the local data structure of the model.
+
+**Return** If some fields are invalid - nothing will be saved, but the ValidationError instance will be thrown.
 
 ----
 
-### (abstract) getValidationDependency
+### getValidationDependency
 
 {% highlight javascript %}
   string[] getValidationDependency(string[] fields)
 {% endhighlight %}
 
-Return fields that need to be sent additionally to validate a field. This method is required for creating group
-validators.
+
+**Return** Fields(Array of string values) that need to be sent additionally to validate fields specified in passed parameters.
+This method is required for creating group validators\(read details [here](/validator.html)\).
+
 
 ----
 
-### (abstract) async isValidRecord
+### async isValidRecord
 
 {% highlight javascript %}
   async isValidRecord(Object record)
 {% endhighlight %}
 
-Validate records
+**Returns**: Promise which resolves with *ValidationErrors*
 
 ---
 

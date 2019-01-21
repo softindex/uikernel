@@ -61,14 +61,15 @@ In successful case(server response status == 200) returns parsed server response
 
 Fetch the option name(label) by the specified `id` from the server.
 The method sends `GET` request to the URI = settings.apiUrl parameter taken in the constructor.
-In successful case(server response status == 200) returns parsed server response
-(which is assumed to be a string value of the corresponding label), otherwise throws an error.
 
 **Parameters**:
 
 | Type       | Name     | Description                                      |
 |------------|----------|--------------------------------------------------|
 | Number     | id       | *Required*. Id of a list option to get label of. |
+
+**Returns** In successful case(server response status == 200) returns parsed server response
+(which is assumed to be a string value of the corresponding label), otherwise throws an error.
 
 **Example**:
 
