@@ -15,6 +15,9 @@ When checkboxes are clicked, the value of viewColumns changes and the grid updat
 
 `Form.js`:
 {% highlight javascript %}
+import columns from '../columns';
+import React from 'react';
+
 class Form extends React.Component {
   constructor(props) {
     super(props);
@@ -47,16 +50,19 @@ class Form extends React.Component {
           </div>
           <div className="modal-body">
             <form className="form-horizontal">
-              { _.map(columns, function (value, key) {
-                return (
-                  <FormCheckbox
-                    id={key}
-                    key={key}
-                    value={this.state.cols[key]}
-                    label={value.name}
-                    onChange={this.onChangeCheckbox.bind(null, key)}
-                  />);
-              }.bind(this))}
+              { 
+                Object.keys(columns).map((key)=>{
+                  return(
+                    <FormCheckbox
+                      id={key}
+                      key={key}
+                      value={this.state.cols[key]}
+                      label={columns[key].name}
+                      onChange={this.onChangeCheckbox.bind(null, key)}
+                    />
+                  )
+                })
+              }
             </form>
           </div>
           <div className="modal-footer">
@@ -68,11 +74,19 @@ class Form extends React.Component {
     );
   }
 }
+
+export default Form
 {% endhighlight %}
 ---
 
 `MainComponent.js`:
 {% highlight javascript %}
+import React from 'react';
+import columns from '../columns';
+import model from '../model';
+import UIKernel from 'uikernel';
+import Form from './Form';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -118,10 +132,19 @@ class MainComponent extends React.Component {
     );
   }
 }
+
+export default MainComponent
 {% endhighlight %}
 ---
 
-`main.js`:
+`index.js`:
 {% highlight javascript %}
-ReactDOM.render(<MainComponent/>, document.getElementById("example"));
+import React from 'react';
+import ReactDOM from 'react-dom';
+import 'uikernel/dist/themes/base/uikernel.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './main.css';
+import MainComponent from './Components/MainComponent.js';
+
+ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
 {% endhighlight %}

@@ -3,4 +3,4 @@
 rm -rf _site\
   && npm run build -- buildSite\
   && cd _site\
-  && jekyll serve
+  && bundle exec jekyll serve

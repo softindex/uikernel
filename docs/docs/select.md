@@ -13,6 +13,9 @@ and `onLabelChange` props. You can also use [other props](editors.html#Select).
 
 `MainComponent.jsx`:
 {% highlight javascript %}
+import React from 'react';
+import UIKernel from 'uikernel';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -21,9 +24,7 @@ class MainComponent extends React.Component {
       value: 2,
       label: 'Option 2'
     };
-    this.options = [
-      [null, ''], [1, 'Option 1'], [2, 'Option 2'], [3, 'Option 3'], [4, 'Option 4'], [5, 'Option 5']
-    ];
+    this.options = [[null, ''], [1, 'Option 1'], [2, 'Option 2'], [3, 'Option 3'], [4, 'Option 4'], [5, 'Option 5']];
     this.handleChange = this.handleChange.bind(this);
     this.handleLabelChange = this.handleLabelChange.bind(this);
   }
@@ -33,14 +34,14 @@ class MainComponent extends React.Component {
   }
 
   handleLabelChange(newLabel) {
-    this.setState({label: newLabel})
+    this.setState({label: newLabel});
   }
 
   render() {
     return (
       <div className="container">
         <span>Selected: {this.state.label}</span>
-        <br/>
+        <br />
         <UIKernel.Editors.Select
           ref={(select) => this.select = select}
           onChange={this.handleChange}
@@ -52,11 +53,20 @@ class MainComponent extends React.Component {
     );
   }
 }
+
+export default MainComponent
 {% endhighlight %}
 
 `main.js`:
 {% highlight javascript %}
-ReactDOM.render(<MainComponent/>, document.body);
+import React from 'react';
+import ReactDOM from 'react-dom';
+import 'uikernel/dist/themes/base/uikernel.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import MainComponent from './Components/MainComponent.js';
+
+ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
+
 {% endhighlight %}
 
 

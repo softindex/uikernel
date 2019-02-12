@@ -41,6 +41,8 @@ const countries = (function () {
       }
     };
 })();
+
+export default countries
 {% endhighlight %}
 ---
 
@@ -48,6 +50,10 @@ Next, let's render our SuggestBox.
 
 `MainComponent.js`:
 {% highlight javascript %}
+import React from 'react';
+import UIKernel from 'uikernel';
+import countries from '../countriesList';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -67,16 +73,25 @@ class MainComponent extends React.Component {
         <UIKernel.Editors.SuggestBox
           model={countries}
           onChange={this.updateCountry}
+          select={true}
           value={this.state.countryId}
         />
       </div>
     );
   }
 }
+
+export default MainComponent
 {% endhighlight %}
 ---
 
-`main.js`:
+`index.js`:
 {% highlight javascript %}
-React.render(<MainComponent/>, document.getElementById("example"));
+import React from 'react';
+import ReactDOM from 'react-dom';
+import 'uikernel/dist/themes/base/uikernel.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import MainComponent from './Components/MainComponent.js';
+
+ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
 {% endhighlight %}

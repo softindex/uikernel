@@ -20,6 +20,10 @@ To update field values, you can use either `updateField` or `validateField`.
 
 `FormComponent.js`
 {% highlight javascript %}
+import React from 'react';
+import UIKernel from 'uikernel';
+import model from '../model';
+
 class Form extends React.Component {
   constructor(props) {
     super(props);
@@ -40,7 +44,7 @@ class Form extends React.Component {
   }
 
   onFormChange(newFormState) {
-    if (!_.isEqual(this.props.state.fields, newFormState.fields)) {
+    if ( JSON.stringify(this.props.state.fields) !== JSON.stringify(newFormState.fields) ) {
       this.form.submit()
         .catch((err) => {
           if (err && !(err instanceof UIKernel.ValidationErrors)) { // If error is not a validation one
@@ -81,8 +85,8 @@ class Form extends React.Component {
             <div className={'form-group' + (this.props.state.fields.age.errors ? ' error' : '')}>
               <label className="col-sm-2 control-label">Age</label>
               <div className="col-sm-6">
-                 {/* we use UIKernel.Editors.Number instead of <input type =" number "/>          */}
-                 {/* because UIKernel.Editors.Number returns a numeric value instead of a string. */}
+                {/* we use UIKernel.Editors.Number instead of <input type =" number "/>          */}
+                {/* because UIKernel.Editors.Number returns a numeric value instead of a string. */}
                 <UIKernel.Editors.Number
                   className="form-control"
                   onChange={this.form.updateField.bind(this.form, 'age')}
@@ -99,18 +103,25 @@ class Form extends React.Component {
     );
   }
 }
+
+export default Form
+
 {% endhighlight %}
 
 ---
 
 We use `UIKernel.createValidator` to create a validator and call `field` function to define validation rules for our form.
 
-`validation.js`
+`validator.js`
 
 {% highlight javascript %}
-const Validator = UIKernel.createValidator()
+import UIKernel from 'uikernel'
+
+const validator = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
   .field('age', UIKernel.Validators.number.notNull(15, 90, 'Age must be between 15 and 90'));
+
+export default validator
 {% endhighlight %}
 
 ---
@@ -119,6 +130,9 @@ We pass validation to the grid model.
 
 `model.js`
 {% highlight javascript %}
+import UIKernel from 'uikernel';
+import validator from './validator';
+
 const model = new UIKernel.Models.Grid.Collection({
   data: [
     [1, {'id': 1, 'name': 'Stacey', 'age': 22}],
@@ -127,6 +141,8 @@ const model = new UIKernel.Models.Grid.Collection({
   ],
   validator
 });
+
+export default model
 {% endhighlight %}
 
 ---
@@ -134,6 +150,9 @@ const model = new UIKernel.Models.Grid.Collection({
 `columns.js`
 
 {% highlight javascript %}
+import UIKernel from 'uikernel';
+import React from 'react';
+
 const columns = {
   id: {
     name : 'ID',
@@ -156,11 +175,13 @@ const columns = {
     name: 'Age',
     sortCycle: ['asc', 'desc', 'default'],
     editor: function () {
-      return <input type="text" {...this.props}/>;
+      return <UIKernel.Editors.Number {...this.props}/>;
     },
     render: ['age', record => record.age]
   }
 };
+
+export default columns
 {% endhighlight %}
 
 ---
@@ -168,6 +189,12 @@ const columns = {
 `MainComponent.js`
 
 {% highlight javascript %}
+import React from 'react';
+import columns from '../columns';
+import model from '../model';
+import UIKernel from 'uikernel';
+import Form from './Form';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -209,10 +236,18 @@ class MainComponent extends React.Component {
     );
   }
 }
+
+export default MainComponent
 {% endhighlight %}
 ---
 
-`main.js`:
+`index.js`:
 {% highlight javascript %}
-React.render(<MainComponent/>, document.getElementById("example"));
+import React from 'react';
+import ReactDOM from 'react-dom';
+import 'uikernel/dist/themes/base/uikernel.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import MainComponent from './Components/MainComponent.js';
+
+ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
 {% endhighlight %}

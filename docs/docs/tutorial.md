@@ -16,78 +16,81 @@ This tutorial demonstrates how to build forms and editable grids with UIKernel. 
 5. Add the possibility to remove grid records
 6. Create a form for adding records into the grid
 
+Setup Create React App in terminal
 
-To get started, we will need to [install](/download.html) UIKernel.
+{% highlight bash %}
+# Setup React boilerplatenpm install -g create-react-app
+create-react-app react-app
+cd react-app
 
-Next, create a directory with the following structure:
+# Install UIKernel
+npm i uikernel
+
+# Install bootstrap
+npm i bootstrap
+
+{% endhighlight%}
+
+Change structure in the react-app folder to the next structure:
 
 {% highlight html %}
-|-- css
-    |-- uikernel
-        * css and images we've downloaded
-    main.css
-|-- js
-    |-- components
-        FiltersForm.js
-        CreateForm.js
+|-- src
+    |-- Components
         MainComponent.js
-    |-- libs
-        uikernel.js
-    |-- models
-        model.js
-        validation.js
+        FormComponent.js
+    index.js
     columns.js
-    main.js
-index.html
-{% endhighlight %}
+    model.js
+    validator.js
+    main.css
+|-- public
+    index.html
+package.json
 
-All files in `js/components` and `js/models` as well as the `css/main.css` file are empty, we'll add some code into them later.
+{% endhighlight%}
+
+All files are empty, we'll add some code into them later.
 
 Our `index.html` file should look like this:
 
 {% highlight html %}
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>Example</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-    <link href="css/uikernel/main.css" rel="stylesheet" type="text/css"/>
-    <link href="css/main.css" rel="stylesheet" type="text/css"/>
-</head>
-<body>
-<div class="container" id="example"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.15.0/lodash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
-<script src="../libs/js/uikernel.js"></script>
-
-<!-- Validation -->
-<script src="js/model/validation.js" type="text/babel"></script>
-
-<!-- Grid model -->
-<script src="js/model/model.js" type="text/babel"></script>
-
-<!-- Grid columns -->
-<script src="js/columns.js" type="text/babel"></script>
-
-<!-- FiltersForm component -->
-<script src="js/components/FiltersForm.js" type="text/babel"></script>
-
-<!-- CreateForm component -->
-<script src="js/components/CreateForm.js" type="text/babel"></script>
-
-<!-- Our main component -->
-<script src="js/components/MainComponent.js" type="text/babel"></script>
-
-<!-- Main file to render -->
-<script src="js/main.js" type="text/babel"></script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#000000" />
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
 </html>
 {% endhighlight %}
 ---
+and `main.css` look like this:
+{% highlight html %}
+#body {
+    margin: 0 auto;
+}
 
+.container {
+    padding-top: 10px;
+}
+
+.btn-success {
+    margin: 0 15px 15px 0;
+}
+.action{
+    margin-top: 15px;
+}
+.data-grid {
+    margin: 10px 0;
+}
+{% endhighlight %}
+---
 Now you can move on to the first step of our tutorial.

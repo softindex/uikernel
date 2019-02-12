@@ -19,6 +19,9 @@ You can also use [other props](editors.html#DatePicker).
 
 `MainComponent.js`
 {% highlight javascript %}
+import React from 'react';
+import UIKernel from 'uikernel';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -50,9 +53,18 @@ class MainComponent extends React.Component {
     );
   }
 }
+
+
+export default MainComponent
 {% endhighlight %}
 
-`main.js`:
+`index.js`:
 {% highlight javascript %}
-React.render(<MainComponent/>, document.body);
+import React from 'react';
+import ReactDOM from 'react-dom';
+import 'uikernel/dist/themes/base/uikernel.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import MainComponent from './Components/MainComponent.js';
+
+ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
 {% endhighlight %}
