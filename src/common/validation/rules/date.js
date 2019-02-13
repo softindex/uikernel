@@ -11,15 +11,16 @@ import utils from '../../utils';
 function baseValidator(notNull, min, max, error, value) {
   error = error || 'Invalid date';
 
-  if (!['number', 'string', 'object'].includes(typeof value)) {
-    return error;
-  }
-
   if (!utils.isDefined(value)) {
     if (notNull) {
       return error;
     }
     return;
+  }
+
+  const typeOfValue = typeof value;
+  if (typeOfValue !== 'number' && typeOfValue !== 'string' && !(value instanceof Date)) {
+    return error;
   }
 
   value = utils.toDate(value);

@@ -42,6 +42,7 @@
     
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
+    * [Fixed Date validator](https://github.com/softindex/uikernel/pull/257)
     * Validator could not work with field name `constructor`
     * Fixed merging of same fields in `ValidationErrors.prototype.merge` method
     
