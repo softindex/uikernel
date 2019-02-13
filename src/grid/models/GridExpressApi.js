@@ -95,7 +95,7 @@ class GridExpressApi {
 
               if (recordFiles.length) {
                 for (const {fieldname, buffer} of recordFiles) {
-                  record[fieldname.split('__')[1]] = buffer.toString();
+                  record[fieldname.split('__')[1]] = buffer.toString(); // TODO Veryha remove toString
                 }
               }
 
@@ -119,7 +119,7 @@ class GridExpressApi {
 
           if (handleMultipartFormData) {
             for (const {fieldname, buffer} of req.files) {
-              body[fieldname] = buffer.toString();
+              body[fieldname] = buffer.toString(); // TODO Veryha remove toString
             }
           }
 
