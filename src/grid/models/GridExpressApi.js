@@ -83,23 +83,22 @@ class GridExpressApi {
           const model = this._getModel(req, res);
           const result = this._result('update');
 
-          let body = req.body.changes || req.body;
+          let body = req.body.rest || req.body;
 
           if (handleMultipartFormData) {
-            body = JSON.parse(body).map(([recordId, record]) => {
-              // expect files sent as formData field named as '<recordId>__<formField>'
-              const recordFiles = req.files.filter(file =>
-                file.fieldname.match(/\d+__\w+/, 'g') &&
-                Number(file.fieldname.split('__')[0]) === recordId
-              );
-
-              if (recordFiles.length) {
-                for (const {fieldname, buffer} of recordFiles) {
-                  record[fieldname.split('__')[1]] = buffer.toString(); // TODO Veryha remove toString
+            body = JSON.parse(body).map(([id, record]) => {
+              for (const {fieldname, buffer} of req.files) {
+                try {
+                  const {recordId, field} = JSON.parse(decodeURI(fieldname));
+                  if (id === recordId) {
+                    record[field] = buffer;
+                  }
+                } catch (e) {
+                  throw new Error('Incorrect name for field containing file data');
                 }
               }
 
-              return [recordId, record];
+              return [id, record];
             });
           }
 
@@ -119,8 +118,9 @@ class GridExpressApi {
 
           if (handleMultipartFormData) {
             for (const {fieldname, buffer} of req.files) {
-              body[fieldname] = buffer.toString(); // TODO Veryha remove toString
+              body[fieldname] = buffer;
             }
+            Object.assign(body, JSON.parse(body.rest));
           }
 
           try {

@@ -49,9 +49,15 @@ class GridXhrModel extends AbstractGridModel {
     const formData = new FormData();
 
     if (this._multipartFormDataEncoded) {
+      const ordinaryData = {};
       for (const [prop, value] of Object.entries(record)) {
-        formData.append(prop, value); // TODO Veryha Write to JSON
+        if (value instanceof File) {
+          formData.append(prop, value);
+        } else {
+          ordinaryData[prop] = value;
+        }
       }
+      formData.append('rest', JSON.stringify(ordinaryData));
     }
 
     let body = await this._xhr({
@@ -146,7 +152,7 @@ class GridXhrModel extends AbstractGridModel {
         const fileFieldNames = [];
         for (const field of Object.keys(record)) {
           if (record[field] instanceof File) {
-            formDataChanges.append(recordId + '__' + field, record[field]); // TODO Veryha Use JSON.stringify
+            formDataChanges.append(JSON.stringify({recordId, field}), record[field]);
             fileFieldNames.push(field);
           }
         }
@@ -158,7 +164,7 @@ class GridXhrModel extends AbstractGridModel {
         ordinaryRecordChanges.push([recordId, filteredRecord]);
       }
 
-      formDataChanges.append('changes', JSON.stringify(ordinaryRecordChanges));
+      formDataChanges.append('rest', JSON.stringify(ordinaryRecordChanges));
     }
 
     let body = await this._xhr({
