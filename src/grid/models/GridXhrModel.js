@@ -52,7 +52,7 @@ class GridXhrModel extends AbstractGridModel {
       const ordinaryData = {};
       for (const [prop, value] of Object.entries(record)) {
         if (value instanceof File) {
-          formData.append(prop, value);
+          formData.append(JSON.stringify(prop), value);
         } else {
           ordinaryData[prop] = value;
         }

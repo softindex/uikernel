@@ -8,8 +8,10 @@
 
 import {Router} from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
-import {asyncHandler} from '../../common/utils';
+import {asyncHandler, parseJson, cloneDeep} from '../../common/utils';
 import multer from 'multer';
+
+const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
 /**
  * Form Express API for Grid model interaction
@@ -22,7 +24,7 @@ class GridExpressApi {
     return new GridExpressApi(handleMultipartFormData, maxFileSize);
   }
 
-  constructor(handleMultipartFormData = false, maxFileSize = 104857600) { // 100 MB
+  constructor(handleMultipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE) {
     const upload = multer({limits: {fileSize: maxFileSize}});
 
     this.middlewares = {
@@ -83,23 +85,23 @@ class GridExpressApi {
           const model = this._getModel(req, res);
           const result = this._result('update');
 
-          let body = req.body.rest || req.body;
+          let body = cloneDeep(req.body);
 
           if (handleMultipartFormData) {
-            body = JSON.parse(body).map(([id, record]) => {
-              for (const {fieldname, buffer} of req.files) {
-                try {
-                  const {recordId, field} = JSON.parse(decodeURI(fieldname));
+            body = parseJson(body.rest, 'Incorrect "rest" json')
+              .map(([id, record]) => {
+                for (const {fieldname, buffer} of req.files) {
+                  const {recordId, field} = parseJson(
+                    decodeURI(fieldname),
+                    'Incorrect name for field containing file data'
+                  );
                   if (id === recordId) {
                     record[field] = buffer;
                   }
-                } catch (e) {
-                  throw new Error('Incorrect name for field containing file data');
                 }
-              }
 
-              return [id, record];
-            });
+                return [id, record];
+              });
           }
 
           try {
@@ -114,13 +116,14 @@ class GridExpressApi {
         asyncHandler(async (req, res, next) => {
           const model = this._getModel(req, res);
           const result = this._result('create');
-          const body = req.body;
+          let body = cloneDeep(req.body);
 
           if (handleMultipartFormData) {
+            body = parseJson(body.rest);
+
             for (const {fieldname, buffer} of req.files) {
-              body[fieldname] = buffer;
+              body[JSON.parse(decodeURI(fieldname))] = buffer;
             }
-            Object.assign(body, JSON.parse(body.rest));
           }
 
           try {
