@@ -8,7 +8,7 @@
 
 import {Router} from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
-import {asyncHandler, parseJson, cloneDeep} from '../../common/utils';
+import {asyncHandler, parseJson} from '../../common/utils';
 import multer from 'multer';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
@@ -85,22 +85,28 @@ class GridExpressApi {
           const model = this._getModel(req, res);
           const result = this._result('update');
 
-          let body = cloneDeep(req.body);
+          let body = req.body;
 
           if (handleMultipartFormData) {
-            body = parseJson(body.rest, 'Incorrect "rest" json')
-              .map(([id, record]) => {
-                for (const {fieldname, buffer} of req.files) {
-                  const {recordId, field} = parseJson(
-                    decodeURI(fieldname),
-                    'Incorrect name for field containing file data'
-                  );
-                  if (id === recordId) {
-                    record[field] = buffer;
-                  }
-                }
+            const filesByRecordId = {};
 
-                return [id, record];
+            for (const {fieldname, buffer} of req.files) {
+              const {recordId, field} = parseJson(
+                decodeURI(fieldname),
+                'Incorrect name for field containing file data'
+              );
+              if (!filesByRecordId[recordId]) {
+                filesByRecordId[recordId] = {};
+              }
+              filesByRecordId[recordId][field] = buffer;
+            }
+
+            body = parseJson(body.rest, 'Incorrect "rest" json')
+              .map(([recordId, record]) => {
+                return [recordId, {
+                  ...record,
+                  ...filesByRecordId[recordId]
+                }];
               });
           }
 
@@ -116,7 +122,7 @@ class GridExpressApi {
         asyncHandler(async (req, res, next) => {
           const model = this._getModel(req, res);
           const result = this._result('create');
-          let body = cloneDeep(req.body);
+          let body = req.body;
 
           if (handleMultipartFormData) {
             body = parseJson(body.rest);
