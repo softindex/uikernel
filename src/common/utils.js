@@ -10,7 +10,8 @@ import ThrottleError from './ThrottleError';
 
 function baseClone(obj, isDeep) {
   let cloned;
-  const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
+  const es6mapTypes = ['[object Map]', '[object WeakMap]'];
+  const es6setTypes = ['[object Set]', '[object WeakSet]'];
 
   if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
     return obj;
@@ -21,10 +22,18 @@ function baseClone(obj, isDeep) {
     for (const el of obj) {
       cloned.push(isDeep ? baseClone(el, true) : el);
     }
-  } else if (es6types.includes(obj.toString())) {
-    cloned = new obj.constructor(obj);
+  } else if (es6mapTypes.includes(obj.toString())) {
+    cloned = new obj.constructor();
+    obj.forEach((value, key) => {
+      cloned.set(key, baseClone(value, true));
+    });
+  } else if (es6setTypes.includes(obj.toString())) {
+    cloned = new obj.constructor();
+    obj.forEach((value) => {
+      cloned.add(baseClone(value, true));
+    });
   } else {
-    cloned = {};
+    cloned = new obj.constructor();
     for (const [field, value] of Object.entries(obj)) {
       cloned[field] = isDeep ? baseClone(value, true) : value;
     }
@@ -355,6 +364,13 @@ exports.mapKeys = (object, iteratee) => {
 exports.reduce = function (obj, func, value) {
   for (const i in obj) {
     value = func(value, obj[i], i);
+  }
+  return value;
+};
+
+exports.reduceMap = function (map, func, value) {
+  for (const [key, mapValue] of map) {
+    value = func(value, mapValue, key);
   }
   return value;
 };

@@ -25,6 +25,8 @@ const GridSelectMixin = {
     }
 
     this.forceUpdate();
+    this._renderBody();
+    this._emitChangeSelectedNum();
   },
 
   /**

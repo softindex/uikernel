@@ -7,7 +7,7 @@
  */
 
 if (!global._babelPolyfill) {
-  require('babel-polyfill');
+  require('@babel/polyfill');
 }
 
 require('./lib/common/setImmediate');

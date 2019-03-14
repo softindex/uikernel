@@ -157,7 +157,13 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Get extra records
     if (settings.extra && settings.extra.length > 0) {
-      result.extraRecords = data.filter(record => settings.extra.indexOf(record[0]) >= 0);
+      result.extraRecords = data.filter(record => {
+        for (const recordId of settings.extra) {
+          if (utils.isEqual(recordId, record[0])) {
+            return true;
+          }
+        }
+      });
     }
 
     // Delete unnecessary fields
@@ -310,7 +316,7 @@ class GridCollectionModel extends AbstractGridModel {
   }
 
   _getRecordByID(id) {
-    return utils.find(this.data, record => record[0] === id);
+    return utils.find(this.data, record => utils.isEqual(record[0], id));
   }
 
   _create(record, id) {

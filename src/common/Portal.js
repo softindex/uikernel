@@ -11,27 +11,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {omit} from './utils';
 
-class ChildrenWrapper extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      children: props.children
-    };
-  }
-
-  setChildren(children) {
-    this.setState({children: children});
-  }
-
-  render() {
-    return (
-      <div {...this.props}>
-        {this.state.children}
-      </div>
-    );
-  }
-}
-
 const portalClass = '__portal';
 
 class Portal extends React.Component {
@@ -49,18 +28,7 @@ class Portal extends React.Component {
     document.body.appendChild(portal);
     portal.className = portalClass;
     this.portal = portal;
-    ReactDOM.render(
-      <ChildrenWrapper
-        {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll', 'styles'])}
-        style={this.props.styles}
-        ref={(wrapper) => {
-          this.wrapper = wrapper;
-        }}
-      >
-        {this.props.children}
-      </ChildrenWrapper>,
-      this.portal
-    );
+    this.renderPortal();
   }
 
   componentWillUnmount() {
@@ -72,7 +40,7 @@ class Portal extends React.Component {
   }
 
   componentDidUpdate() {
-    this.wrapper.setChildren(this.props.children);
+    this.renderPortal();
   }
 
   _isDocumentEventOwner(target) {
@@ -91,19 +59,24 @@ class Portal extends React.Component {
     }
   }
 
+  renderPortal() {
+    ReactDOM.render(
+      <div
+        {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll'])}
+      >
+        {this.props.children}
+      </div>,
+      this.portal
+    );
+  }
+
   render() {
     return null;
   }
 }
 
-ChildrenWrapper.propTypes = {
-  children: PropTypes.node,
-};
-
 Portal.propTypes = {
   children: PropTypes.node,
-  id: PropTypes.string,
-  styles: PropTypes.object,
   onDocumentMouseDown: PropTypes.func,
   onDocumentMouseScroll: PropTypes.func,
 };
