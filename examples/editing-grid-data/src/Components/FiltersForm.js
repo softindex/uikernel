@@ -9,7 +9,6 @@ class FiltersForm extends React.Component {
     });
   }
 
-
   render() {
     return (
       <form className="filters-form form-horizontal">
@@ -17,7 +16,7 @@ class FiltersForm extends React.Component {
           <label className="col-sm-3 control-label">Search</label>
           <div className="col-sm-9">
             <input
-              type="text" // text editor
+              type="text"
               className="form-control"
               onChange={event => this.updateFilter('search', event.target.value)}
               value={this.props.filters.search}
@@ -27,7 +26,7 @@ class FiltersForm extends React.Component {
         <div className="form-group">
           <label className="col-sm-3 control-label">Age</label>
           <div className="col-sm-9">
-            <UIKernel.Editors.Number // number editor
+            <UIKernel.Editors.Number
               className="form-control"
               onChange={value => this.updateFilter('age', value)}
               value={this.props.filters.age}
@@ -37,7 +36,7 @@ class FiltersForm extends React.Component {
         <div className="form-group">
           <label className="col-sm-3 control-label">Gender</label>
           <div className="col-sm-9">
-            <UIKernel.Editors.Select // select editor
+            <UIKernel.Editors.Select
               className="form-control"
               onChange={value => this.updateFilter('gender', value)}
               options={[
@@ -59,7 +58,6 @@ class FiltersForm extends React.Component {
       </form>
     );
   }
-
 }
 
 export default FiltersForm

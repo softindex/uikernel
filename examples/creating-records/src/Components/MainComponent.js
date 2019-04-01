@@ -16,7 +16,7 @@ class MainComponent extends React.Component {
     super(props);
     this.state = {
       model,
-      filters : DEFAULT_FILTERS
+      filters: DEFAULT_FILTERS
     };
   }
 
@@ -41,7 +41,6 @@ class MainComponent extends React.Component {
   highlightNewRecord(recordId) {
     this.grid.addRecordStatus(recordId, 'new'); // mark the record as new
   }
-
 
   render() {
     return (
@@ -97,6 +96,5 @@ class MainComponent extends React.Component {
     );
   }
 }
-
 
 export default MainComponent

@@ -22,7 +22,7 @@ class Form extends React.Component {
   }
 
   onFormChange(newFormState) {
-    if ( JSON.stringify(this.props.state.fields) !== JSON.stringify(newFormState.fields) ) {
+    if (JSON.stringify(this.props.state.fields) !== JSON.stringify(newFormState.fields)) {
       this.form.submit()
         .catch((err) => {
           if (err && !(err instanceof UIKernel.ValidationErrors)) { // If error is not a validation one

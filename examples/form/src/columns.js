@@ -36,4 +36,5 @@ const columns = {
     render: ['age', record => record.age]
   }
 };
+
 export default columns

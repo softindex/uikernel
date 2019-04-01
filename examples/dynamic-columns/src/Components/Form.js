@@ -52,13 +52,9 @@ class Form extends React.Component {
     });
   }
 
-
   render() {
-
     return (
-
         <div className="modal-content animated fadeIn">
-
           <div className="modal-body">
             <form className="form-horizontal">
               {
@@ -82,8 +78,6 @@ class Form extends React.Component {
         </div>
     );
   }
-
-
 }
 
 export default Form

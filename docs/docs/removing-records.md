@@ -12,7 +12,6 @@ That's the simple part. First, let's add the delete method to our model.
 
 `model.js`:
 {% highlight javascript %}
-
 const model = new UIKernel.Models.Grid.Collection({
   // ...
 });

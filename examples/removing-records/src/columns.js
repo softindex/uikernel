@@ -9,8 +9,6 @@ import UIKernel from 'uikernel';
 import _ from 'lodash';
 import React from 'react';
 
-
-
 const columns = {
   tools: {
     width: 50,

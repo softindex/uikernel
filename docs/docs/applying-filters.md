@@ -107,7 +107,6 @@ class FiltersForm extends React.Component {
     });
   }
 
-
   render() {
     return (
       <form className="filters-form form-horizontal">
@@ -157,7 +156,6 @@ class FiltersForm extends React.Component {
       </form>
     );
   }
-
 }
 
 export default FiltersForm

@@ -33,5 +33,4 @@ class MainComponent extends React.Component {
   }
 }
 
-
 export default MainComponent

@@ -33,7 +33,6 @@ const model = (function () {
     }]);
   }
 
-
   return new UIKernel.Models.Grid.Collection({
     data: data,
     validator,

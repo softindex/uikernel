@@ -158,4 +158,4 @@ class CreateForm extends React.Component {
   }
 }
 
-export default CreateForm
+export default CreateForm;

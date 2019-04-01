@@ -10,8 +10,6 @@
 import UIKernel from 'uikernel';
 import validator from './validator';
 
-
-
 const model = (() => {
   const _names = ['Pace', 'Evangeline', 'Roach', 'Thornton', 'Concepcion', 'Francine', 'Kelsey', 'Deanna', 'Bates', 'Acosta', 'Stacey', 'Adams', 'Rodriguez', 'Nona', 'Humphrey', 'Mitchell', 'Murray', 'Sonya', 'Addie', 'Angelica'];
   const _surnames = ['White', 'Terrell', 'Potts', 'English', 'Sanders', 'Poole', 'Bates', 'Snow', 'Simon', 'Kaufman', 'Kelly', 'Maxwell', 'Weaver', 'Frost', 'Carter', 'Dunn', 'Schneider', 'Steele', 'Thornton', 'Conway'];

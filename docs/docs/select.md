@@ -41,7 +41,7 @@ class MainComponent extends React.Component {
     return (
       <div className="container">
         <span>Selected: {this.state.label}</span>
-        <br />
+        <br/>
         <UIKernel.Editors.Select
           ref={(select) => this.select = select}
           onChange={this.handleChange}

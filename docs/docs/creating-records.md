@@ -37,20 +37,20 @@ The value of `form` is an instance of `UIKernel.Form`.
 {% highlight javascript %}
 // ...
 componentDidMount() {
-    this.form.init({
-      fields: ['name', 'surname', 'phone', 'age', 'gender'],
-      model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // default field values
-        name: '',
-        surname: '',
-        phone: '',
-        age: 18,
-        gender: 1
-      }),
-      submitAll: true,
-      partialErrorChecking: true
-    });
-    this.form.addChangeListener(this.onFormChange);
-  }
+  this.form.init({
+    fields: ['name', 'surname', 'phone', 'age', 'gender'],
+    model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // default field values
+      name: '',
+      surname: '',
+      phone: '',
+      age: 18,
+      gender: 1
+    }),
+    submitAll: true,
+    partialErrorChecking: true
+  });
+  this.form.addChangeListener(this.onFormChange);
+}
 // ...
 {% endhighlight %}
 

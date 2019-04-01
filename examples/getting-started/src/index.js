@@ -42,4 +42,3 @@
    <UIKernel.Grid cols={columns} model={model}/>,
    document.getElementById('root')
  );
- 
