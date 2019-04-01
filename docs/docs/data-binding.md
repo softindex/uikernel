@@ -13,8 +13,11 @@ When we modify records in one of the grids, the other grid updates, too.
 
 ### Columns configuration
 
-{% highlight javascript %}
 `columns.js`
+{% highlight javascript %}
+import UIKernel from 'uikernel';
+import React from 'react';
+
 const columns = {
   name: {
     name: 'First Name', // column title
@@ -22,7 +25,7 @@ const columns = {
     editor: function () {
       return <input type="text" {...this.props}/>; // text editor
     },
-    render: ['name', record => _.escape(record.name)] // method for rendering of table cells
+    render: ['name', record => (record.name)] // method for rendering of table cells
   },
   surname: {
     name: 'Last Name',
@@ -30,7 +33,7 @@ const columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['surname', record => _.escape(record.surname)]
+    render: ['surname', record => (record.surname)]
   },
   phone: {
     name: 'Phone',
@@ -38,7 +41,7 @@ const columns = {
     editor: function () {
       return <input type="text" {...this.props}/>;
     },
-    render: ['phone', record => _.escape(record.phone)]
+    render: ['phone', record => (record.phone)]
   },
   age: {
     name: 'Age',
@@ -72,24 +75,33 @@ const columns = {
     }]
   }
 };
+export default columns
+
 {% endhighlight %}
 
 ### Validation configuration
 
-`validation.js`:
+`validator.js`:
 {% highlight javascript %}
-const Validation = UIKernel.createValidator()
+import UIKernel from 'uikernel'
+
+const validator = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
   .field('age', UIKernel.Validators.number.notNull(0, 120, 'Invalid age.'))
-  .field('gender', UIKernel.Validators.regExp.notNull(/^[12]$/, 'Invalid gender.'));
+  .field('gender', UIKernel.Validators.enum.notNull([1, 2], 'Invalid gender.'));
+
+export default validator
 {% endhighlight %}
 
 ### Grid Model
 
 `model.js`:
 {% highlight javascript %}
+import UIKernel from 'uikernel';
+import validator from './validator';
+
 const model = (function () {
   // Generate some data for our model
   // ...
@@ -99,6 +111,8 @@ const model = (function () {
     validator
   });
 )}();
+
+export default model
 {% endhighlight %}
 
 ### Main component
@@ -107,6 +121,11 @@ We pass the `realtime` prop to one of grids so that its changes could be saved a
 
 `MainComponent.js`:
 {% highlight javascript %}
+import React from 'react';
+import columns from '../columns';
+import model from '../model';
+import UIKernel from 'uikernel';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
@@ -138,7 +157,7 @@ class MainComponent extends React.Component {
               model={this.state.model} // Grid model
               cols={columns} // columns configuration
               viewCount={10}
-              realtime={true}
+              autoSubmit={true}
             />
           </div>
           <div className="col-sm-6">
@@ -149,7 +168,7 @@ class MainComponent extends React.Component {
               cols={columns}
               viewCount={10}
             />
-            <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+            <a className="btn btn-default" onClick={this.clearChanges}>Clear</a>
             {' '}
             <a className="btn btn-primary" onClick={this.saveChanges}>Save</a>
           </div>
@@ -158,9 +177,17 @@ class MainComponent extends React.Component {
     );
   }
 }
+
+export default MainComponent
 {% endhighlight %}
 
-`main.js`:
+`index.js`:
 {% highlight javascript %}
-ReactDOM.render(<MainComponent/>, document.body);
+import React from 'react';
+import ReactDOM from 'react-dom';
+import 'uikernel/dist/themes/base/uikernel.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import MainComponent from './Components/MainComponent.js';
+
+ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
 {% endhighlight %}

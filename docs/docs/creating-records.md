@@ -12,6 +12,10 @@ First, let's create a form for adding new records to our grid.
 
 `CreateFormComponent.js`:
 {% highlight javascript %}
+import React from 'react';
+import UIKernel from 'uikernel';
+import model from '../model';
+
 class CreateForm extends React.Component {
   constructor(props) {
     super(props);
@@ -33,17 +37,20 @@ The value of `form` is an instance of `UIKernel.Form`.
 {% highlight javascript %}
 // ...
 componentDidMount() {
-  this.form.init({
-    fields: ['name', 'surname', 'phone', 'age', 'gender'],
-    model: new UIKernel.Adapters.Grid.ToFormCreate(model, { //second parameter is default field values
-      gender: 1
-    }),
-    submitAll: true,
-    partialErrorChecking: true
-  });
-  this.form.addChangeListener(this.onFormChange);
-}
-
+    this.form.init({
+      fields: ['name', 'surname', 'phone', 'age', 'gender'],
+      model: new UIKernel.Adapters.Grid.ToFormCreate(model, { // default field values
+        name: '',
+        surname: '',
+        phone: '',
+        age: 18,
+        gender: 1
+      }),
+      submitAll: true,
+      partialErrorChecking: true
+    });
+    this.form.addChangeListener(this.onFormChange);
+  }
 // ...
 {% endhighlight %}
 
@@ -218,6 +225,8 @@ render() {
     </div>
   );
 }
+
+export default CreateForm
 {% endhighlight %}
 
 All inputs have the `onChange`, `onFocus`, and `onBlur` props with callbacks set.
@@ -239,21 +248,14 @@ The ternary operator allows us to specify two different classes, one if a functi
 
 ---
 
-Now let's open the `main.css` file and add there the following code:
-{% highlight javascript %}
-.edit-form .changed {
-    background-color: #ffff38;
-}
-.edit-form .error {
-    background-color: #ff8689;
-}
-{% endhighlight %}
----
-
 Next up, let's modify `MainComponent`.
 
 `MainComponent.js`:
 {% highlight javascript %}
+
+// ...
+
+import CreateForm from './CreateForm';
 
 highlightNewRecord(recordId) {
   this.grid.addRecordStatus(recordId, 'new'); // mark the record as new

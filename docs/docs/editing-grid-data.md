@@ -13,6 +13,9 @@ First, let's modify the grid columns by adding each of them the `editor` propert
 
 `columns.js`:
 {% highlight javascript %}
+import UIKernel from 'uikernel';
+import React from 'react';
+
 const columns = {
   name: {
     name: 'First Name',
@@ -70,12 +73,16 @@ We'll also need to validate our edited data. So let's define some validation rul
 
 `validation.js`:
 {% highlight javascript %}
+import UIKernel from 'uikernel'
+
 const validator = UIKernel.createValidator()
   .field('name', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid first name.'))
   .field('surname', UIKernel.Validators.regExp.notNull(/^\w{2,30}$/, 'Invalid last name.'))
   .field('phone', UIKernel.Validators.regExp.notNull(/^(\d{3}-)?\d{2,10}$/, 'Invalid phone number.'))
   .field('age', UIKernel.Validators.number.notNull(0, 120, 'Invalid age.'))
   .field('gender', UIKernel.Validators.enum.notNull([1, 2], 'Invalid gender.'));
+
+export default validator
 {% endhighlight %}
 Here, we've called `UIKernel.createValidator` to create a validator.
 
@@ -88,6 +95,9 @@ In this example, we've used only `UIKernel.Validators.regExp`. There are many mo
 Now let's modify our `model.js` file as follows:
 
 {% highlight javascript %}
+import UIKernel from 'uikernel';
+import validator from './validation';
+
 const model = new UIKernel.Models.Grid.Collection({
   // ...
   validator

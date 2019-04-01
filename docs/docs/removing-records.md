@@ -12,12 +12,13 @@ That's the simple part. First, let's add the delete method to our model.
 
 `model.js`:
 {% highlight javascript %}
+
 const model = new UIKernel.Models.Grid.Collection({
   // ...
 });
 
 model.delete = function (id) {
-  this.data = _.reject(this.data, (record) => record[0] === id);
+  this.data = this.data.filter((record) => record[0] !== id);
   return Promise.resolve(id);
 };
 {% endhighlight %}

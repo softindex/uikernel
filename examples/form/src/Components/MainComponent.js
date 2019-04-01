@@ -1,0 +1,49 @@
+import React from 'react';
+import columns from '../columns';
+import model from '../model';
+import UIKernel from 'uikernel';
+import Form from './Form';
+
+class MainComponent extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      form: {}
+    };
+    this.updateFormState =this.updateFormState.bind(this);
+  }
+
+  updateFormState(newFormState) {
+    this.setState({form: newFormState});
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <div className="row">
+          <div className="col-sm-12">
+            <div className="panel panel-info">
+              <div className="panel-heading">
+                <h3 className="panel-title">Records</h3>
+              </div>
+              <div className="panel-body padding0">
+                <UIKernel.Grid
+                  ref={(grid) => this.grid = grid}
+                  model={model}
+                  cols={columns}
+                  autoSubmit={true}
+                />
+                <Form
+                  state={this.state.form}
+                  onChange={this.updateFormState}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+export default MainComponent

@@ -51,6 +51,8 @@ Filters themselves will be defined in `MainComponent` in the next way:
  `MainComponent.js`:
  {% highlight javascript %}
  // ...
+ import FiltersForm from './FiltersForm';
+
  const DEFAULT_FILTERS = {
    search: '',
    age: null,
@@ -63,12 +65,12 @@ Init filters object in state.
 
 `MainComponent.js`:
 {% highlight javascript %}
-  constructor(props) {
+ constructor(props) {
     super(props);
-    // ...
     this.state = {
-      filters: { }
-    }
+      model,
+      filters : DEFAULT_FILTERS
+    };
   }
 {% endhighlight %}
 
@@ -94,6 +96,9 @@ Now let’s create a form with three filters: `search`, `age`, and `gender`. Her
 
 `FiltersForm.js`:
 {% highlight javascript %}
+import React from 'react';
+import UIKernel from 'uikernel';
+
 class FiltersForm extends React.Component {
   updateFilter(filter, value) {
     this.props.onChange({
@@ -101,6 +106,7 @@ class FiltersForm extends React.Component {
       [filter]: value
     });
   }
+
 
   render() {
     return (
@@ -143,7 +149,7 @@ class FiltersForm extends React.Component {
         </div>
         <div className="form-group">
           <div className="col-sm-offset-3 col-sm-9">
-            <a className="btn btn-success" onClick={() => this.props.onClear()}>
+            <a className="btn btn-default" onClick={() => this.props.onClear()}>
               Clear
             </a>
           </div>
@@ -151,7 +157,11 @@ class FiltersForm extends React.Component {
       </form>
     );
   }
+
 }
+
+export default FiltersForm
+
 
 {% endhighlight %}
 

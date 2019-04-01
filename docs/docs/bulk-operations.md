@@ -26,12 +26,17 @@ by calling `this.grid.toggleSelectAll()` at `MainComponent.js`
 
 `MainComponent.js`:
 {% highlight javascript %}
+import React from 'react';
+import columns from '../columns';
+import model from '../model';
+import UIKernel from 'uikernel';
+
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       model: model,
-      bulkMode: false, // state for toggle button (Select all / Clear all)
+      blackMode: false, // state for toggle button (Select all / Clear all)
       selectedNum: 0
     };
     this.onSelectedChange = this.onSelectedChange.bind(this);
@@ -47,21 +52,21 @@ class MainComponent extends React.Component {
 
   toggleSelectMode() {
     this.setState({
-      bulkMode: !this.state.bulkMode
+      blackMode: !this.state.blackMode
     });
     this.grid.toggleSelectAll();
   }
 
   someAction() { // this function can do anything what you need
     const records = this.grid.getAllSelected();
-    alert('BulkMode: ' + this.state.bulkMode + ' Records: ' + records.join(', '));
+    alert(`Mode: ${this.state.blackMode}. Records: ${records.length ? records.join(', ') : 'all'}`);
   }
 
   render() {
-    const buttonText = this.state.bulkMode ? 'Clear all' : 'Select all';
+    const buttonText = this.state.blackMode ? 'Clear all' : 'Select all';
     let numText; // selected records
 
-    if (this.state.bulkMode) {
+    if (this.state.blackMode) {
       numText = 'Selected all records.';
     } else {
       numText = `Selected ${this.state.selectedNum} ${this.state.selectedNum === 1 ? 'record' : 'records'}`;
@@ -87,10 +92,15 @@ class MainComponent extends React.Component {
     );
   }
 }
+
+export default MainComponent
 {% endhighlight %}
 
 `columns.js`:
 {% highlight javascript %}
+import UIKernel from 'uikernel';
+import React from 'react';
+
 const columns = {
   bulk: {
     width: '40px',
@@ -111,12 +121,18 @@ const columns = {
   },
   /* ...configuration of other fields... */
 };
+
+export default columns
+
 {% endhighlight %}
 
 `model.js`:
 {% highlight javascript %}
-  const model = new UIKernel.Models.Grid.Collection({
-    data: _getRandomRecords(20),
-    /* ... some other methods which are not important in this example */
-  });
+import UIKernel from 'uikernel';
+import validator from './validator';
+
+const model = new UIKernel.Models.Grid.Collection({
+  data: _getRandomRecords(20),
+  /* ... some other methods which are not important in this example */
+});
 {% endhighlight %}
