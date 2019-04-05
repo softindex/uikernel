@@ -22,6 +22,7 @@ var Module = {
   createXhrValidator: require('./lib/common/validation/validators/XhrValidator').create,
   exportGridData: require('./lib/grid/export/exportGridData'),
   toJSON: require('./lib/grid/export/exporters/toJSON'),
+  toCSV: require('./lib/grid/export/exporters/toCSV'),
   Models: {
     Grid: {
       Xhr: require('./lib/grid/models/GridXhrModel'),
