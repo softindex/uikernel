@@ -12,6 +12,7 @@ Grid Express API helps to perform the next requests:
 | Method | URL         | Description |
 |--------|-------------|--------------|
 | GET    | /           | Get all records |
+| POST   | /read       | Get all records (in case large query) |
 | GET    | /:recordId  | Get particular record |
 | PUT    | /           | Update multiple records |
 | POST   | /           | Create a record |

@@ -75,7 +75,7 @@ so `serverResponse.data` will be resolved.
 {% endhighlight %}
 
 Retrieves grid records from the server.
-It sends `GET` request to the URI = `settings.api` parameter taken in the constructor).
+It sends `GET` request (or `POST` if received query string too large) to the URI = `settings.api` parameter taken in the constructor).
 In successful case(response status == 200) returns server response, otherwise throws an error.
 
 **Parameters**:

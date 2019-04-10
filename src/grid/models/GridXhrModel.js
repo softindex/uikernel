@@ -73,27 +73,25 @@ class GridXhrModel extends AbstractGridModel {
    * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
    */
   async read(settings) {
-    const parsedUrl = url.parse(this._apiUrl, true);
+    const maxUriLengthForGetRequest = 2048;
+    const queryUrl = this._getQueryUrl(settings);
+    const queryBody = this._getQueryBody(settings);
 
-    parsedUrl.query.fields = JSON.stringify(settings.fields);
-    parsedUrl.query.offset = settings.offset || 0;
-    if (settings.limit) {
-      parsedUrl.query.limit = settings.limit;
+    if (url.format(queryUrl).length > maxUriLengthForGetRequest) {
+      const parsedUrl = url.parse(this._apiUrl, true);
+      parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'read');
+
+      return await this._xhr({
+        method: 'POST',
+        json: true,
+        uri: url.format(parsedUrl),
+        body: queryBody
+      });
     }
-    if (settings.filters) {
-      parsedUrl.query.filters = JSON.stringify(settings.filters);
-    }
-    if (settings.sort) {
-      parsedUrl.query.sort = JSON.stringify(settings.sort);
-    }
-    if (settings.extra) {
-      parsedUrl.query.extra = JSON.stringify(settings.extra);
-    }
-    delete parsedUrl.search;
 
     const response = await this._xhr({
       method: 'GET',
-      uri: url.format(parsedUrl)
+      uri: url.format(queryUrl)
     });
 
     return JSON.parse(response);
@@ -211,6 +209,47 @@ class GridXhrModel extends AbstractGridModel {
    */
   getValidationDependency(fields) {
     return this._validator.getValidationDependency(fields);
+  }
+
+  _getQueryUrl(settings) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.query.fields = JSON.stringify(settings.fields);
+    parsedUrl.query.offset = settings.offset || 0;
+    if (settings.limit) {
+      parsedUrl.query.limit = settings.limit;
+    }
+    if (settings.filters) {
+      parsedUrl.query.filters = JSON.stringify(settings.filters);
+    }
+    if (settings.sort) {
+      parsedUrl.query.sort = JSON.stringify(settings.sort);
+    }
+    if (settings.extra) {
+      parsedUrl.query.extra = JSON.stringify(settings.extra);
+    }
+    delete parsedUrl.search;
+
+    return parsedUrl;
+  }
+
+  _getQueryBody(settings) {
+    const requestBody = {};
+    requestBody.fields = settings.fields;
+    requestBody.offset = settings.offset || 0;
+    if (settings.limit) {
+      requestBody.limit = settings.limit;
+    }
+    if (settings.filters) {
+      requestBody.filters = settings.filters;
+    }
+    if (settings.sort) {
+      requestBody.sort = settings.sort;
+    }
+    if (settings.extra) {
+      requestBody.extra = settings.extra;
+    }
+
+    return requestBody;
   }
 }
 

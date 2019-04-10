@@ -23,7 +23,7 @@ class GridExpressApi {
 
   constructor() {
     this.middlewares = {
-      read: [asyncHandler(async (req, res, next) => {
+      readGet: [asyncHandler(async (req, res, next) => {
         const settings = {};
         if (req.query.limit) {
           settings.limit = parseInt(req.query.limit);
@@ -43,14 +43,29 @@ class GridExpressApi {
         if (req.query.filters) {
           settings.filters = JSON.parse(req.query.filters);
         }
-        const model = this._getModel(req, res);
-        const result = this._result('read');
-        try {
-          const response = await model.read(settings);
-          result(null, response, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
+        await this._getModelResponse(req, res, next, settings, 'readGet');
+      })],
+      readPost: [asyncHandler(async (req, res, next) => {
+        const settings = {};
+        if (req.body.limit) {
+          settings.limit = parseInt(req.body.limit);
         }
+        if (req.body.offset) {
+          settings.offset = parseInt(req.body.offset);
+        }
+        if (req.body.sort) {
+          settings.sort = req.body.sort;
+        }
+        if (req.body.fields) {
+          settings.fields = req.body.fields;
+        }
+        if (req.body.extra) {
+          settings.extra = req.body.extra;
+        }
+        if (req.body.filters) {
+          settings.filters = req.body.filters;
+        }
+        await this._getModelResponse(req, res, next, settings, 'readPost');
       })],
       validate: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
@@ -114,7 +129,8 @@ class GridExpressApi {
 
   getRouter() {
     return new express.Router()
-      .get('/', this.middlewares.read)
+      .get('/', this.middlewares.readGet)
+      .post('/read', this.middlewares.readPost)
       .post('/validation', this.middlewares.validate)
       .get('/:recordId', this.middlewares.getRecord)
       .put('/', this.middlewares.update)
@@ -124,8 +140,12 @@ class GridExpressApi {
       });
   }
 
-  read(middlewares) {
-    return this._addMidelwares('read', middlewares);
+  readGet(middlewares) {
+    return this._addMidelwares('readGet', middlewares);
+  }
+
+  readPost(middlewares) {
+    return this._addMidelwares('readPost', middlewares);
   }
 
   validate(middlewares) {
@@ -205,6 +225,17 @@ class GridExpressApi {
       } else {
         res.json(data);
       }
+    }
+  }
+
+  async _getModelResponse(req, res, next, settings, method) {
+    const model = this._getModel(req, res);
+    const result = this._result(method);
+    try {
+      const response = await model.read(settings);
+      result(null, response, req, res, next);
+    } catch (err) {
+      result(err, null, req, res, next);
     }
   }
 }
