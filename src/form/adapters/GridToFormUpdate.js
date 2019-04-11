@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
 
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import Events from '../../common/Events';
-import utils from '../../common/utils';
+import {isEqual, clone} from '../../common/utils';
 
 class GridToFormUpdate extends Events {
   /**
@@ -46,7 +46,7 @@ class GridToFormUpdate extends Events {
     // onChange filters out table events, that do not regard to our record
     function onChange(changes) {
       for (let i = 0; i < changes.length; i++) {
-        if (utils.isEqual(changes[i][0], ctx._adapter.id)) {
+        if (isEqual(changes[i][0], ctx._adapter.id)) {
           cb(changes[i][1]);
           return;
         }
@@ -107,7 +107,7 @@ class GridToFormUpdate extends Events {
    * @param   {Object}      changes     Form data
    */
   async submit(changes) {
-    const record = utils.clone(changes);
+    const record = clone(changes);
     const model = this._adapter.model;
 
     let result = await model.update([[this._adapter.id, record]]);

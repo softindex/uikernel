@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -11,6 +11,8 @@ import Validator from '../../common/validation/Validator';
 import defaultXhr from '../../common/defaultXhr';
 import AbstractGridModel from './AbstractGridModel';
 import url from 'url';
+
+const MAX_URI_LENGTH = 2048;
 
 /**
  * Grid model, that works with API via XHR
@@ -25,8 +27,9 @@ import url from 'url';
 class GridXhrModel extends AbstractGridModel {
   constructor(settings) {
     super();
+
     if (!settings.api) {
-      throw Error('Initialization problem: \'api\' must be specified.');
+      throw new Error('Initialization problem: \'api\' must be specified.');
     }
 
     this._validator = settings.validator || new Validator();
@@ -73,20 +76,10 @@ class GridXhrModel extends AbstractGridModel {
    * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
    */
   async read(settings) {
-    const maxUriLengthForGetRequest = 2048;
     const queryUrl = this._getQueryUrl(settings);
-    const queryBody = this._getQueryBody(settings);
 
-    if (url.format(queryUrl).length > maxUriLengthForGetRequest) {
-      const parsedUrl = url.parse(this._apiUrl, true);
-      parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'read');
-
-      return await this._xhr({
-        method: 'POST',
-        json: true,
-        uri: url.format(parsedUrl),
-        body: queryBody
-      });
+    if (url.format(queryUrl).length > MAX_URI_LENGTH) {
+      return await this._readPostRequest(settings);
     }
 
     const response = await this._xhr({
@@ -232,7 +225,7 @@ class GridXhrModel extends AbstractGridModel {
     return parsedUrl;
   }
 
-  _getQueryBody(settings) {
+  async _readPostRequest(settings) {
     const requestBody = {};
     requestBody.fields = settings.fields;
     requestBody.offset = settings.offset || 0;
@@ -249,7 +242,15 @@ class GridXhrModel extends AbstractGridModel {
       requestBody.extra = settings.extra;
     }
 
-    return requestBody;
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'read');
+
+    return await this._xhr({
+      method: 'POST',
+      json: true,
+      uri: url.format(parsedUrl),
+      body: requestBody
+    });
   }
 }
 

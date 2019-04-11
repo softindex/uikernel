@@ -27,6 +27,7 @@
     * [Fixed handling of plain Errors among changes returned from GridModel.prototype.update](https://github.com/softindex/uikernel/pull/243)
     * [Fixed bugs concerned with editing of grids](https://github.com/softindex/uikernel/pull/250)
     * [Made calling of grid.onChange after every change in the grid, not only after blur](https://github.com/softindex/uikernel/pull/251)
+    * [Send POST read request if query string too large](https://github.com/softindex/uikernel/pull/260)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
   

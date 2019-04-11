@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "1.0.1-dev2.1",
+  "version": "1.0.1-dev2.2",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -10,8 +10,8 @@
     "forms",
     "react"
   ],
-  "main": "./main",
-  "browser": "./browser",
+  "main": "./lib",
+  "browser": "./dist/uikernel",
   "repository": "git@github.com:softindex/uikernel.git",
   "scripts": {
     "build": "gulp",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
     "@babel/runtime": "^7.1.2",
+    "classnames": "^2.2.6",
     "create-react-class": "^15.6.2",
     "csv-stringify": "^1.0.4",
     "express": "^4.16.4",
@@ -31,8 +32,7 @@
     "react-datepicker": "1.1.0",
     "react-dom": "^16.5.2",
     "react-dom-factories": "^1.0.2",
-    "xhr": "^2.5.0",
-    "classnames": "^2.2.6"
+    "xhr": "^2.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -45,10 +45,11 @@
     "@babel/register": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
+    "babel-loader": "^8.0.5",
     "babel-plugin-add-module-exports": "^1.0.0",
     "browserify": "^15.2.0",
     "browserify-shim": "^3.8.12",
-    "del": "^3.0.0",
+    "del": "^4.1.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^4.19.1",
@@ -57,25 +58,21 @@
     "flow-typed": "^2.5.1",
     "gulp": "^4.0.0",
     "gulp-archiver": "^1.0.0",
-    "gulp-babel": "^8.0.0-beta.2",
-    "gulp-changed": "^3.2.0",
-    "gulp-count": "^1.0.0",
     "gulp-eslint": "^4.0.0",
+    "gulp-exec": "^3.0.2",
     "gulp-gh-pages": "^0.5.4",
     "gulp-if": "^2.0.2",
     "gulp-less": "^3.5.0",
-    "gulp-licenser": "^1.0.2",
     "gulp-rename": "^1.4.0",
     "gulp-sequence": "^1.0.0",
-    "gulp-uglify": "^3.0.1",
     "jest": "^22.4.4",
     "merge-stream": "^1.0.0",
-    "path-exists": "^3.0.0",
     "raf": "^3.4.0",
     "react-dom": "15.6.2",
-    "through2": "^2.0.3",
-    "webpack": "^1.13.3",
-    "webpack-stream": "^3.2.0",
+    "uglifyjs-webpack-plugin": "^2.1.2",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0",
+    "webpack-node-externals": "^1.7.2",
     "yargs": "^11.1.0"
   },
   "jest": {

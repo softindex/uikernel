@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,17 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../common/utils';
+import {warn} from '../common/utils';
 
 const functionsNames = [];
 
 function toPromise(func, hideWarning) {
   const funcName = func.name;
 
-  function warn(text) {
+  function promiseWarn(text) {
     if (!hideWarning) {
       if (!functionsNames.includes(funcName)) {
-        utils.warn(text);
+        warn(text);
         functionsNames.push(funcName);
       }
     }
@@ -40,14 +40,14 @@ function toPromise(func, hideWarning) {
       if (promise.then && promise.catch) {
         return promise;
       }
-      warn(
+      promiseWarn(
         `The return value is not a Promise in '${funcName}'.\n` +
         `Arguments: ${JSON.stringify(mainArguments)}\n` +
         `Returns: ${JSON.stringify(promise)}`
       );
       return callbackPromise;
     } else {
-      warn(
+      promiseWarn(
         `You are using callback in: '${funcName}'. Use promise instead.\n` +
         `Arguments: ${JSON.stringify(mainArguments)}`
       );

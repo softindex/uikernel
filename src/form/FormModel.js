@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
 
 import Validator from '../common/validation/Validator';
 import AbstractFormModel from './AbstractFormModel';
-import utils from '../common/utils';
+import {clone} from '../common/utils';
 
 class FormModel extends AbstractFormModel {
   /**
@@ -21,7 +21,7 @@ class FormModel extends AbstractFormModel {
   constructor(defaultValues, validation) {
     super();
     this._validation = validation || new Validator();
-    this._data = defaultValues ? utils.clone(defaultValues) : {};
+    this._data = defaultValues ? clone(defaultValues) : {};
   }
 
   /**
@@ -37,7 +37,7 @@ class FormModel extends AbstractFormModel {
         record[field] = this._data[field];
       }
     } else {
-      record = utils.clone(this._data);
+      record = clone(this._data);
     }
 
     return record;

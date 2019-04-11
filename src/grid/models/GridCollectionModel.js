@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
 
 import Validator from '../../common/validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
-import utils from '../../common/utils';
+import {cloneDeep, warn, isEqual, without, clone, forEach, find} from '../../common/utils';
 
 class GridCollectionModel extends AbstractGridModel {
   /**
@@ -26,11 +26,11 @@ class GridCollectionModel extends AbstractGridModel {
     super();
     options = options || {};
 
-    this.data = utils.cloneDeep(options.data) || [];
+    this.data = cloneDeep(options.data) || [];
     this._id = 1;
     this._filtersHandler = options.filtersHandler;
     if (options.validation) {
-      utils.warn('Property "validation" is deprecated, use "validator" instead');
+      warn('Property "validation" is deprecated, use "validator" instead');
     }
     this._validator = options.validator || options.validation || new Validator();
     this._requiredFields = options.requiredFields || [];
@@ -68,14 +68,14 @@ class GridCollectionModel extends AbstractGridModel {
         continue;
       }
 
-      if (!utils.isEqual(record, currentData[id])) {
+      if (!isEqual(record, currentData[id])) {
         updatedRecords.push(record);
       }
     }
 
-    const deletedRecordsIds = utils.without(Object.keys(currentData), recordIds).map(JSON.parse);
+    const deletedRecordsIds = without(Object.keys(currentData), recordIds).map(JSON.parse);
 
-    this.data = utils.cloneDeep(data);
+    this.data = cloneDeep(data);
 
     if (createdRecordsIds.length) {
       this.trigger('create', [createdRecordsIds]);
@@ -114,7 +114,7 @@ class GridCollectionModel extends AbstractGridModel {
     let field;
     let validationErrors;
     let id = this._getID();
-    let clonedRecord = utils.clone(record);
+    let clonedRecord = clone(record);
     // Create record with definite id
     if (Array.isArray(clonedRecord) && clonedRecord.length === 2) {
       id = clonedRecord[0];
@@ -152,7 +152,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Array}       [settings.ids]          Record IDs, we need to get for sure
    */
   read(settings) {
-    let data = utils.cloneDeep(this.data);
+    let data = cloneDeep(this.data);
     const result = {};
 
     // Get extra records
@@ -162,8 +162,8 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Delete unnecessary fields
     if (settings.fields) {
-      utils.forEach(result.extraRecords, record => {
-        utils.forEach(record[1], (value, key) => {
+      forEach(result.extraRecords, record => {
+        forEach(record[1], (value, key) => {
           if (settings.fields.indexOf(key) === -1) {
             delete record[1][key];
           }
@@ -189,7 +189,7 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Apply filters
     if (this._filtersHandler && settings.filters) {
-      data = utils.cloneDeep(this._filtersHandler(data, settings.filters));
+      data = cloneDeep(this._filtersHandler(data, settings.filters));
     }
 
     result.count = data.length;
@@ -203,8 +203,8 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Delete unnecessary fields
     if (settings.fields) {
-      utils.forEach(data, record => {
-        utils.forEach(record[1], (value, key) => {
+      forEach(data, record => {
+        forEach(record[1], (value, key) => {
           if (settings.fields.indexOf(key) === -1) {
             delete record[1][key];
           }
@@ -224,7 +224,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Array}           fields  Required fields
    */
   getRecord(id, fields) {
-    const record = utils.cloneDeep(this._getRecordByID(id));
+    const record = cloneDeep(this._getRecordByID(id));
     if (!record) {
       return Promise.reject(new Error('Record not found.'));
     }
@@ -233,7 +233,7 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Deleting unused fields
     if (fields) {
-      utils.forEach(returnRecord, (value, key) => {
+      forEach(returnRecord, (value, key) => {
         if (fields.indexOf(key) === -1) {
           delete returnRecord[key];
         }
@@ -310,7 +310,7 @@ class GridCollectionModel extends AbstractGridModel {
   }
 
   _getRecordByID(id) {
-    return utils.find(this.data, record => record[0] === id);
+    return find(this.data, record => record[0] === id);
   }
 
   _create(record, id) {

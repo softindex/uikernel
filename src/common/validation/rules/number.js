@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../../utils';
+import {isDefined} from '../../utils';
 
 function baseValidator(notNull, min, max, error, value) {
   error = error || 'Invalid number';
-  if (!utils.isDefined(value)) {
+  if (!isDefined(value)) {
     if (notNull) {
       return error;
     }

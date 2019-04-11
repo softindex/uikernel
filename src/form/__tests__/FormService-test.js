@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,13 +8,14 @@
 
 import Form from '../FormService';
 import ValidationErrors from '../../common/validation/ValidationErrors';
+import FormModelMock from '../__mocks__/FormModelMock';
 
 function getInitSettings(mockMethods) {
   jest.resetModules();
   return {
     fields: ['name', 'surname', 'phone', 'age'],
     partialErrorChecking: false,
-    model: {...require('formModel'), ...mockMethods}
+    model: {...new FormModelMock(), ...mockMethods}
   };
 }
 

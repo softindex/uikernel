@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../../common/utils';
+import {decorate} from '../../common/utils';
 
 /**
  * Defines filter values while reading Grid model data
@@ -15,7 +15,7 @@ import utils from '../../common/utils';
  * @param {Object}            filters     Filter values
  */
 function applyGridFilters(model, filters) {
-  return utils.decorate(model, {
+  return decorate(model, {
     async read(options) {
       options.filters = {
         ...filters,

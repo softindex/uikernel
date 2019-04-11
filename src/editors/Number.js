@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -7,7 +7,7 @@
  */
 
 import floatValidator from '../common/validation/rules/float';
-import utils from '../common/utils';
+import {isEqual, omit} from '../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -33,7 +33,7 @@ class NumberEditor extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!utils.isEqual(this.state.value, nextProps.value)) {
+    if (!isEqual(this.state.value, nextProps.value)) {
       findDOMNode(this.input).value = this.state.value = nextProps.value;
     }
   }
@@ -56,7 +56,7 @@ class NumberEditor extends React.Component {
     return (
       <input
         step="any"
-        {...utils.omit(this.props, 'value')}
+        {...omit(this.props, 'value')}
         type="number"
         ref={(input) => this.input = input}
         onChange={::this._onChangeHandler}

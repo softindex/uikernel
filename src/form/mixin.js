@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../common/utils';
+import {throttle, isEmpty, isEqual, cloneDeep, parseValueFromEvent, getRecordChanges, forEach, clone} from '../common/utils';
 import toPromise from '../common/toPromise';
 import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
@@ -18,7 +18,7 @@ import callbackify from '../common/callbackify';
  */
 const FormMixin = {
   getInitialState: function () {
-    this._validateForm = utils.throttle(this._validateForm);
+    this._validateForm = throttle(this._validateForm);
 
     if (this._handleModelChange.name.indexOf('bound ') !== 0) { // Support React.createClass and mixin-decorators
       this._handleModelChange = this._handleModelChange.bind(this);
@@ -130,7 +130,7 @@ const FormMixin = {
     const state = this.state._formMixin;
 
     if (field === undefined) {
-      return !utils.isEmpty(state.changes);
+      return !isEmpty(state.changes);
     }
 
     if (!state.showDependentFields && this._isDependentField(field)) {
@@ -166,7 +166,7 @@ const FormMixin = {
     // If partial check is on and field is changed,
     // do not display an error
     if (state.partialErrorChecking) {
-      if (!state.changes.hasOwnProperty(field) || utils.isEqual(state.changes[field], state.data[field])) {
+      if (!state.changes.hasOwnProperty(field) || isEqual(state.changes[field], state.data[field])) {
         return false;
       }
     }
@@ -217,7 +217,7 @@ const FormMixin = {
     if (this._isNotInitialized()) {
       return {};
     }
-    return utils.cloneDeep(this._getData());
+    return cloneDeep(this._getData());
   },
 
   /**
@@ -243,7 +243,7 @@ const FormMixin = {
         // If field is unchanged, remove errors, that regard to this field
         if (
           !this.state._formMixin.changes.hasOwnProperty(field) ||
-          utils.isEqual(this.state._formMixin.changes[field], this.state._formMixin.data[field])
+          isEqual(this.state._formMixin.changes[field], this.state._formMixin.data[field])
         ) {
           errors.clearField(field);
         }
@@ -294,13 +294,13 @@ const FormMixin = {
       return;
     }
     this.set({
-      [field]: utils.parseValueFromEvent(value)
+      [field]: parseValueFromEvent(value)
     });
   },
 
   validateField: function (field, value, cb) {
     this.set({
-      [field]: utils.parseValueFromEvent(value)
+      [field]: parseValueFromEvent(value)
     }, true, cb);
   },
 
@@ -334,7 +334,7 @@ const FormMixin = {
     }
 
     const state = this.state._formMixin;
-    state.changes = utils.getRecordChanges(state.model, state.data, state.changes, data);
+    state.changes = getRecordChanges(state.model, state.data, state.changes, data);
 
     if (this.state._formMixin.autoSubmit) {
       this.submit((err, result) => {
@@ -402,7 +402,7 @@ const FormMixin = {
     this.state._formMixin.submitting = false;
 
     const newChanges = this._getChanges();
-    const actualChanges = utils.isEqual(changes, newChanges);
+    const actualChanges = isEqual(changes, newChanges);
     const validationError = err instanceof ValidationErrors;
 
     // Replacing empty error to null
@@ -422,8 +422,8 @@ const FormMixin = {
       this.state._formMixin.errors = new ValidationErrors();
       this.state._formMixin.changes = {};
     } else {
-      utils.forEach(changes, function (value, field) {
-        if (utils.isEqual(value, newChanges[field])) {
+      forEach(changes, function (value, field) {
+        if (isEqual(value, newChanges[field])) {
           delete this.state._formMixin.changes[field];
         }
       }, this);
@@ -481,7 +481,7 @@ const FormMixin = {
    * @private
    */
   _handleModelChange: function (changes) {
-    Object.assign(this.state._formMixin.data, utils.cloneDeep(changes));
+    Object.assign(this.state._formMixin.data, cloneDeep(changes));
     if (!this._isUnmounted) {
       this.setState(this.state);
     }
@@ -572,13 +572,13 @@ const FormMixin = {
     const data = getData();
     validator.isValidRecord(data)
       .then(validErrors => {
-        if (!this._isUnmounted && utils.isEqual(data, getData())) {
+        if (!this._isUnmounted && isEqual(data, getData())) {
           this.state._formMixin[output] = validErrors;
         }
         cb();
       })
       .catch(err => {
-        if (!this._isUnmounted && utils.isEqual(data, getData())) {
+        if (!this._isUnmounted && isEqual(data, getData())) {
           this.state._formMixin[output].clear();
         }
         cb(err);
@@ -597,12 +597,12 @@ const FormMixin = {
     if (this.state._formMixin.submitAll) {
       return this._getData();
     }
-    return utils.clone(this.state._formMixin.changes);
+    return clone(this.state._formMixin.changes);
   },
 
   _isDependentField: function (field) {
     const state = this.state._formMixin;
-    return state.changes.hasOwnProperty(field) && utils.isEqual(state.changes[field], state.data[field]);
+    return state.changes.hasOwnProperty(field) && isEqual(state.changes[field], state.data[field]);
   }
 };
 

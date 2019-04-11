@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,10 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import del from 'del';
+import gulp from 'gulp';
+import exec from 'gulp-exec';
 
-function jsClear() {
-  return del(['dist', '_site']);
+function buildSrc() {
+  return gulp.src('.').pipe(exec('./node_modules/.bin/webpack-cli'));
 }
 
-export default jsClear;
+export default buildSrc;

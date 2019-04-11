@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,8 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// import React from 'react';
-import utils from '../../common/utils';
+import {clone, findIndex, cloneDeep} from '../../common/utils';
 
 const GridSortingMixin = {
   /**
@@ -87,14 +86,14 @@ const GridSortingMixin = {
   _sortCol: function (column) {
     let newOrder;
     const cycle = this.props.cols[column].sortCycle;
-    let newSorts = utils.clone(this.getSortDirection());
+    let newSorts = clone(this.getSortDirection());
     const sortElement = {column: column};
     let currentSortIndex;
     let currentSort;
 
     if (this.props.multipleSorting) {
       // Find an element among the other sorts
-      currentSortIndex = utils.findIndex(newSorts, sort => sort.column === column);
+      currentSortIndex = findIndex(newSorts, sort => sort.column === column);
 
       if (currentSortIndex >= 0) {
         currentSort = newSorts[currentSortIndex];
@@ -157,7 +156,7 @@ const GridSortingMixin = {
    */
   _getDefaultSort: function () {
     if (this.props.defaultSort) {
-      return utils.cloneDeep(this.props.defaultSort);
+      return cloneDeep(this.props.defaultSort);
     }
     return null;
   },
@@ -184,7 +183,7 @@ const GridSortingMixin = {
     }
 
     if (this.props.multipleSorting) {
-      sortIndex = utils.findIndex(sorts, sort => sort.column === params.column);
+      sortIndex = findIndex(sorts, sort => sort.column === params.column);
 
       if (sortIndex < 0 || sortIndex < sorts.length - 1) {
         params.direction = 'default';

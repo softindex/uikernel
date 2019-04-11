@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../../utils';
+import {isDefined, toDate} from '../../utils';
 
 function baseValidator(notNull, min, max, error, value) {
   error = error || 'Invalid date';
 
-  if (!utils.isDefined(value)) {
+  if (!isDefined(value)) {
     if (notNull) {
       return error;
     }
@@ -23,15 +23,15 @@ function baseValidator(notNull, min, max, error, value) {
     return error;
   }
 
-  value = utils.toDate(value);
+  value = toDate(value);
   if (isNaN(value)) {
     return error;
   }
 
-  if (min && utils.toDate(min) > value) {
+  if (min && toDate(min) > value) {
     return error;
   }
-  if (max && utils.toDate(max) < value) {
+  if (max && toDate(max) < value) {
     return error;
   }
 }

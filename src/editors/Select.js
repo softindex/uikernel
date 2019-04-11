@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import utils from '../common/utils';
+import {findIndex, isEqual, omit} from '../common/utils';
 
 class SelectEditor extends React.Component {
   static propTypes = {
@@ -69,13 +69,13 @@ class SelectEditor extends React.Component {
 
   render() {
     const options = this.getOptions();
-    const valueIndex = utils.findIndex(options, option => {
-      return utils.isEqual(option instanceof Array ? option[0] : option, this.props.value);
+    const valueIndex = findIndex(options, option => {
+      return isEqual(option instanceof Array ? option[0] : option, this.props.value);
     });
 
     return (
       <select
-        {...utils.omit(this.props, ['value', 'options'])}
+        {...omit(this.props, ['value', 'options'])}
         value={valueIndex}
         onChange={this::this.handleChange}
         disabled={this.props.disabled || this.state.loading}

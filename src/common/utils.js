@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -35,7 +35,7 @@ function baseClone(obj, isDeep) {
 /**
  * Check if two arrays intersection exists
  */
-exports.isIntersection = function (a, b) {
+export function isIntersection(a, b) {
   let c;
   if (a.length > b.length) {
     c = a;
@@ -43,12 +43,12 @@ exports.isIntersection = function (a, b) {
     b = c;
   }
   for (const el of a) {
-    if (exports.indexOf(b, el) > -1) {
+    if (indexOf(b, el) > -1) {
       return true;
     }
   }
   return false;
-};
+}
 
 /**
  * Define object size
@@ -56,9 +56,9 @@ exports.isIntersection = function (a, b) {
  * @param   {Object}    obj     Object
  * @return  {number}    Object size
  */
-exports.size = function (obj) {
+export function size(obj) {
   return Object.keys(obj).length;
-};
+}
 
 /**
  * Element position (isEqual checking)
@@ -67,16 +67,16 @@ exports.size = function (obj) {
  * @param   {*}       item  Element item
  * @return  {number}
  */
-exports.indexOf = function (arr, item) {
+export function indexOf(arr, item) {
   for (let i = 0; i < arr.length; i++) {
-    if (exports.isEqual(arr[i], item)) {
+    if (isEqual(arr[i], item)) {
       return i;
     }
   }
   return -1;
-};
+}
 
-exports.throttle = function (func) {
+export function throttle(func) {
   let worked = false;
   let nextArguments;
   let nextResolve;
@@ -136,7 +136,7 @@ exports.throttle = function (func) {
      * @throws {ThrottleError} Too many function call
      */
     return function run(...args) {
-      const parentStack = exports.getStack(2);
+      const parentStack = getStack(2);
 
       return new Promise((resolve, reject) => {
         if (worked) {
@@ -170,9 +170,9 @@ exports.throttle = function (func) {
       });
     };
   }
-};
+}
 
-exports.parseValueFromEvent = function (event) {
+export function parseValueFromEvent(event) {
   if (
     event && typeof event === 'object' &&
     event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
@@ -184,9 +184,9 @@ exports.parseValueFromEvent = function (event) {
     return event.target.value;
   }
   return event;
-};
+}
 
-exports.Decorator = function (obj, decor) {
+export function Decorator(obj, decor) {
   Object.assign(this, decor);
 
   for (const i in obj) {
@@ -194,12 +194,12 @@ exports.Decorator = function (obj, decor) {
       this[i] = obj[i].bind(obj);
     }
   }
-};
+}
 
-exports.decorate = function (obj, decor) {
-  this.Decorator.prototype = obj;
-  return new this.Decorator(obj, decor);
-};
+export function decorate(obj, decor) {
+  Decorator.prototype = obj;
+  return new Decorator(obj, decor);
+}
 
 /**
  * Checking at equals params
@@ -208,7 +208,7 @@ exports.decorate = function (obj, decor) {
  * @param b
  * @returns {boolean}
  */
-exports.isEqual = function (a, b) {
+export function isEqual(a, b) {
   if (
     a === null ||
     b === null ||
@@ -229,8 +229,8 @@ exports.isEqual = function (a, b) {
   }
 
   const p = Object.keys(a);
-  return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => exports.isEqual(a[i], b[i]));
-};
+  return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => isEqual(a[i], b[i]));
+}
 
 /**
  * Clone object
@@ -238,15 +238,15 @@ exports.isEqual = function (a, b) {
  * @param obj
  * @returns {*}
  */
-exports.clone = function (obj) {
+export function clone(obj) {
   return baseClone(obj, false);
-};
+}
 
-exports.cloneDeep = function (obj) {
+export function cloneDeep(obj) {
   return baseClone(obj, true);
-};
+}
 
-exports.isEmpty = function (value) {
+export function isEmpty(value) {
   if (!value) {
     return true;
   }
@@ -260,41 +260,41 @@ exports.isEmpty = function (value) {
     return value.trim().length === 0;
   }
   return false;
-};
+}
 
-exports.isDefined = function (value) {
+export function isDefined(value) {
   return value !== null && value !== undefined;
-};
+}
 
-exports.forEach = function (obj, func, ctx) {
+export function forEach(obj, func, ctx) {
   for (const i in obj) {
     func.call(ctx, obj[i], i);
   }
-};
+}
 
-exports.pluck = function (arr, field) {
+export function pluck(arr, field) {
   return arr.map(item => item[field]);
-};
+}
 
-exports.find = function (arr, func) {
+export function find(arr, func) {
   for (const i in arr) {
     if (func(arr[i], i)) {
       return arr[i];
     }
   }
   return null;
-};
+}
 
-exports.findIndex = function (obj, func) {
+export function findIndex(obj, func) {
   for (const i in obj) {
     if (func(obj[i], i)) {
       return i;
     }
   }
   return -1;
-};
+}
 
-exports.omit = function (obj, predicate) {
+export function omit(obj, predicate) {
   const result = {};
   for (const [field, value] of Object.entries(obj)) {
     if (
@@ -306,9 +306,9 @@ exports.omit = function (obj, predicate) {
     }
   }
   return result;
-};
+}
 
-exports.escape = function (string) {
+export function escape(string) {
   const reUnescaped = /[&<>"'`]/g;
   const escapes = {
     '&': '&amp;',
@@ -323,26 +323,28 @@ exports.escape = function (string) {
     return string.replace(reUnescaped, chr => escapes[chr]);
   }
   return string;
-};
+}
 
-exports.zipObject = function (keys, values) {
+export function zipObject(keys, values) {
   const result = {};
   for (let i = 0; i < keys.length; i++) {
     result[keys[i]] = values[i];
   }
   return result;
-};
+}
 
-exports.pick = (obj, keys, defaultValue) => keys.reduce((result, key) => {
-  if (obj.hasOwnProperty(key)) {
-    result[key] = obj[key];
-  } else if (defaultValue !== undefined) {
-    result[key] = defaultValue;
-  }
-  return result;
-}, {});
+export function pick(obj, keys, defaultValue) {
+  return keys.reduce((result, key) => {
+    if (obj.hasOwnProperty(key)) {
+      result[key] = obj[key];
+    } else if (defaultValue !== undefined) {
+      result[key] = defaultValue;
+    }
+    return result;
+  }, {});
+}
 
-exports.mapKeys = (object, iteratee) => {
+export function mapKeys(object, iteratee) {
   const result = {};
 
   for (const [key, value] of Object.entries(object)) {
@@ -350,16 +352,16 @@ exports.mapKeys = (object, iteratee) => {
   }
 
   return result;
-};
+}
 
-exports.reduce = function (obj, func, value) {
+export function reduce(obj, func, value) {
   for (const i in obj) {
     value = func(value, obj[i], i);
   }
   return value;
-};
+}
 
-exports.union = function (...args) {
+export function union(...args) {
   const elements = {};
   for (const arg of args) {
     for (const el of arg) {
@@ -367,9 +369,9 @@ exports.union = function (...args) {
     }
   }
   return Object.values(elements);
-};
+}
 
-exports.at = function (obj, keys) {
+export function at(obj, keys) {
   const result = [];
   if (!Array.isArray(keys)) {
     return [obj[keys]];
@@ -378,17 +380,17 @@ exports.at = function (obj, keys) {
     result.push(obj[key]);
   }
   return result;
-};
+}
 
-exports.pairs = function (obj) {
+export function pairs(obj) {
   const result = [];
   for (const i in obj) {
     result.push([i, obj[i]]);
   }
   return result;
-};
+}
 
-exports.toDate = function (value) {
+export function toDate(value) {
   let date;
 
   if (typeof value === 'number') {
@@ -402,41 +404,41 @@ exports.toDate = function (value) {
   }
 
   return new Date(value);
-};
+}
 
-exports.without = function (arr, el) {
+export function without(arr, el) {
   const result = [];
   for (let i = 0; i < arr.length; i++) {
-    if (Array.isArray(el) ? exports.indexOf(el, arr[i]) > -1 : exports.isEqual(arr[i], el)) {
+    if (Array.isArray(el) ? indexOf(el, arr[i]) > -1 : isEqual(arr[i], el)) {
       continue;
     }
     result.push(arr[i]);
   }
   return result;
-};
+}
 
-exports.last = function (arr) {
+export function last(arr) {
   return arr[arr.length - 1];
-};
+}
 
-exports.getRecordChanges = function (model, data, changes, newChanges) {
+export function getRecordChanges(model, data, changes, newChanges) {
   const result = Object.assign({}, changes, newChanges);
 
   for (const i in result) {
-    if (exports.isEqual(data[i], result[i])) {
+    if (isEqual(data[i], result[i])) {
       delete result[i];
     }
   }
 
-  Object.assign(result, exports.pick(
+  Object.assign(result, pick(
     data,
     model.getValidationDependency(Object.keys(result))
   ));
 
   return result;
-};
+}
 
-exports.getStack = function (deep = 0) {
+export function getStack(deep = 0) {
   // We add here try..catch because in IE Error.stack is available only
   // for thrown errors: https://msdn.microsoft.com/ru-ru/library/windows/apps/hh699850.aspx
 
@@ -456,17 +458,17 @@ exports.getStack = function (deep = 0) {
 
   Error.stackTraceLimit = stackTraceLimitDefault;
   return stack;
-};
+}
 
-exports.warn = function (message) {
-  console.warn(message, '\n', exports.getStack(1));
-};
+export function warn(message) {
+  console.warn(message, '\n', getStack(1));
+}
 
-exports.toEncodedString = function (value) {
+export function toEncodedString(value) {
   return encodeURIComponent((typeof value === 'string' ? value : JSON.stringify(value)));
-};
+}
 
-exports.asyncHandler = function (router) {
+export function asyncHandler(router) {
   return (req, res, next) => {
     const promise = router(req, res, next);
     if (promise && promise.then) {
@@ -474,9 +476,9 @@ exports.asyncHandler = function (router) {
     }
     next(new Error('asyncHandler expected to take async function.'));
   };
-};
+}
 
-exports.parents = function (element, selector) {
+export function parents(element, selector) {
   const result = [];
   while ((element = element.parentElement)) {
     if (element.matches(selector)) {
@@ -484,4 +486,4 @@ exports.parents = function (element, selector) {
     }
   }
   return result;
-};
+}

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -7,7 +7,7 @@
  */
 
 import toPromise from '../common/toPromise';
-import utils from '../common/utils';
+import {throttle, isEqual, findIndex, parents, omit} from '../common/utils';
 import Portal from '../common/Portal';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
@@ -64,7 +64,7 @@ class SuggestBoxEditor extends React.Component {
 
   constructor(props) {
     super(props);
-    this._loadData = utils.throttle(this._loadData);
+    this._loadData = throttle(this._loadData);
     this.state = {
       isOpened: false,
       options: [],
@@ -100,12 +100,12 @@ class SuggestBoxEditor extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return this.state !== nextState
-      || !utils.isEqual(this.props.value, nextProps.value)
+      || !isEqual(this.props.value, nextProps.value)
       || this.props.disabled !== nextProps.disabled;
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!utils.isEqual(this.props.value, nextProps.value)) {
+    if (!isEqual(this.props.value, nextProps.value)) {
       if (!this.props.hasOwnProperty('label')) {
         this._getLabelFromModel(nextProps.model, nextProps.value);
       }
@@ -211,8 +211,8 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    const selectedOptionKey = utils.findIndex(this.state.options, (option) => {
-      return utils.isEqual(option.id, this.props.value);
+    const selectedOptionKey = findIndex(this.state.options, (option) => {
+      return isEqual(option.id, this.props.value);
     });
 
     if (selectedOptionKey !== -1) {
@@ -381,7 +381,7 @@ class SuggestBoxEditor extends React.Component {
       }
     } else {
       // q where to test
-      if (!utils.parents(target, `.${classes.searchBlock}`).length) {
+      if (!parents(target, `.${classes.searchBlock}`).length) {
         if (!findDOMNode(this.input).value) {
           this._selectOption(null);
         } else {
@@ -570,7 +570,7 @@ class SuggestBoxEditor extends React.Component {
       <div className='__suggestBox'>
         <div className={classes.searchBlock}>
           <input
-            {...utils.omit(this.props,
+            {...omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
                 'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
             ref={(input) => this.input = input}

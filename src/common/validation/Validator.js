@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
 
 import ValidationErrors from './ValidationErrors';
 import ArgumentsError from '../ArgumentsError';
-import utils from '../utils';
+import {pluck, isIntersection} from '../utils';
 
 class Validator {
   /**
@@ -110,7 +110,7 @@ class Validator {
   getValidationDependency(fields) {
     const result = [];
     let length;
-    const groups = utils.pluck(
+    const groups = pluck(
       this._settings.groupValidators.concat(this._settings.asyncGroupValidators),
       'fields'
     ).concat(this._settings.asyncDependenies);
@@ -119,7 +119,7 @@ class Validator {
       length = result.length;
 
       for (let i = 0; i < groups.length; i++) {
-        if (!utils.isIntersection(groups[i], fields) && !utils.isIntersection(groups[i], result)) {
+        if (!isIntersection(groups[i], fields) && !isIntersection(groups[i], result)) {
           continue;
         }
         for (let j = 0; j < groups[i].length; j++) {
@@ -176,13 +176,13 @@ class Validator {
 
     // Add sync and async group validators
     for (const groupValidator of this._settings.groupValidators) {
-      if (utils.isIntersection(groupValidator.fields, fields)) {
+      if (isIntersection(groupValidator.fields, fields)) {
         groupValidator.fn(record, errors);
       }
     }
 
     for (const asyncGroupValidator of this._settings.asyncGroupValidators) {
-      if (utils.isIntersection(asyncGroupValidator.fields, fields)) {
+      if (isIntersection(asyncGroupValidator.fields, fields)) {
         awaitStack.push(null);
         promises.push(
           await asyncGroupValidator.fn(record, errors)

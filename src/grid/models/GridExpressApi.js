@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -43,7 +43,7 @@ class GridExpressApi {
         if (req.query.filters) {
           settings.filters = JSON.parse(req.query.filters);
         }
-        await this._getModelResponse(req, res, next, settings, 'readGet');
+        await this._commonReadMiddleware(req, res, next, settings);
       })],
       readPost: [asyncHandler(async (req, res, next) => {
         const settings = {};
@@ -65,7 +65,7 @@ class GridExpressApi {
         if (req.body.filters) {
           settings.filters = req.body.filters;
         }
-        await this._getModelResponse(req, res, next, settings, 'readPost');
+        await this._commonReadMiddleware(req, res, next, settings);
       })],
       validate: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
@@ -140,12 +140,10 @@ class GridExpressApi {
       });
   }
 
-  readGet(middlewares) {
-    return this._addMidelwares('readGet', middlewares);
-  }
-
-  readPost(middlewares) {
-    return this._addMidelwares('readPost', middlewares);
+  read(middlewares) {
+    this._addMidelwares('readGet', middlewares);
+    this._addMidelwares('readPost', middlewares);
+    return this;
   }
 
   validate(middlewares) {
@@ -174,7 +172,7 @@ class GridExpressApi {
 
   // Default implementation
   _getModel() {
-    throw Error('Model is not defined.');
+    throw new Error('Model is not defined.');
   }
 
   _result(method) {
@@ -228,9 +226,9 @@ class GridExpressApi {
     }
   }
 
-  async _getModelResponse(req, res, next, settings, method) {
+  async _commonReadMiddleware(req, res, next, settings) {
     const model = this._getModel(req, res);
-    const result = this._result(method);
+    const result = this._result('read');
     try {
       const response = await model.read(settings);
       result(null, response, req, res, next);

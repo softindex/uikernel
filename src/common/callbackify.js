@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../common/utils';
+import {warn} from '../common/utils';
 
 const functionsNames = [];
 export default function (func, hideWarning = false) {
@@ -18,7 +18,7 @@ export default function (func, hideWarning = false) {
 
     if (typeof cb === 'function' && !cb.__ignoreUIKernelWarning) {
       if (!functionsNames.includes(funcName) && !hideWarning) {
-        utils.warn(`You are using callback in: '${funcName}'. Use promise instead.\n${JSON.stringify(args)}`);
+        warn(`You are using callback in: '${funcName}'. Use promise instead.\n${JSON.stringify(args)}`);
         functionsNames.push(funcName);
       }
 

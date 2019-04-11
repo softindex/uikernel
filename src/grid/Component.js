@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -13,7 +13,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import createReactClass from 'create-react-class';
-import utils from '../common/utils';
+import {throttle, isEqual} from '../common/utils';
 
 import GridColumnsMixin from './mixins/columns';
 import gridMixinPagination from './mixins/pagination';
@@ -126,8 +126,8 @@ const GridComponent = createReactClass({
     selected: []
   }),
   getInitialState: function () {
-    this._throttledUpdateTable = utils.throttle(this.updateTable);
-    this._validateRow = utils.throttle(this._validateRow);
+    this._throttledUpdateTable = throttle(this.updateTable);
+    this._validateRow = throttle(this._validateRow);
     if (this.props.onInit) {
       this.props.onInit();
     }
@@ -179,25 +179,25 @@ const GridComponent = createReactClass({
     const oldProps = this.props;
     let reset = 0;
 
-    if (!utils.isEqual(this.props.model, nextProps.model)) {
+    if (!isEqual(this.props.model, nextProps.model)) {
       reset |= RESET_MODEL;
     }
-    if (!utils.isEqual(this.props.viewColumns, nextProps.viewColumns)) {
+    if (!isEqual(this.props.viewColumns, nextProps.viewColumns)) {
       reset |= RESET_VIEW_COLUMNS;
     }
-    if (!utils.isEqual(this.props.sort, nextProps.sort)) {
+    if (!isEqual(this.props.sort, nextProps.sort)) {
       reset |= RESET_SORT;
     }
     if (this.props.viewCount !== nextProps.viewCount) {
       reset |= RESET_VIEW_COUNT;
     }
     if (
-      !utils.isEqual(this.props.selected, nextProps.selected)
+      !isEqual(this.props.selected, nextProps.selected)
       || this.props.selectBlackListMode !== nextProps.selectBlackListMode
     ) {
       reset |= RESET_SELECTED_COLUMNS;
     }
-    if (!utils.isEqual(this.props.blackListMode, nextProps.blackListMode)) {
+    if (!isEqual(this.props.blackListMode, nextProps.blackListMode)) {
       reset |= RESET_BLACK_LIST_MODE;
     }
 

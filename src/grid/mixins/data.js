@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -7,7 +7,7 @@
  */
 
 import ValidationErrors from '../../common/validation/ValidationErrors';
-import utils from '../../common/utils';
+import {cloneDeep, reduce, pick, isEqual, isEmpty, forEach, getRecordChanges, toEncodedString, clone, warn} from '../../common/utils';
 import ThrottleError from '../../common/ThrottleError';
 
 const GridDataMixin = {
@@ -21,7 +21,7 @@ const GridDataMixin = {
    */
   set(recordId, data, cb) {//TODO cb does't used
     const row = this._getRowID(recordId);
-    this._setRowChanges(row, utils.cloneDeep(data), cb);
+    this._setRowChanges(row, cloneDeep(data), cb);
 
     if (this.props.autoSubmit || this.props.realtime) {
       if (this.props.realtime) {
@@ -41,7 +41,7 @@ const GridDataMixin = {
    */
   getRecord(recordId) {
     const row = this._getRowID(recordId);
-    return utils.cloneDeep(this._getRecordWithChanges(row));
+    return cloneDeep(this._getRecordWithChanges(row));
   },
 
   /**
@@ -127,13 +127,13 @@ const GridDataMixin = {
     const errors = this.getErrors();
 
     // Collect all valid changes
-    const changes = utils.reduce(this.state.changes, (result, rowChanges, row) => {
+    const changes = reduce(this.state.changes, (result, rowChanges, row) => {
       if (!errors || !errors[row]) {
         if (this.props.saveFullRecord) {
           result[row] = this._getRecordWithChanges(row);
         } else {
           result[row] = {};
-          Object.assign(result[row], rowChanges, utils.pick(
+          Object.assign(result[row], rowChanges, pick(
             this.state.data[row],
             this.props.model.getValidationDependency(Object.keys(result[row]))
           ));
@@ -158,7 +158,7 @@ const GridDataMixin = {
       const row = this._getRowID(record[0]);
 
       // Skip records that are user changed while data processing
-      if (!utils.isEqual(this.state.changes[row], changes[row])) {
+      if (!isEqual(this.state.changes[row], changes[row])) {
         continue;
       }
 
@@ -174,14 +174,14 @@ const GridDataMixin = {
       }
 
       // Cancel changed data status of the parameters, that are changed
-      utils.forEach(changes[row], function (value, field) {
-        if (utils.isEqual(value, this.state.changes[row][field])) {
+      forEach(changes[row], function (value, field) {
+        if (isEqual(value, this.state.changes[row][field])) {
           delete this.state.changes[row][field];
         }
       }, this);
 
       // Clear changed data row if it's empty
-      if (utils.isEmpty(this.state.changes[row])) {
+      if (isEmpty(this.state.changes[row])) {
         delete this.state.changes[row];
         if (!this._isMainRow(row)) {
           this._removeRecord(row);
@@ -262,7 +262,7 @@ const GridDataMixin = {
    */
   _getRecordChanges(row) {
     if (this.state.changes.hasOwnProperty(row)) {
-      return utils.cloneDeep(this.state.changes[row]);
+      return cloneDeep(this.state.changes[row]);
     }
     return {};
   },
@@ -284,7 +284,7 @@ const GridDataMixin = {
 
     // Apply and redraw all record changes
     for (const field in data) {
-      this.state.data[row][field] = utils.cloneDeep(data[field]);
+      this.state.data[row][field] = cloneDeep(data[field]);
       this._renderBinds(row, field);
     }
   },
@@ -400,9 +400,9 @@ const GridDataMixin = {
       changes[row] = {};
     }
 
-    changes[row] = utils.getRecordChanges(this.props.model, this.state.data[row], changes[row], data);
+    changes[row] = getRecordChanges(this.props.model, this.state.data[row], changes[row], data);
 
-    if (utils.isEmpty(changes[row])) {
+    if (isEmpty(changes[row])) {
       delete changes[row];
     }
 
@@ -476,7 +476,7 @@ const GridDataMixin = {
     let row;
 
     for (i = 0; i < arr.length; i++) {
-      row = utils.toEncodedString(arr[i][0]);
+      row = toEncodedString(arr[i][0]);
       records[row] = arr[i][1];
       info[row] = {
         id: arr[i][0],
@@ -504,7 +504,7 @@ const GridDataMixin = {
     for (i in obj) {
       arr.push([
         this.state.recordsInfo[i].id,
-        utils.clone(obj[i])
+        clone(obj[i])
       ]);
     }
 
@@ -524,7 +524,7 @@ const GridDataMixin = {
 
   _isRecordLoaded(recordId) {
     // TODO Can be optimized
-    const row = utils.toEncodedString(recordId);
+    const row = toEncodedString(recordId);
     return this.state.data.hasOwnProperty(row);
   },
 
@@ -536,7 +536,7 @@ const GridDataMixin = {
    * @private
    */
   _getRowID(recordId) {
-    const row = utils.toEncodedString(recordId);
+    const row = toEncodedString(recordId);
 
     if (!this.state.data.hasOwnProperty(row)) {
       throw Error('Record with the ID is not contained in the table.');
@@ -634,7 +634,7 @@ const GridDataMixin = {
 
     const validErrors = await validator.isValidRecord(record, recordId);
 
-    if (utils.isEqual(record, getData(row))) {
+    if (isEqual(record, getData(row))) {
       if (validErrors.isEmpty()) {
         delete result[row];
       } else {
@@ -654,7 +654,7 @@ const GridDataMixin = {
    */
   _onRecordsCreated(recordIds) {
     if (!Array.isArray(recordIds)) {
-      utils.warn('Not array recordsIds in "create" event is deprecated');
+      warn('Not array recordsIds in "create" event is deprecated');
       recordIds = [recordIds];
     }
 

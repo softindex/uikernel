@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -9,7 +9,7 @@
 import EventEmitter from '../common/Events';
 import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
-import utils from '../common/utils';
+import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty} from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
 
 class FormService {
@@ -22,7 +22,7 @@ class FormService {
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
     this.fields = fields;
-    this._validateForm = utils.throttle(this._validateForm.bind(this));
+    this._validateForm = throttle(this._validateForm.bind(this));
     this.validateForm = this.validateForm.bind(this);
     this._onModelChange = this._onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
@@ -126,7 +126,7 @@ class FormService {
    */
   async updateField(field, value) {
     await this.set({
-      [field]: utils.parseValueFromEvent(value)
+      [field]: parseValueFromEvent(value)
     });
   }
 
@@ -177,7 +177,7 @@ class FormService {
 
   async validateField(field, value) {
     await this.set({
-      [field]: utils.parseValueFromEvent(value)
+      [field]: parseValueFromEvent(value)
     }, true);
   }
 
@@ -192,7 +192,7 @@ class FormService {
       return;
     }
 
-    this._changes = utils.getRecordChanges(this.model, this._data, this._changes, data);
+    this._changes = getRecordChanges(this.model, this._data, this._changes, data);
 
     this._setState();
 
@@ -249,7 +249,7 @@ class FormService {
     this._isSubmitting = false;
 
     const newChanges = this._getChanges();
-    const actualChanges = utils.isEqual(changes, newChanges);
+    const actualChanges = isEqual(changes, newChanges);
 
     if (actualChanges) {
       if (validationErrors) {
@@ -405,7 +405,7 @@ class FormService {
 
     for (const field of validationErrors.getErrors().keys()) {
       const isFieldPristine = !this._changes.hasOwnProperty(field)
-        || utils.isEqual(this._changes[field], this._data[field]);
+        || isEqual(this._changes[field], this._data[field]);
       if (this._hiddenValidationFields.includes(field) || this._partialErrorChecking && isFieldPristine) {
         filteredErrors.clearField(field);
       }
@@ -442,12 +442,12 @@ class FormService {
   }
 
   _isDependentField(field) {
-    return this._changes.hasOwnProperty(field) && utils.isEqual(this._changes[field], this._data[field]);
+    return this._changes.hasOwnProperty(field) && isEqual(this._changes[field], this._data[field]);
   }
 
   async _runValidator(validator, getData, output) {
     const data = getData();
-    if (utils.isEmpty(data)) {
+    if (isEmpty(data)) {
       this[output].clear();
       return;
     }
@@ -460,7 +460,7 @@ class FormService {
       throw e;
     }
 
-    if (utils.isEqual(data, getData())) {
+    if (isEqual(data, getData())) {
       this[output] = validErrors;
     }
   }

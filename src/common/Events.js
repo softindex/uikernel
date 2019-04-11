@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from './utils';
+import {without} from './utils';
 
 /**
  * Events control model
@@ -37,7 +37,7 @@ class EventsModel {
    */
   off(event, cb) {
     if (this._subscribers[event]) {
-      this._subscribers[event] = utils.without(this._subscribers[event], cb);
+      this._subscribers[event] = without(this._subscribers[event], cb);
     }
   }
 

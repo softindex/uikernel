@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../../common/utils';
+import {clone, indexOf, toEncodedString} from '../../common/utils';
 
 /**
  * Grid mixin, responsible for rows Select
@@ -19,7 +19,7 @@ const GridSelectMixin = {
    * @param {boolean} [blackListMode]   Is black list mode
    */
   setSelectedRecords: function (selectedIds, blackListMode) {
-    this.state.selected = utils.clone(selectedIds);
+    this.state.selected = clone(selectedIds);
     if (typeof blackListMode === 'boolean') {
       this.state.selectBlackListMode = blackListMode;
     }
@@ -36,13 +36,13 @@ const GridSelectMixin = {
    * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
   selectRecord: function (recordId, ignoreBlackList) {
-    const row = utils.toEncodedString(recordId);
+    const row = toEncodedString(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.unselectRecord(recordId, true);
     }
 
-    if (utils.indexOf(this.state.selected, recordId) < 0) {
+    if (indexOf(this.state.selected, recordId) < 0) {
       this.state.selected.push(recordId);
 
       if (this.state.selected.length === this.state.count) {
@@ -67,13 +67,13 @@ const GridSelectMixin = {
    * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
   unselectRecord: function (recordId, ignoreBlackList) {
-    const row = utils.toEncodedString(recordId);
+    const row = toEncodedString(recordId);
 
     if (this.state.selectBlackListMode && !ignoreBlackList) {
       return this.selectRecord(recordId, true);
     }
 
-    const pos = utils.indexOf(this.state.selected, recordId);
+    const pos = indexOf(this.state.selected, recordId);
     if (pos >= 0) {
       this.state.selected.splice(pos, 1);
     }
@@ -91,7 +91,7 @@ const GridSelectMixin = {
    * @returns {boolean}           Is selected row flag
    */
   isSelected: function (recordId) {
-    const selected = utils.indexOf(this.state.selected, recordId) >= 0;
+    const selected = indexOf(this.state.selected, recordId) >= 0;
     if (this.state.selectBlackListMode) {
       return !selected;
     }
@@ -165,7 +165,7 @@ const GridSelectMixin = {
    * @returns {Array}   Record IDs array
    */
   getAllSelected: function () {
-    return utils.clone(this.state.selected);
+    return clone(this.state.selected);
   },
 
   getSelectAllStatus() {

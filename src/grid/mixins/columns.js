@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../../common/utils';
+import {union} from '../../common/utils';
 import DOM from 'react-dom-factories';
 
 const GridColumnsMixin = {
@@ -103,7 +103,7 @@ const GridColumnsMixin = {
     const cols = this.props.cols;
     let columns = [];
     for (i in cols) {
-      columns = utils.union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
+      columns = union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
     }
     return columns;
   },

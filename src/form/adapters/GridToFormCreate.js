@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -7,7 +7,7 @@
  */
 
 import Events from '../../common/Events';
-import utils from '../../common/utils';
+import {pick} from '../../common/utils';
 
 class GridToFormCreate extends Events {
   /**
@@ -33,7 +33,7 @@ class GridToFormCreate extends Events {
    */
   async getData(fields) {
     if (fields && fields.length) {
-      return utils.pick(this._adapter.initialData, fields);
+      return pick(this._adapter.initialData, fields);
     }
     return this._adapter.initialData;
   }

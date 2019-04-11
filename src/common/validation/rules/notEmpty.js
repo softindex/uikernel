@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import utils from '../../utils';
+import {isEmpty} from '../../utils';
 
 /**
  * Check if value is not empty string, array and object. Not null, undefined, 0
@@ -18,7 +18,7 @@ export default function (error) {
   error = error || 'Can not be empty';
   return function (value) {
     if (
-      utils.isEmpty(value) ||
+      isEmpty(value) ||
       (typeof value === 'number' && (
         isNaN(value) ||
         !isFinite(value)

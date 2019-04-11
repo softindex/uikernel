@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -8,7 +8,7 @@
 
 import React from 'react'; // eslint-disable-line no-unused-vars
 import ReactDOM from 'react-dom';
-import utils from '../../common/utils';
+import {at, cloneDeep, parseValueFromEvent, zipObject} from '../../common/utils';
 import ThrottleError from '../../common/ThrottleError';
 
 const findDOMNode = ReactDOM.findDOMNode;
@@ -29,7 +29,7 @@ const GridEditorMixin = {
   _renderEditor: function (element, row, column) {
     const binds = this._getBindParam(column);
     const record = this._getRecordWithChanges(row);
-    let value = utils.at(record, binds);
+    let value = at(record, binds);
     let focusDone = false;
 
     if (!Array.isArray(binds)) {
@@ -109,10 +109,10 @@ const GridEditorMixin = {
   _onChangeEditor: function (row, column, values, editorContext, element) {
     let binds = this._getBindParam(column);
 
-    values = utils.cloneDeep(utils.parseValueFromEvent(values));
+    values = cloneDeep(parseValueFromEvent(values));
 
     const record = this._getRecordWithChanges(row);
-    const context = utils.cloneDeep(editorContext);
+    const context = cloneDeep(editorContext);
     context.props.value = values;
     const Component = this.props.cols[column].editor.call(context, record, this);
     this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element);
@@ -122,7 +122,7 @@ const GridEditorMixin = {
       values = [values];
     }
 
-    this._setRowChanges(row, utils.zipObject(binds, values));
+    this._setRowChanges(row, zipObject(binds, values));
   },
 
   _onFocusEditor: function (row, column) {

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
  *
@@ -7,7 +7,7 @@
  */
 
 import toPromise from '../../common/toPromise';
-import utils from '../../common/utils';
+import {parents, pick, escape, last, isDefined, pairs} from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 import ThrottleError from '../../common/ThrottleError';
@@ -21,14 +21,14 @@ const GridUIMixin = {
    */
   _handleBodyClick(event) {
     const target = event.target;
-    const refParent = utils.parents(target, '[ref]')[0];
+    const refParent = parents(target, '[ref]')[0];
 
     let element;
 
     if (target.classList.contains('dgrid-cell')) {
       element = event.target;
     } else {
-      element = utils.parents(target, 'td.dgrid-cell')[0];
+      element = parents(target, 'td.dgrid-cell')[0];
     }
 
     if (
@@ -69,7 +69,7 @@ const GridUIMixin = {
   // TODO Deprecated
   _handleHeaderCellClick(col, event) {
     const target = event.target;
-    const refParent = utils.parents(target, '[ref]')[0];
+    const refParent = parents(target, '[ref]')[0];
     const ref = (refParent || target).getAttribute('ref');
     let handler;
 
@@ -140,9 +140,9 @@ const GridUIMixin = {
       count: obj.count,
       totals: obj.totals,
       recordsInfo: Object.assign({}, extra.info, data.info),
-      errors: utils.pick(this.state.errors, recordIds),
-      changes: utils.pick(this.state.changes, recordIds),
-      statuses: utils.pick(this.state.statuses, recordIds)
+      errors: pick(this.state.errors, recordIds),
+      changes: pick(this.state.changes, recordIds),
+      statuses: pick(this.state.statuses, recordIds)
     });
 
     this._renderBody();
@@ -172,7 +172,7 @@ const GridUIMixin = {
 
       if (needEscaping) {
         if (type === 'string') {
-          escapedRecord[field] = utils.escape(record[field]);
+          escapedRecord[field] = escape(record[field]);
           continue;
         }
 
@@ -204,13 +204,13 @@ const GridUIMixin = {
    * @private
    */
   _getCellHTML(columnId, record, selected, initialRecord) {
-    const render = utils.last(this.props.cols[columnId].render);
+    const render = last(this.props.cols[columnId].render);
     const cellHtml = render(
       this._escapeRecord(columnId, record),
       selected,
       this._escapeRecord(columnId, initialRecord)
     );
-    return `${utils.isDefined(cellHtml) ? cellHtml : ''}`;
+    return `${isDefined(cellHtml) ? cellHtml : ''}`;
   },
 
   /**
@@ -263,7 +263,7 @@ const GridUIMixin = {
     let row;
     let htmlExtra = '';
     let htmlBody = '';
-    const sorted = utils.pairs(this.state.recordsInfo).sort((a, b) => a[1].index - b[1].index);
+    const sorted = pairs(this.state.recordsInfo).sort((a, b) => a[1].index - b[1].index);
 
     for (i = 0; i < sorted.length; i++) {
       row = sorted[i][0];
