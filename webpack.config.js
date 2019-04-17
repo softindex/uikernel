@@ -12,7 +12,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const nodeBundle = {
   target: 'node',
-  entry: './src/node.js',
+  entry: ['@babel/polyfill', './src/node.js'],
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'index.js',
@@ -21,7 +21,7 @@ const nodeBundle = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: "babel-loader"}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
     ],
   },
   externals: [nodeExternals()],
@@ -31,7 +31,7 @@ const nodeBundle = {
 
 const browserBundle = {
   target: 'web',
-  entry: './src/browser.js',
+  entry: ['@babel/polyfill', './src/browser.js'],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'uikernel.js',
@@ -41,7 +41,7 @@ const browserBundle = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: "babel-loader"}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
     ],
   },
   mode: 'development',
@@ -50,7 +50,7 @@ const browserBundle = {
 
 const browserMinBundle = {
   target: 'web',
-  entry: './src/browser.js',
+  entry: ['@babel/polyfill', './src/browser.js'],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'uikernel.min.js',
@@ -60,7 +60,7 @@ const browserMinBundle = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: "babel-loader"}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
     ],
   },
   optimization: {
