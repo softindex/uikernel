@@ -12,7 +12,7 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 const nodeBundle = {
   target: 'node',
-  entry: ['@babel/polyfill/browser', './src/node.js'],
+  entry: './src/node.js',
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'index.js',
@@ -31,7 +31,7 @@ const nodeBundle = {
 
 const browserBundle = {
   target: 'web',
-  entry: ['@babel/polyfill/browser', './src/browser.js'],
+  entry: './src/browser.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'uikernel.js',
@@ -50,7 +50,7 @@ const browserBundle = {
 
 const browserMinBundle = {
   target: 'web',
-  entry: ['@babel/polyfill/browser', './src/browser.js'],
+  entry: './src/browser.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'uikernel.min.js',

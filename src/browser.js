@@ -45,6 +45,10 @@ import numberValidationRule from './common/validation/rules/number';
 import notEmptyValidationRule from './common/validation/rules/notEmpty';
 import FormMixin from './form/mixin';
 
+if (!global._babelPolyfill) {
+  require('@babel/polyfill/browser');
+}
+
 const UIKernel = {
   applyGridFilters,
   Grid: GridComponent,
