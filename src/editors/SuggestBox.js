@@ -52,14 +52,16 @@ class SuggestBoxEditor extends React.Component {
     label: PropTypes.string,
     notFoundElement: PropTypes.element,
     loadingElement: PropTypes.element,
-    onFocus: PropTypes.func
+    onFocus: PropTypes.func,
+    withEmptyOption: PropTypes.bool
   };
 
   static defaultProps = {
     disabled: false,
     notFoundElement: <div>Nothing found</div>,
     loadingElement: <div>Loading...</div>,
-    value: null
+    value: null,
+    withEmptyOption: false
   };
 
   constructor(props) {
@@ -158,6 +160,10 @@ class SuggestBoxEditor extends React.Component {
         throw e;
       }
       return;
+    }
+
+    if (options.length && this.props.withEmptyOption) {
+      options.unshift({id: null, label: '\u00A0'});
     }
 
     if (this._isMounted) {
@@ -572,7 +578,7 @@ class SuggestBoxEditor extends React.Component {
           <input
             {...omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
-                'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange'])}
+                'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange', 'withEmptyOption'])}
             ref={(input) => this.input = input}
             type='text'
             onClick={this._openList}
