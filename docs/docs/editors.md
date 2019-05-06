@@ -102,6 +102,7 @@ SuggestBox is a ReactJS component that can be used to quickly create a drop-down
 | String                       | defaultLabel       | Default text label                                                    |
 | React Element                | notFoundElement    | Element to be displayed when there are no search results              |
 | React Element                | loadingElement     | Element to be displayed when list items are loading                   |
+| Boolean                      | withEmptyOption    | Show empty option. False by default.                                  |
 
 > Passed model is expected to be compatible with [List Model Interface](list-model.html).
   It should have methods `read` and `getLabel`.
