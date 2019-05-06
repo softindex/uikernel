@@ -22,11 +22,10 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {bool}      [options.validateOnCreate]
    * @constructor
    */
-  constructor(options) {
+  constructor(options = {}) {
     super();
-    options = options || {};
 
-    this.data = cloneDeep(options.data) || [];
+    this._data = cloneDeep(options.data) || [];
     this._id = 1;
     this._filtersHandler = options.filtersHandler;
     if (options.validation) {
@@ -34,12 +33,6 @@ class GridCollectionModel extends AbstractGridModel {
     }
     this._validator = options.validator || options.validation || new Validator();
     this._requiredFields = options.requiredFields || [];
-    this._validateOnCreate = options.hasOwnProperty('validateOnCreate') ? options.validateOnCreate : true;
-
-    // TODO Deprecated. Will be deleted in v0.17.0
-    if (!this._validateOnCreate) {
-      console.warn('Deprecated option "validateOnCreate".');
-    }
   }
 
   /**
@@ -48,7 +41,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object[]} data
    */
   setData(data) {
-    const currentData = this.data.reduce((result, [recordId, record]) => {
+    const currentData = this._data.reduce((result, [recordId, record]) => {
       result[JSON.stringify(recordId)] = record;
       return result;
     }, {});
@@ -75,7 +68,7 @@ class GridCollectionModel extends AbstractGridModel {
 
     const deletedRecordsIds = without(Object.keys(currentData), recordIds).map(JSON.parse);
 
-    this.data = cloneDeep(data);
+    this._data = cloneDeep(data);
 
     if (createdRecordsIds.length) {
       this.trigger('create', [createdRecordsIds]);
@@ -90,6 +83,10 @@ class GridCollectionModel extends AbstractGridModel {
     }
   }
 
+  getData() {
+    return this._data;
+  }
+
   /**
    * Remove field by record id from data
    *
@@ -97,7 +94,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @returns {Number}  recordId   return id of deleted record
    */
   async delete(recordId) {
-    this.data = this.data.filter(record => {
+    this._data = this._data.filter(record => {
       return record[0] !== recordId;
     });
     this.trigger('delete', recordId);
@@ -128,16 +125,12 @@ class GridCollectionModel extends AbstractGridModel {
       }
     }
 
-    if (this._validateOnCreate) {
-      validationErrors = await this.isValidRecord(clonedRecord);
-      if (!validationErrors.isEmpty()) {
-        throw validationErrors;
-      }
-
-      return this._create(clonedRecord, id);
-    } else {
-      return this._create(clonedRecord, id);
+    validationErrors = await this.isValidRecord(clonedRecord);
+    if (!validationErrors.isEmpty()) {
+      throw validationErrors;
     }
+
+    return this._create(clonedRecord, id);
   }
 
   /**
@@ -152,7 +145,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Array}       [settings.ids]          Record IDs, we need to get for sure
    */
   read(settings) {
-    let data = cloneDeep(this.data);
+    let data = cloneDeep(this._data);
     const result = {};
 
     // Get extra records
@@ -310,11 +303,11 @@ class GridCollectionModel extends AbstractGridModel {
   }
 
   _getRecordByID(id) {
-    return find(this.data, record => record[0] === id);
+    return find(this._data, record => record[0] === id);
   }
 
   _create(record, id) {
-    this.data.push([id, record]);
+    this._data = [...this._data, [id, record]];
     this.trigger('create', [id]);
     return id;
   }
