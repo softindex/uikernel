@@ -177,7 +177,6 @@ const GridPaginationMixin = {
         <a href="#" className="btn-next-page" onClick={this.handleNextPage}/>
         <a href="#" className="btn-last-page" onClick={this.handleLastPage}/>
         <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}/>
-        {this.props.children}
       </div>
     );
   }

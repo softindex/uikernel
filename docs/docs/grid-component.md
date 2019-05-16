@@ -66,7 +66,6 @@ which helps to create data driven spreadsheets with capabilities of:
 | Function                                                          | onPageLoad                 | *Optional*. Page load handler(is called when grid data for displaying a new page is loaded)                               |
 | Function                                                          | onError                    | *Optional*. Errors handler. If it is omitted then appeared errors will be thrown(e.g. when grid data couldn't be loaded because of network error)                     |
 | Boolean                                                           | partialErrorChecking=false | *Optional*. Activate partial gradual grid validation(if true - fields validation will be called on blur event in inplace editors of the grid, else fields validation will be called in `grid.save()` method) |
-| Nodes                                                             | children                   | *Optional*. Footer components                               |
 
 **`onChangeViewCount` arguments:**
 
