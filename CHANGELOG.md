@@ -9,6 +9,7 @@
 
   * Grid
     * [Added argument initialRecord to grid columns render function](https://github.com/softindex/uikernel/pull/249)
+    * [Show children props in footer](https://github.com/softindex/uikernel/pull/264)
     * Added `recordId` property to GridModel.prototype.isValidRecord
     
   * Form
