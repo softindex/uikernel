@@ -163,7 +163,10 @@ class SuggestBoxEditor extends React.Component {
     }
 
     if (options.length && this.props.withEmptyOption) {
-      options.unshift({id: null, label: '\u00A0'});
+      options.unshift({
+        id: null,
+        label: '\u00A0' // Use this symbol for save line height
+      });
     }
 
     if (this._isMounted) {

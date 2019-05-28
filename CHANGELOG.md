@@ -15,7 +15,7 @@
     * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)
 
   * SuggestBox Editor
-    * [Added "withEmptyOption" prop to suggest editor](https://github.com/softindex/uikernel/pull/263)
+    * Added "withEmptyOption" prop to suggest editor [[263](https://github.com/softindex/uikernel/pull/263), [265](https://github.com/softindex/uikernel/pull/265)]
     
   ### Fixed
   
