@@ -27,6 +27,7 @@ import AbstractGridModel from './grid/models/AbstractGridModel';
 import AbstractListModel from './list/AbstractListModel';
 import ToFormUpdate from './form/adapters/GridToFormUpdate';
 import ToFormCreate from './form/adapters/GridToFormCreate';
+import ToFormCopy from './form/adapters/GridToFormCopy';
 import Select from './editors/Select';
 import SuggestBox from './editors/SuggestBox';
 import DatePicker from './editors/DatePicker';
@@ -78,7 +79,8 @@ const UIKernel = {
   Adapters: {
     Grid: {
       ToFormUpdate,
-      ToFormCreate
+      ToFormCreate,
+      ToFormCopy
     }
   },
   Editors: {
