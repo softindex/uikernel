@@ -3,4 +3,4 @@
 rm -rf _site\
   && npm run build -- buildSite\
   && cd _site\
-  && bundle exec jekyll serve
+  && docker run --rm -p4000:4000 --volume="$PWD:/srv/jekyll" uikernel-site
