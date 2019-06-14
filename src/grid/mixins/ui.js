@@ -232,6 +232,7 @@ const GridUIMixin = {
       {'dgrid__row_selected': selected}
     );
     let html = `<tr key="${rowId}" class="${gridRowClass}">`;
+    const recordWarnings = this.getRecordWarnings(rowId);
     for (colId of Object.keys(this.props.cols)) {
       if (this._isViewColumn(colId)) {
         const gridCellClass = classNames(this._getColumnClass(colId), {
@@ -240,8 +241,13 @@ const GridUIMixin = {
           'dgrid-error': this._hasError(rowId, this._getBindParam(colId)),
           'dgrid-warning': this._hasWarning(rowId, this._getBindParam(colId))
         });
+        const colWarning = recordWarnings.getFieldErrorMessages(colId);
         html += `
-          <td key="${colId}" class="${gridCellClass}">
+          <td
+            key="${colId}"
+            class="${gridCellClass}"
+            ${colWarning ? ('data-tooltip-text="' + colWarning[0] + '"') : ''}
+          >
             ${this._getCellHTML(colId, record, selected, initialRecord)}
           </td>`;
       }
