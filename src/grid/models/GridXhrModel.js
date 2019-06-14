@@ -17,25 +17,27 @@ const MAX_URI_LENGTH = 2048;
 /**
  * Grid model, that works with API via XHR
  *
- * @param {Object}    settings                          Model settings
- * @param {string}    settings.api                      API address
- * @param {Validator} [settings.validator]              General validator
- * @param {Function}  [settings.xhr]                    XHR interface
- * @param {boolean}   [settings.validateOnClient=false] Don't send validation request to server
+ * @param {Object}    settings                                 Model settings
+ * @param {string}    settings.api                             API address
+ * @param {Validator} [settings.validator]                     General validator
+ * @param {Function}  [settings.xhr]                           XHR interface
+ * @param {boolean}   [settings.validateOnClient=false]        Don't send validation request to server
+ * @param {boolean}   [settings.handleMultipartFormData=false] Send form data with enctype='multipart/form-data'
  * @constructor
  */
 class GridXhrModel extends AbstractGridModel {
   constructor(settings) {
     super();
-
-    if (!settings.api) {
+    const {api, validator, xhr, validateOnClient, handleMultipartFormData} = settings;
+    if (!api) {
       throw new Error('Initialization problem: \'api\' must be specified.');
     }
 
-    this._validator = settings.validator || new Validator();
-    this._xhr = settings.xhr || defaultXhr;
-    this._validateOnClient = settings.validateOnClient || false;
-    this._apiUrl = settings.api
+    this._validator = validator || new Validator();
+    this._xhr = xhr || defaultXhr;
+    this._validateOnClient = validateOnClient || false;
+    this._multipartFormDataEncoded = handleMultipartFormData || false;
+    this._apiUrl = api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
@@ -46,11 +48,25 @@ class GridXhrModel extends AbstractGridModel {
    * @param {Object}      record  Record object
    */
   async create(record) {
+    const formData = new FormData();
+
+    if (this._multipartFormDataEncoded) {
+      const ordinaryData = {};
+      for (const [prop, value] of Object.entries(record)) {
+        if (value instanceof File) {
+          formData.append(JSON.stringify(prop), value);
+        } else {
+          ordinaryData[prop] = value;
+        }
+      }
+      formData.append('rest', JSON.stringify(ordinaryData));
+    }
+
     let body = await this._xhr({
       method: 'POST',
-      headers: {'Content-type': 'application/json'},
       uri: this._apiUrl,
-      body: JSON.stringify(record)
+      body: this._multipartFormDataEncoded ? formData : JSON.stringify(record),
+      ...!this._multipartFormDataEncoded && {headers: {'Content-type': 'application/json'}}
     });
 
     body = JSON.parse(body);
@@ -113,17 +129,43 @@ class GridXhrModel extends AbstractGridModel {
   /**
    * Apply record changes
    *
-   * @param {Array}       changes     Changes array
+   * @param {[]}       changes     Changes array
    * @abstract
    */
   async update(changes) {
+    const formDataChanges = new FormData();
+
+    if (this._multipartFormDataEncoded) {
+      const ordinaryRecordChanges = [];
+
+      for (const [recordId, record] of changes) {
+        const fileFieldNames = [];
+        for (const field of Object.keys(record)) {
+          if (record[field] instanceof File) {
+            formDataChanges.append(JSON.stringify({recordId, field}), record[field]);
+            fileFieldNames.push(field);
+          }
+        }
+
+        const filteredRecord = Object.keys(record)
+          .filter(key => !fileFieldNames.includes(key))
+          .reduce((agr, key) => ({...agr, [key]: record[key]}), {});
+
+        ordinaryRecordChanges.push([recordId, filteredRecord]);
+      }
+
+      formDataChanges.append('rest', JSON.stringify(ordinaryRecordChanges));
+    }
+
     let body = await this._xhr({
       method: 'PUT',
-      headers: {
-        'Content-type': 'application/json'
+      ...!this._multipartFormDataEncoded && {
+        headers: {
+          'Content-type': 'application/json'
+        }
       },
       uri: this._apiUrl,
-      body: JSON.stringify(changes)
+      body: this._multipartFormDataEncoded ? formDataChanges : JSON.stringify(changes)
     });
 
     body = JSON.parse(body);

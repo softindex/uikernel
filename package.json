@@ -27,6 +27,7 @@
     "csv-stringify": "^1.0.4",
     "express": "^4.16.4",
     "moment": "^2.22.2",
+    "multer": "^1.4.1",
     "prop-types": "^15.6.2",
     "react": "^16.5.2",
     "react-datepicker": "1.1.0",

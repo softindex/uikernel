@@ -7,6 +7,7 @@
  */
 
 import ThrottleError from './ThrottleError';
+import ArgumentsError from './ArgumentsError';
 
 function baseClone(obj, isDeep) {
   let cloned;
@@ -487,3 +488,15 @@ export function parents(element, selector) {
   }
   return result;
 }
+
+export function parseJson(json, errorMessage = 'Incorrect JSON') {
+  let result;
+
+  try {
+    result = JSON.parse(json);
+  } catch (err) {
+    throw new ArgumentsError(errorMessage);
+  }
+
+  return result;
+};

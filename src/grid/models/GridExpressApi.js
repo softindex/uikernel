@@ -8,7 +8,10 @@
 
 import express from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
-import {asyncHandler} from '../../common/utils';
+import {asyncHandler, parseJson} from '../../common/utils';
+import multer from 'multer';
+
+const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
 /**
  * Form Express API for Grid model interaction
@@ -17,11 +20,13 @@ import {asyncHandler} from '../../common/utils';
  * @constructor
  */
 class GridExpressApi {
-  static create() {
-    return new GridExpressApi();
+  static create(handleMultipartFormData, maxFileSize) {
+    return new GridExpressApi(handleMultipartFormData, maxFileSize);
   }
 
-  constructor() {
+  constructor(handleMultipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE) {
+    const upload = multer({limits: {fileSize: maxFileSize}});
+
     this.middlewares = {
       readGet: [asyncHandler(async (req, res, next) => {
         const settings = {};
@@ -89,26 +94,66 @@ class GridExpressApi {
           result(err, null, req, res, next);
         }
       })],
-      update: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        const result = this._result('update');
-        try {
-          const data = await model.update(req.body);
-          result(null, data, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
-        }
-      })],
-      create: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        const result = this._result('create');
-        try {
-          const data = await model.create(req.body);
-          result(null, data, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
-        }
-      })]
+      update: [
+        ...(handleMultipartFormData ? [upload.any()] : []),
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          const result = this._result('update');
+
+          let body = req.body;
+
+          if (handleMultipartFormData) {
+            const filesByRecordId = {};
+
+            for (const {fieldname, buffer} of req.files) {
+              const {recordId, field} = parseJson(
+                decodeURI(fieldname),
+                'Incorrect name for field containing file data'
+              );
+              if (!filesByRecordId[recordId]) {
+                filesByRecordId[recordId] = {};
+              }
+              filesByRecordId[recordId][field] = buffer;
+            }
+
+            body = parseJson(body.rest, 'Incorrect "rest" json')
+              .map(([recordId, record]) => {
+                return [recordId, {
+                  ...record,
+                  ...filesByRecordId[recordId]
+                }];
+              });
+          }
+
+          try {
+            const data = await model.update(body);
+            result(null, data, req, res, next);
+          } catch (err) {
+            result(err, null, req, res, next);
+          }
+        })],
+      create: [
+        ...(handleMultipartFormData ? [upload.any()] : []),
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          const result = this._result('create');
+          let body = req.body;
+
+          if (handleMultipartFormData) {
+            body = parseJson(body.rest);
+
+            for (const {fieldname, buffer} of req.files) {
+              body[JSON.parse(decodeURI(fieldname))] = buffer;
+            }
+          }
+
+          try {
+            const data = await model.create(body);
+            result(null, data, req, res, next);
+          } catch (err) {
+            result(err, null, req, res, next);
+          }
+        })]
     };
   }
 
