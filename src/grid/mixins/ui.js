@@ -208,7 +208,8 @@ const GridUIMixin = {
     const cellHtml = render(
       this._escapeRecord(columnId, record),
       selected,
-      this._escapeRecord(columnId, initialRecord)
+      this._escapeRecord(columnId, initialRecord),
+      this
     );
     return `${isDefined(cellHtml) ? cellHtml : ''}`;
   },
