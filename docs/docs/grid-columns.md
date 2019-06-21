@@ -62,10 +62,11 @@ Columns list is specified as an object with column string IDs as keys and column
       /**
        * Cell rendering function, the last element of the array
        *
-       * @param    {Object}   record         Record data (initial data + changes)
-       * @param    {bool}     selected       "Selected" row status (check out details in description of Grid Component)
-       * @param    {Object}   initialRecord  Initial record data (without changes)
-       * @return   {string}                  Cell content (string with HTML markup)
+       * @param    {Object}         record          Record data (initial data + changes)
+       * @param    {bool}           selected        "Selected" row status (check out details in description of Grid Component)
+       * @param    {Object}         initialRecord   Initial record data (without changes)
+       * @param    {GridComponent}  grid            GridComponent object
+       * @return   {string}                         Cell content (string with HTML markup)
       **/
       function () { }
     ],
