@@ -9,6 +9,7 @@
 
   * Grid
     * [Added argument initialRecord to grid columns render function](https://github.com/softindex/uikernel/pull/249)
+    * [Added grid context param to columns render method](https://github.com/softindex/uikernel/pull/269)
     * Added `recordId` property to GridModel.prototype.isValidRecord
     
   * Form
