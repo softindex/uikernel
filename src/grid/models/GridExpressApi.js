@@ -20,12 +20,16 @@ const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
  * @constructor
  */
 class GridExpressApi {
-  static create(handleMultipartFormData, maxFileSize) {
-    return new GridExpressApi(handleMultipartFormData, maxFileSize);
+  static create(multipartFormData, maxFileSize) {
+    return new GridExpressApi(multipartFormData, maxFileSize);
   }
 
-  constructor(handleMultipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE) {
-    const upload = multer({limits: {fileSize: maxFileSize}});
+  constructor(multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE) {
+    const upload = multer({
+      limits: {
+        fileSize: maxFileSize
+      }
+    });
 
     this.middlewares = {
       readGet: [asyncHandler(async (req, res, next) => {
@@ -95,14 +99,14 @@ class GridExpressApi {
         }
       })],
       update: [
-        ...(handleMultipartFormData ? [upload.any()] : []),
+        ...(multipartFormData ? [upload.any()] : []),
         asyncHandler(async (req, res, next) => {
           const model = this._getModel(req, res);
           const result = this._result('update');
 
           let body = req.body;
 
-          if (handleMultipartFormData) {
+          if (multipartFormData) {
             const filesByRecordId = {};
 
             for (const {fieldname, buffer} of req.files) {
@@ -133,13 +137,13 @@ class GridExpressApi {
           }
         })],
       create: [
-        ...(handleMultipartFormData ? [upload.any()] : []),
+        ...(multipartFormData ? [upload.any()] : []),
         asyncHandler(async (req, res, next) => {
           const model = this._getModel(req, res);
           const result = this._result('create');
           let body = req.body;
 
-          if (handleMultipartFormData) {
+          if (multipartFormData) {
             body = parseJson(body.rest);
 
             for (const {fieldname, buffer} of req.files) {

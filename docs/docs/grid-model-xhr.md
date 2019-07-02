@@ -17,11 +17,12 @@ Grid Xhr Model is a class that interacts with the server API holding the data.
 
 **Parameters**:
 
-| Type                              | Name               | Description                                                                             |
-|-----------------------------------|--------------------|-----------------------------------------------------------------------------------------|
-| String                            | settings.api       | *Required*. API address to interact with.                                                           |
-| [Validator](/docs/validator.html) | settings.validator | *Optional*. Validator. By default there is created a new [Validator](/docs/validator.html) instance.      |
-| Function                          | settings.xhr       | *Optional*. XHR interface. By default is used built-in xhr function, but you can override it here.  |
+| Type                              | Name                             | Description                                                                              |
+|-----------------------------------|----------------------------------|------------------------------------------------------------------------------------------|
+| String                            | **settings.api**                 | *Required*. API address to interact with.                                                |
+| [Validator](/docs/validator.html) | settings.validator               | Validator. By default there is created a new [Validator](/docs/validator.html) instance. |
+| Function                          | settings.xhr                     | XHR interface. By default is used built-in xhr function, but you can override it here.   |
+| Boolean                           | settings.multipartFormData       | Send multipart/form-data requests. False by default.                                     |
 
 ## Methods
 
@@ -44,9 +45,9 @@ so `serverResponse.data` will be resolved.
 
 **Parameters**:
 
-| Type     | Name    | Description                                 |
-|----------|---------|---------------------------------------------|
-| Object   | record  | *Required*. The record data to be created. Expected structure: `{field1Name: 'value1', ..., fieldNName: 'valueN'} |
+| Type     | Name       | Description                                 |
+|----------|------------|---------------------------------------------|
+| Object   | **record** | *Required*. The record data to be created. Expected structure: `{field1Name: 'value1', ..., fieldNName: 'valueN'} |
 
 **Example**:
 
@@ -82,12 +83,12 @@ In successful case(response status == 200) returns server response, otherwise th
 
 | Type                                                      | Name             | Description                                                                            |
 |-----------------------------------------------------------|------------------|----------------------------------------------------------------------------------------|
-| String [ ]                                                | settings.fields  | *Optional*. Array o field names(string values) to retrieve                                                        |
-| Number                                                    | settings.limit   | *Optional*. Maximum amount of result items                                                                      |
-| Number                                                    | settings.offset  | *Optional*. Offset from the beginning of the records array                                                                     |
-| Object                                                    | settings.filters | *Optional*. Object with filtering criteria. The structure of the object is up to your servers' API.                                                      |
-| <span style="white-space:nowrap;"> String [ ] [ ] </span> | settings.sort    | *Optional*. Sorting order. Array of sorting parameters where each parameter is an array of 2 string values: sorted column name and sorting mode(asc/desc). |
-| String [ ]                                                | settings.extra   | *Optional*. Record IDs, that are needed to be fetched additionally(despite filtering criteria)(explicitly returned in a result). Usually they are edited records that are displayed in spite of filters and the current page of the grid. |
+| String [ ]                                                | settings.fields  | Array o field names(string values) to retrieve                                                        |
+| Number                                                    | settings.limit   | Maximum amount of result items                                                                      |
+| Number                                                    | settings.offset  | Offset from the beginning of the records array                                                                     |
+| Object                                                    | settings.filters | Object with filtering criteria. The structure of the object is up to your servers' API.                                                      |
+| <span style="white-space:nowrap;"> String [ ] [ ] </span> | settings.sort    | Sorting order. Array of sorting parameters where each parameter is an array of 2 string values: sorted column name and sorting mode(asc/desc). |
+| String [ ]                                                | settings.extra   | Record IDs, that are needed to be fetched additionally(despite filtering criteria)(explicitly returned in a result). Usually they are edited records that are displayed in spite of filters and the current page of the grid. |
 
 **Returns**: Promise which resolves with the server response which is expected to be an Object with the next structure:
 
@@ -158,8 +159,8 @@ In successful case(response status == 200) returns server response, otherwise th
 
 | Type       | Name    | Description                         |
 |------------|---------|-------------------------------------|
-| Any        | id      | *Required*. Record id to get data of.                              |
-| String[ ]  | fields  | *Optional*. Grid fields to get values of. By default there is returned values of all the grid fields.   |
+| Any        | **id**  | *Required*. Record id to get data of.                              |
+| String[ ]  | fields  | Grid fields to get values of. By default there is returned values of all the grid fields.   |
 
 **Returns**: Promise which resolves with *Object* with record data. 
              It has the following structure: `{field1dName: 'value1', ..., fieldNName: 'valueN'}`.
@@ -206,9 +207,9 @@ In case of unexpected error(e.g. server response status !== 200) an Error instan
 
 **Parameters**:
 
-| Type                                                             | Name    | Description                                 |
-|------------------------------------------------------------------|---------|---------------------------------------------|
-| <span style="white-space:nowrap;"> \[ \] \[Any, Object\] </span> | changes | *Required*. Array of changed records data, where each record data is an array of 2 fields: recordId(any serializable value) and record data(Object). |
+| Type                                                             | Name        | Description                                 |
+|------------------------------------------------------------------|-------------|---------------------------------------------|
+| <span style="white-space:nowrap;"> \[ \] \[Any, Object\] </span> | **changes** | *Required*. Array of changed records data, where each record data is an array of 2 fields: recordId(any serializable value) and record data(Object). |
 
 **Example**:
 
@@ -269,9 +270,9 @@ This method is required for creating group validators\(read details [here](/vali
 
 **Parameters**:
 
-| Type       | Name    | Description                                                           |
-|------------|---------|-----------------------------------------------------------------------|
-| String[]   | fields  | *Required*. Array of fields to get their validation-dependant fields  |
+| Type       | Name       | Description                                                           |
+|------------|------------|-----------------------------------------------------------------------|
+| String[]   | **fields** | *Required*. Array of fields to get their validation-dependant fields  |
 
 ---
 
@@ -286,9 +287,9 @@ In case of an unexpected error it will be thrown(e.g. if there are async validat
 
 **Parameters**:
 
-| Type       | Name   | Description                                                                                                      |
-|------------|--------|------------------------------------------------------------------------------------------------------------------|
-| Object     | record | *Required*. Record to validate. Expected structure: `{field1Name: 'value1', ..., fieldNName: 'valueN'}`      |
+| Type       | Name       | Description                                                                                                      |
+|------------|------------|------------------------------------------------------------------------------------------------------------------|
+| Object     | **record** | *Required*. Record to validate. Expected structure: `{field1Name: 'value1', ..., fieldNName: 'valueN'}`      |
 
 **Returns**: Promise which resolves with *ValidationErrors*
 

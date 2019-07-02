@@ -9,20 +9,6 @@
 import ThrottleError from './ThrottleError';
 import ArgumentsError from './ArgumentsError';
 
-function getAllProperties( obj ) {
-  const props = [];
-
-  do {
-    Object.getOwnPropertyNames( obj ).forEach(function ( prop ) {
-      if ( props.indexOf( prop ) === -1 ) {
-        props.push( prop );
-      }
-    });
-  } while ( obj = Object.getPrototypeOf( obj ) );
-
-  return props;
-}
-
 function baseClone(obj, isDeep) {
   let cloned;
   const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
@@ -225,31 +211,39 @@ export function decorate(obj, decor) {
  */
 export function isEqual(a, b) {
   if (
-    a === null ||
-    b === null ||
-    a === undefined ||
-    b === undefined ||
-    typeof a === 'function' ||
-    typeof b === 'function' ||
-    a instanceof RegExp ||
-    b instanceof RegExp
+    a === null
+    || b === null
+    || a === undefined
+    || b === undefined
+    || typeof a === 'function'
+    || typeof b === 'function'
+    || a instanceof RegExp
+    || b instanceof RegExp
   ) {
     return a === b;
   }
+
   if (a === b || a.valueOf() === b.valueOf() || a !== a && b !== b) {
     return true;
   }
-  if (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length) || !(typeof a === 'object')) {
+
+  if (
+    (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length))
+    || typeof a !== 'object'
+    || typeof b !== 'object'
+  ) {
     return false;
   }
-  if (typeof a !== typeof b) {
-    return false;
-  }
+
   if (typeof File === 'function' && a instanceof File && b instanceof File) {
     return a.size === b.size && a.name === b.name;
   }
-  const p = Object.keys(a);
-  return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => isEqual(a[i], b[i]));
+
+  const keys = Object.keys(a);
+  return (
+    Object.keys(b).every(key => keys.includes(key))
+    && keys.every(key => isEqual(a[key], b[key]))
+  );
 }
 
 /**

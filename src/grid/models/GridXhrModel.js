@@ -22,13 +22,13 @@ const MAX_URI_LENGTH = 2048;
  * @param {Validator} [settings.validator]                     General validator
  * @param {Function}  [settings.xhr]                           XHR interface
  * @param {boolean}   [settings.validateOnClient=false]        Don't send validation request to server
- * @param {boolean}   [settings.handleMultipartFormData=false] Send form data with enctype='multipart/form-data'
+ * @param {boolean}   [settings.multipartFormData=false] Send form data with enctype='multipart/form-data'
  * @constructor
  */
 class GridXhrModel extends AbstractGridModel {
-  constructor(settings) {
+  constructor({api, validator, xhr, validateOnClient, multipartFormData}) {
     super();
-    const {api, validator, xhr, validateOnClient, handleMultipartFormData} = settings;
+
     if (!api) {
       throw new Error('Initialization problem: \'api\' must be specified.');
     }
@@ -36,7 +36,7 @@ class GridXhrModel extends AbstractGridModel {
     this._validator = validator || new Validator();
     this._xhr = xhr || defaultXhr;
     this._validateOnClient = validateOnClient || false;
-    this._multipartFormDataEncoded = handleMultipartFormData || false;
+    this._multipartFormDataEncoded = multipartFormData || false;
     this._apiUrl = api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end

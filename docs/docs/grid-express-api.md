@@ -24,6 +24,14 @@ Grid Express API helps to perform the next requests:
   const gridApiBuilder = UIKernel.gridExpressApi();    //initializes builder
 {% endhighlight %}
 
+**Parameters**:
+
+| Type    | Name                    | Description                                               |
+|---------|-------------------------|-----------------------------------------------------------|
+| Boolean | multipartFormData       | Handle multipart/form-data responses. False by default.   |
+| Number  | maxFileSize             | Max request size for multipart/form-data. False by 100MB. |
+
+
 ----
 
 ## Builder methods

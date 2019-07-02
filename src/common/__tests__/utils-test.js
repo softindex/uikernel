@@ -89,17 +89,29 @@ describe('Throttle', () => {
 });
 
 describe('Utils.isEqual', () => {
-  it('Should return false if comparands have different types',  () => {
+  it('Should return false if comparands have different types', () => {
     expect(isEqual({}, '')).toBeFalsy();
   });
 
-  it('Should return true if comparands are files and have same size and name',  () => {
-    class File {
+  it('Should return true if comparands are files and have same size and name', () => {
+    global.File = class {
       constructor(size, name) {
         this.size = size;
         this.name = name;
+        this._metadata = Math.random();
       }
-    }
-    expect(isEqual(new File(100, 'file'), new File(100, 'file'))).toBeTruthy();
+    };
+    expect(isEqual(new global.File(100, 'file'), new global.File(100, 'file'))).toBeTruthy();
+  });
+
+  it('Shouldn`t return true if comparands are files and have same size and name', () => {
+    global.File = class {
+      constructor(size, name) {
+        this.size = size;
+        this.name = name;
+        this._metadata = Math.random();
+      }
+    };
+    expect(isEqual(new global.File(100, 'file'), new global.File(200, 'file'))).toBeFalsy();
   });
 });
