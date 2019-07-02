@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {throttle} from '../utils';
+import {throttle, isEqual} from '../utils';
 import ThrottleError from '../ThrottleError';
 
 async function makeRequest(data) {
@@ -85,5 +85,21 @@ describe('Throttle', () => {
     ]);
 
     expect(hasUnhandledRejection).toBeFalsy();
+  });
+});
+
+describe('Utils.isEqual', () => {
+  it('Should return false if comparands have different types',  () => {
+    expect(isEqual({}, '')).toBeFalsy();
+  });
+
+  it('Should return true if comparands are files and have same size and name',  () => {
+    class File {
+      constructor(size, name) {
+        this.size = size;
+        this.name = name;
+      }
+    }
+    expect(isEqual(new File(100, 'file'), new File(100, 'file'))).toBeTruthy();
   });
 });

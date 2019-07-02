@@ -9,6 +9,20 @@
 import ThrottleError from './ThrottleError';
 import ArgumentsError from './ArgumentsError';
 
+function getAllProperties( obj ) {
+  const props = [];
+
+  do {
+    Object.getOwnPropertyNames( obj ).forEach(function ( prop ) {
+      if ( props.indexOf( prop ) === -1 ) {
+        props.push( prop );
+      }
+    });
+  } while ( obj = Object.getPrototypeOf( obj ) );
+
+  return props;
+}
+
 function baseClone(obj, isDeep) {
   let cloned;
   const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
@@ -228,7 +242,12 @@ export function isEqual(a, b) {
   if (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length) || !(typeof a === 'object')) {
     return false;
   }
-
+  if (typeof a !== typeof b) {
+    return false;
+  }
+  if (typeof File === 'function' && a instanceof File && b instanceof File) {
+    return a.size === b.size && a.name === b.name;
+  }
   const p = Object.keys(a);
   return Object.keys(b).every(i => p.indexOf(i) >= 0) && p.every(i => isEqual(a[i], b[i]));
 }
@@ -499,4 +518,4 @@ export function parseJson(json, errorMessage = 'Incorrect JSON') {
   }
 
   return result;
-};
+}
