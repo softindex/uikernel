@@ -107,9 +107,6 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object}      record  Record object
    */
   async create(record) {
-    let i;
-    let field;
-    let validationErrors;
     let id = this._getID();
     let clonedRecord = clone(record);
     // Create record with definite id
@@ -118,14 +115,13 @@ class GridCollectionModel extends AbstractGridModel {
       clonedRecord = clonedRecord[1];
     }
 
-    for (i in this._requiredFields) {
-      field = this._requiredFields[i];
+    for (const field of this._requiredFields) {
       if (!clonedRecord.hasOwnProperty(field)) {
         clonedRecord[field] = null;
       }
     }
 
-    validationErrors = await this.isValidRecord(clonedRecord);
+    const validationErrors = await this.isValidRecord(clonedRecord);
     if (!validationErrors.isEmpty()) {
       throw validationErrors;
     }

@@ -60,4 +60,5 @@
   
   * Grid
     * "create" event in GridModel has `Array` type
+    * Removed `data` property in `GridCollectionModel`. Added `getData` method.
 </details>
