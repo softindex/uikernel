@@ -6,11 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import fs from 'fs';
-import sequence from 'gulp-sequence';
-import {spawn} from 'child_process';
-import {argv} from 'yargs';
-import pkg from '../package.json';
+const fs = require('fs');
+const sequence = require('gulp-sequence');
+const child_process = require('child_process');
+const yargs = require('yargs');
+const spawn = child_process.spawn;
+const argv = yargs.argv;
+// import {spawn} from 'child_process';
+// import {argv} from 'yargs';
+const pkg = require('../package.json');
 
 const repo = argv.repo || 'origin';
 const tag = 'v' + pkg.version;
@@ -81,4 +85,4 @@ function release(cb) {
   });
 }
 
-export default release;
+module.exports = release;

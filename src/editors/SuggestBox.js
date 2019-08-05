@@ -201,7 +201,7 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    await toPromise(::this.setState, true)({
+    await toPromise(this.setState.bind(this), true)({
       isOpened: true,
       loading: true,
       popupStyles

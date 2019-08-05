@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import gulp from 'gulp';
-import eslint from 'gulp-eslint';
-import gulpIf from 'gulp-if';
+const gulp = require('gulp');
+const eslint = require('gulp-eslint');
+const gulpIf = require('gulp-if');
 
 /**
  * Has ESLint fixed the file contents
@@ -24,4 +24,4 @@ function jsDetectErrors() {
     .pipe(gulpIf(isFixed, gulp.dest('.')));
 }
 
-export default jsDetectErrors;
+module.exports = jsDetectErrors;

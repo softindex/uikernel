@@ -20,9 +20,8 @@
     "flow": "flow"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
-    "@babel/runtime": "^7.1.2",
     "classnames": "^2.2.6",
+    "core-js": "^3.1.4",
     "create-react-class": "^15.6.2",
     "csv-stringify": "^1.0.4",
     "express": "^4.16.4",
@@ -36,24 +35,20 @@
     "xhr": "^2.5.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-function-bind": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.1.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-flow": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-loader": "^8.0.5",
-    "babel-plugin-add-module-exports": "^1.0.0",
+    "@types/core-js": "^2.5.2",
+    "@types/jest": "^24.0.16",
+    "@types/node": "^12.6.8",
+    "@types/react": "^16.8.24",
+    "@types/react-datepicker": "^2.8.1",
+    "@types/webpack": "^4.32.1",
+    "@typescript-eslint/parser": "^1.13.0",
+    "awesome-typescript-loader": "^5.2.1",
     "browserify": "^15.2.0",
     "browserify-shim": "^3.8.12",
     "del": "^4.1.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
-    "eslint": "^4.19.1",
+    "eslint": "^5.16.0",
     "eslint-plugin-react": "^7.11.1",
     "flow-bin": "^0.71.0",
     "flow-typed": "^2.5.1",
@@ -66,17 +61,27 @@
     "gulp-less": "^3.5.0",
     "gulp-rename": "^1.4.0",
     "gulp-sequence": "^1.0.0",
-    "jest": "^22.4.4",
+    "gulp-typescript": "^5.0.1",
+    "import": "0.0.6",
+    "jest": "^24.8.0",
     "merge-stream": "^1.0.0",
     "raf": "^3.4.0",
-    "react-dom": "15.6.2",
+    "regenerator-runtime": "^0.13.3",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3",
     "uglifyjs-webpack-plugin": "^2.1.2",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
     "webpack-node-externals": "^1.7.2",
+    "webpack-stream": "^5.2.1",
     "yargs": "^11.1.0"
   },
   "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.js$": "ts-jest"
+    },
     "testRegex": "/__tests__/",
     "roots": [
       "<rootDir>/src"
@@ -84,7 +89,17 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ],
-    "setupTestFrameworkScriptFile": "<rootDir>/src/test/setupTestFramework.js",
-    "testURL": "http://localhost"
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/test/setupTestFramework.js"
+    ],
+    "testURL": "http://localhost",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

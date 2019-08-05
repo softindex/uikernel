@@ -8,15 +8,15 @@
 
 // TODO Need to remove gulp dependency
 
-import gulp from 'gulp';
-import jsDetectErrors from './gulp/jsDetectErrors';
-import clearSite from './gulp/clearSite';
-import archive from './gulp/archive';
-import styleBundle from './gulp/styleBundle';
-import deploySite from './gulp/deploySite';
-import buildSite from './gulp/buildSite';
-import release from './gulp/release';
-import buildSrc from './gulp/buildSrc';
+const gulp = require('gulp');
+const jsDetectErrors = require('./gulp/jsDetectErrors');
+const clearSite = require('./gulp/clearSite');
+const archive = require('./gulp/archive');
+const styleBundle = require('./gulp/styleBundle');
+const deploySite = require('./gulp/deploySite');
+const buildSite = require('./gulp/buildSite');
+const release = require('./gulp/release');
+const buildSrc = require('./gulp/buildSrc');
 
 gulp.task('default', gulp.parallel([
   gulp.series([jsDetectErrors, buildSrc]),

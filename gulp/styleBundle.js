@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import gulp from 'gulp';
-import rename from 'gulp-rename';
-import less from 'gulp-less';
-import merge from 'merge-stream';
+const gulp = require('gulp');
+const rename = require('gulp-rename');
+const less = require('gulp-less');
+const merge = require('merge-stream');
 
 function styleBundle() {
   const copyImg = gulp.src('themes/**/img/**')
@@ -23,4 +23,4 @@ function styleBundle() {
   return merge(copyImg, copyLess);
 }
 
-export default styleBundle;
+module.exports = styleBundle;

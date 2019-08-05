@@ -77,7 +77,7 @@ class SelectEditor extends React.Component {
       <select
         {...omit(this.props, ['value', 'options'])}
         value={valueIndex}
-        onChange={this::this.handleChange}
+        onChange={this.handleChange.bind(this)}
         disabled={this.props.disabled || this.state.loading}
       >
         {options.map((item, index) => {

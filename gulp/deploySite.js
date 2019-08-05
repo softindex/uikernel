@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import gulp from 'gulp';
-import ghPages from 'gulp-gh-pages';
+const gulp = require('gulp');
+const ghPages = require('gulp-gh-pages');
 
 function deploySite() {
   return gulp.src('./_site/**/*')
     .pipe(ghPages());
 }
 
-export default deploySite;
+module.exports = deploySite;

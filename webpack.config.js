@@ -19,9 +19,12 @@ const nodeBundle = {
     library: 'UIKernel',
     libraryTarget: 'umd',
   },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
     ],
   },
   externals: [nodeExternals()],
@@ -39,9 +42,12 @@ const browserBundle = {
     library: 'UIKernel',
     libraryExport: 'default'
   },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
     ],
   },
   mode: 'development',
@@ -58,9 +64,12 @@ const browserMinBundle = {
     library: 'UIKernel',
     libraryExport: 'default'
   },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader'}
+      {test: /\.js$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
     ],
   },
   optimization: {

@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import gulp from 'gulp';
-import merge from 'merge-stream';
+const gulp = require('gulp');
+const merge = require('merge-stream');
 
 function buildSite() {
   const copyDocs = gulp.src(['./docs/**/*'])
@@ -25,4 +25,4 @@ function buildSite() {
   return merge(copyDocs, copyExamples, copyDist, copyThemes);
 }
 
-export default buildSite;
+module.exports = buildSite;

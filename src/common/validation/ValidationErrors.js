@@ -155,6 +155,7 @@ class ValidationErrors {
    */
   toJSON() {
     const json = {};
+
     for (const [key, value] of this._fields) {
       json[key] = value;
     }

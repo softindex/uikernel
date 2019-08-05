@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {warn} from '../common/utils';
+import {warn} from './utils';
 
 const functionsNames = [];
 export default function (func, hideWarning = false) {

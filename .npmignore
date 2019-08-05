@@ -12,6 +12,6 @@ scripts
 .npmignore
 .babelrc
 .flowconfig
-gulpfile.babel.js
+gulpfile.js
 npm-debug.log
 .DS_Store

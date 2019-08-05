@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import gulp from 'gulp';
-import archiver from 'gulp-archiver';
-import merge from 'merge-stream';
+const gulp = require('gulp');
+const archiver = require('gulp-archiver');
+const merge = require('merge-stream');
 
 function archive() {
   const archiveStatic = gulp.src('themes/base/**/*')
@@ -22,4 +22,4 @@ function archive() {
   return merge(archiveStatic, archiveExamples);
 }
 
-export default archive;
+module.exports = archive;

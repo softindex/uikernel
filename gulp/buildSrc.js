@@ -6,11 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import gulp from 'gulp';
-import exec from 'gulp-exec';
+const webpack = require('webpack-stream');
+const webpackConfig = require('../webpack.config.js');
+const merge = require('merge-stream');
 
 function buildSrc() {
-  return gulp.src('.').pipe(exec('./node_modules/.bin/webpack-cli'));
+  return merge.apply(null, webpackConfig.map(config => webpack(config)));
 }
 
-export default buildSrc;
+module.exports = buildSrc;

@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import del from 'del';
+const del = require('del');
 
 function clearSite() {
   return del(['_site']);
 }
 
-export default clearSite;
+module.exports = clearSite;

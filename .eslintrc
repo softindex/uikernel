@@ -1,4 +1,4 @@
-parser: "babel-eslint"
+parser: "@typescript-eslint/parser"
 
 extends: ["eslint:recommended", "plugin:react/recommended"]
 
@@ -9,6 +9,7 @@ settings:
     version: "0.14"
 
 parserOptions:
+  sourceType: "module"
   ecmaVersion: 6
   ecmaFeatures:
     jsx: true
