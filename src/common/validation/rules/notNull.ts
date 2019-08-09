@@ -14,9 +14,9 @@ import {isDefined} from '../../utils';
  * @param {string} [error = "Can not be empty"] Error message
  * @returns {Function}
  */
-export default error => {
+export default (error: string) => {
   error = error || 'Can not be empty';
-  return value => {
+  return (value: any) => {
     if (
       !isDefined(value) ||
       value === '' ||

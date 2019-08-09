@@ -8,28 +8,30 @@
 
 import {isDefined} from '../../utils';
 
-function baseValidator(notNull, variants, error, value) {
+function baseValidator(notNull: boolean, variants: any[], error: string, values: any[]) {
   error = error || 'Not in variants';
-  if (!isDefined(value)) {
+  if (!isDefined(values) || !values.length) {
     if (notNull) {
       return error;
     }
     return;
   }
 
-  if (variants.indexOf(value) < 0) {
-    return error;
+  for (const value of values) {
+    if (variants.indexOf(value) < 0) {
+      return error;
+    }
   }
 }
 
 /**
- * Create enum validator
+ * Create set validator
  *
  * @param variants
  * @param {string} error Error message
  * @returns {Function}
  */
-const validator = (variants, error) => baseValidator.bind(null, false, variants, error);
-validator.notNull = (variants, error) => baseValidator.bind(null, true, variants, error);
+const validator = (variants: any[], error: string) => baseValidator.bind(null, false, variants, error);
+validator.notNull = (variants: any[], error: string) => baseValidator.bind(null, true, variants, error);
 
 export default validator;

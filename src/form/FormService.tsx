@@ -11,8 +11,27 @@ import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty} from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
+import FormModel from "./FormModel";
 
 class FormService {
+  private fields: any;
+  private _isNotInitialized: boolean;
+  private _eventEmitter: EventEmitter;
+  private _warningsValidator: null;
+  private _warnings: ValidationErrors;
+  private _errors: ValidationErrors;
+  private _changes: null;
+  private _data: null;
+  private _isSubmitting: boolean;
+  private showDependentFields: boolean;
+  private _partialErrorChecking: boolean;
+  private _partialErrorCheckingDefault: boolean;
+  private model: FormModel;
+  private submitAll: boolean;
+  private validating: boolean;
+  private _hiddenValidationFields: any[];
+  private submitting: boolean;
+
   constructor(fields = null) {
     this._data = null;
     this._changes = null;
@@ -47,6 +66,7 @@ class FormService {
    * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
    * @param {Validator}         [settings.warningsValidator]            Warnings validator for fields
    */
+
   async init(settings) {
     if (!settings.model) {
       throw Error('You must specify the model');
@@ -124,17 +144,17 @@ class FormService {
    * @param {string}  field  Parameter
    * @param {*}       value  Event or data
    */
-  async updateField(field, value) {
+  async updateField(field: string, value: Event) {
     await this.set({
       [field]: parseValueFromEvent(value)
     });
   }
 
-  addChangeListener(func) {
+  addChangeListener(func: any) {
     this._eventEmitter.on('update', func);
   }
 
-  removeChangeListener(func) {
+  removeChangeListener(func: any) {
     this._eventEmitter.off('update', func);
     if (this._eventEmitter.listenerCount('update') === 0 && !this._isNotInitialized) {
       this.model.off('update', this._onModelChange);
@@ -149,7 +169,7 @@ class FormService {
   /**
    * @param {string|string[]} fields
    */
-  clearValidation(fields) {
+  clearValidation(fields: string | string[]) {
     if (this._isNotInitialized) {
       return;
     }
@@ -170,12 +190,12 @@ class FormService {
     this._setState();
   }
 
-  clearError(field) {
+  clearError(field: string) {
     console.warn('Deprecated: FormService method "clearError" renamed to "clearValidation"');
     this.clearValidation(field);
   }
 
-  async validateField(field, value) {
+  async validateField(field: string, value: any) {
     await this.set({
       [field]: parseValueFromEvent(value)
     }, true);
@@ -187,7 +207,7 @@ class FormService {
    * @param {Object}    data              Data
    * @param {bool}      [validate=false]  Validate form
    */
-  async set(data, validate) {
+  async set(data, validate?: boolean) {
     if (!this._isLoaded()) {
       return;
     }

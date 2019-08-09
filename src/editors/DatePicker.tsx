@@ -7,7 +7,7 @@
  */
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import moment, {Moment} from 'moment';
+import moment from 'moment';
 import { omit } from '../common/utils';
 
 type DatePickerEditorProps = {
@@ -24,8 +24,8 @@ class DatePickerEditor extends React.Component<DatePickerEditorProps, {}> {
   static defaultProps = {
     textFormat: 'YYYY-MM-DD'
   };
-  onChange(date: Date) {
-    if (date) {
+  onChange(date: any) {
+    if (date && this.props.format) {
       date = date.format(this.props.format);
     }
     this.props.onChange(date);
@@ -42,10 +42,10 @@ class DatePickerEditor extends React.Component<DatePickerEditorProps, {}> {
       <DatePicker
         {...otherProps}
         dateFormat={this.props.textFormat}
-        selected={this.props.value && moment(this.props.value)}
+        selected={this.props.value && moment(this.props.value).toDate()}
         onChange={this.onChange.bind(this)}
-        minDate={this.props.min && moment(this.props.min)}
-        maxDate={this.props.max && moment(this.props.max)}
+        minDate={this.props.min && moment(this.props.min).toDate()}
+        maxDate={this.props.max && moment(this.props.max).toDate()}
         todayButton={'Today'}
       />
     );

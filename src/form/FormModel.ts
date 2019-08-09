@@ -11,6 +11,8 @@ import AbstractFormModel from './AbstractFormModel';
 import {clone} from '../common/utils';
 
 class FormModel extends AbstractFormModel {
+  private _validation: Validator;
+  private _data: any;
   /**
    * Simple form model
    *
@@ -18,7 +20,7 @@ class FormModel extends AbstractFormModel {
    * @param {Validator} validation    Validation
    * @constructor
    */
-  constructor(defaultValues, validation) {
+  constructor(defaultValues: any, validation: Validator) {
     super();
     this._validation = validation || new Validator();
     this._data = defaultValues ? clone(defaultValues) : {};
@@ -29,8 +31,8 @@ class FormModel extends AbstractFormModel {
    *
    * @param {Array}    fields     Required fields
    */
-  async getData(fields) {
-    let record = {};
+  async getData(fields: string[]) {
+    let record: {[index: string]: any} = {};
 
     if (fields) {
       for (const field of fields) {
@@ -48,7 +50,7 @@ class FormModel extends AbstractFormModel {
    *
    * @param {Object}      changes     Form data
    */
-  async submit(changes) {
+  async submit(changes: object) {
     const validErrors = await this.isValidRecord(changes);
     if (!validErrors.isEmpty()) {
       throw validErrors;

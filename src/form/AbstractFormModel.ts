@@ -26,7 +26,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  getData(/*fields*/) {
+  getData(/*fields*/): object {
     return Promise.resolve({});
   }
 
@@ -37,7 +37,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  submit(/*changes*/) {
+  submit(/*changes*/): object {
     return Promise.resolve();
   }
 
@@ -48,7 +48,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  isValidRecord(/*record*/) {
+  isValidRecord(/*record*/): object {
     return Promise.resolve(new ValidationErrors());
   }
 
@@ -59,7 +59,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Array}  Dependencies
    * @abstract
    */
-  getValidationDependency(/*fields*/) {
+  getValidationDependency(/*fields*/): any[] {
     return [];
   }
 }

@@ -7,6 +7,7 @@
  */
 
 class ValidationErrors {
+  private _fields: Map<any, any>;
   /**
    * Field errors control manager
    * @constructor
@@ -22,10 +23,10 @@ class ValidationErrors {
    * @return  {ValidationErrors}
    * @static
    */
-  static createFromJSON(jsonObject) {
+  static createFromJSON(jsonObject: object) {
     const validationErrors = new ValidationErrors();
     for (const [key, value] of Object.entries(jsonObject)) {
-      value.forEach(errMessage => validationErrors.add(key, errMessage));
+      value.forEach((errMessage: string) => validationErrors.add(key, errMessage));
     }
     return validationErrors;
   }
@@ -37,13 +38,13 @@ class ValidationErrors {
    * @param {string|{error: string}}  error
    * @return {ValidationErrors}
    */
-  static createWithError(field, error) {
+  static createWithError(field: string, error: string) {
     const validationErrors = new ValidationErrors();
     validationErrors.add(field, error);
     return validationErrors;
   }
 
-  static merge = function (...args) {
+  static merge = function (...args: any) {
     const jsonErrors = [{}];
 
     for (const arg of args) {
@@ -61,7 +62,7 @@ class ValidationErrors {
    * @param {string|{string message}} error       Error text
    * @return {ValidationErrors}
    */
-  add(field, error) {
+  add(field: string, error: string | {message: string}) {
     error = this._formErrorValue(error);
     if (!this._fields.has(field)) {
       this._fields.set(field, [error]);
@@ -80,7 +81,7 @@ class ValidationErrors {
    * @param   {string}      field     Field name
    * @returns {boolean}
    */
-  hasError(field) {
+  hasError(field: string) {
     return this._fields.has(field);
   }
 
@@ -90,7 +91,7 @@ class ValidationErrors {
    * @param   {string}      field     Field name
    * @returns {Array|null}  Errors array or null
    */
-  getFieldErrors(field) {
+  getFieldErrors(field: string) {
     return this._fields.get(field) || null;
   }
 
@@ -100,10 +101,10 @@ class ValidationErrors {
    * @param   {string}      field     Field name
    * @returns {Array|null}  Errors array or null
    */
-  getFieldErrorMessages(field) {
+  getFieldErrorMessages(field: string) {
     const fieldErrors = this._fields.get(field);
     if (fieldErrors) {
-      return fieldErrors.map(error => error.message);
+      return fieldErrors.map((error: { message: any; }) => error.message);
     }
     return null;
   }
@@ -133,7 +134,7 @@ class ValidationErrors {
    * @param   {string}  field  Field name
    * @returns {ValidationErrors}
    */
-  clearField(field) {
+  clearField(field: string) {
     this._fields.delete(field);
     return this;
   }
@@ -154,7 +155,7 @@ class ValidationErrors {
    * @return {{[string]: Array<string>}}
    */
   toJSON() {
-    const json = {};
+    const json: {[index:string]: any} = {};
 
     for (const [key, value] of this._fields) {
       json[key] = value;
@@ -176,7 +177,7 @@ class ValidationErrors {
    *
    * @return {ValidationErrors}
    */
-  merge(validationErrors) {
+  merge(validationErrors: ValidationErrors) {
     for (const [field, newErrors] of validationErrors.getErrors()) {
       let errors = this._fields.get(field);
       if (!errors) {
@@ -198,7 +199,7 @@ class ValidationErrors {
     return this._fields;
   }
 
-  _formErrorValue(error) {
+  _formErrorValue(error: string | { message: string; }) {
     if (typeof error === 'string') {
       return {
         message: error

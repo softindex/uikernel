@@ -12,8 +12,18 @@ import defaultXhr from '../common/defaultXhr';
 import EventsModel from '../common/Events';
 import url from 'url';
 
+export type FormXhrModelSettings = {
+  api: string,
+  validator: Validator,
+  xhr: any
+};
+
 class FormXhrModel extends EventsModel {
-  constructor(settings) {
+  private readonly _apiUrl: string;
+  private _validator: Validator;
+  private readonly _xhr: any;
+
+  constructor(settings: FormXhrModelSettings) {
     super();
 
     if (!settings.api) {
@@ -27,7 +37,7 @@ class FormXhrModel extends EventsModel {
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  async getData(fields) {
+  async getData(fields: string[]) {
     const parsedUrl = url.parse(this._apiUrl, true);
     parsedUrl.query.fields = JSON.stringify(fields);
     delete parsedUrl.search;
@@ -40,7 +50,7 @@ class FormXhrModel extends EventsModel {
     return JSON.parse(response);
   }
 
-  async submit(changes) {
+  async submit(changes: {[index: string]: any}) {
     let body = await this._xhr({
       method: 'POST',
       headers: {
@@ -65,7 +75,7 @@ class FormXhrModel extends EventsModel {
    *
    * @param {Object}      record
    */
-  isValidRecord(record) {
+  isValidRecord(record: object) {
     return this._validator.isValidRecord(record);
   }
 
@@ -75,7 +85,7 @@ class FormXhrModel extends EventsModel {
    * @param   {Array}  fields   Fields list
    * @returns {Array}  Dependencies
    */
-  getValidationDependency(fields) {
+  getValidationDependency(fields: string[]) {
     return this._validator.getValidationDependency(fields);
   }
 }

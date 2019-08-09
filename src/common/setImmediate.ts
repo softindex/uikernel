@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') {
-  window.setImmediate = ((() => {
+if (typeof window !== 'undefined' && typeof (<any>window).setImmediate !== 'function') {
+  (<any>window).setImmediate = ((() => {
     let head = {};
     let tail = head;
     const ID = Math.random();
 
-    function onMessage(e) {
+    function onMessage(e: any) {
       if (e.data !== ID) {
         return;
       }
@@ -25,7 +25,7 @@ if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') 
     if (window.addEventListener) {
       window.addEventListener('message', onMessage, false);
     } else {
-      window.attachEvent('onmessage', onMessage);
+      (<any>window).attachEvent('onmessage', onMessage);
     }
     return window.postMessage ? func => {
       tail = tail.next = {func: func};

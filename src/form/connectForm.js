@@ -19,7 +19,7 @@ function connectForm(fields = null) {
       this.onFormChange = this.onFormChange.bind(this);
     }
 
-    async componentDidMount() {
+    componentDidMount() {
       const state = this.form.getAll();
       if (state.isLoaded) {
         this.setState(state);

@@ -11,6 +11,12 @@ import ArgumentsError from '../ArgumentsError';
 import {pluck, isIntersection} from '../utils';
 
 class Validator {
+  private _settings: {
+    groupValidators: any[];
+    validators: {[index: string]: any};
+    asyncGroupValidators: any[];
+    asyncDependenies: any[];
+    asyncValidators: {[index: string]: any} };
   /**
    * Validation check model
    *
@@ -37,7 +43,7 @@ class Validator {
    * @param {...Function} validators  Field validators
    * @returns {Validator} validator
    */
-  field(field, ...validators) {
+  field(field: string, ...validators: any[]) {
     if (!this._settings.validators[field]) {
       this._settings.validators[field] = [];
     }
@@ -52,7 +58,7 @@ class Validator {
    * @param {Function}   validatorFunction   Validator function
    * @returns {Validator} validator
    */
-  fields(fields, validatorFunction) {
+  fields(fields: string[], validatorFunction: any) {
     this._settings.groupValidators.push({
       fields: fields,
       fn: validatorFunction
@@ -66,7 +72,7 @@ class Validator {
    * @param {Array}   fields   Fields array
    * @returns {Validator} validator
    */
-  asyncDependence(fields) {
+  asyncDependence(fields: string[]) {
     this._settings.asyncDependenies.push(fields);
     return this;
   }
@@ -78,7 +84,7 @@ class Validator {
    * @param {Function}   validatorFunction   Validator function
    * @returns {Validator} validator
    */
-  asyncField(field, validatorFunction) {
+  asyncField(field: string, validatorFunction: any): Validator {
     if (!this._settings.asyncValidators[field]) {
       this._settings.asyncValidators[field] = [];
     }
@@ -93,7 +99,7 @@ class Validator {
    * @param {Function}   validatorFunction   Validator function
    * @returns {Validator} validator
    */
-  asyncFields(fields, validatorFunction) {
+  asyncFields(fields: string[], validatorFunction: any) {
     this._settings.asyncGroupValidators.push({
       fields: fields,
       fn: validatorFunction
@@ -107,7 +113,7 @@ class Validator {
    * @param {Array}   fields    Fields array
    * @returns {Array} fields
    */
-  getValidationDependency(fields) {
+  getValidationDependency(fields: string[]) {
     const result = [];
     let length;
     const groups = pluck(
@@ -140,7 +146,7 @@ class Validator {
    * @param {Object}  record   Record
    * @returns {ValidationErrors|null} Record validity
    */
-  async isValidRecord(record) {
+  async isValidRecord(record: object) {
     const fields = Object.keys(record);
     const errors = new ValidationErrors();
     const awaitStack = [];

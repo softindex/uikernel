@@ -5,58 +5,55 @@
  * This source code is licensed under the BSD-style license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
 import React from 'react';
-import PropTypes from 'prop-types';
-import {findIndex, isEqual, omit} from '../common/utils';
-
-class SelectEditor extends React.Component {
-  static propTypes = {
-    options: PropTypes.array, // shape: [[value, label, props], ...] or [label1, label2, ...]
-    //                           `props` will be passed to each corresponding <option />
-    model: PropTypes.shape({
-      read: PropTypes.func
-    }),
-    disabled: PropTypes.bool,
-    onChange: PropTypes.func.isRequired,
-    onLabelChange: PropTypes.func,
-    value: PropTypes.any
-  };
-
+import { findIndex, isEqual, omit } from '../common/utils';
+type SelectEditorProps = {
+  options?: any[],
+  model?: {
+    read?: (...args: any[]) => any
+  },
+  disabled?: boolean,
+  onChange: (...args: any[]) => any,
+  onLabelChange?: (...args: any[]) => any,
+  value?: any
+};
+type SelectEditorState = { options: any, loading: boolean } & ((
+  err: any
+) => void) & { options: any, loading: boolean };
+class SelectEditor extends React.Component<
+  SelectEditorProps,
+  SelectEditorState
+> {
   static defaultProps = {
     options: []
   };
-
-  constructor(props) {
+  constructor(props: SelectEditorProps) {
     super(props);
     this.state = {
       options: props.options,
       loading: Boolean(props.model)
     };
   }
-
   componentDidMount() {
-    if (this.props.model) {
-      this.props.model.read('')
-        .then(data => {
+    if (this.props.model && this.props.model.read) {
+      this.props.model
+        .read('')
+        .then((data: { unshift: (arg0: (string | null)[]) => void; }) => {
           data.unshift([null, '']);
-
           this.setState({
             options: data,
             loading: false
           });
         })
-        .catch(err => {
+        .catch((err: any) => {
           console.error(err);
         });
     }
   }
-
   getOptions() {
     return this.props.model ? this.state.options : this.props.options;
   }
-
-  handleChange(e) {
+  handleChange(e: { target: { value: string | number; }; }) {
     let option = this.getOptions()[e.target.value];
     if (!(option instanceof Array)) {
       option = [option, option];
@@ -66,13 +63,14 @@ class SelectEditor extends React.Component {
       this.props.onLabelChange(option[1]);
     }
   }
-
   render() {
     const options = this.getOptions();
     const valueIndex = findIndex(options, option => {
-      return isEqual(option instanceof Array ? option[0] : option, this.props.value);
+      return isEqual(
+        option instanceof Array ? option[0] : option,
+        this.props.value
+      );
     });
-
     return (
       <select
         {...omit(this.props, ['value', 'options'])}
@@ -80,8 +78,9 @@ class SelectEditor extends React.Component {
         onChange={this.handleChange.bind(this)}
         disabled={this.props.disabled || this.state.loading}
       >
-        {options.map((item, index) => {
-          const optionProps = ((item instanceof Array) && (item[2] instanceof Object)) ? item[2] : {};
+        {options.map((item: any, index: string | number) => {
+          const optionProps =
+            item instanceof Array && item[2] instanceof Object ? item[2] : {};
           return (
             <option key={index} value={index} {...optionProps}>
               {item instanceof Array ? item[1] : item}
@@ -92,5 +91,4 @@ class SelectEditor extends React.Component {
     );
   }
 }
-
 export default SelectEditor;

@@ -2,7 +2,7 @@ parser: "@typescript-eslint/parser"
 
 extends: ["eslint:recommended", "plugin:react/recommended"]
 
-plugins: ["react"]
+plugins: ["@typescript-eslint", "react"]
 
 settings:
   react:

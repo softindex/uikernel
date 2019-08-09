@@ -8,7 +8,7 @@
 
 import {isDefined} from '../../utils';
 
-function baseValidator(notNull, regExp, error, value) {
+function baseValidator(notNull: boolean, regExp: RegExp, error: string, value: any) {
   error = error || 'Invalid value';
   if (!isDefined(value) || value === '') {
     if (notNull) {
@@ -29,7 +29,7 @@ function baseValidator(notNull, regExp, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-const validator = (regExp, error) => baseValidator.bind(null, false, regExp, error);
-validator.notNull = (regExp, error) => baseValidator.bind(null, true, regExp, error);
+const validator = (regExp: RegExp, error: string) => baseValidator.bind(null, false, regExp, error);
+validator.notNull = (regExp: RegExp, error: string) => baseValidator.bind(null, true, regExp, error);
 
 export default validator;

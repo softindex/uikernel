@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const variables = {};
+const variables: {[index: string]: any} = {};
 
 export default {
-  get: key => variables[key],
-  set: (key, value) => {
+  get: (key: string) => variables[key],
+  set: (key: string, value: any) => {
     variables[key] = value;
   }
 };

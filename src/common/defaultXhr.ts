@@ -9,7 +9,18 @@
 import variables from './variables';
 import xhr from 'xhr';
 
-function defaultXhr(settings) {
+class HTTPError extends Error {
+  public statusCode: number;
+
+  constructor(statusCode: number) {
+    super();
+    this.name = 'httpError';
+    this.statusCode = statusCode;
+    this.message = 'Status Code: ' + this.statusCode;
+  }
+}
+
+function defaultXhr(settings: any) {
   return new Promise((resolve, reject) => {
     xhr(settings, (err, response, body) => {
       if (response.statusCode === 200) {
@@ -18,9 +29,7 @@ function defaultXhr(settings) {
       }
 
       if (!err) {
-        err = new Error();
-        err.statusCode = response.statusCode;
-        err.message = 'Status Code: ' + err.statusCode;
+        err = new HTTPError(response.statusCode);
       }
 
       if (body) {
@@ -41,4 +50,4 @@ if (!variables.get('xhr')) {
   variables.set('xhr', defaultXhr);
 }
 
-export default (settings) => variables.get('xhr')(settings);
+export default (settings: any) => variables.get('xhr')(settings);

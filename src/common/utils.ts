@@ -9,8 +9,8 @@
 import ThrottleError from './ThrottleError';
 import ArgumentsError from './ArgumentsError';
 
-function baseClone(obj, isDeep) {
-  let cloned;
+function baseClone(obj: any, isDeep:boolean): object {
+  let cloned: any;
   const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
 
   if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
@@ -36,7 +36,7 @@ function baseClone(obj, isDeep) {
 /**
  * Check if two arrays intersection exists
  */
-export function isIntersection(a, b) {
+export function isIntersection(a: any[], b: any[]) {
   let c;
   if (a.length > b.length) {
     c = a;
@@ -57,7 +57,7 @@ export function isIntersection(a, b) {
  * @param   {Object}    obj     Object
  * @return  {number}    Object size
  */
-export function size(obj) {
+export function size(obj: object) {
   return Object.keys(obj).length;
 }
 
@@ -68,7 +68,7 @@ export function size(obj) {
  * @param   {*}       item  Element item
  * @return  {number}
  */
-export function indexOf(arr, item) {
+export function indexOf(arr: any[], item: any) {
   for (let i = 0; i < arr.length; i++) {
     if (isEqual(arr[i], item)) {
       return i;
@@ -132,7 +132,7 @@ export function throttle(func) {
     };
   }
 
-  function throttlePromise(func) {
+  function throttlePromise(func: any) {
     /**
      * @throws {ThrottleError} Too many function call
      */
@@ -164,7 +164,7 @@ export function throttle(func) {
             }
             resolve(result);
           })
-          .catch(err => {
+          .catch((err: any) => {
             worked = false;
             reject(err);
           });
@@ -173,21 +173,21 @@ export function throttle(func) {
   }
 }
 
-export function parseValueFromEvent(event) {
+export function parseValueFromEvent(event: any) {
   if (
     event && typeof event === 'object' &&
-    event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
+    event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf((<HTMLInputElement>event.target).tagName) >= 0
   ) {
-    switch (event.target.type) {
+    switch ((<HTMLInputElement>event.target).type) {
     case 'checkbox':
-      return event.target.checked;
+      return (<HTMLInputElement>event.target).checked;
     }
-    return event.target.value;
+    return (<HTMLInputElement>event.target).value;
   }
   return event;
 }
 
-export function Decorator(obj, decor) {
+export function Decorator(obj: any, decor: any) {
   Object.assign(this, decor);
 
   for (const i in obj) {
@@ -197,7 +197,7 @@ export function Decorator(obj, decor) {
   }
 }
 
-export function decorate(obj, decor) {
+export function decorate(obj: any, decor: any) {
   Decorator.prototype = obj;
   return new Decorator(obj, decor);
 }
@@ -209,7 +209,7 @@ export function decorate(obj, decor) {
  * @param b
  * @returns {boolean}
  */
-export function isEqual(a, b) {
+export function isEqual(a: any, b: any): boolean {
   if (
     a === null
     || b === null
@@ -252,15 +252,15 @@ export function isEqual(a, b) {
  * @param obj
  * @returns {*}
  */
-export function clone(obj) {
+export function clone(obj: any) {
   return baseClone(obj, false);
 }
 
-export function cloneDeep(obj) {
+export function cloneDeep(obj: any) {
   return baseClone(obj, true);
 }
 
-export function isEmpty(value) {
+export function isEmpty(value: any) {
   if (!value) {
     return true;
   }
@@ -276,21 +276,21 @@ export function isEmpty(value) {
   return false;
 }
 
-export function isDefined(value) {
+export function isDefined(value: any) {
   return value !== null && value !== undefined;
 }
 
-export function forEach(obj, func, ctx) {
+export function forEach(obj: any, func: (value: any, index: string) => void, ctx: any) {
   for (const i in obj) {
     func.call(ctx, obj[i], i);
   }
 }
 
-export function pluck(arr, field) {
+export function pluck(arr: any[], field: string | number) {
   return arr.map(item => item[field]);
 }
 
-export function find(arr, func) {
+export function find(arr: any[], func: (element: any, index: string | number) => boolean) {
   for (const i in arr) {
     if (func(arr[i], i)) {
       return arr[i];
@@ -299,7 +299,7 @@ export function find(arr, func) {
   return null;
 }
 
-export function findIndex(obj, func) {
+export function findIndex(obj: {[index: string]: any}, func: (element: any, index: string) => boolean) {
   for (const i in obj) {
     if (func(obj[i], i)) {
       return i;
@@ -308,8 +308,8 @@ export function findIndex(obj, func) {
   return -1;
 }
 
-export function omit(obj, predicate) {
-  const result = {};
+export function omit(obj: object, predicate: any) {
+  const result: {[index: string]:any} = {};
   for (const [field, value] of Object.entries(obj)) {
     if (
       (typeof predicate === 'string' && predicate !== field) ||
@@ -322,9 +322,9 @@ export function omit(obj, predicate) {
   return result;
 }
 
-export function escape(string) {
+export function escape(string: string) {
   const reUnescaped = /[&<>"'`]/g;
-  const escapes = {
+  const escapes: {[index: string]: string} = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -339,16 +339,16 @@ export function escape(string) {
   return string;
 }
 
-export function zipObject(keys, values) {
-  const result = {};
+export function zipObject(keys: string[], values: any) {
+  const result: {[index: string]:any} = {};
   for (let i = 0; i < keys.length; i++) {
     result[keys[i]] = values[i];
   }
   return result;
 }
 
-export function pick(obj, keys, defaultValue) {
-  return keys.reduce((result, key) => {
+export function pick(obj: {[index: string]: any}, keys: string[], defaultValue?: any) {
+  return keys.reduce((result:{[index: string]: any}, key: string) => {
     if (obj.hasOwnProperty(key)) {
       result[key] = obj[key];
     } else if (defaultValue !== undefined) {
@@ -358,8 +358,8 @@ export function pick(obj, keys, defaultValue) {
   }, {});
 }
 
-export function mapKeys(object, iteratee) {
-  const result = {};
+export function mapKeys(object: object, iteratee: (value: any, key: string) => any) {
+  const result: {[index: string]: any} = {};
 
   for (const [key, value] of Object.entries(object)) {
     result[iteratee(value, key)] = value;
@@ -368,15 +368,15 @@ export function mapKeys(object, iteratee) {
   return result;
 }
 
-export function reduce(obj, func, value) {
+export function reduce(obj: {[index: string]: any}, func: (val: any, currentValue: any, index: string) => any, value: any) {
   for (const i in obj) {
     value = func(value, obj[i], i);
   }
   return value;
 }
 
-export function union(...args) {
-  const elements = {};
+export function union(...args: any) {
+  const elements: {[index: string]: any} = {};
   for (const arg of args) {
     for (const el of arg) {
       elements[el] = el;
@@ -385,7 +385,7 @@ export function union(...args) {
   return Object.values(elements);
 }
 
-export function at(obj, keys) {
+export function at(obj: {[index: string]: any}, keys: any) {
   const result = [];
   if (!Array.isArray(keys)) {
     return [obj[keys]];
@@ -396,7 +396,7 @@ export function at(obj, keys) {
   return result;
 }
 
-export function pairs(obj) {
+export function pairs(obj: {[index: string]: any}) {
   const result = [];
   for (const i in obj) {
     result.push([i, obj[i]]);
@@ -404,7 +404,7 @@ export function pairs(obj) {
   return result;
 }
 
-export function toDate(value) {
+export function toDate(value: any) {
   let date;
 
   if (typeof value === 'number') {
@@ -420,7 +420,7 @@ export function toDate(value) {
   return new Date(value);
 }
 
-export function without(arr, el) {
+export function without(arr: any[], el: any) {
   const result = [];
   for (let i = 0; i < arr.length; i++) {
     if (Array.isArray(el) ? indexOf(el, arr[i]) > -1 : isEqual(arr[i], el)) {
@@ -431,12 +431,16 @@ export function without(arr, el) {
   return result;
 }
 
-export function last(arr) {
+export function last(arr: any[]) {
   return arr[arr.length - 1];
 }
 
-export function getRecordChanges(model, data, changes, newChanges) {
-  const result = Object.assign({}, changes, newChanges);
+export function getRecordChanges(model: FormModel,
+  data: {[index: string]: any},
+  changes: {[index: string]: any},
+  newChanges: {[index: string]: any}) {
+  const result = Object.assign<{[index: string]: any}, {[index: string]: any}, {[index: string]: any}>({},
+    changes, newChanges);
 
   for (const i in result) {
     if (isEqual(data[i], result[i])) {
@@ -474,16 +478,16 @@ export function getStack(deep = 0) {
   return stack;
 }
 
-export function warn(message) {
+export function warn(message: string) {
   console.warn(message, '\n', getStack(1));
 }
 
-export function toEncodedString(value) {
+export function toEncodedString(value: any) {
   return encodeURIComponent((typeof value === 'string' ? value : JSON.stringify(value)));
 }
 
-export function asyncHandler(router) {
-  return (req, res, next) => {
+export function asyncHandler(router: any) {
+  return (req: Request, res: Response, next: any) => {
     const promise = router(req, res, next);
     if (promise && promise.then) {
       return promise.catch(next);
@@ -492,7 +496,7 @@ export function asyncHandler(router) {
   };
 }
 
-export function parents(element, selector) {
+export function parents(element: any, selector: any) {
   const result = [];
   while ((element = element.parentElement)) {
     if (element.matches(selector)) {
@@ -502,7 +506,7 @@ export function parents(element, selector) {
   return result;
 }
 
-export function parseJson(json, errorMessage = 'Incorrect JSON') {
+export function parseJson(json: string, errorMessage = 'Incorrect JSON') {
   let result;
 
   try {

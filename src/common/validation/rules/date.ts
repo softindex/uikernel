@@ -8,7 +8,7 @@
 
 import {isDefined, toDate} from '../../utils';
 
-function baseValidator(notNull, min, max, error, value) {
+function baseValidator(notNull: boolean, min: Date, max: Date, error: string, value: any) {
   error = error || 'Invalid date';
 
   if (!isDefined(value)) {
@@ -44,7 +44,7 @@ function baseValidator(notNull, min, max, error, value) {
  * @param {string}  error   Error message
  * @returns {Function} Validator
  */
-const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
-validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
+const validator = (min: Date, max: Date, error: string) => baseValidator.bind(null, false, min, max, error);
+validator.notNull = (min: Date, max: Date, error: string) => baseValidator.bind(null, true, min, max, error);
 
 export default validator;

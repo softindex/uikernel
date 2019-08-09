@@ -8,7 +8,7 @@
 
 import {isDefined} from '../../utils';
 
-function baseValidator(notNull, min, max, error, value) {
+function baseValidator(notNull: boolean, min: number, max: number, error: string, value: any) {
   error = error || 'Invalid number';
   if (!isDefined(value)) {
     if (notNull) {
@@ -20,9 +20,9 @@ function baseValidator(notNull, min, max, error, value) {
   if (
     typeof value !== 'number' ||
     isNaN(value) ||
-    parseInt(value, 10).toString() !== value.toString() ||
-    typeof min === 'number' && value < min ||
-    typeof max === 'number' && value > max
+    parseInt(String(value), 10).toString() !== value.toString() ||
+    value < min ||
+    value > max
   ) {
     return error;
   }
@@ -36,7 +36,7 @@ function baseValidator(notNull, min, max, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
-validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
+const validator = (min: number, max: number, error: string) => baseValidator.bind(null, false, min, max, error);
+validator.notNull = (min: number, max: number, error: string) => baseValidator.bind(null, true, min, max, error);
 
 export default validator;

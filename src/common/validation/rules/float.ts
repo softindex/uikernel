@@ -8,7 +8,7 @@
 
 import {isDefined} from '../../utils';
 
-function baseValidator(notNull, min, max, error, value) {
+function baseValidator(notNull: boolean, min: any, max: any, error: string, value: any) {
   error = error || 'Invalid float';
   if (!isDefined(value)) {
     if (notNull) {
@@ -36,7 +36,7 @@ function baseValidator(notNull, min, max, error, value) {
  * @param {string} error Error message
  * @returns {Function}
  */
-const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
-validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
+const validator = (min: any, max: any, error: string) => baseValidator.bind(null, false, min, max, error);
+validator.notNull = (min: any, max: any, error: string) => baseValidator.bind(null, true, min, max, error);
 
 export default validator;

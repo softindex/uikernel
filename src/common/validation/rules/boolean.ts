@@ -8,7 +8,7 @@
 
 import {isDefined} from '../../utils';
 
-function baseValidator(notNull, error, value) {
+function baseValidator(notNull: boolean, error: string, value: any) {
   error = error || 'Not boolean';
   if (!isDefined(value)) {
     if (notNull) {
@@ -28,7 +28,7 @@ function baseValidator(notNull, error, value) {
  * @param {string} error Error message
  * @returns {Function} Validator
  */
-const validator = error => baseValidator.bind(null, false, error);
-validator.notNull = error => baseValidator.bind(null, true, error);
+const validator = (error: string) => baseValidator.bind(null, false, error);
+validator.notNull = (error: string) => baseValidator.bind(null, true, error);
 
 export default validator;

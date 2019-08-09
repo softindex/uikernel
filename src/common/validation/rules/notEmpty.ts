@@ -14,9 +14,9 @@ import {isEmpty} from '../../utils';
  * @param {string} [error="Can not be empty"] Error message
  * @returns {Function}
  */
-export default function (error) {
+export default function (error: string) {
   error = error || 'Can not be empty';
-  return function (value) {
+  return function (value: any) {
     if (
       isEmpty(value) ||
       (typeof value === 'number' && (

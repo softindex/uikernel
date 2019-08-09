@@ -8,21 +8,18 @@
 
 import {getStack} from './utils';
 
-function ThrottleError() {
-  Error.call(this);
-
-  this.name = 'ThrottleError';
-  this.message = 'Too many function call';
-  this.stack = getStack();
+class ThrottleError extends Error {
+  constructor() {
+    super();
+    this.name = 'ThrottleError';
+    this.message = 'Too many function call';
+    this.stack = getStack();
+  }
+  static createWithParentStack = function (stack) {
+    const err = new ThrottleError();
+    err.stack += '\n' + stack;
+    return err;
+  };
 }
-
-ThrottleError.prototype = Object.create(Error.prototype);
-ThrottleError.prototype.constructor = ThrottleError;
-
-ThrottleError.createWithParentStack = function (stack) {
-  const err = new ThrottleError();
-  err.stack += '\n' + stack;
-  return err;
-};
 
 export default ThrottleError;

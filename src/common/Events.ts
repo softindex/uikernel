@@ -12,6 +12,8 @@ import {without} from './utils';
  * Events control model
  */
 class EventsModel {
+  private _subscribers: {[index: string]: any};
+
   constructor() {
     this._subscribers = {};
   }
@@ -22,7 +24,7 @@ class EventsModel {
    * @param {string}      event   Event ID
    * @param {Function}    cb      CallBack function
    */
-  on(event, cb) {
+  on(event: string, cb: any) {
     if (typeof this._subscribers[event] !== 'object') {
       this._subscribers[event] = [];
     }
@@ -35,7 +37,7 @@ class EventsModel {
    * @param {number}      event   Event ID
    * @param {Function}    cb      CallBack function
    */
-  off(event, cb) {
+  off(event: string, cb: any) {
     if (this._subscribers[event]) {
       this._subscribers[event] = without(this._subscribers[event], cb);
     }
@@ -47,7 +49,7 @@ class EventsModel {
    * @param {number}  event   Event ID
    * @param {...*}    params
    */
-  trigger(event, ...params) {
+  trigger(event: string, ...params: any) {
     if (!this._subscribers[event] || !this._subscribers[event].length) {
       return;
     }
@@ -61,7 +63,7 @@ class EventsModel {
    *
    * @param {string} event name
    */
-  listenerCount(event) {
+  listenerCount(event: string) {
     return this._subscribers[event] ? this._subscribers[event].length : 0;
   }
 
@@ -70,7 +72,7 @@ class EventsModel {
    *
    * @param {string} event name
    */
-  removeAllListeners(event) {
+  removeAllListeners(event: string) {
     this._subscribers[event] = [];
   }
 }

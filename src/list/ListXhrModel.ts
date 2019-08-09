@@ -10,6 +10,8 @@ import defaultXhr from '../common/defaultXhr';
 import url from 'url';
 
 class ListXMLHttpRequestModel {
+  private _apiURL: string;
+  private _xhr: any;
   /**
    * Simple list client model which works via XMLHttpRequest
    *
@@ -17,10 +19,10 @@ class ListXMLHttpRequestModel {
    * @param {Function}  [xhr]   XHR wrapper
    * @constructor
    */
-  constructor(apiURL, xhr) {
+  constructor(apiURL: string, xhr: any) {
     this._apiURL = apiURL;
     this._xhr = xhr || defaultXhr;
-    this._apiUrl = apiURL
+    this._apiURL = apiURL
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
@@ -30,8 +32,8 @@ class ListXMLHttpRequestModel {
    *
    * @param {string}    search  List search query
    */
-  async read(search) {
-    const parsedUrl = url.parse(this._apiUrl, true);
+  async read(search: string) {
+    const parsedUrl = url.parse(this._apiURL, true);
     delete parsedUrl.search;
     if (search) {
       parsedUrl.query.v = search;
@@ -54,7 +56,7 @@ class ListXMLHttpRequestModel {
    * @param {*}         id  Option ID
    */
   async getLabel(id) {
-    const parsedUrl = url.parse(this._apiUrl, true);
+    const parsedUrl = url.parse(this._apiURL, true);
     parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
 
     let body = await this._xhr({
