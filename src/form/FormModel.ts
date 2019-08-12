@@ -12,7 +12,7 @@ import {clone} from '../common/utils';
 
 class FormModel extends AbstractFormModel {
   private _validation: Validator;
-  private _data: any;
+  private readonly _data: any;
   /**
    * Simple form model
    *
@@ -65,7 +65,7 @@ class FormModel extends AbstractFormModel {
    *
    * @param {Object}      record
    */
-  async isValidRecord(record) {
+  async isValidRecord(record: {[index: string]: any}) {
     return await this._validation.isValidRecord(record);
   }
 
@@ -75,7 +75,7 @@ class FormModel extends AbstractFormModel {
    * @param   {Array}  fields   Fields list
    * @returns {Array}  Dependencies
    */
-  getValidationDependency(fields) {
+  getValidationDependency(fields: string[]) {
     return this._validation.getValidationDependency(fields);
   }
 }

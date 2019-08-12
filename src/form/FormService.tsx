@@ -11,26 +11,38 @@ import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty} from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
-import FormModel from "./FormModel";
+import FormModel from './FormModel';
+
+type FormServiceInitSettings = {
+  model: FormModel,
+  fields: string[],
+  data: {[index: string]: any},
+  changes: {[index: string]: any},
+  submitAll: boolean,
+  partialErrorChecking: boolean,
+  showDependentFields: boolean,
+  warningsValidator: Validator
+};
 
 class FormService {
-  private fields: any;
   private _isNotInitialized: boolean;
   private _eventEmitter: EventEmitter;
-  private _warningsValidator: null;
+  private _warningsValidator: Validator | null;
   private _warnings: ValidationErrors;
   private _errors: ValidationErrors;
-  private _changes: null;
-  private _data: null;
+  private _changes: {[index: string]: any};
+  private _data: {[index: string]: any};
   private _isSubmitting: boolean;
   private showDependentFields: boolean;
   private _partialErrorChecking: boolean;
   private _partialErrorCheckingDefault: boolean;
-  private model: FormModel;
-  private submitAll: boolean;
-  private validating: boolean;
   private _hiddenValidationFields: any[];
-  private submitting: boolean;
+
+  public model: FormModel;
+  public submitting: boolean;
+  public submitAll: boolean;
+  public validating: boolean;
+  public fields: any;
 
   constructor(fields = null) {
     this._data = null;
@@ -41,6 +53,13 @@ class FormService {
     this._eventEmitter = new EventEmitter();
     this._isNotInitialized = true;
     this.fields = fields;
+    this._isSubmitting = false;
+    this.validating = false;
+    this._hiddenValidationFields = [];
+    this.submitting = false;
+    this.submitAll = false;
+    this.showDependentFields = false;
+    this._isNotInitialized = false;
     this._validateForm = throttle(this._validateForm.bind(this));
     this.validateForm = this.validateForm.bind(this);
     this._onModelChange = this._onModelChange.bind(this);
@@ -67,25 +86,19 @@ class FormService {
    * @param {Validator}         [settings.warningsValidator]            Warnings validator for fields
    */
 
-  async init(settings) {
+  async init(settings: FormServiceInitSettings) {
     if (!settings.model) {
       throw Error('You must specify the model');
     }
 
     this._data = settings.data || null;
     this._changes = settings.changes || {};
-    this._isSubmitting = false;
     this.showDependentFields = settings.showDependentFields || false;
     this._partialErrorChecking = settings.partialErrorChecking; // Current mode
     this._partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
     this.model = settings.model; // FormModel
     this.submitAll = settings.submitAll;
     this._warningsValidator = settings.warningsValidator || new Validator();
-
-    this.validating = false;
-    this._hiddenValidationFields = [];
-    this.submitting = false;
-    this._isNotInitialized = false;
 
     if (settings.hasOwnProperty('fields')) {
       this.fields = settings.fields;
@@ -106,14 +119,14 @@ class FormService {
     const isLoaded = this._isLoaded();
 
     if (!isLoaded) {
-      const emptyData = {
+      const emptyData: {[index: string]: any} = {
         isLoaded,
         data: {},
         originalData: {},
         changes: {},
         errors: new ValidationErrors(),
         warnings: new ValidationErrors(),
-        isSubmitting: false
+        isSubmitting: false,
       };
       emptyData.fields = this._getFields(emptyData.data, emptyData.changes, emptyData.errors, emptyData.warnings);
       return emptyData;
@@ -207,7 +220,7 @@ class FormService {
    * @param {Object}    data              Data
    * @param {bool}      [validate=false]  Validate form
    */
-  async set(data, validate?: boolean) {
+  async set(data: {[index: string]: any}, validate?: boolean) {
     if (!this._isLoaded()) {
       return;
     }
@@ -227,7 +240,7 @@ class FormService {
     }
   }
 
-  async submitData(data) {
+  async submitData(data: {[index: string]: any}) {
     if (this._isNotInitialized) {
       return;
     }
@@ -291,7 +304,7 @@ class FormService {
     return data;
   }
 
-  clearFieldChanges(field) {
+  clearFieldChanges(field: string) {
     if (this._isNotInitialized) {
       return;
     }
@@ -314,7 +327,7 @@ class FormService {
     this._setState();
   }
 
-  setPartialErrorChecking(value) {
+  setPartialErrorChecking(value: boolean) {
     this._partialErrorChecking = value;
     this._setState();
   }
@@ -368,7 +381,10 @@ class FormService {
     };
   }
 
-  _getFields(data, changes, errors, warnings) {
+  _getFields(data: {[index: string]: any},
+    changes: {[index: string]: any},
+    errors,
+    warnings) {
     const proxy = new Proxy({}, {
       get(target, fieldName) {
         return {
@@ -405,7 +421,7 @@ class FormService {
    * @return {{}}
    */
   _getChangesFields() { // TODO _getChanges
-    const changes = {};
+    const changes: {[index: string]: any} = {};
     for (const field in this._changes) {
       if (!this._isDependentField(field)) {
         changes[field] = this._changes[field];
@@ -420,7 +436,7 @@ class FormService {
    * @param {ValidationErrors}  validationErrors
    * @returns {ValidationErrors} Form fields
    */
-  _getDisplayedErrors(validationErrors) {
+  _getDisplayedErrors(validationErrors: ValidationErrors) {
     const filteredErrors = validationErrors.clone();
 
     for (const field of validationErrors.getErrors().keys()) {
@@ -444,7 +460,7 @@ class FormService {
    * @param {Object} changes  Changes
    * @private
    */
-  _onModelChange(changes) {
+  _onModelChange(changes: {[index: string]: any}) {
     this._data = {...this._data, ...changes};
     this._setState();
   }
@@ -461,11 +477,11 @@ class FormService {
     return this._changes;
   }
 
-  _isDependentField(field) {
+  _isDependentField(field: string) {
     return this._changes.hasOwnProperty(field) && isEqual(this._changes[field], this._data[field]);
   }
 
-  async _runValidator(validator, getData, output) {
+  async _runValidator(validator: Validator, getData, output) {
     const data = getData();
     if (isEmpty(data)) {
       this[output].clear();

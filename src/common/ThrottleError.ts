@@ -15,7 +15,7 @@ class ThrottleError extends Error {
     this.message = 'Too many function call';
     this.stack = getStack();
   }
-  static createWithParentStack = function (stack) {
+  static createWithParentStack = function (stack: any) {
     const err = new ThrottleError();
     err.stack += '\n' + stack;
     return err;

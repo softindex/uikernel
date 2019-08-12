@@ -36,7 +36,7 @@ function baseValidator(notNull: boolean, min: any, max: any, error: string, valu
  * @param {string} error Error message
  * @returns {Function}
  */
-const validator = (min: any, max: any, error: string) => baseValidator.bind(null, false, min, max, error);
-validator.notNull = (min: any, max: any, error: string) => baseValidator.bind(null, true, min, max, error);
+const validator = (min: any, max: any, error?: string) => baseValidator.bind(null, false, min, max, error);
+validator.notNull = (min: any, max: any, error?: string) => baseValidator.bind(null, true, min, max, error);
 
 export default validator;

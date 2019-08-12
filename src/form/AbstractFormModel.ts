@@ -26,7 +26,8 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  getData(/*fields*/): object {
+  // eslint-disable-next-line no-unused-vars
+  getData(fields: string[]): object {
     return Promise.resolve({});
   }
 
@@ -37,7 +38,8 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  submit(/*changes*/): object {
+  // eslint-disable-next-line no-unused-vars
+  submit(changes: {[index: string]: any}): object {
     return Promise.resolve();
   }
 
@@ -48,7 +50,8 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  isValidRecord(/*record*/): object {
+  // eslint-disable-next-line no-unused-vars
+  isValidRecord(record: {[index: string]: any}): object {
     return Promise.resolve(new ValidationErrors());
   }
 
@@ -59,7 +62,8 @@ class AbstractFormModel extends EventsModel {
    * @returns {Array}  Dependencies
    * @abstract
    */
-  getValidationDependency(/*fields*/): any[] {
+  // eslint-disable-next-line no-unused-vars
+  getValidationDependency(fields: string[]): any[] {
     return [];
   }
 }

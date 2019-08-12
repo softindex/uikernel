@@ -8,6 +8,7 @@
 
 import ThrottleError from './ThrottleError';
 import ArgumentsError from './ArgumentsError';
+import express, {Router} from 'express';
 
 function baseClone(obj: any, isDeep:boolean): object {
   let cloned: any;
@@ -486,8 +487,8 @@ export function toEncodedString(value: any) {
   return encodeURIComponent((typeof value === 'string' ? value : JSON.stringify(value)));
 }
 
-export function asyncHandler(router: any) {
-  return (req: Request, res: Response, next: any) => {
+export function asyncHandler(router: (req: express.Request, res: express.Response, next: express.NextFunction)) {
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const promise = router(req, res, next);
     if (promise && promise.then) {
       return promise.catch(next);
@@ -516,4 +517,11 @@ export function parseJson(json: string, errorMessage = 'Incorrect JSON') {
   }
 
   return result;
+}
+
+export function unwrap<T>(value: T | null): T {
+  if (value === undefined || value === null) {
+    throw new Error(`Value can't be ${String(value)}`);
+  }
+  return value;
 }

@@ -11,6 +11,8 @@ import Events from '../../common/Events';
 import {isEqual, clone} from '../../common/utils';
 
 class GridToFormUpdate extends Events {
+  private _adapter: any;
+  private _onUpdateHandlers: any[];
   /**
    * Adapter that allows us to use Grid model record as a form model
    *
@@ -18,7 +20,7 @@ class GridToFormUpdate extends Events {
    * @param {number|string}     id      Record ID
    * @constructor
    */
-  constructor(model, id) {
+  constructor(model: any, id: number | string) {
     super();
 
     this._adapter = {
@@ -35,7 +37,7 @@ class GridToFormUpdate extends Events {
    * @param {string}      event   Event ID
    * @param {Function}    cb      CallBack function
    */
-  on(event, cb) {
+  on(event: string, cb) {
     const ctx = this;
 
     if (event !== 'update') {
@@ -44,7 +46,7 @@ class GridToFormUpdate extends Events {
     }
 
     // onChange filters out table events, that do not regard to our record
-    function onChange(changes) {
+    function onChange(changes: {[index: string]: any}) {
       for (let i = 0; i < changes.length; i++) {
         if (isEqual(changes[i][0], ctx._adapter.id)) {
           cb(changes[i][1]);
@@ -67,9 +69,9 @@ class GridToFormUpdate extends Events {
    * @param {string}      event   Event ID
    * @param {Function}    cb      CallBack function
    */
-  off(event, cb) {
+  off(event: string, cb) {
     const ctx = this;
-    const newOnUpdateHandlers = [];
+    const newOnUpdateHandlers: any[] = [];
 
     if (event !== 'update') {
       Events.prototype.off.call(this, event, cb);
@@ -87,7 +89,7 @@ class GridToFormUpdate extends Events {
     this._onUpdateHandlers = newOnUpdateHandlers;
   }
 
-  listenerCount(event) {
+  listenerCount(event: string) {
     return this._adapter.model.listenerCount(event);
   }
 
@@ -96,7 +98,7 @@ class GridToFormUpdate extends Events {
    *
    * @param {Array}     fields     Required fields
    */
-  async getData(fields) {
+  async getData(fields: string[]) {
     const model = this._adapter.model;
     return await model.getRecord(this._adapter.id, fields);
   }
@@ -106,7 +108,7 @@ class GridToFormUpdate extends Events {
    *
    * @param   {Object}      changes     Form data
    */
-  async submit(changes) {
+  async submit(changes: {[index: string]: any}) {
     const record = clone(changes);
     const model = this._adapter.model;
 
@@ -123,7 +125,7 @@ class GridToFormUpdate extends Events {
    *
    * @param {Object}      record  Record object
    */
-  async isValidRecord(record) {
+  async isValidRecord(record: {[index: string]: any}) {
     const model = this._adapter.model;
     return await model.isValidRecord(record, this._adapter.id);
   }
@@ -134,7 +136,7 @@ class GridToFormUpdate extends Events {
    * @param   {Array}  fields  Fields list
    * @returns {Array}  Dependencies
    */
-  getValidationDependency(fields) {
+  getValidationDependency(fields: string[]) {
     return this._adapter.model.getValidationDependency(fields);
   }
 }

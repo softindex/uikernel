@@ -9,15 +9,17 @@
 import ValidationErrors from '../common/validation/ValidationErrors';
 import express from 'express';
 import {asyncHandler} from '../common/utils';
+import FormModel from "./FormModel";
 
 class FormExpressApi {
+  private middlewares: { submit: ((req: e.Request, res: e.Response, next: e.NextFunction) => any)[]; getData: ((req: e.Request, res: e.Response, next: e.NextFunction) => any)[]; validate: ((req: e.Request, res: e.Response, next: e.NextFunction) => any)[] };
   static create() {
     return new FormExpressApi();
   }
 
   constructor() {
     this.middlewares = {
-      getData: [asyncHandler(async (req, res, next) => {
+      getData: [asyncHandler(async (req: express.Request, res: express.Response, next) => {
         const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
         const model = this._getModel(req, res);
         try {
@@ -27,7 +29,7 @@ class FormExpressApi {
           this._result(err, null, req, res, next);
         }
       })],
-      submit: [asyncHandler(async (req, res, next) => {
+      submit: [asyncHandler(async (req: Request, res, next) => {
         const model = this._getModel(req, res);
         try {
           const data = await model.submit(req.body);
@@ -52,7 +54,7 @@ class FormExpressApi {
     };
   }
 
-  model(model) {
+  model(model: FormModel) {
     if (typeof model === 'function') {
       this._getModel = model;
     } else {

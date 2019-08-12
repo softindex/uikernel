@@ -10,6 +10,7 @@ import Events from '../../common/Events';
 import {pick} from '../../common/utils';
 
 class GridToFormCreate extends Events {
+  private _adapter: { initialData: {}; model: any };
   /**
    * Adapter allows to use Grid model as a model for new form record creation
    *
@@ -17,7 +18,7 @@ class GridToFormCreate extends Events {
    * @param {Object}              [initialData]   Default field values
    * @constructor
    */
-  constructor(model, initialData) {
+  constructor(model: any, initialData: {[index: string]: any}) {
     super();
 
     this._adapter = {
@@ -31,7 +32,7 @@ class GridToFormCreate extends Events {
    *
    * @param {Array}     fields     Required fields
    */
-  async getData(fields) {
+  async getData(fields: string[]) {
     if (fields && fields.length) {
       return pick(this._adapter.initialData, fields);
     }
@@ -43,7 +44,7 @@ class GridToFormCreate extends Events {
    *
    * @param   {Object}      data      Record
    */
-  async submit(data) {
+  async submit(data: {[index: string]: any}) {
     const model = this._adapter.model;
     return await model.create(data);
   }
@@ -53,7 +54,7 @@ class GridToFormCreate extends Events {
    *
    * @param {Object}      record  Record object
    */
-  async isValidRecord(record) {
+  async isValidRecord(record: {[index: string]: any}) {
     const model = this._adapter.model;
     return await model.isValidRecord(record, null);
   }
@@ -64,7 +65,7 @@ class GridToFormCreate extends Events {
    * @param   {Array}  fields
    * @returns {Array}  Dependencies
    */
-  getValidationDependency(fields) {
+  getValidationDependency(fields: string[]) {
     return this._adapter.model.getValidationDependency(fields);
   }
 }
