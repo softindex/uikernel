@@ -8,7 +8,10 @@
 
 import ThrottleError from './ThrottleError';
 import ArgumentsError from './ArgumentsError';
-import express, {Router} from 'express';
+// eslint-disable-next-line no-unused-vars
+import express from 'express';
+// eslint-disable-next-line no-unused-vars
+import FormModel from '../form/FormModel';
 
 function baseClone(obj: any, isDeep:boolean): object {
   let cloned: any;
@@ -78,23 +81,32 @@ export function indexOf(arr: any[], item: any) {
   return -1;
 }
 
+//@ts-ignore
 export function throttle(func) {
   let worked = false;
+  //@ts-ignore
   let nextArguments;
+  //@ts-ignore
   let nextResolve;
+  //@ts-ignore
   let nextReject;
 
-  return function () {
+  //@ts-ignore
+  return function (...args) {
     if (typeof arguments[arguments.length - 1] === 'function') {
-      return throttleCallback(func).apply(this, arguments);
+    //@ts-ignore
+      return throttleCallback(func).apply(this, args);
     } else {
-      return throttlePromise(func).apply(this, arguments);
+    //@ts-ignore
+      return throttlePromise(func).apply(this, args);
     }
   };
 
   // it is still used in FormMixin._validateForm so we can't remove it yet
+  //@ts-ignore
   function throttleCallback(func) {
     return function run() {
+      //@ts-ignore
       const ctx = this; // Function context
       const cb = arguments[arguments.length - 1];
       const argumentsArray = [].slice.call(arguments);
@@ -114,15 +126,20 @@ export function throttle(func) {
       };
 
       if (typeof cb === 'function') {
+        //@ts-ignore
         argumentsArray[argumentsArray.length - 1] = cbWrapper;
+        //@ts-ignore
         func.apply(this, argumentsArray.concat(nextWorker));
       } else {
+        //@ts-ignore
         func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
       }
 
       function nextWorker() {
         worked = false;
+        //@ts-ignore
         if (nextArguments) {
+          //@ts-ignore
           const args = nextArguments;
           nextArguments = null;
           run.apply(ctx, args);
@@ -137,12 +154,14 @@ export function throttle(func) {
     /**
      * @throws {ThrottleError} Too many function call
      */
-    return function run(...args) {
+    return function run(...args: any[]) {
       const parentStack = getStack(2);
 
       return new Promise((resolve, reject) => {
         if (worked) {
+          //@ts-ignore
           if (nextArguments) {
+            //@ts-ignore
             nextReject(ThrottleError.createWithParentStack(parentStack));
           }
           nextArguments = args;
@@ -153,10 +172,14 @@ export function throttle(func) {
 
         worked = true;
 
+        //@ts-ignore
         func.apply(this, args)
+        //@ts-ignore
           .then(result => {
             worked = false;
+            //@ts-ignore
             if (nextArguments) {
+              //@ts-ignore
               nextResolve(run.apply(this, nextArguments));
               nextArguments = null;
 
@@ -188,19 +211,25 @@ export function parseValueFromEvent(event: any) {
   return event;
 }
 
-export function Decorator(obj: any, decor: any) {
-  Object.assign(this, decor);
-
-  for (const i in obj) {
-    if (typeof obj[i] === 'function' && !decor[i]) {
-      this[i] = obj[i].bind(obj);
-    }
-  }
-}
+export class Decorator {}
 
 export function decorate(obj: any, decor: any) {
-  Decorator.prototype = obj;
-  return new Decorator(obj, decor);
+  class Decorated2 extends Decorator {
+    constructor(obj: {[index: string]: any}, decor: any) {
+      super();
+      Object.assign(this, decor);
+
+      for (const i in obj) {
+        if (typeof obj[i] === 'function' && !decor[i]) {
+          // @ts-ignore
+          this[i] = obj[i].bind(obj);
+        }
+      }
+    }
+  }
+
+  Decorated2.prototype = obj;
+  return new Decorated2(obj, decor);
 }
 
 /**
@@ -268,12 +297,13 @@ export function isEmpty(value: any) {
   if (Array.isArray(value)) {
     return value.length === 0;
   }
-  if (typeof value === 'object') {
-    return Object.keys(value).length === 0;
-  }
   if (typeof value === 'string') {
     return value.trim().length === 0;
   }
+  if (typeof value === 'object') {
+    return Object.keys(value).length === 0;
+  }
+
   return false;
 }
 
@@ -486,8 +516,11 @@ export function warn(message: string) {
 export function toEncodedString(value: any) {
   return encodeURIComponent((typeof value === 'string' ? value : JSON.stringify(value)));
 }
+//:
+// (req1: express.Request, res1: express.Response, next1: express.NextFunction) => any)
+// (req1: express.Request, res1: express.Response, next1: express.NextFunction) => any)
 
-export function asyncHandler(router: (req: express.Request, res: express.Response, next: express.NextFunction)) {
+export function asyncHandler(router: express.RequestHandler) {
   return (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const promise = router(req, res, next);
     if (promise && promise.then) {
@@ -519,8 +552,11 @@ export function parseJson(json: string, errorMessage = 'Incorrect JSON') {
   return result;
 }
 
-export function unwrap<T>(value: T | null): T {
+export function unwrap<T>(value: T | null, error?: string): T {
   if (value === undefined || value === null) {
+    if (error) {
+      throw new Error(error);
+    }
     throw new Error(`Value can't be ${String(value)}`);
   }
   return value;

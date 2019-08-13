@@ -9,17 +9,18 @@
 import ValidationErrors from '../common/validation/ValidationErrors';
 import express from 'express';
 import {asyncHandler} from '../common/utils';
-import FormModel from "./FormModel";
+// eslint-disable-next-line no-unused-vars
+import FormModel from './FormModel';
 
 class FormExpressApi {
-  private middlewares: { submit: ((req: e.Request, res: e.Response, next: e.NextFunction) => any)[]; getData: ((req: e.Request, res: e.Response, next: e.NextFunction) => any)[]; validate: ((req: e.Request, res: e.Response, next: e.NextFunction) => any)[] };
+  private middlewares: {[index: string]: express.RequestHandler[]};
   static create() {
     return new FormExpressApi();
   }
 
   constructor() {
     this.middlewares = {
-      getData: [asyncHandler(async (req: express.Request, res: express.Response, next) => {
+      getData: [asyncHandler(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
         const model = this._getModel(req, res);
         try {
@@ -29,7 +30,7 @@ class FormExpressApi {
           this._result(err, null, req, res, next);
         }
       })],
-      submit: [asyncHandler(async (req: Request, res, next) => {
+      submit: [asyncHandler(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const model = this._getModel(req, res);
         try {
           const data = await model.submit(req.body);
@@ -42,7 +43,7 @@ class FormExpressApi {
           this._result(null, {data: null, error: err}, req, res, next);
         }
       })],
-      validate: [asyncHandler(async (req, res, next) => {
+      validate: [asyncHandler(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
         const model = this._getModel(req, res);
         try {
           const data = await model.isValidRecord(req.body);
@@ -64,23 +65,23 @@ class FormExpressApi {
   }
 
   getRouter() {
-    return new express.Router()
+    return express.Router()
       .get('/', this.middlewares.getData)
       .post('/', this.middlewares.submit)
       .post('/validation', this.middlewares.validate);
   }
 
-  getData(middlewares) {
+  getData(middlewares: express.RequestHandler[] | express.RequestHandler) {
     return this._addMidelwares('getData', middlewares);
   }
-  submit(middlewares) {
+  submit(middlewares: express.RequestHandler[] | express.RequestHandler) {
     return this._addMidelwares('submit', middlewares);
   }
-  validate(middlewares) {
+  validate(middlewares: express.RequestHandler[] | express.RequestHandler) {
     return this._addMidelwares('validate', middlewares);
   }
 
-  _addMidelwares(method, middlewares) {
+  _addMidelwares(method: string, middlewares: express.RequestHandler[] | express.RequestHandler) {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
@@ -89,11 +90,12 @@ class FormExpressApi {
   }
 
   // Default implementation
-  _getModel() {
+  // eslint-disable-next-line no-unused-vars
+  _getModel(req: express.Request, res: express.Response): FormModel {
     throw Error('Model is not defined.');
   }
 
-  _result(err, data, req, res, next) {
+  _result(err: any, data: any, req: express.Request, res: express.Response, next: express.NextFunction) {
     if (err) {
       next(err);
     } else {

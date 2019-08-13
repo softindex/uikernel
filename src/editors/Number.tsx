@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 import floatValidator from '../common/validation/rules/float';
-import {isEqual, omit, unwrap} from '../common/utils';
+import {isEqual, omit} from '../common/utils';
 import { findDOMNode } from 'react-dom';
-import React, {ChangeEventHandler, SyntheticEvent} from 'react';
+import React from 'react';
 
 const isInvalidFloat = floatValidator(null, null);
 type NumberEditorProps = {
@@ -42,7 +42,7 @@ class NumberEditor extends React.Component<
       }
     }
   }
-  _onChangeHandler(e: SyntheticEvent<>) {
+  _onChangeHandler(e: React.ChangeEvent<HTMLInputElement>) {
     const target = e.target;
     const valueAsNumber = parseFloat(target.value); // Edge doesn't support "target.valueAsNumber"
     if (target.value === '' && target.validity.valid) {
@@ -62,7 +62,7 @@ class NumberEditor extends React.Component<
         type="number"
         ref={this.input}
         onChange={this._onChangeHandler.bind(this)}
-        defaultValue={this.props.value}
+        defaultValue={typeof this.props.value === 'number' ? String(this.props.value) : this.props.value}
       />
     );
   }
