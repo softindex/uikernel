@@ -8,8 +8,9 @@
 
 import defaultXhr from '../common/defaultXhr';
 import url from 'url';
+import {unwrap} from '../common/utils';
 
-class ListXMLHttpRequestModel {
+class ListXMLHttpRequestModel<TKey> {
   private _apiURL: string;
   private _xhr: any;
   /**
@@ -55,9 +56,9 @@ class ListXMLHttpRequestModel {
    *
    * @param {*}         id  Option ID
    */
-  async getLabel(id) {
+  async getLabel(id: TKey) {
     const parsedUrl = url.parse(this._apiURL, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
+    parsedUrl.pathname = url.resolve(unwrap(parsedUrl.pathname), `label/${JSON.stringify(id)}`);
 
     let body = await this._xhr({
       method: 'GET',

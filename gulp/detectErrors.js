@@ -17,11 +17,11 @@ function isFixed(file) {
   return file.eslint != null && file.eslint.fixed;
 }
 
-function jsDetectErrors() {
-  return gulp.src(['src/**/*.js', 'gulp/**/*.js'], {base: '.'})
+function detectErrors() {
+  return gulp.src(['src/**/*.js', 'src/**/*.ts', 'src/**/*.tsx', 'gulp/**/*.js'], {base: '.'})
     .pipe(eslint({fix: true}))
     .pipe(eslint.format())
     .pipe(gulpIf(isFixed, gulp.dest('.')));
 }
 
-module.exports = jsDetectErrors;
+module.exports = detectErrors;

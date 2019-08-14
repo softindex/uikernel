@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 import toPromise from '../common/toPromise';
-import { throttle, isEqual, findIndex, parents, omit } from '../common/utils';
+import {throttle, isEqual, findIndex, parents, omit, hasOwnProperty, unwrap} from '../common/utils';
 import Portal from '../common/Portal';
 import { findDOMNode } from 'react-dom';
 import React from 'react';
@@ -51,9 +51,9 @@ type SuggestBoxEditorProps = {
   withEmptyOption?: boolean
 };
 type SuggestBoxEditorState = {
-  label: any | string,
-  lastValidLabel: any | string,
-  options: undefined[],
+  label: string,
+  lastValidLabel: string,
+  options: any[],
   selectedOptionKey: null,
   isOpened: boolean,
   popupStyles: {}
@@ -70,6 +70,7 @@ class SuggestBoxEditor extends React.Component<
     withEmptyOption: false
   };
   private _isMounted: boolean | undefined;
+  private input: React.RefObject<HTMLInputElement>;
   constructor(props: SuggestBoxEditorProps) {
     super(props);
     this._loadData = throttle(this._loadData);
@@ -81,6 +82,7 @@ class SuggestBoxEditor extends React.Component<
       label: '',
       popupStyles: {}
     };
+    this.input = React.createRef();
     this._onInputFocus = this._onInputFocus.bind(this);
     this._onInputKeyDown = this._onInputKeyDown.bind(this);
     this._onInputValueChange = this._onInputValueChange.bind(this);
@@ -94,7 +96,7 @@ class SuggestBoxEditor extends React.Component<
     this._isMounted = true;
     if (this.props.defaultLabel) {
       this._setLabelTo(this.props.defaultLabel, true);
-    } else if (this.props.hasOwnProperty('label')) {
+    } else if (hasOwnProperty(this.props, 'label')) {
       this._setLabelTo(this.props.label, true);
     } else {
       this._getLabelFromModel(this.props.model, this.props.value);
@@ -112,7 +114,7 @@ class SuggestBoxEditor extends React.Component<
   }
   componentWillReceiveProps(nextProps: SuggestBoxEditorProps) {
     if (!isEqual(this.props.value, nextProps.value)) {
-      if (!this.props.hasOwnProperty('label')) {
+      if (!hasOwnProperty(this.props, 'label')) {
         this._getLabelFromModel(nextProps.model, nextProps.value);
       }
     }
@@ -140,13 +142,13 @@ class SuggestBoxEditor extends React.Component<
     }
     model
       .getLabel(id)
-      .then(label => {
+      .then((label: string) => {
         if (!this._isMounted) {
           return;
         }
         this._setLabelTo(label, true);
       })
-      .catch(err => {
+      .catch((err: any) => {
         if (err) {
           console.error(err);
           throw err;
@@ -203,7 +205,7 @@ class SuggestBoxEditor extends React.Component<
       loading: true,
       popupStyles
     });
-    findDOMNode(this.input).select();
+    ((findDOMNode(this.input.current) as HTMLInputElement)).select();
     await this._updateList(searchPattern); // TODO Handle errors
     if (!this.state.options.length) {
       return;
@@ -225,14 +227,14 @@ class SuggestBoxEditor extends React.Component<
     if (!this._isMounted) {
       return;
     }
-    findDOMNode(this.input).select();
+    ((findDOMNode(this.input.current) as HTMLInputElement)).select();
     if (this.props.onFocus) {
       this.props.onFocus(e);
     }
   }
-  _closeList(shouldBlur) {
+  _closeList(shouldBlur?: boolean) {
     if (shouldBlur) {
-      findDOMNode(this.input).blur();
+      ((findDOMNode(this.input.current) as HTMLInputElement)).blur();
     }
     if (!this.state.isOpened || !this._isMounted) {
       return;
@@ -263,9 +265,9 @@ class SuggestBoxEditor extends React.Component<
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
-    findDOMNode(this.input).select();
+    ((findDOMNode(this.input.current) as HTMLInputElement)).select();
   }
-  async _focusOption(key, shouldSetLabel) {
+  async _focusOption(key: string, shouldSetLabel: boolean) {
     if (shouldSetLabel === true) {
       this._setLabelTo(this.state.options[key].label);
     }
@@ -338,7 +340,7 @@ class SuggestBoxEditor extends React.Component<
       }
     }
   }
-  _scrollListTo(target) {
+  _scrollListTo(target?: HTMLElement) {
     const container = document.querySelector(`#${popupId}:first-child`);
     if (!container) {
       return;
@@ -357,7 +359,8 @@ class SuggestBoxEditor extends React.Component<
       container.scrollTop = target.offsetTop;
     }
   }
-  _isParentOf(child) {
+
+  _isParentOf(child: (Node & ParentNode) | null) {
     while (child) {
       child = child.parentNode;
       if (child === findDOMNode(this)) {
@@ -366,14 +369,14 @@ class SuggestBoxEditor extends React.Component<
     }
     return false;
   }
-  _onDocumentMouseDown(e, isOwner) {
+  _onDocumentMouseDown(e: React.MouseEvent<Portal>, isOwner: boolean) {
     if (e.button !== 0) {
       return;
     }
-    let target = e.target;
+    let target = e.target as EventTarget;
     if (isOwner) {
       if (!target.classList.contains(classes.option)) {
-        target = target.parentNode;
+        target = unwrap<Node & ParentNode>(target.parentNode);
       }
       if (
         target.classList.contains(classes.optionSelectable) &&
@@ -385,7 +388,7 @@ class SuggestBoxEditor extends React.Component<
     } else {
       // q where to test
       if (!parents(target, `.${classes.searchBlock}`).length) {
-        if (!findDOMNode(this.input).value) {
+        if (!((findDOMNode(this.input.current) as HTMLInputElement)).value) {
           this._selectOption(null);
         } else {
           this._setLabelTo(this.state.lastValidLabel);
@@ -396,7 +399,7 @@ class SuggestBoxEditor extends React.Component<
       }
     }
   }
-  _onDocumentMouseScroll(e, isOwner) {
+  _onDocumentMouseScroll(e: React.MouseEvent<HTMLInputElement>, isOwner: boolean) {
     if (!isOwner && this.state.isOpened) {
       const popupStyles = this._getComputedPopupStyles();
       if (popupStyles) {
@@ -461,9 +464,9 @@ class SuggestBoxEditor extends React.Component<
     }
   }
   _getComputedPopupStyles() {
-    const inputStyles = window.getComputedStyle(findDOMNode(this.input));
-    const popupStyle = {};
-    const inputOffset = findDOMNode(this.input).getBoundingClientRect();
+    const inputStyles = window.getComputedStyle(((findDOMNode(this.input.current) as HTMLInputElement)));
+    const popupStyle: React.CSSProperties = {};
+    const inputOffset = ((findDOMNode(this.input.current) as HTMLInputElement)).getBoundingClientRect();
     const inputWidth = inputStyles.width;
     const inputHeight = parseInt(inputStyles.height);
     if (
@@ -489,7 +492,7 @@ class SuggestBoxEditor extends React.Component<
     return popupStyle;
   }
   focus() {
-    findDOMNode(this.input).focus();
+    ((findDOMNode(this.input.current) as HTMLInputElement)).focus();
   }
   render() {
     const arrowClasses = [classes.arrow];
@@ -576,7 +579,7 @@ class SuggestBoxEditor extends React.Component<
               'onMetadataChange',
               'withEmptyOption'
             ])}
-            ref={input => (this.input = input)}
+            ref={this.input}
             type="text"
             onClick={this._openList}
             onFocus={this._onInputFocus}

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {toEncodedString, size} from '../../common/utils';
+import {toEncodedString, size, hasOwnProperty} from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 
 /**
@@ -24,7 +24,7 @@ const GridStatusesMixin = {
     const row = toEncodedString(recordId);
 
     // If list does not contain the record, mark its status as empty
-    if (!this.state.statuses.hasOwnProperty(row)) {
+    if (!hasOwnProperty(this.state.statuses, row)) {
       this.state.statuses[row] = {
         id: recordId,
         sum: 0
@@ -54,7 +54,7 @@ const GridStatusesMixin = {
     for (const id of recordIds) {
       const row = toEncodedString(id);
 
-      if (!this.state.statuses.hasOwnProperty(row)) {
+      if (!hasOwnProperty(this.state.statuses, row)) {
         this.state.statuses[row] = {
           id,
           sum: 0
@@ -205,7 +205,7 @@ const GridStatusesMixin = {
     let status;
     let offset;
 
-    if (this.state.statusMap.hasOwnProperty(statusName)) {
+    if (hasOwnProperty(this.state.statusMap, statusName)) {
       status = this.state.statusMap[statusName];
     } else {
       // TODO offset stored in the state, I remove the utils.size

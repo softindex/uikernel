@@ -13,7 +13,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import createReactClass from 'create-react-class';
-import {throttle, isEqual} from '../common/utils';
+import {throttle, isEqual, hasOwnProperty} from '../common/utils';
 
 import GridColumnsMixin from './mixins/columns';
 import gridMixinPagination from './mixins/pagination';
@@ -84,7 +84,7 @@ const propTypes = (() => {
       if (validProp) {
         return validProp;
       }
-      if (props.hasOwnProperty('sort')) {
+      if (hasOwnProperty(props, 'sort')) {
         return Error('You can not set "defaultSort" when the "sort" prop is specified');
       }
     },
@@ -244,7 +244,8 @@ const GridComponent = createReactClass({
                 return (
                   <tr key={colKey}>
                     {row.map((col, rowKey) => {
-                      const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
+                      const header = this._getHeaderCellHTML(hasOwnProperty(col, 'name') ? col.name
+                        : col.id);
                       const props = {
                         key: rowKey,
                         className: col.className,
@@ -309,7 +310,7 @@ const GridComponent = createReactClass({
               return (
                 <tr key={colKey}>
                   {row.map((col, rowKey) => {
-                    const header = this._getHeaderCellHTML(col.hasOwnProperty('name') ? col.name : col.id);
+                    const header = this._getHeaderCellHTML(hasOwnProperty(col, 'name') ? col.name : col.id);
                     const props = {
                       key: rowKey,
                       className: col.className,

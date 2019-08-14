@@ -7,7 +7,19 @@
  */
 
 import ValidationErrors from '../../common/validation/ValidationErrors';
-import {cloneDeep, reduce, pick, isEqual, isEmpty, forEach, getRecordChanges, toEncodedString, clone, warn} from '../../common/utils';
+import {
+  cloneDeep,
+  reduce,
+  pick,
+  isEqual,
+  isEmpty,
+  forEach,
+  getRecordChanges,
+  toEncodedString,
+  clone,
+  warn,
+  hasOwnProperty
+} from '../../common/utils';
 import ThrottleError from '../../common/ThrottleError';
 
 const GridDataMixin = {
@@ -261,7 +273,7 @@ const GridDataMixin = {
    * @return  {Object}
    */
   _getRecordChanges(row) {
-    if (this.state.changes.hasOwnProperty(row)) {
+    if (hasOwnProperty(this.state.changes, row)) {
       return cloneDeep(this.state.changes[row]);
     }
     return {};
@@ -329,7 +341,7 @@ const GridDataMixin = {
       return false;
     }
 
-    if (this.state.partialErrorChecking && !this.state.changes.hasOwnProperty(row)) {
+    if (this.state.partialErrorChecking && !hasOwnProperty(this.state.changes, row)) {
       return false;
     }
 
@@ -364,7 +376,7 @@ const GridDataMixin = {
         fields = [fields];
       }
       for (i = 0; i < fields.length; i++) {
-        if (this.state.changes[row].hasOwnProperty(fields[i])) {
+        if (hasOwnProperty(this.state.changes[row], fields[i])) {
           return true;
         }
       }
@@ -525,7 +537,7 @@ const GridDataMixin = {
   _isRecordLoaded(recordId) {
     // TODO Can be optimized
     const row = toEncodedString(recordId);
-    return this.state.data.hasOwnProperty(row);
+    return hasOwnProperty(this.state.data, row);
   },
 
   /**
@@ -538,7 +550,7 @@ const GridDataMixin = {
   _getRowID(recordId) {
     const row = toEncodedString(recordId);
 
-    if (!this.state.data.hasOwnProperty(row)) {
+    if (!hasOwnProperty(this.state.data, row)) {
       throw Error('Record with the ID is not contained in the table.');
     }
 

@@ -380,7 +380,7 @@ export function zipObject(keys: string[], values: any) {
 
 export function pick(obj: {[index: string]: any}, keys: string[], defaultValue?: any) {
   return keys.reduce((result:{[index: string]: any}, key: string) => {
-    if (obj.hasOwnProperty(key)) {
+    if (hasOwnProperty(obj, key)) {
       result[key] = obj[key];
     } else if (defaultValue !== undefined) {
       result[key] = defaultValue;
@@ -552,7 +552,7 @@ export function parseJson(json: string, errorMessage = 'Incorrect JSON') {
   return result;
 }
 
-export function unwrap<T>(value: T | null, error?: string): T {
+export function unwrap<T>(value: T | null | undefined, error?: string): T {
   if (value === undefined || value === null) {
     if (error) {
       throw new Error(error);
@@ -560,4 +560,8 @@ export function unwrap<T>(value: T | null, error?: string): T {
     throw new Error(`Value can't be ${String(value)}`);
   }
   return value;
+}
+
+export function hasOwnProperty(object: object, property: string) {
+  return Object.prototype.hasOwnProperty.call(object, property);
 }

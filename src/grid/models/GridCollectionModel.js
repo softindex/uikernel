@@ -8,7 +8,7 @@
 
 import Validator from '../../common/validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
-import {cloneDeep, warn, isEqual, without, clone, forEach, find} from '../../common/utils';
+import {cloneDeep, warn, isEqual, without, clone, forEach, find, hasOwnProperty} from '../../common/utils';
 
 class GridCollectionModel extends AbstractGridModel {
   /**
@@ -116,7 +116,7 @@ class GridCollectionModel extends AbstractGridModel {
     }
 
     for (const field of this._requiredFields) {
-      if (!clonedRecord.hasOwnProperty(field)) {
+      if (!hasOwnProperty(clonedRecord, field)) {
         clonedRecord[field] = null;
       }
     }

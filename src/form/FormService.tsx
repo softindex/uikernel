@@ -9,7 +9,7 @@
 import EventEmitter from '../common/Events';
 import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
-import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty, unwrap} from '../common/utils';
+import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty, unwrap, hasOwnProperty} from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
 // eslint-disable-next-line no-unused-vars
 import FormModel from './FormModel';
@@ -103,7 +103,7 @@ class FormService {
     this.showDependentFields = settings.showDependentFields || false;
     this.submitAll = settings.submitAll;
 
-    if (settings.hasOwnProperty('fields')) {
+    if (hasOwnProperty(settings, 'fields')) {
       this.fields = settings.fields;
     }
     if (!this._data) {
@@ -395,7 +395,7 @@ class FormService {
       get(target, fieldName: string) {
         return {
           value: data[fieldName],
-          isChanged: changes.hasOwnProperty(fieldName),
+          isChanged: hasOwnProperty(changes, fieldName),
           errors: errors.getFieldErrorMessages(fieldName),
           warnings: warnings.getFieldErrorMessages(fieldName)
         };
@@ -446,7 +446,7 @@ class FormService {
     const filteredErrors = validationErrors.clone();
 
     for (const field of validationErrors.getErrors().keys()) {
-      const isFieldPristine = !unwrap<{[index: string]: any}>(this._changes).hasOwnProperty(field)
+      const isFieldPristine = !(hasOwnProperty(unwrap<{[index: string]: any}>(this._changes), field))
         || isEqual(unwrap<{[index: string]: any}>(this._changes)[field],
           unwrap<{[index: string]: any}>(this._data)[field]);
       if (this._hiddenValidationFields.includes(field) || this._partialErrorChecking && isFieldPristine) {
@@ -487,7 +487,7 @@ class FormService {
   }
 
   _isDependentField(field: string) {
-    return unwrap<{[index: string]: any}>(this._changes).hasOwnProperty(field) &&
+    return (hasOwnProperty(unwrap<{[index: string]: any}>(this._changes), field)) &&
       isEqual(unwrap<{[index: string]: any}>(this._changes)[field], unwrap<{[index: string]: any}>(this._data)[field]);
   }
 

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {clone, findIndex, cloneDeep} from '../../common/utils';
+import {clone, findIndex, cloneDeep, hasOwnProperty} from '../../common/utils';
 
 const GridSortingMixin = {
   /**
@@ -209,7 +209,7 @@ const GridSortingMixin = {
    * @private
    */
   _isSortingPropsMode: function () {
-    return this.props.hasOwnProperty('sort');
+    return hasOwnProperty(this.props, 'sort');
   },
 
   /**

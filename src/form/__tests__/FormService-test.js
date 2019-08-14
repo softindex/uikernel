@@ -254,9 +254,9 @@ describe('set', () => {
   });
 
   it('After loaded', async () => {
+    form.validateForm = jest.fn();
     await form.init(initSettings);
     form.addChangeListener(stateHandler);
-    form.validateForm = jest.fn();
     stateHandler.mockClear();
     expect(await form.set({name: 'newName'})).toBeUndefined();
     expect(stateHandler).toHaveBeenCalledTimes(1);

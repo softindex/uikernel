@@ -6,7 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {throttle, isEmpty, isEqual, cloneDeep, parseValueFromEvent, getRecordChanges, forEach, clone} from '../common/utils';
+import {
+  throttle,
+  isEmpty,
+  isEqual,
+  cloneDeep,
+  parseValueFromEvent,
+  getRecordChanges,
+  forEach,
+  clone,
+  hasOwnProperty
+} from '../common/utils';
 import toPromise from '../common/toPromise';
 import Validator from '../common/validation/Validator';
 import ValidationErrors from '../common/validation/ValidationErrors';
@@ -137,7 +147,7 @@ const FormMixin = {
       return false;
     }
 
-    return state.changes.hasOwnProperty(field);
+    return hasOwnProperty(state.changes, field);
   },
 
   /**
@@ -166,7 +176,7 @@ const FormMixin = {
     // If partial check is on and field is changed,
     // do not display an error
     if (state.partialErrorChecking) {
-      if (!state.changes.hasOwnProperty(field) || isEqual(state.changes[field], state.data[field])) {
+      if (!hasOwnProperty(state.changes, field) || isEqual(state.changes[field], state.data[field])) {
         return false;
       }
     }
@@ -242,7 +252,7 @@ const FormMixin = {
       for (field in this.state._formMixin.data) {
         // If field is unchanged, remove errors, that regard to this field
         if (
-          !this.state._formMixin.changes.hasOwnProperty(field) ||
+          !hasOwnProperty(this.state._formMixin.changes, field) ||
           isEqual(this.state._formMixin.changes[field], this.state._formMixin.data[field])
         ) {
           errors.clearField(field);
@@ -260,7 +270,7 @@ const FormMixin = {
 
     // If partial check is on and field is changed,
     // do not display an error
-    if (this.state._formMixin.partialErrorChecking && !this.state._formMixin.changes.hasOwnProperty(field)) {
+    if (this.state._formMixin.partialErrorChecking && !hasOwnProperty(this.state._formMixin.changes, field)) {
       return null;
     }
 
@@ -602,7 +612,7 @@ const FormMixin = {
 
   _isDependentField: function (field) {
     const state = this.state._formMixin;
-    return state.changes.hasOwnProperty(field) && isEqual(state.changes[field], state.data[field]);
+    return hasOwnProperty(state.changes, field) && isEqual(state.changes[field], state.data[field]);
   }
 };
 

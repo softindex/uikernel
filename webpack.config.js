@@ -24,7 +24,7 @@ const nodeBundle = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
+      {test: /\.js|ts|tsx$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
     ],
   },
   externals: [nodeExternals()],
@@ -47,7 +47,7 @@ const browserBundle = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
+      {test: /\.js|ts|tsx$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
     ],
   },
   mode: 'development',
@@ -69,7 +69,7 @@ const browserMinBundle = {
   },
   module: {
     rules: [
-      {test: /\.js$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
+      {test: /\.js|ts|tsx$/, exclude: /node_modules/, loader: 'awesome-typescript-loader'}
     ],
   },
   optimization: {

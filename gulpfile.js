@@ -9,7 +9,7 @@
 // TODO Need to remove gulp dependency
 
 const gulp = require('gulp');
-const jsDetectErrors = require('./gulp/jsDetectErrors');
+const detectErrors = require('./gulp/detectErrors');
 const clearSite = require('./gulp/clearSite');
 const archive = require('./gulp/archive');
 const styleBundle = require('./gulp/styleBundle');
@@ -19,7 +19,7 @@ const release = require('./gulp/release');
 const buildSrc = require('./gulp/buildSrc');
 
 gulp.task('default', gulp.parallel([
-  gulp.series([jsDetectErrors, buildSrc]),
+  gulp.series([detectErrors, buildSrc]),
   styleBundle
 ]));
 

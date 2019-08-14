@@ -7,7 +7,7 @@
  */
 
 import toPromise from '../../common/toPromise';
-import {parents, pick, escape, last, isDefined, pairs} from '../../common/utils';
+import {parents, pick, escape, last, isDefined, pairs, hasOwnProperty} from '../../common/utils';
 import {findDOMNode} from 'react-dom';
 import React from 'react';
 import ThrottleError from '../../common/ThrottleError';
@@ -117,7 +117,7 @@ const GridUIMixin = {
       return;
     }
 
-    if (this.getViewCount() && !obj.hasOwnProperty('count')) {
+    if (this.getViewCount() && !hasOwnProperty(obj, 'count')) {
       throw new Error('Incorrect response from GridModel. "response.count" not defined');
     }
 
@@ -163,7 +163,7 @@ const GridUIMixin = {
     let i;
     const escapedRecord = {};
     const column = this.props.cols[columnId];
-    const needEscaping = !column.hasOwnProperty('escape') || column.escape;
+    const needEscaping = !hasOwnProperty(column, 'escape') || column.escape;
     const fields = column.render.slice(0, -1);
 
     for (i = 0; i < fields.length; i++) {
@@ -326,7 +326,7 @@ const GridUIMixin = {
           totalsRowHTML += '<td>';
         }
 
-        if (this.state.totals.hasOwnProperty(i)) {
+        if (hasOwnProperty(this.state.totals, i)) {
           totalsRowHTML += this._getCellHTML(i, this.state.totals, false, this.state.totals);
           totalsDisplayed = true;
         }

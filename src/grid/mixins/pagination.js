@@ -7,6 +7,7 @@
  */
 
 import React, {Fragment} from 'react';
+import {hasOwnProperty} from '../../common/utils';
 
 const GridPaginationMixin = {
   /**
@@ -139,7 +140,7 @@ const GridPaginationMixin = {
   },
 
   _isViewCountPropsMode: function () {
-    return this.props.hasOwnProperty('viewCount');
+    return hasOwnProperty(this.props, 'viewCount');
   },
 
   _renderPagination: function _renderPagination() {
