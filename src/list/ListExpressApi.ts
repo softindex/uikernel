@@ -8,6 +8,7 @@
 
 import express from 'express';
 import {asyncHandler} from '../common/utils';
+import ListXMLHttpRequestModel from "./ListXhrModel";
 
 /**
  * Form Express API for List model interaction
@@ -15,7 +16,8 @@ import {asyncHandler} from '../common/utils';
  * @return {ListExpressApi}
  * @constructor
  */
-class ListExpressApi {
+class ListExpressApi<TKey> {
+  private middlewares: {[index: string]: express.RequestHandler[]};
   static create() {
     return new ListExpressApi();
   }
@@ -50,7 +52,7 @@ class ListExpressApi {
    * @param   {Function|AbstractListModel}  model  List model
    * @return {ListExpressApi}
    */
-  model(model) {
+  model(model: ListXMLHttpRequestModel<TKey>) {
     if (typeof model === 'function') {
       this._getModel = model;
     } else {
@@ -60,12 +62,12 @@ class ListExpressApi {
   }
 
   getRouter() {
-    return new express.Router()
+    return express.Router()
       .get('/', this.middlewares.read)
       .get('/label/:id', this.middlewares.getLabel);
   }
 
-  read(middlewares) {
+  read(middlewares: express.RequestHandler[]) {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
@@ -73,7 +75,7 @@ class ListExpressApi {
     return this;
   }
 
-  getLabel(middlewares) {
+  getLabel(middlewares: express.RequestHandler[]) {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
@@ -82,11 +84,12 @@ class ListExpressApi {
   }
 
   // Default implementation
-  _getModel() {
+  // eslint-disable-next-line no-unused-vars
+  _getModel(req: express.Request, res: express.Response):() => ListXMLHttpRequestModel<TKey> {
     throw Error('Model is not defined.');
   }
 
-  _result(err, data, req, res, next) {
+  _result(err: any, data: any, req: express.Request, res: express.Response, next: express.NextFunction) {
     if (err) {
       next(err);
     } else {

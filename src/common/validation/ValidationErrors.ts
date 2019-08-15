@@ -45,7 +45,7 @@ class ValidationErrors {
   }
 
   static merge = function (...args: any) {
-    const jsonErrors = [{}];
+    const jsonErrors: [object] = [{}];
 
     for (const arg of args) {
       jsonErrors.push(arg.toJSON());

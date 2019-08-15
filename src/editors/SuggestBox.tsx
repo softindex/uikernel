@@ -33,12 +33,15 @@ const ESCAPE_KEY = 27;
 const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
+
+interface TModel {
+  read: (...args: any[]) => any,
+  getLabel: (...args: any[]) => any
+}
+
 type SuggestBoxEditorProps = {
   disabled?: boolean,
-  model?: {
-    read?: (...args: any[]) => any,
-    getLabel?: (...args: any[]) => any
-  },
+  model: TModel,
   onChange: (...args: any[]) => any,
   onLabelChange?: (...args: any[]) => any,
   onMetadataChange?: (...args: any[]) => any,
@@ -54,9 +57,10 @@ type SuggestBoxEditorState = {
   label: string,
   lastValidLabel: string,
   options: any[],
-  selectedOptionKey: null,
+  selectedOptionKey: number | null,
   isOpened: boolean,
-  popupStyles: {}
+  popupStyles: {[index: string]: any},
+  loading: boolean
 };
 class SuggestBoxEditor extends React.Component<
   SuggestBoxEditorProps,
@@ -76,6 +80,7 @@ class SuggestBoxEditor extends React.Component<
     this._loadData = throttle(this._loadData);
     this.state = {
       isOpened: false,
+      loading: false,
       options: [],
       selectedOptionKey: null,
       lastValidLabel: '',
@@ -127,7 +132,7 @@ class SuggestBoxEditor extends React.Component<
       ? option.label[option.label.length - 1]
       : option.label;
   }
-  _setLabelTo(label: string | null | undefined, markAsValid: boolean | undefined) {
+  _setLabelTo(label: string | null | undefined, markAsValid?: boolean) {
     if (label === null || label === undefined) {
       label = '';
     }
@@ -136,7 +141,7 @@ class SuggestBoxEditor extends React.Component<
       lastValidLabel: markAsValid ? label : this.state.lastValidLabel
     });
   }
-  _getLabelFromModel(model, id) {
+  _getLabelFromModel(model: TModel, id: any) {
     if (id === null || id === undefined) {
       return this._setLabelTo('', true);
     }
@@ -155,7 +160,7 @@ class SuggestBoxEditor extends React.Component<
         }
       });
   }
-  async _updateList(searchPattern) {
+  async _updateList(searchPattern?: string) {
     let options;
     try {
       options = await this._loadData(searchPattern);
@@ -189,10 +194,10 @@ class SuggestBoxEditor extends React.Component<
     }
     this._scrollListTo();
   }
-  _loadData(searchPattern) {
+  _loadData(searchPattern?: string) {
     return this.props.model.read(searchPattern || '');
   }
-  async _openList(searchPattern, focusFirstOption = false) {
+  async _openList(searchPattern?: string, focusFirstOption = false) {
     if (this.props.disabled || this.state.isOpened) {
       return;
     }
@@ -222,7 +227,7 @@ class SuggestBoxEditor extends React.Component<
       this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
     }
   }
-  async _onInputFocus(e) {
+  async _onInputFocus(e: React.FocusEvent<HTMLInputElement>) {
     await this._openList();
     if (!this._isMounted) {
       return;
@@ -252,7 +257,7 @@ class SuggestBoxEditor extends React.Component<
       await this._openList();
     }
   }
-  _selectOption(option) {
+  _selectOption(option: any) {
     option = option || {
       id: null,
       label: '',
@@ -267,18 +272,19 @@ class SuggestBoxEditor extends React.Component<
     }
     ((findDOMNode(this.input.current) as HTMLInputElement)).select();
   }
-  async _focusOption(key: string, shouldSetLabel: boolean) {
-    if (shouldSetLabel === true) {
+  async _focusOption(key: number, shouldSetLabel: boolean = false) {
+    if (shouldSetLabel) {
       this._setLabelTo(this.state.options[key].label);
     }
     if (this.state.isOpened) {
       this._focusOptionAndScrollIntoView(key);
     } else {
-      await this._openList(null);
+      await this._openList();
       this._focusOptionAndScrollIntoView(key);
     }
   }
-  _focusOptionAndScrollIntoView(key) {
+  _focusOptionAndScrollIntoView(key: number) {
+    // @ts-ignore
     this.state.selectedOptionKey = key;
     const focusedItems = document.querySelector(`.${classes.optionFocused}`);
     const currentItem = document.querySelector(
@@ -300,6 +306,7 @@ class SuggestBoxEditor extends React.Component<
       return;
     }
     if (this.state.selectedOptionKey === null) {
+      // @ts-ignore
       this.state.selectedOptionKey = 0;
       return this._focusOption(this.state.selectedOptionKey, true);
     }
@@ -321,6 +328,7 @@ class SuggestBoxEditor extends React.Component<
   }
   _focusPrevOption() {
     if (this.state.selectedOptionKey === null) {
+      // @ts-ignore
       this.state.selectedOptionKey = 0;
       return this._focusOption(this.state.selectedOptionKey);
     }
@@ -373,16 +381,16 @@ class SuggestBoxEditor extends React.Component<
     if (e.button !== 0) {
       return;
     }
-    let target = e.target as EventTarget;
+    let target = e.target as HTMLElement;
     if (isOwner) {
       if (!target.classList.contains(classes.option)) {
-        target = unwrap<Node & ParentNode>(target.parentNode);
+        target = target.parentNode as HTMLElement;
       }
       if (
         target.classList.contains(classes.optionSelectable) &&
         this.state.isOpened
       ) {
-        this._selectOption(this.state.options[target.getAttribute('data-key')]);
+        this._selectOption(this.state.options[Number(unwrap(target.getAttribute('data-key')))]);
         this._closeList(true);
       }
     } else {
@@ -394,7 +402,7 @@ class SuggestBoxEditor extends React.Component<
           this._setLabelTo(this.state.lastValidLabel);
         }
       }
-      if (!this._isParentOf(e.target)) {
+      if (!this._isParentOf(e.target as (Node & ParentNode))) {
         this._closeList(true);
       }
     }
@@ -412,7 +420,7 @@ class SuggestBoxEditor extends React.Component<
       }
     }
   }
-  _onInputKeyDown(e) {
+  _onInputKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (this.props.disabled) {
       return;
     }
@@ -445,7 +453,7 @@ class SuggestBoxEditor extends React.Component<
       if (e.keyCode === ESCAPE_KEY) {
         e.preventDefault();
       }
-      if (!e.target.value || !this.props.value) {
+      if (!e.currentTarget.value || !this.props.value) {
         this._setLabelTo('');
         this._selectOption(null);
       } else {
@@ -455,7 +463,7 @@ class SuggestBoxEditor extends React.Component<
       break;
     }
   }
-  async _onInputValueChange(e) {
+  async _onInputValueChange(e: React.ChangeEvent<HTMLInputElement>) {
     this._setLabelTo(e.target.value);
     if (this.state.isOpened) {
       await this._updateList(e.target.value);
@@ -467,8 +475,8 @@ class SuggestBoxEditor extends React.Component<
     const inputStyles = window.getComputedStyle(((findDOMNode(this.input.current) as HTMLInputElement)));
     const popupStyle: React.CSSProperties = {};
     const inputOffset = ((findDOMNode(this.input.current) as HTMLInputElement)).getBoundingClientRect();
-    const inputWidth = inputStyles.width;
-    const inputHeight = parseInt(inputStyles.height);
+    const inputWidth = unwrap(inputStyles.width);
+    const inputHeight = parseInt(unwrap(inputStyles.height));
     if (
       inputOffset.top + inputHeight <= 0 ||
       inputOffset.top >= window.innerHeight
@@ -533,11 +541,13 @@ class SuggestBoxEditor extends React.Component<
               <li
                 key={key}
                 data-key={key}
-                onMouseOver={this._focusOption.bind(this, key)}
+                onMouseOver={async () => {
+                  this._focusOption(key);
+                }}
                 className={optionClassNames.join(' ')}
               >
                 {Array.isArray(option.label) ? (
-                  option.label.map((label, columnKey) => (
+                  option.label.map((label: string, columnKey: string) => (
                     <div key={columnKey}>{label}</div>
                   ))
                 ) : (

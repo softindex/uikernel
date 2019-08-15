@@ -37,7 +37,7 @@ class GridToFormUpdate extends Events {
    * @param {string}      event   Event ID
    * @param {Function}    cb      CallBack function
    */
-  on(event: string, cb) {
+  on(event: string, cb: any) {
     const ctx = this;
 
     if (event !== 'update') {
@@ -69,7 +69,7 @@ class GridToFormUpdate extends Events {
    * @param {string}      event   Event ID
    * @param {Function}    cb      CallBack function
    */
-  off(event: string, cb) {
+  off(event: string, cb: any) {
     const ctx = this;
     const newOnUpdateHandlers: any[] = [];
 
