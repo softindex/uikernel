@@ -302,7 +302,7 @@ const GridUIMixin = {
   },
 
   _removeTR(rowId) {
-    findDOMNode(this.body).removeRow(rowId);
+    findDOMNode(this.body).deleteRow(rowId);
   },
 
   _renderTotals(isScrollable) {
