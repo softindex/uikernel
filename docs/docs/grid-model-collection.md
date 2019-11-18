@@ -134,7 +134,7 @@ Retrieves grid records from the internal data structure.
 |                                                                   |                     |   ['id_n', {field1: 'val_n1', field2: 'val_n2', ...}]                                                           |
 |                                                                   |                     | ]     
 | Object [ ]                                                        | result.extraRecords | Extra records. Array of grid records which correspond to ids requested in settings.extra                                         |
-| Number                                                            | result.count        | Number of records in `result.records`                                                                                                       |
+| Number                                                            | result.count        | Number of all records                                                                                                       |
 | Object                                                            | result.totals       | Data for totals(bottom row with table data summary like 'Total costs' of costs table). Expected to be an Object with the next structure:  |
 |                                                                   |                     | `{field1Name: 'value1', ..., fieldNName: 'valueN'}                                                                                        |
 
