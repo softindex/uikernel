@@ -85,7 +85,8 @@ const GridEditorMixin = {
       return;
     }
 
-    this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element, function () {
+    this.state.editor[`${row}_${column}`] = true;
+    ReactDOM.render(Component, element, function () {
       element.classList.add('dgrid-input-wrapper');
 
       if (typeof this.focus === 'function') {
@@ -115,7 +116,7 @@ const GridEditorMixin = {
     const context = cloneDeep(editorContext);
     context.props.value = values;
     const Component = this.props.cols[column].editor.call(context, record, this);
-    this.state.editor[`${row}_${column}`] = ReactDOM.render(Component, element);
+    ReactDOM.render(Component, element);
 
     if (!Array.isArray(binds)) {
       binds = [binds];

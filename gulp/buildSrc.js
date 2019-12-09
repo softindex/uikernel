@@ -7,10 +7,12 @@
  */
 
 import gulp from 'gulp';
-import exec from 'gulp-exec';
+import babel from 'gulp-babel';
 
 function buildSrc() {
-  return gulp.src('.').pipe(exec('./node_modules/.bin/webpack-cli'));
+  return gulp.src('src/**/*.js')
+    .pipe(babel())
+    .pipe(gulp.dest('lib'));
 }
 
 export default buildSrc;
