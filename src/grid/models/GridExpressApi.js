@@ -46,6 +46,8 @@ class GridExpressApi {
         }
         if (req.query.fields) {
           settings.fields = JSON.parse(req.query.fields);
+        } else {
+          throw httpError(422, 'Request without "fields" property');
         }
         if (req.query.extra) {
           settings.extra = JSON.parse(req.query.extra);
