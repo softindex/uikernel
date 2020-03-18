@@ -10,6 +10,7 @@ import express from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import {asyncHandler, parseJson} from '../../common/utils';
 import multer from 'multer';
+import httpError from 'http-errors';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
@@ -45,6 +46,8 @@ class GridExpressApi {
         }
         if (req.query.fields) {
           settings.fields = JSON.parse(req.query.fields);
+        } else {
+          throw httpError(422, 'Request without "fields" property');
         }
         if (req.query.extra) {
           settings.extra = JSON.parse(req.query.extra);
