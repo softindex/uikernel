@@ -70,6 +70,8 @@ class GridExpressApi {
         }
         if (req.body.fields) {
           settings.fields = req.body.fields;
+        } else {
+          throw httpError(422, 'Request without "fields" property');
         }
         if (req.body.extra) {
           settings.extra = req.body.extra;
