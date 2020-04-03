@@ -10,6 +10,7 @@ import express from 'express';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import {asyncHandler, parseJson} from '../../common/utils';
 import multer from 'multer';
+import httpError from 'http-errors';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
@@ -127,6 +128,10 @@ class GridExpressApi {
                   ...filesByRecordId[recordId]
                 }];
               });
+          }
+
+          if (!Array.isArray(body)) {
+            throw httpError(422, 'Wrong data type to update campaign');
           }
 
           try {
