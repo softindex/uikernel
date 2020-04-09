@@ -131,7 +131,7 @@ class GridExpressApi {
           }
 
           if (!Array.isArray(body)) {
-            throw httpError(422, 'Wrong data type to update campaign');
+            throw httpError(422, 'Wrong data type to update');
           }
 
           try {
