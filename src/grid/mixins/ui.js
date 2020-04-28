@@ -136,7 +136,7 @@ const GridUIMixin = {
 
     await toPromise(this.setState.bind(this), true)({
       data: Object.assign({}, data.records, extra.records),
-      mainIds: Object.keys(data.records),
+      mainIds: recordIds,
       count: obj.count,
       totals: obj.totals,
       recordsInfo: Object.assign({}, extra.info, data.info),
