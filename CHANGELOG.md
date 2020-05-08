@@ -36,6 +36,7 @@
     * [Send POST read request if query string too large](https://github.com/softindex/uikernel/pull/260)
     * [Fixed removing of unnecessary extra records](https://github.com/softindex/uikernel/pull/272)
     * [Throw client error when update changes are not an array](https://github.com/softindex/uikernel/pull/278)
+    * [Allowed empty fields in GridExpressApi](https://github.com/softindex/uikernel/pull/277)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
 
