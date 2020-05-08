@@ -21,12 +21,12 @@ const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
  * @constructor
  */
 class GridExpressApi {
-  static create(multipartFormData, maxFileSize, logger = console.log) {
+  static create(multipartFormData, maxFileSize, logger) {
     return new GridExpressApi(multipartFormData, maxFileSize, logger);
   }
 
-  constructor(multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE, logger = console.log) {
-    this.logger = logger;
+  constructor(multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE, logger = null) {
+    this._logger = logger;
 
     const upload = multer({
       limits: {
@@ -245,11 +245,11 @@ class GridExpressApi {
             }
 
             if (record[1] instanceof Error) {
-              if ((record[1].statusCode >= 400 && record[1].statusCode < 500)) {
+              if (!this._logger || (record[1].statusCode >= 400 && record[1].statusCode < 500)) {
                 result.errors.push(record);
               } else {
-                this.logger(record[1]);
-                result.errors.push([record[0], new Error('Unable to save changes. Please try again later')]);
+                this._logger.error(record[1]);
+                result.errors.push([record[0], new Error('Internal server error. Please try again later')]);
               }
             } else if (record[1] instanceof ValidationErrors) {
               result.validation.push(record);
