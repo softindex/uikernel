@@ -12,6 +12,8 @@ import defaultXhr from '../common/defaultXhr';
 import EventsModel from '../common/Events';
 import url from 'url';
 
+const MAX_URI_LENGTH = 2048;
+
 class FormXhrModel extends EventsModel {
   constructor(settings) {
     super();
@@ -31,6 +33,10 @@ class FormXhrModel extends EventsModel {
     const parsedUrl = url.parse(this._apiUrl, true);
     parsedUrl.query.fields = JSON.stringify(fields);
     delete parsedUrl.search;
+
+    if (url.format(parsedUrl).length > MAX_URI_LENGTH) {
+      return await this._getDataPostRequest(fields);
+    }
 
     const response = await this._xhr({
       method: 'GET',
@@ -77,6 +83,18 @@ class FormXhrModel extends EventsModel {
    */
   getValidationDependency(fields) {
     return this._validator.getValidationDependency(fields);
+  }
+
+  async _getDataPostRequest(fields) {
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'data');
+
+    return await this._xhr({
+      method: 'POST',
+      json: true,
+      uri: url.format(parsedUrl),
+      body: { fields }
+    });
   }
 }
 

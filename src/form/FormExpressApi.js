@@ -19,13 +19,11 @@ class FormExpressApi {
     this.middlewares = {
       getData: [asyncHandler(async (req, res, next) => {
         const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
-        const model = this._getModel(req, res);
-        try {
-          const data = await model.getData(fields);
-          this._result(null, data, req, res, next);
-        } catch (err) {
-          this._result(err, null, req, res, next);
-        }
+        this._commonGetDataMiddleware(req, res, next, fields);
+      })],
+      getDataPost: [asyncHandler(async (req, res, next) => {
+        const fields = req.body.fields || null;
+        this._commonGetDataMiddleware(req, res, next, fields);
       })],
       submit: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
@@ -63,8 +61,10 @@ class FormExpressApi {
 
   getRouter() {
     return new express.Router()
-      .get('/', this.middlewares.getData)
+      .get('/', this.middlewares.getData) // Deprecated
       .post('/', this.middlewares.submit)
+      .get('/data', this.middlewares.getData)
+      .post('/data', this.middlewares.getDataPost)
       .post('/validation', this.middlewares.validate);
   }
 
@@ -96,6 +96,16 @@ class FormExpressApi {
       next(err);
     } else {
       res.json(data);
+    }
+  }
+
+  async _commonGetDataMiddleware(req, res, next, fields) {
+    const model = this._getModel(req, res);
+    try {
+      const data = await model.getData(fields);
+      this._result(null, data, req, res, next);
+    } catch (err) {
+      this._result(err, null, req, res, next);
     }
   }
 }
