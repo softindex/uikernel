@@ -63,6 +63,7 @@
     * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
 
   * Grid
+    * [Change lines color](https://github.com/softindex/uikernel/pull/275)
     * "create" event in GridModel has `Array` type
     * Removed `data` property in `GridCollectionModel`. Added `getData` method.
 </details>
