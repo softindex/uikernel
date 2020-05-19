@@ -16,6 +16,7 @@
 
   * Form
     * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)
+    * [FormExpressAPI: Added POST handler for long getData requests](https://github.com/softindex/uikernel/pull/282)
 
   * SuggestBox Editor
     * Added "withEmptyOption" prop to suggest editor [[263](https://github.com/softindex/uikernel/pull/263), [265](https://github.com/softindex/uikernel/pull/265)]
@@ -66,4 +67,7 @@
     * [Change lines color](https://github.com/softindex/uikernel/pull/275)
     * "create" event in GridModel has `Array` type
     * Removed `data` property in `GridCollectionModel`. Added `getData` method.
+
+  * Form
+    * [FormExpressAPI: "GET /" is deprecated. Use "GET /data" instead](https://github.com/softindex/uikernel/pull/282)
 </details>

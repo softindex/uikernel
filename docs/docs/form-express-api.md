@@ -9,11 +9,11 @@ You can use Form Express API to link the client UI and your server data model.
 
 Form Express API helps to perform the next requests:
 
-| Method   | URL         | Description        |
-|----------|-------------|--------------------|
-| GET      | /           | Get form data      |
-| POST     | /           | Submit form data   |
-| POST     | /validation | Validate form data |
+| Method    | URL         | Description        |
+|-----------|-------------|--------------------|
+| GET, POST | /data       | Get form data      |
+| POST      | /           | Submit form data   |
+| POST      | /validation | Validate form data |
 
 ## Initialization
 
