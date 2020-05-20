@@ -18,6 +18,8 @@ class DatePickerEditor extends React.Component {
     textFormat: PropTypes.string,
     min: PropTypes.any,
     max: PropTypes.any,
+    startDate: PropTypes.any,
+    endDate: PropTypes.any,
     value: PropTypes.any,
     show: PropTypes.bool,
     onBlur: PropTypes.func,
@@ -45,6 +47,8 @@ class DatePickerEditor extends React.Component {
         onChange={::this.onChange}
         minDate={this.props.min && moment(this.props.min)}
         maxDate={this.props.max && moment(this.props.max)}
+        startDate={this.props.startDate && moment(this.props.startDate)}
+        endDate={this.props.endDate && moment(this.props.endDate)}
         todayButton={'Today'}
       />
     );
