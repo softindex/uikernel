@@ -32,7 +32,7 @@ const FormMixin = {
     };
   },
 
-  componentWillMount: function () {
+  componentDidMount: function () {
     this._isUnmounted = false;
   },
 
