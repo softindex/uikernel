@@ -62,7 +62,7 @@ class GridCollectionModel extends AbstractGridModel {
       }
 
       if (!isEqual(record, currentData[id])) {
-        updatedRecords.push(record);
+        updatedRecords.push([recordId, record]);
       }
     }
 
@@ -149,6 +149,29 @@ class GridCollectionModel extends AbstractGridModel {
       result.extraRecords = data.filter(record => settings.extra.indexOf(record[0]) >= 0);
     }
 
+    // Sorting
+    if (settings.sort && settings.sort.length > 0) {
+      const sortField = settings.sort[0][0];
+      const sortMode = settings.sort[0][1];
+
+      data = data.sort((prev, next) => {
+        let prevValue = prev[1][sortField];
+        let nextValue = next[1][sortField];
+        if (typeof prevValue !== typeof nextValue) {
+          prevValue = String(prevValue);
+          nextValue = String(nextValue);
+        }
+
+        if (prevValue < nextValue) {
+          return sortMode === 'asc' ? -1 : 1;
+        } else if (prevValue > nextValue) {
+          return sortMode === 'asc' ? 1 : -1;
+        } else {
+          return 0;
+        }
+      });
+    }
+
     // Delete unnecessary fields
     if (settings.fields) {
       forEach(result.extraRecords, record => {
@@ -157,22 +180,6 @@ class GridCollectionModel extends AbstractGridModel {
             delete record[1][key];
           }
         });
-      });
-    }
-
-    // Sorting
-    if (settings.sort && settings.sort.length > 0) {
-      const sortField = settings.sort[0][0];
-      const sortMode = settings.sort[0][1];
-
-      data = data.sort((prev, next) => {
-        if (prev[1][sortField] < next[1][sortField]) {
-          return sortMode === 'asc' ? -1 : 1;
-        } else if (prev[1][sortField] > next[1][sortField]) {
-          return sortMode === 'asc' ? 1 : -1;
-        } else {
-          return 0;
-        }
       });
     }
 
