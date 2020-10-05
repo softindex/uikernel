@@ -1,5 +1,6 @@
 node_modules
 .idea
+.vscode
 _site
 .publish
 npm-debug.log

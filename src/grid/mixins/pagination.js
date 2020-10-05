@@ -160,8 +160,8 @@ const GridPaginationMixin = {
             </div>
           </Fragment>
         )}
-        <a href="#" className="btn-first-page" onClick={this.handleFirstPage}/>
-        <a href="#" className="btn-prev-page" onClick={this.handlePrevPage}/>
+        <button aria-label="first page" className="btn-first-page" onClick={this.handleFirstPage}/>
+        <button aria-label="prev page" className="btn-prev-page" onClick={this.handlePrevPage}/>
         {Boolean(this.state.count) && (
           <div>
             {(this.state.page * viewCount) + 1}
@@ -174,9 +174,9 @@ const GridPaginationMixin = {
             {this.state.count}
           </div>
         )}
-        <a href="#" className="btn-next-page" onClick={this.handleNextPage}/>
-        <a href="#" className="btn-last-page" onClick={this.handleLastPage}/>
-        <a href="#" className="btn-refresh-page" onClick={this.handleRefreshTable}/>
+        <button aria-label="next page" className="btn-next-page" onClick={this.handleNextPage}/>
+        <button aria-label="last page" className="btn-last-page" onClick={this.handleLastPage}/>
+        <button aria-label="refresh page" className="btn-refresh-page" onClick={this.handleRefreshTable}/>
       </div>
     );
   }
