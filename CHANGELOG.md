@@ -68,6 +68,7 @@
 
   * Grid
     * [Change lines color](https://github.com/softindex/uikernel/pull/275)
+    * [Fixed grid pagination buttons by wcag. Tag "a" changed to "button"](https://github.com/softindex/uikernel/pull/289)
     * "create" event in GridModel has `Array` type
     * Removed `data` property in `GridCollectionModel`. Added `getData` method.
 
