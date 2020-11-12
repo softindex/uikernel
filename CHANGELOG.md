@@ -41,6 +41,7 @@
     * [Fixed removing of unnecessary extra records](https://github.com/softindex/uikernel/pull/272)
     * [Throw client error when update changes are not an array](https://github.com/softindex/uikernel/pull/278)
     * [Allowed empty fields in GridExpressApi](https://github.com/softindex/uikernel/pull/277)
+    * [Fixed infinity loader on error](https://github.com/softindex/uikernel/pull/291)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
 

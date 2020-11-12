@@ -107,7 +107,9 @@ const GridUIMixin = {
         extra: this._getAdditionalIds()
       });
     } catch (e) {
-      this.setState({showLoader: false});
+      if (this._isMounted) {
+        this.setState({showLoader: false});
+      }
       if (!(e instanceof ThrottleError)) {
         throw e;
       }
