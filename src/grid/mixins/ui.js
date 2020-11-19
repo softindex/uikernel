@@ -305,7 +305,13 @@ const GridUIMixin = {
   },
 
   _removeTR(rowId) {
-    findDOMNode(this.body).deleteRow(rowId);
+    const tbody = findDOMNode(this.body).children[2];
+    const index = [...tbody.children].findIndex(tr => {
+      return tr.getAttribute('key') === rowId;
+    });
+    if (index >= 0) {
+      tbody.deleteRow(index);
+    }
   },
 
   _renderTotals(isScrollable) {
