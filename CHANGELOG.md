@@ -44,6 +44,7 @@
     * [Fixed infinity loader on error](https://github.com/softindex/uikernel/pull/291)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
+    * Fixed bugs with removeRecordStatus and removeRecordStatusAll methods
 
   * Form
     * [Fixed bug with `FormService.prototype.clearValidation` because of accidental mutations](https://github.com/softindex/uikernel/pull/244)
