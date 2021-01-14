@@ -106,7 +106,7 @@ class SuggestBoxEditor extends React.Component {
       || this.props.disabled !== nextProps.disabled;
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!isEqual(this.props.value, nextProps.value)) {
       if (!this.props.hasOwnProperty('label')) {
         this._getLabelFromModel(nextProps.model, nextProps.value);

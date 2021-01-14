@@ -175,7 +175,7 @@ const GridComponent = createReactClass({
       this.props.onDestroy();
     }
   },
-  componentWillReceiveProps: function (nextProps) {
+  UNSAFE_componentWillReceiveProps: function (nextProps) {
     const oldProps = this.props;
     let reset = 0;
 
