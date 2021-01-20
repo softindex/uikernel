@@ -6,6 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import React from 'react';
+import UIKernel from 'uikernel';
+
 class FiltersForm extends React.Component {
   updateFilter(filter, value) {
     this.props.onChange({
@@ -16,7 +19,7 @@ class FiltersForm extends React.Component {
 
   render() {
     return (
-      <form className="filters-form row">
+      <form className="filters-form row" onSubmit={event => event.preventDefault()}>
         <div className="col-sm-7">
           <label className="control-label">Search</label>
           <input
@@ -50,11 +53,13 @@ class FiltersForm extends React.Component {
         <div className="col-sm-1">
           <label className="control-label">&nbsp;</label>
           <br/>
-          <a className="btn btn-default" onClick={() => this.props.onClear()}>
+          <button className="btn btn-default" onClick={() => this.props.onClear()}>
             Clear
-          </a>
+          </button>
         </div>
       </form>
     );
   }
 }
+
+export default FiltersForm;

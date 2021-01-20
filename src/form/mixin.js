@@ -489,7 +489,7 @@ const FormMixin = {
 
   _initState: function (settings) {
     if (!settings.model) {
-      throw Error('You must specify the model form in this.initForm()');
+      throw new Error('You must specify the model form in this.initForm()');
     }
 
     this.state._formMixin = {

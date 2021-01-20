@@ -19,7 +19,7 @@ class FormXhrModel extends EventsModel {
     super();
 
     if (!settings.api) {
-      throw Error('Initialization problem: \'api\' must be specified.');
+      throw new Error('Initialization problem: \'api\' must be specified.');
     }
 
     this._validator = settings.validator || new Validator();

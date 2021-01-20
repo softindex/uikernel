@@ -88,7 +88,7 @@ class FormExpressApi {
 
   // Default implementation
   _getModel() {
-    throw Error('Model is not defined.');
+    throw new Error('Model is not defined.');
   }
 
   _result(err, data, req, res, next) {

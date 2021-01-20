@@ -793,7 +793,7 @@ class ExampleComponent extends React.Component {
         viewCount={10}                                       // display 10 records per page
         defaultSort=\{\{column: "name", direction: "asc"\}\} // default sorting
       />
-      <a className="btn btn-success" onClick={this.clearChanges}>Clear</a>
+      <a href="#" className="btn btn-success" onClick={this.clearChanges}>Clear</a>
     );
   }
 }

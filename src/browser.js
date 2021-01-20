@@ -45,6 +45,7 @@ import notNullValidationRule from './common/validation/rules/notNull';
 import numberValidationRule from './common/validation/rules/number';
 import notEmptyValidationRule from './common/validation/rules/notEmpty';
 import FormMixin from './form/mixin';
+import useForm from './form/useForm';
 
 if (!global._babelPolyfill) {
   require('@babel/polyfill/browser');
@@ -106,6 +107,7 @@ const UIKernel = {
   Mixins: {
     Form: FormMixin
   },
+  useForm,
   _get: variables.get,
   _set: variables.set
 };

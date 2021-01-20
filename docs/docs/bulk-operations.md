@@ -76,7 +76,7 @@ class MainComponent extends React.Component {
       <div className="container">
         <div className="row">
           <div className="col-sm-12">
-            <a className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>
+            <a href="#" className="btn btn-success" onClick={this.toggleSelectMode}>{buttonText}</a>
             {numText}
             <UIKernel.Grid
               ref={(grid) => this.grid = grid}
@@ -85,7 +85,7 @@ class MainComponent extends React.Component {
               viewCount={10}
               onSelectedChange={this.onSelectedChange}
             />
-            <a className="btn btn-success" onClick={this.someAction}>Some action</a>
+            <a href="#" className="btn btn-success" onClick={this.someAction}>Some action</a>
           </div>
         </div>
       </div>

@@ -5,6 +5,17 @@
     Click to see more.
   </summary>
 
+  ## Breaking changes
+
+  * Common
+    * Removed `UIKernel.createXhrValidator` (use createValidator)
+    * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
+    
+  * Grid
+      * "create" and "delete" events in GridModel has `Array` type in GridCollectionModel
+      * Changed GridCollectionModel.delete(recordId) method to GridCollectionModel.delete(recordIds: Array)
+      * Changed className of extra records from "others" to "dgrid-others" in GridComponent
+
   ### New
 
   * Grid
@@ -17,6 +28,7 @@
   * Form
     * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)
     * [FormExpressAPI: Added POST handler for long getData requests](https://github.com/softindex/uikernel/pull/282)
+    * Added UIKernel.useFrom hook
 
   * SuggestBox Editor
     * Added "withEmptyOption" prop to suggest editor [[263](https://github.com/softindex/uikernel/pull/263), [265](https://github.com/softindex/uikernel/pull/265)]
@@ -62,16 +74,9 @@
     * Validator could not work with field name `constructor`
     * Fixed merging of same fields in `ValidationErrors.prototype.merge` method
 
-  ## Changes
-
-  * Common
-    * Removed `UIKernel.createXhrValidator` (use createValidator)
-    * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
-
   * Grid
     * [Change lines color](https://github.com/softindex/uikernel/pull/275)
     * [Fixed grid pagination buttons by wcag. Tag "a" changed to "button"](https://github.com/softindex/uikernel/pull/289)
-    * "create" event in GridModel has `Array` type
     * Removed `data` property in `GridCollectionModel`. Added `getData` method.
 
   * Form

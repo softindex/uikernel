@@ -21,7 +21,6 @@ env:
   jest: true
 
 rules:
-  quotes: [2, "single", {"allowTemplateLiterals":true}]
   no-console: [2, {allow: ["warn", "error"]}]
   prefer-const: 2
   no-var: 2

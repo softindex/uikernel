@@ -32,7 +32,7 @@ class NumberEditor extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     if (!isEqual(this.state.value, nextProps.value)) {
       findDOMNode(this.input).value = this.state.value = nextProps.value;
     }

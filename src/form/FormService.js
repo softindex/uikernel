@@ -49,7 +49,7 @@ class FormService {
    */
   async init(settings) {
     if (!settings.model) {
-      throw Error('You must specify the model');
+      throw new Error('You must specify the model');
     }
 
     this._data = settings.data || null;

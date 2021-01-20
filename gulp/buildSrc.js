@@ -8,10 +8,15 @@
 
 import gulp from 'gulp';
 import babel from 'gulp-babel';
+import {argv} from 'yargs';
+import changed from 'gulp-changed';
+import count from 'gulp-count';
 
 function buildSrc() {
   return gulp.src('src/**/*.js')
-    .pipe(babel())
+    .pipe(changed('lib', {hasChanged: changed.compareLastModifiedTime}))
+    .pipe(count('babel transplit ## files'))
+    .pipe(babel({sourceMap: argv.map ? 'inline' : false}))
     .pipe(gulp.dest('lib'));
 }
 

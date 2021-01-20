@@ -1,7 +1,3 @@
-#body {
-  margin: 0 auto;
-}
-
 .container {
   padding-top: 10px;
 }
@@ -12,8 +8,4 @@
 
 .action {
   margin-top: 15px;
-}
-
-.data-grid {
-  margin: 10px 0;
 }

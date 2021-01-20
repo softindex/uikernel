@@ -71,9 +71,9 @@ class MainComponent extends React.Component {
             viewCount={10} // display 10 records per page
           />
           <div className="panel-footer">
-            <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
+            <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
             {' '}
-            <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
+            <a href="#" className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
           </div>
         </div>
       </div>

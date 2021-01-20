@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "1.0.1-dev4.4",
+  "version": "1.0.1-dev4.4refactoring",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -23,17 +23,13 @@
     "@babel/polyfill": "^7.0.0",
     "@babel/runtime": "^7.1.2",
     "classnames": "^2.2.6",
-    "create-react-class": "^15.6.2",
     "csv-stringify": "^1.0.4",
     "express": "^4.16.4",
     "http-errors": "^1.7.3",
     "moment": "^2.22.2",
     "multer": "^1.4.1",
     "prop-types": "^15.6.2",
-    "react": "^16.12.0",
     "react-datepicker": "1.1.0",
-    "react-dom": "^16.12.0",
-    "react-dom-factories": "^1.0.2",
     "xhr": "^2.5.0"
   },
   "devDependencies": {
@@ -61,6 +57,8 @@
     "gulp": "^4.0.0",
     "gulp-archiver": "^1.0.0",
     "gulp-babel": "^8.0.0-beta.2",
+    "gulp-changed": "^3.2.0",
+    "gulp-count": "^1.0.0",
     "gulp-eslint": "^4.0.0",
     "gulp-gh-pages": "^0.5.4",
     "gulp-if": "^2.0.2",
@@ -70,7 +68,13 @@
     "jest": "^22.4.4",
     "merge-stream": "^1.0.0",
     "raf": "^3.4.0",
-    "yargs": "^11.1.0"
+    "yargs": "^11.1.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "peerDependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   },
   "jest": {
     "testRegex": "/__tests__/",

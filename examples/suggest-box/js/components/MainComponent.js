@@ -9,7 +9,7 @@
 class MainComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {model};
+    this.state = {model: gridModel};
     this.saveChanges = this.saveChanges.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
   }
@@ -34,9 +34,9 @@ class MainComponent extends React.Component {
           model={this.state.model}
           viewCount={10}
         />
-        <a className="btn btn-success" onClick={this.saveChanges}>Save</a>
+        <a href="#" className="btn btn-success" onClick={this.saveChanges}>Save</a>
         {' '}
-        <a className="btn btn-default" onClick={this.clearChanges}>Clear</a>
+        <a href="#" className="btn btn-default" onClick={this.clearChanges}>Clear</a>
       </div>
     );
   }

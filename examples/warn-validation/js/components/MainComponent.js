@@ -9,13 +9,13 @@
 const MainComponent = React.createClass({
   getInitialState: function () {
     return {
-      model: model // let's store model in the state
+      model: gridModel // let's store model in the state
     };
   },
 
   applyFilters: function (filters) {
     this.setState({
-      model: UIKernel.applyGridFilters(model, filters)
+      model: UIKernel.applyGridFilters(gridModel, filters)
     });
   },
 
@@ -55,11 +55,11 @@ const MainComponent = React.createClass({
             warningsValidator = {ValidationWarn}
           />
           <div className="panel-footer">
-            <a className="btn btn-default" onClick={this.onClear}>
+            <a href="#" className="btn btn-default" onClick={this.onClear}>
               Clear
             </a>
             {' '}
-            <a className="btn btn-primary" onClick={this.onSave}>
+            <a href="#" className="btn btn-primary" onClick={this.onSave}>
               Save
             </a>
           </div>

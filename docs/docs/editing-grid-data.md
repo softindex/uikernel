@@ -140,9 +140,9 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
   viewCount={10}
 />
 <div className="panel-footer">
-  <a className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
+  <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
   {' '}
-  <a className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
+  <a href="#" className="btn btn-primary" onClick={() => this.saveChanges()}>Save</a>
 </div>
 // ...
 {% endhighlight %}

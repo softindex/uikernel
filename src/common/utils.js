@@ -23,7 +23,7 @@ function baseClone(obj, isDeep) {
       cloned.push(isDeep ? baseClone(el, true) : el);
     }
   } else if (es6types.includes(obj.toString())) {
-    cloned = new obj.constructor(obj);
+    cloned = new obj.constructor(isDeep ? baseClone([...obj], true) : obj);
   } else {
     cloned = {};
     for (const [field, value] of Object.entries(obj)) {
@@ -231,12 +231,17 @@ export function isEqual(a, b) {
     (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length))
     || typeof a !== 'object'
     || typeof b !== 'object'
+    || a.constructor !== b.constructor
   ) {
     return false;
   }
 
-  if (typeof File === 'function' && a instanceof File && b instanceof File) {
+  if (typeof File === 'function' && a instanceof File) {
     return a.size === b.size && a.name === b.name;
+  }
+
+  if (a instanceof Set || a instanceof Map) {
+    return isEqual([...a], [...b]);
   }
 
   const keys = Object.keys(a);
@@ -375,6 +380,13 @@ export function reduce(obj, func, value) {
   return value;
 }
 
+export function reduceMap(map, func, value) {
+  for (const [key, mapValue] of map) {
+    value = func(value, mapValue, key);
+  }
+  return value;
+}
+
 export function union(...args) {
   const elements = {};
   for (const arg of args) {
@@ -437,16 +449,17 @@ export function last(arr) {
 
 export function getRecordChanges(model, data, changes, newChanges) {
   const result = Object.assign({}, changes, newChanges);
+  const changedFields = Object.keys(result);
 
-  for (const i in result) {
-    if (isEqual(data[i], result[i])) {
-      delete result[i];
+  for (const fieldName of changedFields) {
+    if (isEqual(data[fieldName], result[fieldName])) {
+      delete result[fieldName];
     }
   }
 
   Object.assign(result, pick(
     data,
-    model.getValidationDependency(Object.keys(result))
+    model.getValidationDependency(changedFields)
   ));
 
   return result;

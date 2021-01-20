@@ -71,7 +71,7 @@ class GridCollectionModel extends AbstractGridModel {
     this._data = cloneDeep(data);
 
     if (createdRecordsIds.length) {
-      this.trigger('create', [createdRecordsIds]);
+      this.trigger('create', createdRecordsIds);
     }
 
     if (deletedRecordsIds.length) {
@@ -90,15 +90,14 @@ class GridCollectionModel extends AbstractGridModel {
   /**
    * Remove field by record id from data
    *
-   * @param   {Number}  recordId   record id for remove
-   * @returns {Number}  recordId   return id of deleted record
+   * @param   {Number[]}  recordIds   record id for remove
+   * @returns {Number}    recordId    return id of deleted record
    */
-  async delete(recordId) {
+  async delete(recordIds) {
     this._data = this._data.filter(record => {
-      return record[0] !== recordId;
+      return !recordIds.find(recordId => isEqual(recordId, record[0]));
     });
-    this.trigger('delete', recordId);
-    return recordId;
+    this.trigger('delete', recordIds);
   }
 
   /**
@@ -146,7 +145,13 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Get extra records
     if (settings.extra && settings.extra.length > 0) {
-      result.extraRecords = data.filter(record => settings.extra.indexOf(record[0]) >= 0);
+      result.extraRecords = data.filter(record => {
+        for (const recordId of settings.extra) {
+          if (isEqual(recordId, record[0])) {
+            return true;
+          }
+        }
+      });
     }
 
     // Delete unnecessary fields
@@ -263,7 +268,16 @@ class GridCollectionModel extends AbstractGridModel {
     if (appliedChanges.length) {
       // Apply changes
       for (const [recordId, changes] of appliedChanges) {
-        Object.assign(this._getRecordByID(recordId)[1], changes);
+        this._data = this._data.map(([dataRecordId, dataRecord]) => {
+          if (!isEqual(dataRecordId, recordId)) {
+            return [dataRecordId, dataRecord];
+          }
+
+          return [dataRecordId, {
+            ...dataRecord,
+            ...changes
+          }];
+        });
       }
 
       this.trigger('update', appliedChanges);
@@ -299,7 +313,7 @@ class GridCollectionModel extends AbstractGridModel {
   }
 
   _getRecordByID(id) {
-    return find(this._data, record => record[0] === id);
+    return find(this._data, record => isEqual(record[0], id));
   }
 
   _create(record, id) {
