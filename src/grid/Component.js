@@ -475,6 +475,10 @@ class GridComponent extends React.Component {
     return this._getRecordChanges(recordId);
   }
 
+  getRecordWarnings(recordId) {
+    return this.state.warnings.get(recordId) || new ValidationErrors();
+  }
+
   /**
    * Get record errors object
    *
@@ -483,17 +487,6 @@ class GridComponent extends React.Component {
    * @private
    */
   getRecordErrors(recordId) {
-    return this._getRecordErrors(recordId);
-  }
-
-  /**
-   * Get table row errors object
-   *
-   * @param   {*} recordId  Record ID
-   * @return  {ValidationErrors}
-   * @private
-   */
-  _getRecordErrors(recordId) {
     return this.state.errors.get(recordId) || new ValidationErrors();
   }
 
@@ -533,7 +526,7 @@ class GridComponent extends React.Component {
    * @param   {*} recordId  Record ID
    * @returns {Object}
    */
-  _getRecordWithChanges(recordId) {
+  _getRecordWithChanges = (recordId) => {
     if (this.state.data.has(recordId)) {
       return {...this.state.data.get(recordId), ...this.state.changes.get(recordId)};
     }
@@ -541,7 +534,7 @@ class GridComponent extends React.Component {
       return {...this.state.extra.get(recordId), ...this.state.changes.get(recordId)};
     }
     return null;
-  }
+  };
 
   /**
    * Pass changes to the table
@@ -559,11 +552,11 @@ class GridComponent extends React.Component {
       changes.delete(recordId);
     }
 
-    if (this.props.onChange) {
-      this.props.onChange(this.state.changes, this.state.data);
-    }
-
-    this.setState({changes});
+    this.setState({changes}, () => {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.changes, this.state.data);
+      }
+    });
   }
 
   /**
@@ -841,6 +834,10 @@ class GridComponent extends React.Component {
     });
   }
 
+  getSelectAllStatus() {
+    return this.props.selectAllStatus;
+  }
+
   /**
    * Set table data
    *
@@ -875,7 +872,7 @@ class GridComponent extends React.Component {
       return;
     }
 
-    const nextData = new Map([...this.state.data].map(([dataRecordId, record]) => {
+    const nextData = new EqualMap([...this.state.data].map(([dataRecordId, record]) => {
       if (!isEqual(recordId, dataRecordId)) {
         return [dataRecordId, record];
       }
@@ -1153,17 +1150,21 @@ class GridComponent extends React.Component {
       value: value[0]
     };
 
-    const component = editor.call(editorContext, record, this);
-    this.setState({
-      editor: {
-        component,
-        recordId,
-        column: colId
-      }
-    });
+    const element = editor.call(editorContext, record, this);
+    if (element) {
+      this.setState({
+        editor: {
+          element,
+          recordId,
+          column: colId
+        }
+      });
+    }
   };
 
   async _onBlurEditor(recordId) {
+    this.setState({editor: {}});
+
     try {
       await this._checkWarnings(recordId);
     } catch (e) {
@@ -1171,21 +1172,19 @@ class GridComponent extends React.Component {
         throw e;
       }
     }
+
     if (this.props.autoSubmit) {
       await this.save();
-      this.setState({editor: {}});
-    } else {
-      try {
-        const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, this.state.errors);
-        this.setState({editor: {}, errors});
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
-        }
-      }
+      return;
     }
-    if (this.props.onChange) {
-      this.props.onChange(this.state.changes, this.state.data);
+
+    try {
+      const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
+      this.setState({errors});
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
     }
   }
 
@@ -1193,7 +1192,7 @@ class GridComponent extends React.Component {
    * Validate row
    */
   async _validateRow(recordId) {
-    const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, this.state.errors);
+    const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
     this.setState({errors});
   }
 
@@ -1201,7 +1200,7 @@ class GridComponent extends React.Component {
    * Validate row
    */
   async _getValidationErrors(recordId) {
-    return await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, this.state.errors);
+    return await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
   }
 
   /**
@@ -1224,29 +1223,14 @@ class GridComponent extends React.Component {
     if (!this.props.warningsValidator) {
       return new EqualMap();
     }
-    const warnings = this._checkValidatorErrors(
+    const warnings = await this._checkValidatorErrors(
       recordId,
       this.props.warningsValidator,
       this._getRecordWithChanges,
-      this.state.warnings
+      'warnings'
     );
 
     this.setState({warnings});
-  }
-
-  /**
-   * Check warnings
-   */
-  async _getWarnings(recordId) {
-    if (!this.props.warningsValidator) {
-      return new EqualMap();
-    }
-    return this._checkValidatorErrors(
-      recordId,
-      this.props.warningsValidator,
-      this._getRecordWithChanges,
-      this.state.warnings
-    );
   }
 
   /**
@@ -1276,11 +1260,10 @@ class GridComponent extends React.Component {
    * @param {{}}            result      Validation result object
    * @private
    */
-  async _checkValidatorErrors(recordId, validator, getData, result) {
-    const clonedResult = cloneDeep(result);
+  async _checkValidatorErrors(recordId, validator, getData, resultField) {
     const record = getData(recordId);
-
     const validErrors = await validator.isValidRecord(record, recordId);
+    const clonedResult = clone(this.state[resultField]);
     if (isEqual(record, getData(recordId))) {
       if (validErrors.isEmpty()) {
         clonedResult.delete(recordId);
@@ -1328,11 +1311,11 @@ class GridComponent extends React.Component {
     const record = this._getRecordWithChanges(recordId);
     const context = cloneDeep(editorContext);
     context.props.value = values;
-    const component = this.props.cols[column].editor.call(context, record, this);
+    const element = this.props.cols[column].editor.call(context, record, this);
     this._setRowChanges(recordId, {[column]: values});
     this.setState({
       editor: {
-        component,
+        element,
         recordId,
         column
       }
@@ -1834,6 +1817,7 @@ class GridComponent extends React.Component {
         errors={errors}
         warnings={warnings}
         editor={editor}
+        grid={this}
       />
     );
   }

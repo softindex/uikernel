@@ -25,7 +25,11 @@ class PureGridComponent extends React.Component {
   componentDidUpdate(prevProps) {
     this._initRecordsMap(prevProps);
 
-    if (this._shouldRenderBody(prevProps, 'records') || this._shouldRenderBody(prevProps, 'extraRecords')) {
+    if (
+      this._shouldRenderBody(prevProps, 'records')
+      || this._shouldRenderBody(prevProps, 'extraRecords')
+      || !isEqual(this.props.viewColumns, prevProps.viewColumns)
+    ) {
       this._renderBody();
       return;
     }
@@ -68,8 +72,7 @@ class PureGridComponent extends React.Component {
    * @private
    */
   _shouldRenderBody(prevProps, records) {
-    // component first time receiving data or component gets empty records after it has data to display or view columns that were before are not the same
-    if ((!prevProps[records] && this.props[records]) || (prevProps[records] && !this.props[records]) || this.props.viewColumns !== prevProps.viewColumns) {
+    if ((!prevProps[records] && this.props[records]) || (prevProps[records] && !this.props[records])) {
       return true;
     }
     // data was and exists now
@@ -132,8 +135,8 @@ class PureGridComponent extends React.Component {
 
       // All unique record ids
       const allRecordIds = new Set([
-        ...prevProps[propType].keys().map(JSON.stringify),
-        ...this.props[propType].keys().map(JSON.stringify)
+        ...prevProp.keys().map(JSON.stringify),
+        ...prop.keys().map(JSON.stringify)
       ]);
       for (const jsonRecordId of allRecordIds) {
         const recordId = JSON.parse(jsonRecordId);
@@ -349,16 +352,19 @@ class PureGridComponent extends React.Component {
     element.classList.remove('dgrid-input-wrapper');
   }
 
-  _renderEditor = (element) => {
-    ReactDOM.render(this.props.editor.component, element, function () {
-      element.classList.add('dgrid-input-wrapper');
+  _renderEditor = (parentElement) => {
+    let ref;
+    const elementWithRef = React.cloneElement(this.props.editor.element, {
+      ref: value => ref = value
+    });
+    ReactDOM.render(elementWithRef, parentElement, () => {
+      parentElement.classList.add('dgrid-input-wrapper');
 
-      if (typeof this.focus === 'function') {
-        this.focus();
+      if (typeof ref.focus === 'function') {
+        ref.focus();
       } else {
-        findDOMNode(this).focus();
+        findDOMNode(ref).focus();
       }
-      // focus done here
     });
   };
 
@@ -413,7 +419,7 @@ class PureGridComponent extends React.Component {
       this._escapeRecord(columnId, record),
       selected,
       this._escapeRecord(columnId, initialRecord),
-      this
+      this.props.grid
     );
     return `${isDefined(cellHtml) ? cellHtml : ''}`;
   }
@@ -626,7 +632,7 @@ class PureGridComponent extends React.Component {
       const classNames = [this._getColumnClass(columnId)];
       const addInfo = {
         id: columnId,
-        name: column.name,
+        name: column.name || '',
         onClick: column.onClick,
         onClickRefs: column.onClickRefs,
         cols: 1,
@@ -731,7 +737,7 @@ class PureGridComponent extends React.Component {
 
   // called in render method
   _getHeaderCellHTML(columnName) {
-    const cellHtml = typeof columnName === 'function' ? columnName(this) : columnName;
+    const cellHtml = typeof columnName === 'function' ? columnName(this.props.grid) : columnName;
     if (cellHtml === undefined) {
       return '';
     }
@@ -874,11 +880,11 @@ class PureGridComponent extends React.Component {
                   return (
                     <tr key={colKey}>
                       {row.map((col, rowKey) => {
-                        const header = this._getHeaderCellHTML(col.name || col.id);
+                        const header = this._getHeaderCellHTML(col.name);
                         const props = {
                           key: rowKey,
                           className: col.className,
-                          onClick: onColumnClick.bind(null, col.id),
+                          onClick: col.id ? onColumnClick.bind(null, col.id) : undefined,
                           colSpan: col.cols,
                           rowSpan: col.rows
                         };
@@ -936,11 +942,11 @@ class PureGridComponent extends React.Component {
               return (
                 <tr key={colKey}>
                   {row.map((col, rowKey) => {
-                    const header = this._getHeaderCellHTML(col.name || col.id);
+                    const header = this._getHeaderCellHTML(col.name);
                     const props = {
                       key: rowKey,
                       className: col.className,
-                      onClick: onColumnClick.bind(null, col.id),
+                      onClick: col.id ? onColumnClick.bind(null, col.id) : undefined,
                       colSpan: col.cols,
                       rowSpan: col.rows
                     };

@@ -25,7 +25,7 @@ function baseClone(obj, isDeep) {
   } else if (es6types.includes(obj.toString())) {
     cloned = new obj.constructor(isDeep ? baseClone([...obj], true) : obj);
   } else {
-    cloned = {};
+    cloned = Object.create(obj.__proto__);
     for (const [field, value] of Object.entries(obj)) {
       cloned[field] = isDeep ? baseClone(value, true) : value;
     }
@@ -448,10 +448,9 @@ export function last(arr) {
 }
 
 export function getRecordChanges(model, data, changes, newChanges) {
-  const result = Object.assign({}, changes, newChanges);
-  const changedFields = Object.keys(result);
+  const result = {...changes, ...newChanges};
 
-  for (const fieldName of changedFields) {
+  for (const fieldName of Object.keys(result)) {
     if (isEqual(data[fieldName], result[fieldName])) {
       delete result[fieldName];
     }
@@ -459,7 +458,7 @@ export function getRecordChanges(model, data, changes, newChanges) {
 
   Object.assign(result, pick(
     data,
-    model.getValidationDependency(changedFields)
+    model.getValidationDependency(Object.keys(result))
   ));
 
   return result;

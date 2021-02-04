@@ -196,6 +196,10 @@ const FormMixin = {
     this.setState(this.state, typeof cb === 'function' ? cb : null);
   },
 
+  clearValidation: function (field, cb) {
+    this.clearError(field, cb);
+  },
+
   /**
    * Get form data without changes
    *
