@@ -285,7 +285,9 @@ class GridComponent extends React.Component {
       }
 
       const data = new EqualMap(obj.records || []);
-      const extra = new EqualMap(obj.extraRecords || []);
+      const extra = new EqualMap((obj.extraRecords || []).filter(([recordId]) => {
+        return !data.has(recordId);
+      }));
       const recordIds = [...data.keys(), ...extra.keys()];
       this.setState({
         data,

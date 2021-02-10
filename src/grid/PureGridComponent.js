@@ -75,24 +75,31 @@ class PureGridComponent extends React.Component {
     if ((!prevProps[records] && this.props[records]) || (prevProps[records] && !this.props[records])) {
       return true;
     }
+
     // data was and exists now
     if (this.props[records] && prevProps[records]) {
       // new and old records are the same
       if (this.props[records] === prevProps[records]) {
         return false;
       }
+
       // new data has different length
       if (this.props[records].size !== prevProps[records].size) {
         return true;
       }
-      for (const [recordId] of this.props[records]) {
-        // if new data has at least one new record  - rerender whole table
-        if (!prevProps[records].has(recordId)) {
+
+      const prevKeys = [...prevProps[records].keys()];
+      const nextKeys = [...this.props[records].keys()];
+      for (let i = 0; i < prevKeys.length; i++) { // prevKeys.length === nextKeys.length
+        // if changed order
+        if (!isEqual(prevKeys[i], nextKeys[i])) {
           return true;
         }
       }
+
       return false;
     }
+
     return false;
   }
 
@@ -951,13 +958,16 @@ class PureGridComponent extends React.Component {
                       rowSpan: col.rows
                     };
                     return (
-                      typeof header === 'string' ?
-                        <th
-                          {...props}
-                          dangerouslySetInnerHTML={{
-                            __html: header
-                          }}/>
-                        : <th {...props}>{header}</th>);
+                      typeof header === 'string'
+                        ? (
+                          <th
+                            {...props}
+                            dangerouslySetInnerHTML={{
+                              __html: header
+                            }}/>
+                        )
+                        : <th {...props}>{header}</th>
+                    );
                   })}
                 </tr>
               );
