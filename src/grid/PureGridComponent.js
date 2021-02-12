@@ -334,7 +334,7 @@ class PureGridComponent extends React.Component {
       'dgrid-warning': this._hasWarning(recordId, this._getBindParam(colId))
     });
     const html = `
-      <td class="${gridCellClass}">
+      <td class="${gridCellClass}" key="${colId}">
         ${this._getCellHTML(colId, record, selected, initialRecord)}
       </td>
     `;
@@ -391,7 +391,7 @@ class PureGridComponent extends React.Component {
           'dgrid-warning': this._hasWarning(recordId, this._getBindParam(colId))
         });
         html += `
-          <td class="${gridCellClass}">
+          <td class="${gridCellClass}" key="${colId}">
             ${this._getCellHTML(colId, record, selected, initialRecord)}
           </td>`;
       }
@@ -837,9 +837,9 @@ class PureGridComponent extends React.Component {
 
         className = this.props.cols[i].className;
         if (className) {
-          totalsRowHTML += `<td class="${className}">`;
+          totalsRowHTML += `<td class="${className}" key="${i}">`;
         } else {
-          totalsRowHTML += '<td>';
+          totalsRowHTML += `<td key="${i}">`;
         }
 
         if (this.props.totals.hasOwnProperty(i)) {

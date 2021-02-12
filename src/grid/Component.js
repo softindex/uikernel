@@ -576,11 +576,11 @@ class GridComponent extends React.Component {
 
     this.setState({errors, changes, warnings}, () => {
       this._removeRecordIfNeed(recordId);
-    });
 
-    if (this.props.onChange) {
-      this.props.onChange(this.state.changes, this.state.data);
-    }
+      if (this.props.onChange) {
+        this.props.onChange(this.state.changes, this.state.data);
+      }
+    });
   }
 
   /**
@@ -675,10 +675,11 @@ class GridComponent extends React.Component {
     this.setState({
       errors,
       changes
+    }, () => {
+      if (this.props.onChange) {
+        this.props.onChange(changes, this.state.data);
+      }
     });
-    if (this.props.onChange) {
-      this.props.onChange(changes, this.state.data);
-    }
 
     const errorHandler = this.props.onError || ::console.error;
     unhandledErrors.forEach(error => errorHandler(error));
@@ -725,10 +726,9 @@ class GridComponent extends React.Component {
    * Remove record
    *
    * @param {*}  recordId  Record ID
-   * @param {Function} cb  Callback function
    * @private
    */
-  _removeRecord(recordId, cb) {
+  _removeRecord(recordId) {
     const changes = cloneDeep(this.state.changes);
     const data = cloneDeep(this.state.data);
     const warnings = cloneDeep(this.state.warnings);
@@ -747,11 +747,11 @@ class GridComponent extends React.Component {
       editor = {};
     }
 
-    this.setState({changes, data, extra, warnings, errors, editor}, cb ? cb.bind(this) : null);
-
-    if (touchedChanges && this.props.onChange) {
-      this.props.onChange(this.state.changes, this.state.data);
-    }
+    this.setState({changes, data, extra, warnings, errors, editor}, () => {
+      if (touchedChanges && this.props.onChange) {
+        this.props.onChange(this.state.changes, this.state.data);
+      }
+    });
   }
 
   /**
@@ -935,11 +935,11 @@ class GridComponent extends React.Component {
       warnings: new EqualMap(),
       errors: new EqualMap(),
       partialErrorChecking: this.props.partialErrorChecking
+    }, () => {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.changes, this.state.data);
+      }
     });
-
-    if (this.props.onChange) {
-      this.props.onChange(this.state.changes, this.state.data);
-    }
   }
 
   /**
