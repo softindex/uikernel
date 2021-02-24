@@ -800,8 +800,20 @@ class PureGridComponent extends React.Component {
             </div>
           </>
         )}
-        <button aria-label="first page" className="btn-first-page" onClick={onClickFirstPage}>&nbsp;</button>
-        <button aria-label="prev page" className="btn-prev-page" onClick={onClickPrevPage}>&nbsp;</button>
+        <button
+          aria-label="first page"
+          className="btn-first-page"
+          onClick={withPreventDefault(onClickFirstPage)}
+        >
+          &nbsp;
+        </button>
+        <button
+          aria-label="prev page"
+          className="btn-prev-page"
+          onClick={withPreventDefault(onClickPrevPage)}
+        >
+          &nbsp;
+        </button>
         {Boolean(this.props.count) && (
           <div>
             {(this.props.page * viewCount) + 1}
@@ -814,9 +826,27 @@ class PureGridComponent extends React.Component {
             {this.props.count}
           </div>
         )}
-        <button aria-label="next page" className="btn-next-page" onClick={onClickNextPage}>&nbsp;</button>
-        <button aria-label="last page" className="btn-last-page" onClick={onClickLastPage}>&nbsp;</button>
-        <button aria-label="refresh page" className="btn-refresh-page" onClick={onRefreshTable}>&nbsp;</button>
+        <button
+          aria-label="next page"
+          className="btn-next-page"
+          onClick={withPreventDefault(onClickNextPage)}
+        >
+          &nbsp;
+        </button>
+        <button
+          aria-label="last page"
+          className="btn-last-page"
+          onClick={withPreventDefault(onClickLastPage)}
+        >
+          &nbsp;
+        </button>
+        <button
+          aria-label="refresh page"
+          className="btn-refresh-page"
+          onClick={withPreventDefault(onRefreshTable)}
+        >
+          &nbsp;
+        </button>
       </div>
     );
   }
@@ -980,6 +1010,13 @@ class PureGridComponent extends React.Component {
       </div>
     );
   }
+}
+
+function withPreventDefault(handler) {
+  return event => {
+    event.preventDefault();
+    handler(event);
+  };
 }
 
 export default PureGridComponent;
