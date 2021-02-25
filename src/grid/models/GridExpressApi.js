@@ -42,18 +42,18 @@ class GridExpressApi {
           settings.offset = parseInt(req.query.offset);
         }
         if (req.query.sort) {
-          settings.sort = JSON.parse(req.query.sort);
+          settings.sort = parseJson(req.query.sort, 'Invalid JSON in "sort"');
         }
         if (req.query.fields) {
-          settings.fields = JSON.parse(req.query.fields);
+          settings.fields = parseJson(req.query.fields, 'Invalid JSON in "fields"');
         } else {
           settings.fields = [];
         }
         if (req.query.extra) {
-          settings.extra = JSON.parse(req.query.extra);
+          settings.extra = parseJson(req.query.extra, 'Invalid JSON in "extra"');
         }
         if (req.query.filters) {
-          settings.filters = JSON.parse(req.query.filters);
+          settings.filters = parseJson(req.query.filters, 'Invalid JSON in "filters"');
         }
         await this._commonReadMiddleware(req, res, next, settings);
       })],
@@ -92,8 +92,12 @@ class GridExpressApi {
         }
       })],
       getRecord: [asyncHandler(async (req, res, next) => {
-        const cols = req.query.cols ? JSON.parse(req.query.cols) : null;
-        const recordId = req.params.recordId ? JSON.parse(req.params.recordId) : null;
+        const cols = req.query.cols
+          ? parseJson(req.query.cols, 'Invalid JSON in "cols"')
+          : null;
+        const recordId = req.params.recordId
+          ? parseJson(req.params.recordId, 'Invalid JSON in "recordId"')
+          : null;
         const model = this._getModel(req, res);
         const result = this._result('getRecord');
         try {
@@ -156,7 +160,8 @@ class GridExpressApi {
             body = parseJson(body.rest);
 
             for (const {fieldname, buffer} of req.files) {
-              body[JSON.parse(decodeURI(fieldname))] = buffer;
+              const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name');
+              body[parsedFieldName] = buffer;
             }
           }
 
