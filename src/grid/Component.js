@@ -209,19 +209,20 @@ class GridComponent extends React.Component {
       this.state.selected = [...nextProps.selected];
     }
     this.setState({}, () => {
-      if (reset.has(RESET_SORT) || reset.has(RESET_MODEL) || reset.has(RESET_VIEW_COUNT)) {
-        if (reset.has(RESET_MODEL)) {
-          this.state.data = null;
-          if (oldProps.model) {
-            oldProps.model.off('create', this._onRecordsCreated);
-            oldProps.model.off('update', this._setData);
-          }
-          if (this.props.model) {
-            this.props.model.on('create', this._onRecordsCreated);
-            this.props.model.on('update', this._setData);
-          }
-          this._setPage(0);
+      if (reset.has(RESET_MODEL)) {
+        this.state.data = null;
+        if (oldProps.model) {
+          oldProps.model.off('create', this._onRecordsCreated);
+          oldProps.model.off('update', this._setData);
         }
+        if (this.props.model) {
+          this.props.model.on('create', this._onRecordsCreated);
+          this.props.model.on('update', this._setData);
+        }
+        this._setPage(0);
+      }
+
+      if (reset.has(RESET_SORT) || reset.has(RESET_MODEL) || reset.has(RESET_VIEW_COUNT)) {
         this.updateTable().catch(err => {
           console.error(err);
         });
@@ -296,7 +297,8 @@ class GridComponent extends React.Component {
         totals: obj.totals,
         errors: this._pick(this.state.errors, recordIds),
         changes: this._pick(this.state.changes, recordIds),
-        statuses: this._pick(this.state.statuses, recordIds),
+        // statuses controls via methods
+        // statuses: this._pick(this.state.statuses, recordIds),
         showLoader: false
       });
     });
@@ -729,25 +731,29 @@ class GridComponent extends React.Component {
    * @private
    */
   _removeRecord(recordId) {
-    const changes = cloneDeep(this.state.changes);
-    const data = cloneDeep(this.state.data);
-    const warnings = cloneDeep(this.state.warnings);
-    const errors = cloneDeep(this.state.errors);
-    const extra = cloneDeep(this.state.extra);
-    let editor = cloneDeep(this.state.editor);
-    const touchedChanges = changes.get(recordId);
-    this.unselectRecord(recordId);
-    data.delete(recordId);
-    extra.delete(recordId);
-    changes.delete(recordId);
-    warnings.delete(recordId);
-    errors.delete(recordId);
+    let touchedChanges;
 
-    if (editor.recordId === recordId) {
-      editor = {};
-    }
+    this.setState((state) => {
+      const changes = cloneDeep(state.changes);
+      const data = cloneDeep(state.data);
+      const warnings = cloneDeep(state.warnings);
+      const errors = cloneDeep(state.errors);
+      const extra = cloneDeep(state.extra);
+      let editor = cloneDeep(state.editor);
+      touchedChanges = changes.get(recordId);
+      this.unselectRecord(recordId);
+      data.delete(recordId);
+      extra.delete(recordId);
+      changes.delete(recordId);
+      warnings.delete(recordId);
+      errors.delete(recordId);
 
-    this.setState({changes, data, extra, warnings, errors, editor}, () => {
+      if (editor.recordId === recordId) {
+        editor = {};
+      }
+
+      return {changes, data, extra, warnings, errors, editor};
+    }, () => {
       if (touchedChanges && this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
       }
@@ -761,18 +767,21 @@ class GridComponent extends React.Component {
    * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
   unselectRecord(recordId, ignoreBlackList) {
-    const selected = [...this.state.selected];
+    this.setState((state) => {
+      const selected = [...state.selected];
 
-    if (this.state.selectBlackListMode && !ignoreBlackList) {
-      return this.selectRecord(recordId, true);
-    }
+      if (state.selectBlackListMode && !ignoreBlackList) {
+        this.selectRecord(recordId, true);
+        return null;
+      }
 
-    const pos = indexOf(selected, recordId);
-    if (pos >= 0) {
-      selected.splice(pos, 1);
-    }
+      const pos = indexOf(selected, recordId);
+      if (pos >= 0) {
+        selected.splice(pos, 1);
+      }
 
-    this.setState({selected}, () => {
+      return {selected};
+    }, () => {
       this._emitChangeSelectedNum();
     });
   }
@@ -799,26 +808,30 @@ class GridComponent extends React.Component {
    * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
   selectRecord(recordId, ignoreBlackList) {
-    const selected = [...this.state.selected];
+    this.setState((state) => {
+      const selected = [...state.selected];
 
-    if (this.state.selectBlackListMode && !ignoreBlackList) {
-      return this.unselectRecord(recordId, true);
-    }
-
-    if (indexOf(selected, recordId) < 0) {
-      selected.push(recordId);
-
-      if (selected.length === this.state.count) {
-        if (this.state.selectBlackListMode) {
-          this.unselectAll();
-        } else {
-          this.selectAll();
-        }
-        return;
+      if (state.selectBlackListMode && !ignoreBlackList) {
+        this.unselectRecord(recordId, true);
+        return null;
       }
-    }
 
-    this.setState({selected}, () => {
+      if (indexOf(selected, recordId) < 0) {
+        selected.push(recordId);
+
+        if (selected.length === state.count) {
+          if (state.selectBlackListMode) {
+            this.unselectAll();
+          } else {
+            this.selectAll();
+          }
+
+          return null;
+        }
+      }
+
+      return {selected};
+    }, () => {
       this._emitChangeSelectedNum();
     });
   }
@@ -1058,24 +1071,26 @@ class GridComponent extends React.Component {
    * @param {string}      status  Status
    */
   removeRecordStatusAll(status) {
-    if (status === 'selected') {
-      this.setState({selected: []});
-      return;
-    }
-
     const checkDeletingRecordIds = new Set();
-    const statuses = cloneDeep(this.state.statuses);
-    for (const [recordId, statusSet] of statuses) {
-      if (statusSet.has(status)) {
-        statusSet.delete(status);
+
+    this.setState((state) => {
+      const statuses = cloneDeep(state.statuses);
+      for (const [recordId, statusSet] of statuses) {
+        if (statusSet.has(status)) {
+          statusSet.delete(status);
+        }
+
+        if (!statusSet.size) {
+          statuses.delete(recordId);
+          checkDeletingRecordIds.add(recordId);
+        }
       }
 
-      if (!statusSet.size) {
-        statuses.delete(recordId);
-        checkDeletingRecordIds.add(recordId);
-      }
-    }
-    this.setState({statuses}, () => {
+      return {
+        statuses,
+        selected: status === 'selected' ? [] : state.selected
+      };
+    }, () => {
       for (const recordId of checkDeletingRecordIds) {
         this._removeRecordIfNeed(recordId);
       }
@@ -1499,16 +1514,19 @@ class GridComponent extends React.Component {
    * @param {string}           status      Record status
    */
   addRecordStatus(recordId, status) {
-    let recordStatuses = this.state.statuses.get(recordId);
-    const statuses = cloneDeep(this.state.statuses);
-    // If list does not contain the record, mark its status as empty
-    if (!recordStatuses) {
-      recordStatuses = new Set();
-    }
+    this.setState((state) => {
+      let recordStatuses = state.statuses.get(recordId);
+      const statuses = cloneDeep(state.statuses);
+      // If list does not contain the record, mark its status as empty
+      if (!recordStatuses) {
+        recordStatuses = new Set();
+      }
 
-    recordStatuses.add(status);
-    statuses.set(recordId, recordStatuses);
-    this.setState({statuses}, () => {
+      recordStatuses.add(status);
+      statuses.set(recordId, recordStatuses);
+
+      return {statuses};
+    }, () => {
       this.updateTable();
     });
   }
@@ -1520,26 +1538,23 @@ class GridComponent extends React.Component {
    * @param {string}     status      Status
    */
   addRecordStatusGroup(recordIds, status) {
-    let needTableUpdate;
-    const statuses = cloneDeep(this.state.statuses);
+    const needTableUpdate = Boolean(recordIds.length);
+    this.setState((state) => {
+      const statuses = cloneDeep(state.statuses);
 
-    for (const recordId of recordIds) {
-      let recordStatuses = statuses.get(recordId);
+      for (const recordId of recordIds) {
+        let recordStatuses = statuses.get(recordId);
 
-      if (!recordStatuses) {
-        recordStatuses = new Set();
-      }
+        if (!recordStatuses) {
+          recordStatuses = new Set();
+        }
 
-      if (this.state.data.has(recordId)) {
         recordStatuses.add(status);
         statuses.set(recordId, recordStatuses);
-        continue;
       }
 
-      needTableUpdate = true;
-    }
-
-    this.setState({statuses}, () => {
+      return {statuses};
+    }, () => {
       if (needTableUpdate) {
         this.updateTable();
       }
@@ -1553,24 +1568,29 @@ class GridComponent extends React.Component {
    * @param {string}  status      Record status
    */
   removeRecordStatus(recordId, status) {
-    // Cancel method execution if record has no statuses
-    if (!this.state.statuses.has(recordId)) {
-      return;
-    }
-    const statuses = cloneDeep(this.state.statuses);
-    const recordStatuses = statuses.get(recordId);
+    let needCheckRemoveRecord;
 
-    // Remove status if record has i
-    let needCheckRemoveRecord = false;
-    if (recordStatuses.has(status)) {
-      recordStatuses.delete(status);
-      if (!recordStatuses.size) {
-        delete statuses[recordId];
-        needCheckRemoveRecord = true;
+    this.setState((state) => {
+      // Cancel method execution if record has no statuses
+      if (!state.statuses.has(recordId)) {
+        return null;
       }
-    }
 
-    this.setState({statuses}, () => {
+      const statuses = cloneDeep(state.statuses);
+      const recordStatuses = statuses.get(recordId);
+
+      // Remove status if record has i
+
+      if (recordStatuses.has(status)) {
+        recordStatuses.delete(status);
+        if (!recordStatuses.size) {
+          delete statuses[recordId];
+          needCheckRemoveRecord = true;
+        }
+      }
+
+      return {statuses};
+    }, () => {
       if (needCheckRemoveRecord) {
         this._removeRecordIfNeed(recordId);
       }
