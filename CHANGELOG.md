@@ -10,11 +10,12 @@
   * Common
     * Removed `UIKernel.createXhrValidator` (use createValidator)
     * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
-    
+
   * Grid
       * "create" and "delete" events in GridModel has `Array` type in GridCollectionModel
       * Changed GridCollectionModel.delete(recordId) method to GridCollectionModel.delete(recordIds: Array)
       * Changed className of extra records from "others" to "dgrid-others" in GridComponent
+      * Changed param type in onChange prop. Now it's Map<TKey, TValue> instead of simple object
 
   ### New
 
