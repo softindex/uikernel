@@ -23,6 +23,7 @@
 
   * DatePicker Editor
     * [Added `startDate` and `endDate` props](https://github.com/softindex/uikernel/pull/283)
+    * [Update react-datepicker to 1.2.2](https://github.com/softindex/uikernel/pull/295)
 
   ### Fixed
 
