@@ -365,11 +365,12 @@ class PureGridComponent extends React.Component {
       ref: value => ref = value
     });
     ReactDOM.render(elementWithRef, parentElement, () => {
-      parentElement.classList.add('dgrid-input-wrapper');
+      // Maybe component was unmounted and ref === undefined
       if (!ref) {
         return;
       }
 
+      parentElement.classList.add('dgrid-input-wrapper');
       if (typeof ref.focus === 'function') {
         ref.focus();
       } else {

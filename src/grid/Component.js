@@ -219,18 +219,27 @@ class GridComponent extends React.Component {
           this.props.model.on('create', this._onRecordsCreated);
           this.props.model.on('update', this._setData);
         }
+      }
+
+      if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
         this._setPage(0);
       }
 
-      if (reset.has(RESET_SORT) || reset.has(RESET_MODEL) || reset.has(RESET_VIEW_COUNT)) {
+      if (reset.has(RESET_MODEL) || reset.has(RESET_SORT) || reset.has(RESET_VIEW_COUNT)) {
         this.updateTable().catch(err => {
           console.error(err);
         });
-      } else if (reset.has(RESET_VIEW_COLUMNS)) {
+      }
+
+      if (reset.has(RESET_VIEW_COLUMNS)) {
         this.state.viewColumns = nextProps.viewColumns;
-      } else if (reset.has(RESET_SELECTED_COLUMNS)) {
+      }
+
+      if (reset.has(RESET_SELECTED_COLUMNS)) {
         this.state.selected = nextProps.selected;
-      } else if ((reset.has(RESET_BLACK_LIST_MODE))) {
+      }
+
+      if ((reset.has(RESET_BLACK_LIST_MODE))) {
         this.state.selectBlackListMode = !this.state.selectBlackListMode;
       }
     });
@@ -297,8 +306,6 @@ class GridComponent extends React.Component {
         totals: obj.totals,
         errors: this._pick(this.state.errors, recordIds),
         changes: this._pick(this.state.changes, recordIds),
-        // statuses controls via methods
-        // statuses: this._pick(this.state.statuses, recordIds),
         showLoader: false
       });
     });
