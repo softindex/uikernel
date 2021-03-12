@@ -17,6 +17,9 @@
       * Changed className of extra records from "others" to "dgrid-others" in GridComponent
       * Changed param type in onChange prop. Now it's Map<TKey, TValue> instead of simple object
 
+  * DatePicker Editor
+    * [Updated datepicker to version 3.6](https://github.com/softindex/uikernel/pull/298). Need to change format of `format` and `textFormat` props from `moment.js` style to `date-fns` style.
+
   ### New
 
   * Grid
@@ -36,7 +39,6 @@
 
   * DatePicker Editor
     * [Added `startDate` and `endDate` props](https://github.com/softindex/uikernel/pull/283)
-    * [Update react-datepicker to 1.2.2](https://github.com/softindex/uikernel/pull/295)
 
   ### Fixed
 
