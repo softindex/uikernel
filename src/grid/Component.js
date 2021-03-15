@@ -731,29 +731,25 @@ class GridComponent extends React.Component {
    * @private
    */
   _removeRecord(recordId) {
-    let touchedChanges;
+    const changes = cloneDeep(this.state.changes);
+    const data = cloneDeep(this.state.data);
+    const warnings = cloneDeep(this.state.warnings);
+    const errors = cloneDeep(this.state.errors);
+    const extra = cloneDeep(this.state.extra);
+    let editor = cloneDeep(this.state.editor);
+    const touchedChanges = changes.get(recordId);
+    this.unselectRecord(recordId);
+    data.delete(recordId);
+    extra.delete(recordId);
+    changes.delete(recordId);
+    warnings.delete(recordId);
+    errors.delete(recordId);
 
-    this.setState((state) => {
-      const changes = cloneDeep(state.changes);
-      const data = cloneDeep(state.data);
-      const warnings = cloneDeep(state.warnings);
-      const errors = cloneDeep(state.errors);
-      const extra = cloneDeep(state.extra);
-      let editor = cloneDeep(state.editor);
-      touchedChanges = changes.get(recordId);
-      this.unselectRecord(recordId);
-      data.delete(recordId);
-      extra.delete(recordId);
-      changes.delete(recordId);
-      warnings.delete(recordId);
-      errors.delete(recordId);
+    if (editor.recordId === recordId) {
+      editor = {};
+    }
 
-      if (editor.recordId === recordId) {
-        editor = {};
-      }
-
-      return {changes, data, extra, warnings, errors, editor};
-    }, () => {
+    this.setState({changes, data, extra, warnings, errors, editor}, () => {
       if (touchedChanges && this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
       }

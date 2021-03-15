@@ -366,6 +366,9 @@ class PureGridComponent extends React.Component {
     });
     ReactDOM.render(elementWithRef, parentElement, () => {
       parentElement.classList.add('dgrid-input-wrapper');
+      if (!ref) {
+        return;
+      }
 
       if (typeof ref.focus === 'function') {
         ref.focus();
