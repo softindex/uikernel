@@ -48,7 +48,7 @@ which helps to create data driven spreadsheets with capabilities of:
 | Type                                                              | Name                       | Description                                                 |
 |-------------------------------------------------------------------|----------------------------|-------------------------------------------------------------|
 | [GridModel](/docs/grid-interface.html)                            | model                      | *Required*. Grid model instance                             |
-| Object                                                            | cols                       | *Required*. Grid columns configuration. [Check out description here](http://localhost:4000/docs/grid-columns.html) |
+| Object                                                            | cols                       | *Required*. Grid columns configuration. [Check out description here](/docs/grid-columns.html) |
 | <span style="white-space:nowrap;"> String [ ] \|\| Object </span> | viewColumns                | *Optional*. Visible columns list                            |
 | String                                                            | height                     | *Optional*. Table height if you need grid to be scrollable  |
 | Boolean                                                           | saveFullRecord=false       | *Optional*. Pass all record fields (not just changed) flag  |
