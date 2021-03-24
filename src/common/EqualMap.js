@@ -37,20 +37,16 @@ class EqualMap extends Map {
     );
   }
 
-  keys() {
-    const keys = Map.prototype.keys.call(this);
-    return [...keys].reduce((accum, elem) => {
-      const parsed = JSON.parse(elem);
-      return [...accum, parsed];
-    }, []);
+  *keys() {
+    for (const jsonKey of Map.prototype.keys.call(this)) {
+      yield JSON.parse(jsonKey);
+    }
   }
 
-  entries() {
-    const entries = Map.prototype.entries.call(this);
-    return [...entries].reduce((accum, elem) => {
-      const parsedKey = JSON.parse(elem[0]);
-      return [...accum, [parsedKey, elem[1]]];
-    }, []);
+  *entries() {
+    for (const [jsonKey, value] of Map.prototype.entries.call(this)) {
+      yield [JSON.parse(jsonKey), value];
+    }
   }
 
   *[Symbol.iterator]() {

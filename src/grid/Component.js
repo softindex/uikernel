@@ -37,6 +37,7 @@ const RESET_SORT = 'RESET_SORT';
 const RESET_VIEW_COUNT = 'RESET_VIEW_COUNT';
 const RESET_SELECTED_COLUMNS = 'RESET_SELECTED_COLUMNS';
 const RESET_BLACK_LIST_MODE = 'RESET_BLACK_LIST_MODE';
+const RESET_STATUSES = 'RESET_STATUSES';
 const ENTER_KEY = 13;
 const ESCAPE_KEY = 27;
 
@@ -82,6 +83,7 @@ const propTypes = (() => {
     onSorting: PropTypes.func,
     multipleSorting: PropTypes.bool,
     selectAllStatus: PropTypes.any,
+    statuses: PropTypes.any,
     onToggleSelected: PropTypes.func,
     onToggleSelectAll: PropTypes.func,
     defaultSort: (props, propName, ...rest) => {
@@ -127,6 +129,8 @@ const defaultProps = {
 class GridComponent extends React.Component {
   constructor(props) {
     super(props);
+    // Режим управления статусами через props
+    this._statusesOnlyViaPropsEnabled = Boolean(props.statuses);
     this._validateRow = throttle(this._validateRow.bind(this));
     if (this.props.onInit) {
       this.props.onInit();
@@ -137,7 +141,7 @@ class GridComponent extends React.Component {
     page: this.props.page,
     viewCount: this.props.defaultViewCount,
     count: 0,
-    statuses: new EqualMap(),
+    statuses: this.props.statuses || new EqualMap(),
     sort: this._getDefaultSort(),
     data: null,
     extra: new EqualMap(),
@@ -179,68 +183,92 @@ class GridComponent extends React.Component {
     const oldProps = this.props;
     const reset = new Set();
 
-    if (!isEqual(this.props.model, nextProps.model)) {
+    if (!isEqual(oldProps.model, nextProps.model)) {
       reset.add(RESET_MODEL);
     }
-    if (!isEqual(this.props.viewColumns, nextProps.viewColumns)) {
+    if (!isEqual(oldProps.viewColumns, nextProps.viewColumns)) {
       reset.add(RESET_VIEW_COLUMNS);
     }
-    if (!isEqual(this.props.sort, nextProps.sort)) {
+    if (!isEqual(oldProps.sort, nextProps.sort)) {
       reset.add(RESET_SORT);
     }
-    if (this.props.viewCount !== nextProps.viewCount) {
+    if (oldProps.viewCount !== nextProps.viewCount) {
       reset.add(RESET_VIEW_COUNT);
     }
     if (
-      !isEqual(this.props.selected, nextProps.selected)
-      || this.props.selectBlackListMode !== nextProps.selectBlackListMode
+      !isEqual(oldProps.selected, nextProps.selected)
+      || oldProps.selectBlackListMode !== nextProps.selectBlackListMode
     ) {
       reset.add(RESET_SELECTED_COLUMNS);
     }
-    if (!isEqual(this.props.blackListMode, nextProps.blackListMode)) {
+    if (!isEqual(oldProps.blackListMode, nextProps.blackListMode)) {
       reset.add(RESET_BLACK_LIST_MODE);
+    }
+    if (this._statusesOnlyViaPropsEnabled && oldProps.statuses !== nextProps.statuses) {
+      reset.add(RESET_STATUSES);
     }
 
     if (!reset.size) {
       return;
     }
 
-    if (nextProps.selected) {
+    if (reset.has(RESET_SELECTED_COLUMNS)) {
       this.state.selected = [...nextProps.selected];
     }
-    this.setState({}, () => {
-      if (reset.has(RESET_MODEL)) {
-        this.state.data = null;
-        if (oldProps.model) {
-          oldProps.model.off('create', this._onRecordsCreated);
-          oldProps.model.off('update', this._setData);
-        }
-        if (this.props.model) {
-          this.props.model.on('create', this._onRecordsCreated);
-          this.props.model.on('update', this._setData);
+    if (reset.has(RESET_VIEW_COLUMNS)) {
+      this.state.viewColumns = nextProps.viewColumns;
+    }
+    if (reset.has(RESET_BLACK_LIST_MODE)) {
+      this.state.selectBlackListMode = !this.state.selectBlackListMode;
+    }
+    if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
+      this._setPage(0);
+    }
+
+    if (reset.has(RESET_MODEL)) {
+      this.state.data = null;
+      if (oldProps.model) {
+        oldProps.model.off('create', this._onRecordsCreated);
+        oldProps.model.off('update', this._setData);
+      }
+      if (nextProps.model) {
+        nextProps.model.on('create', this._onRecordsCreated);
+        nextProps.model.on('update', this._setData);
+      }
+    }
+
+    let needUpdateTable = reset.has(RESET_MODEL) || reset.has(RESET_SORT) || reset.has(RESET_VIEW_COUNT);
+    let nextStatuses = this.state.statuses;
+    if (reset.has(RESET_STATUSES)) {
+      nextStatuses = nextProps.statuses;
+
+      if (!needUpdateTable) {
+        for (const recordId of nextStatuses.keys()) {
+          if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
+            needUpdateTable = true;
+            break;
+          }
         }
       }
 
-      if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
-        this._setPage(0);
-      }
+      if (!needUpdateTable) {
+        const needRemoveRecordIds = [];
+        for (const oldStatusRecordId of this._getRecordsWithStatus()) {
+          if (!nextStatuses.has(oldStatusRecordId) && !this.state.changes.has(oldStatusRecordId)) {
+            needRemoveRecordIds.push(oldStatusRecordId);
+          }
+        }
 
-      if (reset.has(RESET_MODEL) || reset.has(RESET_SORT) || reset.has(RESET_VIEW_COUNT)) {
+        this._removeRecords(needRemoveRecordIds);
+      }
+    }
+
+    const nextData = needUpdateTable ? this.state.data : cloneDeep(this.state.data);
+    this.setState({statuses: nextStatuses, data: nextData}, () => {
+      if (needUpdateTable) {
         this.updateTable().catch(err => {
           console.error(err);
         });
-      }
-
-      if (reset.has(RESET_VIEW_COLUMNS)) {
-        this.state.viewColumns = nextProps.viewColumns;
-      }
-
-      if (reset.has(RESET_SELECTED_COLUMNS)) {
-        this.state.selected = nextProps.selected;
-      }
-
-      if ((reset.has(RESET_BLACK_LIST_MODE))) {
-        this.state.selectBlackListMode = !this.state.selectBlackListMode;
       }
     });
   }
@@ -738,26 +766,36 @@ class GridComponent extends React.Component {
    * @private
    */
   _removeRecord(recordId) {
+    return this._removeRecords([recordId]);
+  }
+
+  _removeRecords(recordIds) {
+    if (!recordIds.length) {
+      return;
+    }
+
     const changes = cloneDeep(this.state.changes);
-    const data = cloneDeep(this.state.data);
     const warnings = cloneDeep(this.state.warnings);
     const errors = cloneDeep(this.state.errors);
     const extra = cloneDeep(this.state.extra);
     let editor = cloneDeep(this.state.editor);
-    const touchedChanges = changes.get(recordId);
-    this.unselectRecord(recordId);
-    data.delete(recordId);
-    extra.delete(recordId);
-    changes.delete(recordId);
-    warnings.delete(recordId);
-    errors.delete(recordId);
+    let touchedChangesExists = false;
 
-    if (editor.recordId === recordId) {
-      editor = {};
+    for (const recordId of recordIds) {
+      touchedChangesExists = touchedChangesExists || Boolean(changes.get(recordId));
+      this.unselectRecord(recordId);
+      extra.delete(recordId);
+      changes.delete(recordId);
+      warnings.delete(recordId);
+      errors.delete(recordId);
+
+      if (editor.recordId === recordId) {
+        editor = {};
+      }
     }
 
-    this.setState({changes, data, extra, warnings, errors, editor}, () => {
-      if (touchedChanges && this.props.onChange) {
+    this.setState({changes, extra, warnings, errors, editor}, () => {
+      if (touchedChangesExists && this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
       }
     });
@@ -944,14 +982,18 @@ class GridComponent extends React.Component {
    * Clear all table changes
    */
   clearAllChanges() {
-    this.setState({
+    const nextProps = {
       extra: new EqualMap(),
       changes: new EqualMap(),
-      statuses: new EqualMap(),
       warnings: new EqualMap(),
       errors: new EqualMap(),
       partialErrorChecking: this.props.partialErrorChecking
-    }, () => {
+    };
+    if (!this._statusesOnlyViaPropsEnabled) {
+      nextProps.statuses = new EqualMap();
+    }
+
+    this.setState(nextProps, () => {
       if (this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
       }
@@ -1074,6 +1116,12 @@ class GridComponent extends React.Component {
    * @param {string}      status  Status
    */
   removeRecordStatusAll(status) {
+    console.warn('method removeRecordStatusAll deprecated');
+    if (this._statusesOnlyViaPropsEnabled) {
+      console.error('statuses are controlled through properties');
+      return;
+    }
+
     const checkDeletingRecordIds = new Set();
 
     this.setState((state) => {
@@ -1517,6 +1565,12 @@ class GridComponent extends React.Component {
    * @param {string}           status      Record status
    */
   addRecordStatus(recordId, status) {
+    console.warn('method addRecordStatus deprecated');
+    if (this._statusesOnlyViaPropsEnabled) {
+      console.error('statuses are controlled through properties');
+      return;
+    }
+
     this.setState((state) => {
       let recordStatuses = state.statuses.get(recordId);
       const statuses = cloneDeep(state.statuses);
@@ -1537,10 +1591,17 @@ class GridComponent extends React.Component {
   /**
    * Add status to records group
    *
+   * @deprecated
    * @param {Array}      recordIds   Record IDs array
    * @param {string}     status      Status
    */
   addRecordStatusGroup(recordIds, status) {
+    console.warn('method addRecordStatusGroup deprecated');
+    if (this._statusesOnlyViaPropsEnabled) {
+      console.error('statuses are controlled through properties');
+      return;
+    }
+
     const needTableUpdate = Boolean(recordIds.length);
     this.setState((state) => {
       const statuses = cloneDeep(state.statuses);
@@ -1571,6 +1632,12 @@ class GridComponent extends React.Component {
    * @param {string}  status      Record status
    */
   removeRecordStatus(recordId, status) {
+    console.warn('method removeRecordStatus deprecated');
+    if (this._statusesOnlyViaPropsEnabled) {
+      console.error('statuses are controlled through properties');
+      return;
+    }
+
     let needCheckRemoveRecord;
 
     this.setState((state) => {

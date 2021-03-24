@@ -142,8 +142,8 @@ class PureGridComponent extends React.Component {
 
       // All unique record ids
       const allRecordIds = new Set([
-        ...prevProp.keys().map(JSON.stringify),
-        ...prop.keys().map(JSON.stringify)
+        ...[...prevProp.keys()].map(JSON.stringify),
+        ...[...prop.keys()].map(JSON.stringify)
       ]);
       for (const jsonRecordId of allRecordIds) {
         const recordId = JSON.parse(jsonRecordId);
