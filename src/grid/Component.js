@@ -129,7 +129,6 @@ const defaultProps = {
 class GridComponent extends React.Component {
   constructor(props) {
     super(props);
-    // Режим управления статусами через props
     this._statusesOnlyViaPropsEnabled = Boolean(props.statuses);
     this._validateRow = throttle(this._validateRow.bind(this));
     if (this.props.onInit) {
@@ -180,31 +179,30 @@ class GridComponent extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
-    const oldProps = this.props;
     const reset = new Set();
 
-    if (!isEqual(oldProps.model, nextProps.model)) {
+    if (!isEqual(this.props.model, nextProps.model)) {
       reset.add(RESET_MODEL);
     }
-    if (!isEqual(oldProps.viewColumns, nextProps.viewColumns)) {
+    if (!isEqual(this.props.viewColumns, nextProps.viewColumns)) {
       reset.add(RESET_VIEW_COLUMNS);
     }
-    if (!isEqual(oldProps.sort, nextProps.sort)) {
+    if (!isEqual(this.props.sort, nextProps.sort)) {
       reset.add(RESET_SORT);
     }
-    if (oldProps.viewCount !== nextProps.viewCount) {
+    if (this.props.viewCount !== nextProps.viewCount) {
       reset.add(RESET_VIEW_COUNT);
     }
     if (
-      !isEqual(oldProps.selected, nextProps.selected)
-      || oldProps.selectBlackListMode !== nextProps.selectBlackListMode
+      !isEqual(this.props.selected, nextProps.selected)
+      || this.props.selectBlackListMode !== nextProps.selectBlackListMode
     ) {
       reset.add(RESET_SELECTED_COLUMNS);
     }
-    if (!isEqual(oldProps.blackListMode, nextProps.blackListMode)) {
+    if (!isEqual(this.props.blackListMode, nextProps.blackListMode)) {
       reset.add(RESET_BLACK_LIST_MODE);
     }
-    if (this._statusesOnlyViaPropsEnabled && oldProps.statuses !== nextProps.statuses) {
+    if (this._statusesOnlyViaPropsEnabled && this.props.statuses !== nextProps.statuses) {
       reset.add(RESET_STATUSES);
     }
 
@@ -221,15 +219,18 @@ class GridComponent extends React.Component {
     if (reset.has(RESET_BLACK_LIST_MODE)) {
       this.state.selectBlackListMode = !this.state.selectBlackListMode;
     }
+    if (reset.has(RESET_STATUSES)) {
+      this.state.statuses = nextProps.statuses;
+    }
     if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
       this._setPage(0);
     }
 
     if (reset.has(RESET_MODEL)) {
       this.state.data = null;
-      if (oldProps.model) {
-        oldProps.model.off('create', this._onRecordsCreated);
-        oldProps.model.off('update', this._setData);
+      if (this.props.model) {
+        this.props.model.off('create', this._onRecordsCreated);
+        this.props.model.off('update', this._setData);
       }
       if (nextProps.model) {
         nextProps.model.on('create', this._onRecordsCreated);
@@ -238,23 +239,18 @@ class GridComponent extends React.Component {
     }
 
     let needUpdateTable = reset.has(RESET_MODEL) || reset.has(RESET_SORT) || reset.has(RESET_VIEW_COUNT);
-    let nextStatuses = this.state.statuses;
     if (reset.has(RESET_STATUSES)) {
-      nextStatuses = nextProps.statuses;
-
       if (!needUpdateTable) {
-        for (const recordId of nextStatuses.keys()) {
+        for (const recordId of nextProps.statuses.keys()) {
           if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
             needUpdateTable = true;
             break;
           }
         }
-      }
 
-      if (!needUpdateTable) {
         const needRemoveRecordIds = [];
         for (const oldStatusRecordId of this._getRecordsWithStatus()) {
-          if (!nextStatuses.has(oldStatusRecordId) && !this.state.changes.has(oldStatusRecordId)) {
+          if (!nextProps.statuses.has(oldStatusRecordId) && !this.state.changes.has(oldStatusRecordId)) {
             needRemoveRecordIds.push(oldStatusRecordId);
           }
         }
@@ -263,8 +259,8 @@ class GridComponent extends React.Component {
       }
     }
 
-    const nextData = needUpdateTable ? this.state.data : cloneDeep(this.state.data);
-    this.setState({statuses: nextStatuses, data: nextData}, () => {
+    const nextData = needUpdateTable ? this.state.data : cloneDeep(this.state.data); // TODO Vlad (Упрощение) Предлагаю убрать клонирование data, потому что это не полноценное исправление бага
+    this.setState({data: nextData}, () => {
       if (needUpdateTable) {
         this.updateTable().catch(err => {
           console.error(err);
@@ -769,7 +765,7 @@ class GridComponent extends React.Component {
     return this._removeRecords([recordId]);
   }
 
-  _removeRecords(recordIds) {
+  _removeRecords(recordIds) { // TODO Vlad (Ошибка) Почему теперь не очищаются записи в this.state.data?
     if (!recordIds.length) {
       return;
     }
