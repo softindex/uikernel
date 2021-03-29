@@ -219,9 +219,6 @@ class GridComponent extends React.Component {
     if (reset.has(RESET_BLACK_LIST_MODE)) {
       this.state.selectBlackListMode = !this.state.selectBlackListMode;
     }
-    if (reset.has(RESET_STATUSES)) {
-      this.state.statuses = nextProps.statuses;
-    }
     if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
       this._setPage(0);
     }
@@ -239,28 +236,32 @@ class GridComponent extends React.Component {
     }
 
     let needUpdateTable = reset.has(RESET_MODEL) || reset.has(RESET_SORT) || reset.has(RESET_VIEW_COUNT);
+    let nextStatuses = this.state.statuses;
     if (reset.has(RESET_STATUSES)) {
+      nextStatuses = nextProps.statuses;
+
       if (!needUpdateTable) {
-        for (const recordId of nextProps.statuses.keys()) {
+        for (const recordId of nextStatuses.keys()) {
           if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
             needUpdateTable = true;
             break;
           }
         }
+      }
 
+      if (!needUpdateTable) {
         const needRemoveRecordIds = [];
         for (const oldStatusRecordId of this._getRecordsWithStatus()) {
-          if (!nextProps.statuses.has(oldStatusRecordId) && !this.state.changes.has(oldStatusRecordId)) {
+          if (!nextStatuses.has(oldStatusRecordId) && !this.state.changes.has(oldStatusRecordId)) {
             needRemoveRecordIds.push(oldStatusRecordId);
           }
         }
 
-        this._removeRecords(needRemoveRecordIds);
+        this._removeExtraRecords(needRemoveRecordIds);
       }
     }
 
-    const nextData = needUpdateTable ? this.state.data : cloneDeep(this.state.data); // TODO Vlad (Упрощение) Предлагаю убрать клонирование data, потому что это не полноценное исправление бага
-    this.setState({data: nextData}, () => {
+    this.setState({statuses: nextStatuses}, () => {
       if (needUpdateTable) {
         this.updateTable().catch(err => {
           console.error(err);
@@ -608,7 +609,7 @@ class GridComponent extends React.Component {
     errors.delete(recordId);
 
     this.setState({errors, changes, warnings}, () => {
-      this._removeRecordIfNeed(recordId);
+      this._removeExtraRecordIfNeed(recordId);
 
       if (this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
@@ -701,7 +702,7 @@ class GridComponent extends React.Component {
       if (isEmpty(changes.get(recordId))) {
         changes.delete(recordId);
         if (this.state.extra.has(recordId)) {
-          this._removeRecord(recordId);
+          this._removeExtraRecord(recordId);
         }
       }
     }
@@ -761,11 +762,11 @@ class GridComponent extends React.Component {
    * @param {*}  recordId  Record ID
    * @private
    */
-  _removeRecord(recordId) {
-    return this._removeRecords([recordId]);
+  _removeExtraRecord(recordId) {
+    return this._removeExtraRecords([recordId]);
   }
 
-  _removeRecords(recordIds) { // TODO Vlad (Ошибка) Почему теперь не очищаются записи в this.state.data?
+  _removeExtraRecords(recordIds) {
     if (!recordIds.length) {
       return;
     }
@@ -1109,6 +1110,7 @@ class GridComponent extends React.Component {
   /**
    * Remove records status
    *
+   * @deprecated
    * @param {string}      status  Status
    */
   removeRecordStatusAll(status) {
@@ -1139,7 +1141,7 @@ class GridComponent extends React.Component {
       };
     }, () => {
       for (const recordId of checkDeletingRecordIds) {
-        this._removeRecordIfNeed(recordId);
+        this._removeExtraRecordIfNeed(recordId);
       }
     });
   }
@@ -1469,9 +1471,9 @@ class GridComponent extends React.Component {
     return this.state.viewCount;
   }
 
-  _removeRecordIfNeed(recordId) {
+  _removeExtraRecordIfNeed(recordId) {
     if (this.state.extra.has(recordId) && !this.state.statuses.has(recordId) && !this.state.changes.has(recordId)) {
-      this._removeRecord(recordId);
+      this._removeExtraRecord(recordId);
     }
   }
 
@@ -1557,6 +1559,7 @@ class GridComponent extends React.Component {
   /**
    * Add record status
    *
+   * @deprecated
    * @param {*}    recordId    Record ID
    * @param {string}           status      Record status
    */
@@ -1624,6 +1627,7 @@ class GridComponent extends React.Component {
   /**
    * Remove record status
    *
+   * @deprecated
    * @param {*}       recordId    Record ID
    * @param {string}  status      Record status
    */
@@ -1658,7 +1662,7 @@ class GridComponent extends React.Component {
       return {statuses};
     }, () => {
       if (needCheckRemoveRecord) {
-        this._removeRecordIfNeed(recordId);
+        this._removeExtraRecordIfNeed(recordId);
       }
     });
   }
