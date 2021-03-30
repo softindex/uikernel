@@ -9,7 +9,7 @@
 import './common/setImmediate';
 import variables from './common/variables';
 import applyGridFilters from './grid/models/applyGridFilters';
-import GridComponent from './grid/Component';
+import GridComponent from './grid/DeprecatedComponents';
 import FormService from './form/FormService';
 import connectForm from './form/connectForm';
 import Validator from './common/validation/Validator';

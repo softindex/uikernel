@@ -26,10 +26,10 @@ class PureGridComponent extends React.Component {
     this._initRecordsMap(prevProps);
 
     if (
-      this._shouldRenderBody(prevProps, 'records')
-      || this._shouldRenderBody(prevProps, 'extraRecords')
-      || !isEqual(this.props.viewColumns, prevProps.viewColumns)
-      || !isEqual(this.props.statuses, prevProps.statuses)
+      this._shouldRenderBody(prevProps, 'records') ||
+      this._shouldRenderBody(prevProps, 'extraRecords') ||
+      !isEqual(this.props.viewColumns, prevProps.viewColumns) ||
+      this.props.cols !== prevProps.cols
     ) {
       this._renderBody();
       return;
@@ -128,7 +128,7 @@ class PureGridComponent extends React.Component {
   /**
    * Check prop to rerender any records
    *
-   * @param   {Map}     rowsToReRender
+   * @param   {Set}     rowsToReRender
    * @param   {Object}  prevProps
    * @private
    */
