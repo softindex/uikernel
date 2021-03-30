@@ -37,7 +37,9 @@ class EventsModel {
    */
   off(event, cb) {
     if (this._subscribers[event]) {
-      this._subscribers[event] = without(this._subscribers[event], cb);
+      this._subscribers[event] = this._subscribers[event].filter(subscriber => {
+        return subscriber !== cb;
+      });
     }
   }
 
