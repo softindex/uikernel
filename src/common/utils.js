@@ -220,7 +220,7 @@ export function isEqual(a, b) {
     || a instanceof RegExp
     || b instanceof RegExp
   ) {
-    return a === b;
+    return String(a) === String(b);
   }
 
   if (a === b || a.valueOf() === b.valueOf() || a !== a && b !== b) {

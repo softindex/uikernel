@@ -29,7 +29,7 @@ with both front-end and back-end data sources.
 {% highlight html tabsize=2 %}
 <UIKernel.Grid
   model={model}
-  cols={columns}
+  columns={columns}
   ref={(grid) => this.grid = grid}
   {/*some other props*/}
 />
@@ -47,7 +47,7 @@ this.grid.someGridMethod();
  [table columns configuration object](/docs/grid-columns.html).
  Also React `Grid` component accepts some other
  [table configuration properties](/docs/grid-component.html#properties)
- and has [some useful methods](/docs/grid-component.html#methods). 
+ and has [some useful methods](/docs/grid-component.html#methods).
 - There are also special [adapters](/docs/grid-adapters.html) to adapt Grid model to From model.
 - At back-end there is useful [express.js API](/docs/grid-express-api.html) which helps to
 make communication with front-end easier. But it isn't mandatory to use express.js - you can

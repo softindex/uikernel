@@ -22,18 +22,18 @@ class Form extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cols: _.clone(this.props.cols) // Copy all columns
+      columns: _.clone(this.props.columns) // Copy all columns
     };
     this.applyChanges = this.applyChanges.bind(this);
     this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
   }
 
   applyChanges() {
-    this.props.onChange(_.clone(this.state.cols));
+    this.props.onChange(_.clone(this.state.columns));
   }
 
-  onChangeCheckbox(key, value) { 
-    this.state.cols[key] = value; // Change checkbox value
+  onChangeCheckbox(key, value) {
+    this.state.columns[key] = value; // Change checkbox value
     this.forceUpdate(); // and update it
   }
 
@@ -50,13 +50,13 @@ class Form extends React.Component {
           </div>
           <div className="modal-body">
             <form className="form-horizontal">
-              { 
+              {
                 Object.keys(columns).map((key)=>{
                   return(
                     <FormCheckbox
                       id={key}
                       key={key}
-                      value={this.state.cols[key]}
+                      value={this.state.columns[key]}
                       label={columns[key].name}
                       onChange={this.onChangeCheckbox.bind(null, key)}
                     />
@@ -92,7 +92,7 @@ class MainComponent extends React.Component {
     super(props);
     this.state = {
       model: model,
-      cols: {
+      columns: {
         // display name, surname, phone by default
         name: true,
         surname: true,
@@ -108,10 +108,10 @@ class MainComponent extends React.Component {
   openColumnsForm() {
     //open modal with our information (you can use your own modal)
     const columnsWindow = popup.open(Form, {
-      cols: this.state.cols,
-      onChange: (cols) => {
+      columns: this.state.columns,
+      onChange: (columns) => {
         columnsWindow.close();
-        this.setState({cols});
+        this.setState({columns});
       }
     }, "opened");
   }
@@ -123,9 +123,9 @@ class MainComponent extends React.Component {
           <i className="fa fa-th-list"></i>{' '}Columns
         </a>
         <UIKernel.Grid
-          cols={columns}
+          columns={columns}
           model={this.state.model}
-          viewColumns={this.state.cols}
+          viewColumns={this.state.columns}
           viewCount={20}
         />
       </div>

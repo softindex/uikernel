@@ -60,7 +60,7 @@ Filters themselves will be defined in `MainComponent` in the next way:
  };
  // ..
   {% endhighlight %}
-  
+
 Init filters object in state.
 
 `MainComponent.js`:
@@ -195,7 +195,7 @@ Finally, let's add our form into the `render` method of `MainComponent`.
             </div>
             <UIKernel.Grid
               model={this.state.model}
-              cols={columns}
+              columns={columns}
               viewCount={10}
             />
           </div>

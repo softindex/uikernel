@@ -27,7 +27,7 @@ const columns = {
 //...inside render method:
 <UIKernel.Grid
   model={model}
-  cols={columns}
+  columns={columns}
 />
 {% endhighlight %}
 

@@ -20,7 +20,7 @@ which helps to create data driven spreadsheets with capabilities of:
   <UIKernel.Grid
     ref={(grid) => this.grid = grid}
     model={model}
-    cols={columns}
+    columns={columns}
     viewColumns={viewColumns}
     height={height}
     saveFullRecord={saveFullRecord}
@@ -48,7 +48,7 @@ which helps to create data driven spreadsheets with capabilities of:
 | Type                                                              | Name                       | Description                                                 |
 |-------------------------------------------------------------------|----------------------------|-------------------------------------------------------------|
 | [GridModel](/docs/grid-interface.html)                            | model                      | *Required*. Grid model instance                             |
-| Object                                                            | cols                       | *Required*. Grid columns configuration. [Check out description here](http://localhost:4000/docs/grid-columns.html) |
+| Object                                                            | columns                    | *Required*. Grid columns configuration. [Check out description here](http://localhost:4000/docs/grid-columns.html) |
 | <span style="white-space:nowrap;"> String [ ] \|\| Object </span> | viewColumns                | *Optional*. Visible columns list                            |
 | String                                                            | height                     | *Optional*. Table height if you need grid to be scrollable  |
 | Boolean                                                           | saveFullRecord=false       | *Optional*. Pass all record fields (not just changed) flag  |
@@ -789,7 +789,7 @@ class ExampleComponent extends React.Component {
       <UIKernel.Grid
         ref={(grid) => this.grid = grid}
         model={this.state.model}                             // Grid model
-        cols={columns}                                       // columns configuration
+        columns={columns}                                       // columns configuration
         viewCount={10}                                       // display 10 records per page
         defaultSort=\{\{column: "name", direction: "asc"\}\} // default sorting
       />

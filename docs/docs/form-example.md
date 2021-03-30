@@ -221,7 +221,7 @@ class MainComponent extends React.Component {
                 <UIKernel.Grid
                   ref={(grid) => this.grid = grid}
                   model={model}
-                  cols={columns}
+                  columns={columns}
                   autoSubmit={true}
                 />
                 <Form

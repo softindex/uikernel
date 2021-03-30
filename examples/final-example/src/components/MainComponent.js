@@ -45,13 +45,15 @@ function MainComponent() {
     toggleSelected,
     toggleAll
   } = useGridSelect(filteredGridModel);
-  const columns = getColumns(
-    setEditRecordId,
-    onDeleteClick,
-    toggleSelected,
-    toggleAll,
-    toggleAllStatus
-  );
+  const columns = useMemo(() => {
+    return getColumns(
+      setEditRecordId,
+      onDeleteClick,
+      toggleSelected,
+      toggleAll,
+      toggleAllStatus
+    );
+  }, []);
 
   function onDeleteClick(recordId) {
     gridModel.delete([recordId]);
@@ -109,7 +111,7 @@ function MainComponent() {
           <UIKernel.Grid
             ref={gridRef}
             model={filteredGridModel}
-            cols={columns}
+            columns={columns}
             viewColumns={viewColumns}
             defaultViewCount={10}
             viewVariants={[10, 20, 50, 100]}

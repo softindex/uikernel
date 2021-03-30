@@ -60,7 +60,7 @@ const propTypes = (() => {
       on: PropTypes.func,
       off: PropTypes.func
     }),
-    cols: PropTypes.object,
+    columns: PropTypes.object,
     viewColumns: PropTypes.oneOfType([
       PropTypes.arrayOf(PropTypes.string),
       PropTypes.object
@@ -181,7 +181,7 @@ class GridComponent extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     const reset = new Set();
 
-    if (!isEqual(this.props.model, nextProps.model)) {
+    if (this.props.model !== nextProps.model) {
       reset.add(RESET_MODEL);
     }
     if (!isEqual(this.props.viewColumns, nextProps.viewColumns)) {
@@ -418,7 +418,7 @@ class GridComponent extends React.Component {
    */
   _getFieldsToRender() {
     let i;
-    const cols = this.props.cols;
+    const cols = this.props.columns;
     let columns = [];
     for (i in cols) {
       columns = union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
@@ -747,7 +747,7 @@ class GridComponent extends React.Component {
    */
   _isFieldAffectsRender(field) {
     let i;
-    const cols = this.props.cols;
+    const cols = this.props.columns;
     for (i in cols) {
       if (cols[i].render.indexOf(field) >= 0) {
         return true;
@@ -1169,7 +1169,7 @@ class GridComponent extends React.Component {
     }
 
     const record = this._getRecordWithChanges(recordId);
-    const columnConfig = this.props.cols[colId];
+    const columnConfig = this.props.columns[colId];
     const binds = this._getBindParam(colId);
     const value = at(record, binds);
 
@@ -1180,7 +1180,7 @@ class GridComponent extends React.Component {
       columnConfig.onClick(event, recordId, record, this);
     }
 
-    const {editor} = this.props.cols[colId];
+    const {editor} = this.props.columns[colId];
     if (!editor) {
       return;
     }
@@ -1368,7 +1368,7 @@ class GridComponent extends React.Component {
    * @private
    */
   _getBindParam(id) {
-    return this.props.cols[id].editorField || id;
+    return this.props.columns[id].editorField || id;
   }
 
   _onChangeEditor(recordId, column, values, editorContext) {
@@ -1377,7 +1377,7 @@ class GridComponent extends React.Component {
     const record = this._getRecordWithChanges(recordId);
     const context = cloneDeep(editorContext);
     context.props.value = values;
-    const element = this.props.cols[column].editor.call(context, record, this);
+    const element = this.props.columns[column].editor.call(context, record, this);
     this._setRowChanges(recordId, {[column]: values});
     this.setState({
       editor: {
@@ -1488,7 +1488,7 @@ class GridComponent extends React.Component {
    * @private
    */
   _handleColumnClick = (column) => {
-    const {sortCycle} = this.props.cols[column];
+    const {sortCycle} = this.props.columns[column];
     if (!sortCycle) {
       return;
     }
@@ -1892,7 +1892,7 @@ class GridComponent extends React.Component {
         onCellClick={this.createEditor}
         onColumnClick={this._handleColumnClick}
         height={this.props.height}
-        cols={this.props.cols}
+        columns={this.props.columns}
         viewCount={viewCount}
         sort={sort}
         classNames={gridClassNames}

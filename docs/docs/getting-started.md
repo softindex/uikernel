@@ -64,7 +64,7 @@ npm i uikernel
  };
 
  ReactDOM.render(
-   <UIKernel.Grid cols={columns} model={model}/>,
+   <UIKernel.Grid columns={columns} model={model}/>,
    document.getElementById('root')
  );
  {% endhighlight %}
@@ -73,7 +73,7 @@ npm i uikernel
 3. Try it out now using the `npm start` command
 
 
-As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
+As you can see, we've passed `UIKernel.Grid` two props: `columns` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
 
 Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 

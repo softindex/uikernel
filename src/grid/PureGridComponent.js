@@ -29,7 +29,7 @@ class PureGridComponent extends React.Component {
       this._shouldRenderBody(prevProps, 'records') ||
       this._shouldRenderBody(prevProps, 'extraRecords') ||
       !isEqual(this.props.viewColumns, prevProps.viewColumns) ||
-      this.props.cols !== prevProps.cols
+      this.props.columns !== prevProps.columns
     ) {
       this._renderBody();
       return;
@@ -128,8 +128,6 @@ class PureGridComponent extends React.Component {
   /**
    * Check prop to rerender any records
    *
-   * @param   {Set}     rowsToReRender
-   * @param   {Object}  prevProps
    * @private
    */
   _checkPropForRerender(rowsToReRender, prevProps, propType) {
@@ -270,7 +268,7 @@ class PureGridComponent extends React.Component {
     const selected = this.isSelected(recordId);
     row.className = this._getRowClassNames(recordId, selected);
 
-    for (const colId of Object.keys(this.props.cols)) {
+    for (const colId of Object.keys(this.props.columns)) {
       if (this._isViewColumn(colId)) {
         this._renderCell(recordId, colId, row, prevEditor);
       }
@@ -306,7 +304,7 @@ class PureGridComponent extends React.Component {
     // if editor is on the current cell - only render editor
     if (recordId === this.props.editor.recordId) {
       if (colId === this.props.editor.column) {
-        const indexOfColumn = Object.keys(this.props.cols).indexOf(this.props.editor.column);
+        const indexOfColumn = Object.keys(this.props.columns).indexOf(this.props.editor.column);
         this._renderEditor(row.children[indexOfColumn]);
         return;
       }
@@ -316,14 +314,14 @@ class PureGridComponent extends React.Component {
     // if editor was on the grid - check and re render only that cell which had editor
     if (prevEditor.recordId) {
       if (recordId === prevEditor.recordId && colId === prevEditor.column) {
-        const indexOfColumn = Object.keys(this.props.cols).indexOf(prevEditor.column);
+        const indexOfColumn = Object.keys(this.props.columns).indexOf(prevEditor.column);
         this._unmountEditor(row.children[indexOfColumn]);
       } else {
         return;
       }
     }
 
-    const cellIndex = Object.keys(this.props.cols).indexOf(colId);
+    const cellIndex = Object.keys(this.props.columns).indexOf(colId);
     const cell = row.children[cellIndex];
     const record = this._getRecordWithChanges(recordId);
     const selected = this.isSelected(recordId);
@@ -387,7 +385,7 @@ class PureGridComponent extends React.Component {
     const selected = this.isSelected(recordId);
     const gridRowClass = this._getRowClassNames(recordId, selected);
     let html = `<tr key=${toEncodedString(recordId)} class="${gridRowClass}">`;
-    for (colId of Object.keys(this.props.cols)) {
+    for (colId of Object.keys(this.props.columns)) {
       if (this._isViewColumn(colId)) {
         const gridCellClass = classNames(this._getColumnClass(colId), {
           'dgrid-cell': true,
@@ -426,7 +424,7 @@ class PureGridComponent extends React.Component {
    * @private
    */
   _getCellHTML(columnId, record, selected, initialRecord) {
-    const render = last(this.props.cols[columnId].render);
+    const render = last(this.props.columns[columnId].render);
     const cellHtml = render(
       this._escapeRecord(columnId, record),
       selected,
@@ -442,7 +440,7 @@ class PureGridComponent extends React.Component {
     let type;
     let i;
     const escapedRecord = {};
-    const column = this.props.cols[columnId];
+    const column = this.props.columns[columnId];
     const needEscaping = !column.hasOwnProperty('escape') || column.escape;
     const fields = column.render.slice(0, -1);
 
@@ -567,7 +565,7 @@ class PureGridComponent extends React.Component {
    * @private
    */
   _getBindParam(id) {
-    return this.props.cols[id].editorField || id;
+    return this.props.columns[id].editorField || id;
   }
 
   // called in _getRowHTML
@@ -627,7 +625,7 @@ class PureGridComponent extends React.Component {
     const colGroup = [];
     let lastParent = {name: ''};
 
-    for (const [columnId, column] of Object.entries(this.props.cols)) {
+    for (const [columnId, column] of Object.entries(this.props.columns)) {
       // Skip column if it's invisible
       if (!this._isViewColumn(columnId)) {
         continue;
@@ -663,7 +661,7 @@ class PureGridComponent extends React.Component {
       if (column.parent) {
         if (column.parent !== lastParent.name) {
           lastParent = rows[0][rows[0].push({
-            name: this.props.cols[columnId].parent,
+            name: this.props.columns[columnId].parent,
             cols: 1, rows: 1
           }) - 1];
         } else {
@@ -693,7 +691,7 @@ class PureGridComponent extends React.Component {
     const sorts = this.props.sort;
     let sortIndex;
 
-    if (!this.props.cols[column].sortCycle) {
+    if (!this.props.columns[column].sortCycle) {
       return null;
     }
 
@@ -724,7 +722,7 @@ class PureGridComponent extends React.Component {
 
   // called in _formHeader
   _getColumnClass(id) {
-    return this.props.cols[id].className;
+    return this.props.columns[id].className;
   }
 
   // called in _formHeader
@@ -779,7 +777,7 @@ class PureGridComponent extends React.Component {
       && !(refParent && refParent.hasAttribute('disabled'))
     ) {
       const columnIndex = [...element.parentNode.children].indexOf(element);
-      const colId = Object.keys(this.props.cols)[columnIndex];
+      const colId = Object.keys(this.props.columns)[columnIndex];
       const key = element.parentNode.getAttribute('key');
       const recordId = this._recordMap.get(key);
       this.props.onCellClick(event, recordId, colId, (refParent || event.target).getAttribute('ref'));
@@ -865,12 +863,12 @@ class PureGridComponent extends React.Component {
 
     // If data for result line display exists, form it
     if (this.props.totals) {
-      for (i of Object.keys(this.props.cols)) {
+      for (i of Object.keys(this.props.columns)) {
         if (!this._isViewColumn(i)) {
           continue;
         }
 
-        className = this.props.cols[i].className;
+        className = this.props.columns[i].className;
         if (className) {
           totalsRowHTML += `<td class="${className}" key="${i}">`;
         } else {

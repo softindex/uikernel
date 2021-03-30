@@ -89,7 +89,7 @@ You just need to pass a model and configuration to make a component appear on yo
 {% highlight html tabsize=2 %}
 <UIKernel.Grid
   model={model}
-  cols={columns}
+  columns={columns}
 />
 {% endhighlight %}
 <br />

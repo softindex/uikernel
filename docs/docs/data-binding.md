@@ -155,7 +155,7 @@ class MainComponent extends React.Component {
             <h3>Grid with autosave</h3>
             <UIKernel.Grid
               model={this.state.model} // Grid model
-              cols={columns} // columns configuration
+              columns={columns} // columns configuration
               viewCount={10}
               autoSubmit={true}
             />
@@ -165,7 +165,7 @@ class MainComponent extends React.Component {
             <UIKernel.Grid
               ref={(grid) => this.grid = grid}
               model={this.state.model}
-              cols={columns}
+              columns={columns}
               viewCount={10}
             />
             <a href="#" className="btn btn-default" onClick={this.clearChanges}>Clear</a>

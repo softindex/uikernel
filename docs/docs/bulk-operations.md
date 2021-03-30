@@ -80,7 +80,7 @@ class MainComponent extends React.Component {
             {numText}
             <UIKernel.Grid
               ref={(grid) => this.grid = grid}
-              cols={columns}
+              columns={columns}
               model={this.state.model}
               viewCount={10}
               onSelectedChange={this.onSelectedChange}
