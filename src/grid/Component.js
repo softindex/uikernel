@@ -283,9 +283,9 @@ class GridComponent extends React.Component {
 
       const viewCount = this.getViewCount();
 
-      let obj;
+      let loadedData;
       try {
-        obj = await this._loadData({
+        loadedData = await this._loadData({
           limit: viewCount,
           offset: this.state.page * viewCount,
           sort: this._sortingToArray(),
@@ -306,32 +306,36 @@ class GridComponent extends React.Component {
         return;
       }
 
-      if (this.getViewCount() && !obj.hasOwnProperty('count')) {
+      if (this.getViewCount() && !loadedData.hasOwnProperty('count')) {
         throw new Error('Incorrect response from GridModel. "response.count" not defined');
       }
 
       // If required page is not included in the range of existing pages,
       // request existing in a moment page
-      const page = this._checkPage(this.state.page, this.getViewCount(), obj.count);
+      const page = this._checkPage(this.state.page, this.getViewCount(), loadedData.count);
       if (page !== this.state.page) {
         this.state.page = page;
         this.updateTable();
         return;
       }
 
-      const data = new EqualMap(obj.records || []);
-      const extra = new EqualMap((obj.extraRecords || []).filter(([recordId]) => {
+      const data = new EqualMap(loadedData.records || []);
+      const extra = new EqualMap((loadedData.extraRecords || []).filter(([recordId]) => {
         return !data.has(recordId);
       }));
       const recordIds = [...data.keys(), ...extra.keys()];
       this.setState({
         data,
         extra,
-        count: obj.count,
-        totals: obj.totals,
+        count: loadedData.count,
+        totals: loadedData.totals,
         errors: this._pick(this.state.errors, recordIds),
         changes: this._pick(this.state.changes, recordIds),
         showLoader: false
+      }, () => {
+        if (this.props.onPageLoad) {
+          this.props.onPageLoad(loadedData);
+        }
       });
     });
 
@@ -390,9 +394,6 @@ class GridComponent extends React.Component {
       throw err;
     }
 
-    if (this.props.onPageLoad) {
-      this.props.onPageLoad(data);
-    }
     return data;
   }
 
