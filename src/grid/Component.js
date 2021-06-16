@@ -1589,7 +1589,9 @@ class GridComponent extends React.Component {
 
       return {statuses};
     }, () => {
-      this.updateTable();
+      if (!this.state.data.has(recordId)) {
+        this.updateTable();
+      }
     });
   }
 
