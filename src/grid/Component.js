@@ -582,14 +582,16 @@ class GridComponent extends React.Component {
    * @private
    */
   _setRowChanges(recordId, data) {
-    const changes = cloneDeep(this.state.changes);
-    changes.set(recordId, getRecordChanges(this.props.model, this.state.data.get(recordId) || this.state.extra.get(recordId), changes.get(recordId), data));
+    this.setState((state, props) => {
+      const changes = cloneDeep(state.changes);
+      changes.set(recordId, getRecordChanges(props.model, state.data.get(recordId) || state.extra.get(recordId), changes.get(recordId), data));
+  
+      if (isEmpty(changes.get(recordId))) {
+        changes.delete(recordId);
+      }
 
-    if (isEmpty(changes.get(recordId))) {
-      changes.delete(recordId);
-    }
-
-    this.setState({changes}, () => {
+      return {...state, changes};
+    }, () => {
       if (this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
       }
@@ -1191,6 +1193,9 @@ class GridComponent extends React.Component {
         this._setRowChanges(recordId, {
           [field]: nextValue
         });
+      },
+      set: (changes) => {
+        this._setRowChanges(recordId, changes);
       }
     };
     editorContext.props = {
@@ -1584,7 +1589,9 @@ class GridComponent extends React.Component {
 
       return {statuses};
     }, () => {
-      this.updateTable();
+      if (!this.state.data.has(recordId)) {
+        this.updateTable();
+      }
     });
   }
 
