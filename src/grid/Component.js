@@ -585,12 +585,12 @@ class GridComponent extends React.Component {
     this.setState((state, props) => {
       const changes = cloneDeep(state.changes);
       changes.set(recordId, getRecordChanges(props.model, state.data.get(recordId) || state.extra.get(recordId), changes.get(recordId), data));
-  
+
       if (isEmpty(changes.get(recordId))) {
         changes.delete(recordId);
       }
 
-      return {...state, changes};
+      return {changes};
     }, () => {
       if (this.props.onChange) {
         this.props.onChange(this.state.changes, this.state.data);
