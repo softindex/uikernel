@@ -1662,7 +1662,7 @@ class GridComponent extends React.Component {
       if (recordStatuses.has(status)) {
         recordStatuses.delete(status);
         if (!recordStatuses.size) {
-          delete statuses[recordId];
+          statuses.delete(recordId);
           needCheckRemoveRecord = true;
         }
       }
