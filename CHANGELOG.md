@@ -59,6 +59,7 @@
     * [Allowed empty fields in GridExpressApi](https://github.com/softindex/uikernel/pull/277)
     * [Fixed infinity loader on error](https://github.com/softindex/uikernel/pull/291)
     * [Fix in-grid editor's updateField method](https://github.com/softindex/uikernel/pull/311)
+    * [Fixed error in removeRecordStatus](https://github.com/softindex/uikernel/pull/314)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
     * Fixed bugs with removeRecordStatus and removeRecordStatusAll methods
