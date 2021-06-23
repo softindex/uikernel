@@ -533,7 +533,7 @@ class GridComponent extends React.Component {
    * @return {Array|null}
    */
   getErrors() {
-    const result = this.state.errors.entries();
+    const result = [...this.state.errors.entries()];
     return result.length ? result : null;
   }
 
