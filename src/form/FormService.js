@@ -52,7 +52,7 @@ class FormService {
       throw new Error('You must specify the model');
     }
 
-    this._data = settings.data || null;
+    this._data = settings.data;
     this._changes = settings.changes || {};
     this._isSubmitting = false;
     this.showDependentFields = settings.showDependentFields || false;
@@ -376,7 +376,7 @@ class FormService {
    * @returns {boolean}
    */
   _isLoaded() {
-    return this._data !== null;
+    return this._data !== undefined;
   }
 
   /**
