@@ -14,7 +14,7 @@ import ThrottleError from '../common/ThrottleError';
 
 class FormService {
   constructor(fields = null) {
-    this._data = null;
+    this._data = undefined;
     this._changes = null;
     this._errors = new ValidationErrors();
     this._warnings = new ValidationErrors();
