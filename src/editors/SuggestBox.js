@@ -169,7 +169,7 @@ class SuggestBoxEditor extends React.Component {
       });
     }
 
-    if (this._isMounted) {
+    if (this.state.isOpened && this._isMounted) {
       await this.setState({
         options,
         selectedOptionKey: null,
@@ -231,7 +231,7 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputFocus(e) {
     await this._openList();
-    if (!this._isMounted) {
+    if (!this.state.isOpened || !this._isMounted) {
       return;
     }
 
