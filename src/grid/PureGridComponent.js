@@ -302,9 +302,10 @@ class PureGridComponent extends React.Component {
    */
   _renderCell(recordId, colId, row, prevEditor) {
     // if editor is on the current cell - only render editor
+    const columns = Object.keys(this.props.columns).filter(colId => this._isViewColumn(colId));
     if (recordId === this.props.editor.recordId) {
       if (colId === this.props.editor.column) {
-        const indexOfColumn = Object.keys(this.props.columns).indexOf(this.props.editor.column);
+        const indexOfColumn = columns.indexOf(this.props.editor.column);
         this._renderEditor(row.children[indexOfColumn]);
         return;
       }
@@ -314,14 +315,14 @@ class PureGridComponent extends React.Component {
     // if editor was on the grid - check and re render only that cell which had editor
     if (prevEditor.recordId) {
       if (recordId === prevEditor.recordId && colId === prevEditor.column) {
-        const indexOfColumn = Object.keys(this.props.columns).indexOf(prevEditor.column);
+        const indexOfColumn = columns.indexOf(prevEditor.column);
         this._unmountEditor(row.children[indexOfColumn]);
       } else {
         return;
       }
     }
 
-    const cellIndex = Object.keys(this.props.columns).indexOf(colId);
+    const cellIndex = columns.indexOf(colId);
     const cell = row.children[cellIndex];
     const record = this._getRecordWithChanges(recordId);
     const selected = this.isSelected(recordId);
@@ -777,7 +778,7 @@ class PureGridComponent extends React.Component {
       && !(refParent && refParent.hasAttribute('disabled'))
     ) {
       const columnIndex = [...element.parentNode.children].indexOf(element);
-      const colId = Object.keys(this.props.columns)[columnIndex];
+      const colId = Object.keys(this.props.columns).filter(colId => this._isViewColumn(colId))[columnIndex];
       const key = element.parentNode.getAttribute('key');
       const recordId = this._recordMap.get(key);
       this.props.onCellClick(event, recordId, colId, (refParent || event.target).getAttribute('ref'));
