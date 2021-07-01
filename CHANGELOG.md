@@ -61,6 +61,7 @@
     * [Fix in-grid editor's updateField method](https://github.com/softindex/uikernel/pull/311)
     * [Fixed error in removeRecordStatus](https://github.com/softindex/uikernel/pull/314)
     * [Fix getError bug](https://github.com/softindex/uikernel/pull/315)
+    * [Fixed bug with checking viewColumns](https://github.com/softindex/uikernel/pull/318)
     * Update GridComponent if `selectBlackListMode` prop has been changed
     * Fixed applying GridComponent.prototype.setSelectedRecords
     * Fixed bugs with removeRecordStatus and removeRecordStatusAll methods
