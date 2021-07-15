@@ -184,7 +184,7 @@ class GridComponent extends React.Component {
     if (this.props.model !== nextProps.model) {
       reset.add(RESET_MODEL);
     }
-    if (!isEqual(this.props.viewColumns, nextProps.viewColumns)) {
+    if (this.props.viewColumns !== nextProps.viewColumns) {
       reset.add(RESET_VIEW_COLUMNS);
     }
     if (!isEqual(this.props.sort, nextProps.sort)) {
@@ -720,43 +720,6 @@ class GridComponent extends React.Component {
 
     const errorHandler = this.props.onError || ::console.error;
     unhandledErrors.forEach(error => errorHandler(error));
-  }
-
-  /**
-   * Column visibility flag
-   *
-   * @param   {string}    id  Column ID
-   * @returns {boolean}   Column visibility
-   * @private
-   */
-  _isViewColumn(id) {
-    if (!this.props.viewColumns) {
-      return true;
-    }
-
-    if (Array.isArray(this.props.viewColumns)) {
-      return this.props.viewColumns.indexOf(id) > -1;
-    }
-
-    return this.props.viewColumns[id];
-  }
-
-  /**
-   * Does the parameters to display grid
-   *
-   * @param   {string}  field
-   * @return  {boolean}
-   * @private
-   */
-  _isFieldAffectsRender(field) {
-    let i;
-    const cols = this.props.columns;
-    for (i in cols) {
-      if (cols[i].render.indexOf(field) >= 0) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**

@@ -28,7 +28,7 @@ class PureGridComponent extends React.Component {
     if (
       this._shouldRenderBody(prevProps, 'records') ||
       this._shouldRenderBody(prevProps, 'extraRecords') ||
-      !isEqual(this.props.viewColumns, prevProps.viewColumns) ||
+      this.props.viewColumns !== prevProps.viewColumns ||
       this.props.columns !== prevProps.columns
     ) {
       this._renderBody();
