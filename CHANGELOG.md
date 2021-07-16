@@ -12,10 +12,11 @@
     * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
 
   * Grid
-      * "create" and "delete" events in GridModel has `Array` type in GridCollectionModel
-      * Changed GridCollectionModel.delete(recordId) method to GridCollectionModel.delete(recordIds: Array)
-      * Changed className of extra records from "others" to "dgrid-others" in GridComponent
-      * Changed param type in onChange prop. Now it's Map<TKey, TValue> instead of simple object
+    * [Rerender Grid if passed new object to viewColumns prop](https://github.com/softindex/uikernel/pull/319)
+    * "create" and "delete" events in GridModel has `Array` type in GridCollectionModel
+    * Changed GridCollectionModel.delete(recordId) method to GridCollectionModel.delete(recordIds: Array)
+    * Changed className of extra records from "others" to "dgrid-others" in GridComponent
+    * Changed param type in onChange prop. Now it's Map<TKey, TValue> instead of simple object
 
   * DatePicker Editor
     * [Updated datepicker to version 3.6](https://github.com/softindex/uikernel/pull/298). Need to change format of `format` and `textFormat` props from `moment.js` style to `date-fns` style.
