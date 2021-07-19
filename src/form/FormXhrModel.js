@@ -22,6 +22,7 @@ class FormXhrModel extends EventsModel {
       throw new Error('Initialization problem: \'api\' must be specified.');
     }
 
+    this._multipartFormDataEncoded = settings.multipartFormData || false;
     this._validator = settings.validator || new Validator();
     this._xhr = settings.xhr || defaultXhr;
     this._apiUrl = settings.api
@@ -46,14 +47,30 @@ class FormXhrModel extends EventsModel {
     return JSON.parse(response);
   }
 
-  async submit(changes) {
+  async submit(record) {
+    const formData = new FormData();
+
+    if (this._multipartFormDataEncoded) {
+      const ordinaryData = {};
+      for (const [prop, value] of Object.entries(record)) {
+        if (value instanceof File) {
+          formData.append(JSON.stringify(prop), value);
+        } else {
+          ordinaryData[prop] = value;
+        }
+      }
+      formData.append('rest', JSON.stringify(ordinaryData));
+    }
+
     let body = await this._xhr({
       method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
+      ...!this._multipartFormDataEncoded && {
+        headers: {
+          'Content-type': 'application/json'
+        }
       },
       uri: this._apiUrl,
-      body: JSON.stringify(changes)
+      body: this._multipartFormDataEncoded ? formData : JSON.stringify(record)
     });
 
     body = JSON.parse(body);

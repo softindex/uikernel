@@ -8,14 +8,23 @@
 
 import ValidationErrors from '../common/validation/ValidationErrors';
 import express from 'express';
-import {asyncHandler} from '../common/utils';
+import multer from 'multer';
+import {asyncHandler, parseJson} from '../common/utils';
+
+const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
 class FormExpressApi {
-  static create() {
-    return new FormExpressApi();
+  static create(multipartFormData, maxFileSize) {
+    return new FormExpressApi(multipartFormData, maxFileSize);
   }
 
-  constructor() {
+  constructor(multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE) {
+    const upload = multer({
+      limits: {
+        fileSize: maxFileSize
+      }
+    });
+
     this.middlewares = {
       getData: [asyncHandler(async (req, res, next) => {
         const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
@@ -25,19 +34,33 @@ class FormExpressApi {
         const fields = req.body.fields || null;
         this._commonGetDataMiddleware(req, res, next, fields);
       })],
-      submit: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        try {
-          const data = await model.submit(req.body);
-          this._result(null, {data: data, error: null}, req, res, next);
-        } catch (err) {
-          if (err && !(err instanceof ValidationErrors)) {
-            this._result(err, null, req, res, next);
-            return;
+      submit: [
+        ...(multipartFormData ? [upload.any()] : []),
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          let body = req.body;
+
+          if (multipartFormData) {
+            body = parseJson(body.rest);
+
+            for (const {fieldname, buffer} of req.files) {
+              const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name');
+              body[parsedFieldName] = buffer;
+            }
           }
-          this._result(null, {data: null, error: err}, req, res, next);
-        }
-      })],
+
+          try {
+            const data = await model.submit(body);
+            this._result(null, {data: data, error: null}, req, res, next);
+          } catch (err) {
+            if (err && !(err instanceof ValidationErrors)) {
+              this._result(err, null, req, res, next);
+              return;
+            }
+            this._result(null, {data: null, error: err}, req, res, next);
+          }
+        })
+      ],
       validate: [asyncHandler(async (req, res, next) => {
         const model = this._getModel(req, res);
         try {
