@@ -16,6 +16,7 @@ class DatePickerEditor extends React.Component {
   static propTypes = {
     format: PropTypes.string,
     textFormat: PropTypes.string,
+    todayButton: PropTypes.string,
     min: PropTypes.any,
     max: PropTypes.any,
     startDate: PropTypes.any,
@@ -27,7 +28,8 @@ class DatePickerEditor extends React.Component {
   };
 
   static defaultProps = {
-    textFormat: 'yyyy-MM-dd'
+    textFormat: 'yyyy-MM-dd',
+    todayButton: 'Today'
   };
 
   onChange(date) {
@@ -41,7 +43,6 @@ class DatePickerEditor extends React.Component {
     const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max']);
     return (
       <DatePicker
-        todayButton={'Today'}
         {...otherProps}
         dateFormat={this.props.textFormat}
         selected={this.props.value && new Date(this.props.value)}
