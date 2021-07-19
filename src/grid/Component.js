@@ -115,7 +115,8 @@ const propTypes = (() => {
     warningsValidator: PropTypes.shape({
       isValidRecord: PropTypes.func,
       getValidationDependency: PropTypes.func
-    })
+    }),
+    pageSizeLabel: PropTypes.string
   };
 })();
 
@@ -123,7 +124,8 @@ const defaultProps = {
   page: 0,
   defaultViewCount: 0,
   partialErrorChecking: false,
-  selected: []
+  selected: [],
+  pageSizeLabel: 'Page Size'
 };
 
 class GridComponent extends React.Component {
@@ -1864,6 +1866,7 @@ class GridComponent extends React.Component {
         onColumnClick={this._handleColumnClick}
         height={this.props.height}
         columns={this.props.columns}
+        pageSizeLabel={this.props.pageSizeLabel}
         viewCount={viewCount}
         sort={sort}
         classNames={gridClassNames}

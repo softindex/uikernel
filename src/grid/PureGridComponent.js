@@ -792,7 +792,7 @@ class PureGridComponent extends React.Component {
       <div className="dgrid-footer">
         {Boolean(this.props.viewVariants) && (
           <>
-            <div className="dgrid-pagination-page-size"> Page Size</div>
+            <div className="dgrid-pagination-page-size"> {this.props.pageSizeLabel}</div>
             <div className="dgrid-pagination-view-variants">
               <select
                 className="dgrid-pagination-view-variants-select"
