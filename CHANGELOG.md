@@ -28,6 +28,7 @@
     * [Added grid context param to columns render method](https://github.com/softindex/uikernel/pull/269)
     * [Added `multipart/form-data` encoding to GridXHRModel](https://github.com/softindex/uikernel/pull/270)
     * [Added toCSV export](https://github.com/softindex/uikernel/pull/261)
+    * [Added `pageSizeLabel` prop to GridComponent](https://github.com/softindex/uikernel/pull/320)
     * Added `recordId` property to GridModel.prototype.isValidRecord
 
   * Form
@@ -40,6 +41,7 @@
 
   * DatePicker Editor
     * [Added `startDate` and `endDate` props](https://github.com/softindex/uikernel/pull/283)
+    * [Added `todayButton` prop](https://github.com/softindex/uikernel/pull/320)
 
   ### Fixed
 
