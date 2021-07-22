@@ -40,7 +40,7 @@ class DatePickerEditor extends React.Component {
   }
 
   render() {
-    const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max']);
+    const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max', 'onBlur']);
     return (
       <DatePicker
         {...otherProps}
@@ -51,6 +51,7 @@ class DatePickerEditor extends React.Component {
         maxDate={this.props.max && new Date(this.props.max)}
         startDate={this.props.startDate && new Date(this.props.startDate)}
         endDate={this.props.endDate && new Date(this.props.endDate)}
+        onCalendarClose={this.props.onBlur}
       />
     );
   }

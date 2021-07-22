@@ -12,7 +12,7 @@ class EqualMap extends Map {
   }
 
   set(key, value) {
-    Map.prototype.set.call(
+    return Map.prototype.set.call(
       this,
       JSON.stringify(key),
       value
