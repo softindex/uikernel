@@ -80,6 +80,9 @@
     * [Prevented SuggestBox from closing when scrolling event is triggered](https://github.com/softindex/uikernel/pull/242)
     * [Fixed small bag in trying to use dom element of unmounted SuggestBox](https://github.com/softindex/uikernel/pull/244)
 
+  * DatePicker Editor
+    * [Fixed datepicker "onBlur" prop](https://github.com/softindex/uikernel/pull/322)
+
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
     * [Fixed Date validator](https://github.com/softindex/uikernel/pull/257)
