@@ -354,8 +354,8 @@ class FormService {
         return {
           value: data[fieldName],
           isChanged: changes.hasOwnProperty(fieldName),
-          errors: errors.getFieldErrorMessages(fieldName),
-          warnings: warnings.getFieldErrorMessages(fieldName)
+          errors: errors.getFieldErrors(fieldName),
+          warnings: warnings.getFieldErrors(fieldName)
         };
       }
     });
