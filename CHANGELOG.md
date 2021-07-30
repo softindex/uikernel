@@ -9,7 +9,6 @@
 
   * Common
     * Removed `UIKernel.createXhrValidator` (use createValidator)
-    * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
 
   * Grid
     * [Rerender Grid if passed new object to viewColumns prop](https://github.com/softindex/uikernel/pull/319)
@@ -17,6 +16,17 @@
     * Changed GridCollectionModel.delete(recordId) method to GridCollectionModel.delete(recordIds: Array)
     * Changed className of extra records from "others" to "dgrid-others" in GridComponent
     * Changed param type in onChange prop. Now it's Map<TKey, TValue> instead of simple object
+    * Renamed property `validation` to `validator` in GridCollectionModel
+
+  * From
+    * [Changed type of returning errors and warnings in formService.getAll(). `string[] | null` to `{message: string}[]`](https://github.com/softindex/uikernel/pull/323)
+    * [FormMixin: Changed type of state.errors and state.warnings `string[] | null` to `{message: string}[]`](https://github.com/softindex/uikernel/pull/323)
+
+  * ValidationErrors
+    * `UIKernel.Models.ValidationErrors` moved to `UIKernel.ValidationErrors`
+    * Changed type `validationErrors.getFieldErrors(string): Array | null` to `validationErrors.getFieldErrors(string): Array`
+    * Changed type `validationErrors.getFieldErrorMessages(string): Array | null` to `validationErrors.getFieldErrorMessages(string): Array`
+    * Changed type `validationErrors.getFailedFields(): string[] | null` to `validationErrors.getFailedFields(): string[]`
 
   * DatePicker Editor
     * [Updated datepicker to version 3.6](https://github.com/softindex/uikernel/pull/298). Need to change format of `format` and `textFormat` props from `moment.js` style to `date-fns` style.

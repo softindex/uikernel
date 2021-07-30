@@ -62,7 +62,7 @@ describe('Settings', () => {
 
     await form.validateForm();
 
-    expect(form.getAll().fields.age.errors).toBeNull();
+    expect(form.getAll().fields.age.errors.length).toBe(0);
   });
 
   it('partialErrorChecking = false', async () => {
@@ -108,26 +108,26 @@ describe('Get all', () => {
       name: {
         value: 'newName',
         isChanged: true,
-        errors: null,
-        warnings: null
+        errors: [],
+        warnings: []
       },
       surname: {
         value: undefined,
         isChanged: false,
-        errors: ['Surname is required'],
-        warnings: null
+        errors: [{message: 'Surname is required'}],
+        warnings: []
       },
       phone: {
         value: 123456,
         isChanged: true,
-        warnings: null,
-        errors: null
+        warnings: [],
+        errors: []
       },
       age: {
         value: 45,
         isChanged: false,
-        errors: ['Age must be greater then 100'],
-        warnings: null
+        errors: [{message: 'Age must be greater then 100'}],
+        warnings: []
       }
     };
     initSettings.data = {name: 'Name', age: 45};
@@ -212,7 +212,7 @@ describe('clearValidation', () => {
     await form.set({name: 'John'}, true);
     form.clearValidation('name');
 
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set changes, validation, clear error
   });
 
@@ -314,7 +314,7 @@ describe('submit', () => {
     await form.submit();
 
     expect(form.getAll().fields.name.isChanged).toBeFalsy();
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set values, submitting, submit result
   });
 
@@ -353,7 +353,7 @@ describe('clearFieldChanges', () => {
   it('Errors clear field', async () => {
     await form.set({name: 'Error'}, true);
     form.clearFieldChanges('name');
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Set state', async () => {
@@ -370,7 +370,7 @@ describe('clearChanges', () => {
     stateHandler.mockClear();
     form.clearChanges();
     expect(stateHandler).toHaveBeenCalledTimes(1);
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
     expect(form.getAll().fields.name.isChanged).toBeFalsy();
   });
 });
@@ -391,7 +391,7 @@ describe('validateForm', () => {
 
     // Valid name
     await form.set({name: 'John'}, true);
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Simple validation error', async () => {
@@ -419,7 +419,7 @@ describe('validateForm', () => {
     }
 
     expect(error).toBe(globalError);
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Set state', async () => {
@@ -453,7 +453,7 @@ describe('validateForm', () => {
     form.set({name: 'Sophia'}); // Cancel previous validation
 
     await validationPromise;
-    expect(form.getAll().fields.name.errors).toBeFalsy();
+    expect(form.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Validation dependencies', async () => {

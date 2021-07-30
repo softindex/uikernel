@@ -8,7 +8,7 @@
 
 import Validator from '../../common/validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
-import {cloneDeep, warn, isEqual, without, clone, forEach, find} from '../../common/utils';
+import {cloneDeep, isEqual, without, clone, forEach, find} from '../../common/utils';
 
 class GridCollectionModel extends AbstractGridModel {
   /**
@@ -28,10 +28,7 @@ class GridCollectionModel extends AbstractGridModel {
     this._data = cloneDeep(options.data) || [];
     this._id = 1;
     this._filtersHandler = options.filtersHandler;
-    if (options.validation) {
-      warn('Property "validation" is deprecated, use "validator" instead');
-    }
-    this._validator = options.validator || options.validation || new Validator();
+    this._validator = options.validator || new Validator();
     this._requiredFields = options.requiredFields || [];
   }
 

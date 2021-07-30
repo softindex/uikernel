@@ -88,34 +88,34 @@ class ValidationErrors {
    * Get field errors
    *
    * @param   {string}      field     Field name
-   * @returns {Array|null}  Errors array or null
+   * @returns {Array}       Errors array or null
    */
   getFieldErrors(field) {
-    return this._fields.get(field) || null;
+    return this._fields.get(field) || [];
   }
 
   /**
    * Get field errors message
    *
    * @param   {string}      field     Field name
-   * @returns {Array|null}  Errors array or null
+   * @returns {Array}       Errors array or null
    */
   getFieldErrorMessages(field) {
     const fieldErrors = this._fields.get(field);
     if (fieldErrors) {
       return fieldErrors.map(error => error.message);
     }
-    return null;
+
+    return [];
   }
 
   /**
    * Get field names array, that contain errors
    *
-   * @returns {string[]|null}
+   * @returns {string[]}
    */
   getFailedFields() {
-    const fields = [...this._fields.keys()];
-    return fields.length ? fields : null;
+    return [...this._fields.keys()];
   }
 
   /**
