@@ -44,6 +44,7 @@
   * Form
     * [Allowed to get undefined fields from `getAll().fields` in FormService (used `Proxy`)](https://github.com/softindex/uikernel/pull/246)
     * [FormExpressAPI: Added POST handler for long getData requests](https://github.com/softindex/uikernel/pull/282)
+    * [Added support multipart form data for form model](https://github.com/softindex/uikernel/pull/321)
     * Added UIKernel.useFrom hook
 
   * SuggestBox Editor

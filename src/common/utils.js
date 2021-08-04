@@ -179,8 +179,10 @@ export function parseValueFromEvent(event) {
     event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
   ) {
     switch (event.target.type) {
-    case 'checkbox': return event.target.checked;
-    case 'file': return event.target.files[0];
+      case 'checkbox':
+        return event.target.checked;
+      case 'file':
+        return event.target.files[0];
     }
 
     return event.target.value;

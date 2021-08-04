@@ -18,8 +18,13 @@ Form Express API helps to perform the next requests:
 ## Initialization
 
 {% highlight javascript %}
-  const formApiBuilder = UIKernel.formExpressApi();    //initializes builder
+  const formApiBuilder = UIKernel.formExpressApi({multipartFormData, maxFileSize});
 {% endhighlight %}
+
+| Type    | Name              | Description                               | Default value     |
+|---------|-------------------|-------------------------------------------|-------------------|
+| Boolean | multipartFormData | Use multipart/form-data                   | false             |
+| Number  | maxFileSize       | Max file size if multipartFormData = true | 104857600 (100MB) |
 
 ## Builder methods
 

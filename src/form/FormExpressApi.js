@@ -14,11 +14,11 @@ import {asyncHandler, parseJson} from '../common/utils';
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
 class FormExpressApi {
-  static create(multipartFormData, maxFileSize) {
-    return new FormExpressApi(multipartFormData, maxFileSize);
+  static create(settings) {
+    return new FormExpressApi(settings);
   }
 
-  constructor(multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE) {
+  constructor({multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE} = {}) {
     const upload = multer({
       limits: {
         fileSize: maxFileSize

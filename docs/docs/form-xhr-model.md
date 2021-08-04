@@ -17,11 +17,12 @@ Form XHR Model is a class which interacts with the server API holding the data.
 
 **Parameters**:
 
-| Type                              | Name                  | Description                   |
-|-----------------------------------|-----------------------|-------------------------------|
-| String                            | settings.api          | *Required*. API address to interact with  |
-| [Validator](/docs/validator.html) | settings.validator    | *Optional*. Validator instance. By default there is used a new [Validator](/docs/validator.html) instance. |
-| Function                          | settings.xhr          | *Optional*. XHR interface. By default there is used a built-in xhr function, but you can override it here. |
+| Type                              | Name                       | Description                   |
+|-----------------------------------|----------------------------|-------------------------------|
+| String                            | settings.api               | *Required*. API address to interact with  |
+| [Validator](/docs/validator.html) | settings.validator         | *Optional*. Validator instance. By default there is used a new [Validator](/docs/validator.html) instance. |
+| Function                          | settings.xhr               | *Optional*. XHR interface. By default there is used a built-in xhr function, but you can override it here. |
+| Boolean                           | settings.multipartFormData | *Optional*. Send multipart/form-data requests. False by default. |
 
 ____
 
