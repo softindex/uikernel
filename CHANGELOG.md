@@ -82,6 +82,7 @@
 
   * DatePicker Editor
     * [Fixed datepicker "onBlur" prop](https://github.com/softindex/uikernel/pull/322)
+    * [Change new Date to date-fns/parseISO](https://github.com/softindex/uikernel/pull/330)
 
   * Validators
     * [Handle case when invalid date value was passed to validator](https://github.com/softindex/uikernel/pull/238)
