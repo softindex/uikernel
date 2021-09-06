@@ -8,7 +8,7 @@
 
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import format from 'date-fns/format';
+import {format, parseISO} from 'date-fns';
 import PropTypes from 'prop-types';
 import {omit} from '../common/utils';
 
@@ -45,12 +45,12 @@ class DatePickerEditor extends React.Component {
       <DatePicker
         {...otherProps}
         dateFormat={this.props.textFormat}
-        selected={this.props.value && new Date(this.props.value)}
+        selected={this.props.value && parseISO(this.props.value)}
         onChange={::this.onChange}
-        minDate={this.props.min && new Date(this.props.min)}
-        maxDate={this.props.max && new Date(this.props.max)}
-        startDate={this.props.startDate && new Date(this.props.startDate)}
-        endDate={this.props.endDate && new Date(this.props.endDate)}
+        minDate={this.props.min && parseISO(this.props.min)}
+        maxDate={this.props.max && parseISO(this.props.max)}
+        startDate={this.props.startDate && parseISO(this.props.startDate)}
+        endDate={this.props.endDate && parseISO(this.props.endDate)}
         onCalendarClose={this.props.onBlur}
       />
     );
