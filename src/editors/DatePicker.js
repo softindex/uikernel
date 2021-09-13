@@ -39,18 +39,26 @@ class DatePickerEditor extends React.Component {
     this.props.onChange(date);
   }
 
+  parseDate(value) {
+    if (value && typeof value === 'string') {
+      return parseISO(value);
+    }
+
+    return value;
+  }
+
   render() {
     const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max', 'onBlur']);
     return (
       <DatePicker
         {...otherProps}
         dateFormat={this.props.textFormat}
-        selected={this.props.value && parseISO(this.props.value)}
+        selected={this.parseDate(this.props.value)}
         onChange={::this.onChange}
-        minDate={this.props.min && parseISO(this.props.min)}
-        maxDate={this.props.max && parseISO(this.props.max)}
-        startDate={this.props.startDate && parseISO(this.props.startDate)}
-        endDate={this.props.endDate && parseISO(this.props.endDate)}
+        minDate={this.parseDate(this.props.min)}
+        maxDate={this.parseDate(this.props.max)}
+        startDate={this.parseDate(this.props.startDate)}
+        endDate={this.parseDate(this.props.endDate)}
         onCalendarClose={this.props.onBlur}
       />
     );
