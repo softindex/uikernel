@@ -1216,7 +1216,12 @@ class GridComponent extends React.Component {
     }
 
     try {
-      const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
+      const errors = await this._checkValidatorErrors(
+        recordId,
+        this.props.model,
+        this._getRecordChanges(recordId),
+        'errors'
+      );
       this.setState({errors});
     } catch (e) {
       if (!(e instanceof ThrottleError)) {
@@ -1229,7 +1234,12 @@ class GridComponent extends React.Component {
    * Validate row
    */
   async _validateRow(recordId) {
-    const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
+    const errors = await this._checkValidatorErrors(
+      recordId,
+      this.props.model,
+      this._getRecordChanges(recordId),
+      'errors'
+    );
     this.setState({errors});
   }
 
@@ -1237,7 +1247,12 @@ class GridComponent extends React.Component {
    * Validate row
    */
   async _getValidationErrors(recordId) {
-    return await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
+    return await this._checkValidatorErrors(
+      recordId,
+      this.props.model,
+      this._getRecordChanges(recordId),
+      'errors'
+    );
   }
 
   /**
@@ -1258,12 +1273,18 @@ class GridComponent extends React.Component {
    */
   async _checkWarnings(recordId) {
     if (!this.props.warningsValidator) {
-      return new EqualMap();
+      return;
     }
+
+    const record = this._getRecordWithChanges(recordId);
+    if (!record) {
+      return;
+    }
+
     const warnings = await this._checkValidatorErrors(
       recordId,
       this.props.warningsValidator,
-      this._getRecordWithChanges,
+      record,
       'warnings'
     );
 
@@ -1297,11 +1318,10 @@ class GridComponent extends React.Component {
    * @param {{}}            result      Validation result object
    * @private
    */
-  async _checkValidatorErrors(recordId, validator, getData, resultField) {
-    const record = getData(recordId);
+  async _checkValidatorErrors(recordId, validator, record, resultField) {
     const validErrors = await validator.isValidRecord(record, recordId);
     const clonedResult = clone(this.state[resultField]);
-    if (isEqual(record, getData(recordId))) {
+    if (isEqual(record, record)) {
       if (validErrors.isEmpty()) {
         clonedResult.delete(recordId);
       } else {
