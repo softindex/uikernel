@@ -61,7 +61,8 @@ class SuggestBoxEditor extends React.Component {
     notFoundElement: <div>Nothing found</div>,
     loadingElement: <div>Loading...</div>,
     value: null,
-    withEmptyOption: false
+    withEmptyOption: false,
+    closeMenuOnSelect: true
   };
 
   constructor(props) {
@@ -169,7 +170,7 @@ class SuggestBoxEditor extends React.Component {
       });
     }
 
-    if (this._isMounted) {
+    if (this.state.isOpened && this._isMounted) {
       await this.setState({
         options,
         selectedOptionKey: null,
@@ -231,7 +232,7 @@ class SuggestBoxEditor extends React.Component {
 
   async _onInputFocus(e) {
     await this._openList();
-    if (!this._isMounted) {
+    if (!this.state.isOpened || !this._isMounted) {
       return;
     }
 
@@ -386,7 +387,9 @@ class SuggestBoxEditor extends React.Component {
       }
       if (target.classList.contains(classes.optionSelectable) && this.state.isOpened) {
         this._selectOption(this.state.options[target.getAttribute('data-key')]);
-        this._closeList(true);
+        if (this.props.closeMenuOnSelect) {
+          this._closeList(true);
+        }
       }
     } else {
       // q where to test
@@ -566,7 +569,7 @@ class SuggestBoxEditor extends React.Component {
           style={this.state.popupStyles}
           onDocumentMouseDown={this._onDocumentMouseDown}
           onDocumentMouseScroll={this._onDocumentMouseScroll}
-          className='__suggestBoxPopUp'
+          className="__suggestBoxPopUp"
         >
           <div className="__suggestBoxPopUp-content">
             <ul>{options}</ul>
@@ -576,14 +579,14 @@ class SuggestBoxEditor extends React.Component {
     }
 
     return (
-      <div className='__suggestBox'>
+      <div className="__suggestBox">
         <div className={classes.searchBlock}>
           <input
             {...omit(this.props,
               ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
                 'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange', 'withEmptyOption'])}
             ref={(input) => this.input = input}
-            type='text'
+            type="text"
             onClick={this._openList}
             onFocus={this._onInputFocus}
             onKeyDown={this._onInputKeyDown}
