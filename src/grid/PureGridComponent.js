@@ -796,10 +796,10 @@ class PureGridComponent extends React.Component {
             <div className="dgrid-pagination-view-variants">
               <select
                 className="dgrid-pagination-view-variants-select"
-                value={this.props.viewVariants.indexOf(viewCount)}
+                value={viewCount}
                 onChange={onChangeViewCount}
               >
-                {this.props.viewVariants.map((option, key) => <option key={key} value={key}>{option}</option>, this)}
+                {this.props.viewVariants.map((option, key) => <option key={key} value={option}>{option}</option>, this)}
               </select>
             </div>
           </>
@@ -1015,6 +1015,35 @@ class PureGridComponent extends React.Component {
     );
   }
 }
+
+PureGridComponent.defaultProps = {
+  onChangeViewCount: () => {},
+  onClickFirstPage: () => {},
+  onClickPrevPage: () => {},
+  onClickNextPage: () => {},
+  onClickLastPage: () => {},
+  onRefreshTable: () => {},
+  onCellClick: () => {},
+  onColumnClick: () => {},
+  columns: {},
+  pageSizeLabel: 'Page Size',
+  viewCount: 10,
+  sort: [],
+  classNames: ['data-grid'],
+  showLoader: false,
+  totals: {},
+  viewVariants: [10, 20, 30, 40, 50, 100, 200, 300, 500],
+  count: 0,
+  page: 1,
+  records: new Map(),
+  extraRecords: new Map(),
+  statuses: new Map(),
+  changes: new Map(),
+  errors: new Map(),
+  warnings: new Map(),
+  editor: {},
+  grid: this,
+};
 
 function withPreventDefault(handler) {
   return event => {

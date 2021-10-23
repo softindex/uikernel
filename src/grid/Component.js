@@ -1407,7 +1407,7 @@ class GridComponent extends React.Component {
    * @param {Event} event
    */
   handleChangeViewCount = (event) => {
-    const count = this.props.viewVariants[event.target.value];
+    const count = event.target.value;
     if (this._isViewCountPropsMode()) {
       this.props.onChangeViewCount(count);
       return;
