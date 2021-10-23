@@ -43,6 +43,7 @@ import numberValidationRule from './common/validation/rules/number';
 import notEmptyValidationRule from './common/validation/rules/notEmpty';
 import FormMixin from './form/mixin';
 import useForm from './form/useForm';
+import PureGridComponent from './grid/PureGridComponent';
 
 if (!global._babelPolyfill) {
   require('@babel/polyfill/browser');
@@ -51,6 +52,7 @@ if (!global._babelPolyfill) {
 const UIKernel = {
   applyGridFilters,
   Grid: Component,
+  PureGrid: PureGridComponent,
   Form: FormService,
   connectForm,
   createValidator: Validator.create,
