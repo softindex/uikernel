@@ -54,6 +54,7 @@ const UIKernel = {
   Form: FormService,
   connectForm,
   createValidator: Validator.create,
+  Validator,
   ValidationErrors,
   Models: {
     Grid: {
