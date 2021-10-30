@@ -55,6 +55,9 @@
     * [Added `startDate` and `endDate` props](https://github.com/softindex/uikernel/pull/283)
     * [Added `todayButton` prop](https://github.com/softindex/uikernel/pull/320)
 
+  * Validators
+    * Added UIKernel.Validator
+
   ### Fixed
 
   * Grid
