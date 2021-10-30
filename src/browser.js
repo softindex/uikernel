@@ -13,9 +13,6 @@ import Component from './grid/Component';
 import FormService from './form/FormService';
 import connectForm from './form/connectForm';
 import Validator from './common/validation/Validator';
-import exportGridData from './grid/export/exportGridData';
-import toJSON from './grid/export/exporters/toJSON';
-import toCSV from './grid/export/exporters/toCSV';
 import ValidationErrors from './common/validation/ValidationErrors';
 import GridXhrModel from './grid/models/GridXhrModel';
 import GridCollectionModel from './grid/models/GridCollectionModel';
@@ -57,9 +54,6 @@ const UIKernel = {
   Form: FormService,
   connectForm,
   createValidator: Validator.create,
-  exportGridData,
-  toJSON,
-  toCSV,
   ValidationErrors,
   Models: {
     Grid: {

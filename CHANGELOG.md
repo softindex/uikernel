@@ -17,6 +17,7 @@
     * Changed className of extra records from "others" to "dgrid-others" in GridComponent
     * Changed param type in onChange prop. Now it's Map<TKey, TValue> instead of simple object
     * Renamed property `validation` to `validator` in GridCollectionModel
+    * No `exportGridData`, `toJSON`, `toCSV` in browser bundle
 
   * From
     * [Changed type of returning errors and warnings in formService.getAll(). `string[] | null` to `{message: string}[]`](https://github.com/softindex/uikernel/pull/323)
