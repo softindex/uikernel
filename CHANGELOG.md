@@ -50,6 +50,7 @@
 
   * SuggestBox Editor
     * Added "withEmptyOption" prop to suggest editor [[263](https://github.com/softindex/uikernel/pull/263), [265](https://github.com/softindex/uikernel/pull/265)]
+    * [Add defaultOpenTop props to SuggestBox](https://github.com/softindex/uikernel/pull/339)
 
   * DatePicker Editor
     * [Added `startDate` and `endDate` props](https://github.com/softindex/uikernel/pull/283)
