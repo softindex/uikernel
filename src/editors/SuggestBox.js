@@ -53,7 +53,8 @@ class SuggestBoxEditor extends React.Component {
     notFoundElement: PropTypes.element,
     loadingElement: PropTypes.element,
     onFocus: PropTypes.func,
-    withEmptyOption: PropTypes.bool
+    withEmptyOption: PropTypes.bool,
+    defaultOpenTop: PropTypes.bool
   };
 
   static defaultProps = {
@@ -62,7 +63,8 @@ class SuggestBoxEditor extends React.Component {
     loadingElement: <div>Loading...</div>,
     value: null,
     withEmptyOption: false,
-    closeMenuOnSelect: true
+    closeMenuOnSelect: true,
+    defaultOpenTop: false
   };
 
   constructor(props) {
@@ -491,7 +493,7 @@ class SuggestBoxEditor extends React.Component {
 
     if (typeof window !== 'undefined') {
       const availableSpace = window.innerHeight - offsetTop;
-      if (availableSpace < MIN_POPUP_HEIGHT) {
+      if (this.props.defaultOpenTop || availableSpace < MIN_POPUP_HEIGHT) {
         popupStyle.maxHeight = inputOffset.top;
         popupStyle.bottom = -inputOffset.top;
       } else {
