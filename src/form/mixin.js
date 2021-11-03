@@ -351,8 +351,7 @@ const FormMixin = {
     }
 
     if (validate) {
-      const changedFields = Object.keys(data);
-      for (const field of changedFields.concat(Object.keys(state.changes))) {
+      for (const field of Object.keys(state.changes)) {
         this.state._formMixin.errors.clearField(field); // clear validation
         this.state._formMixin.warnings.clearField(field);
       }

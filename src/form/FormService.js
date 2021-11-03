@@ -194,8 +194,7 @@ class FormService {
 
     this._changes = getRecordChanges(this.model, this._data, this._changes, data);
 
-    const changedFields = Object.keys(data);
-    this.clearValidation(changedFields.concat(Object.keys(this._changes)));
+    this.clearValidation(Object.keys(this._changes));
 
     if (validate) {
       try {
