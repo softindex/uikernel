@@ -352,8 +352,7 @@ const FormMixin = {
 
     if (validate) {
       const changedFields = Object.keys(data);
-      const validationDependencies = this.state._formMixin.model.getValidationDependency(changedFields);
-      for (const field of changedFields.concat(validationDependencies)) {
+      for (const field of changedFields.concat(Object.keys(state.changes))) {
         this.state._formMixin.errors.clearField(field); // clear validation
         this.state._formMixin.warnings.clearField(field);
       }
