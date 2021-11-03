@@ -87,6 +87,7 @@
 
   * Form
     * [Fixed bug with `FormService.prototype.clearValidation` because of accidental mutations](https://github.com/softindex/uikernel/pull/244)
+    * [Add clearing validation error for changing field](https://github.com/softindex/uikernel/pull/340)
     * Fixed bug with `getAll().isLoaded` in `FormService` if `fromModel.getData` throws error
 
   * SuggestBox Editor
