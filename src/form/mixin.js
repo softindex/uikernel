@@ -340,6 +340,11 @@ const FormMixin = {
     const state = this.state._formMixin;
     state.changes = getRecordChanges(state.model, state.data, state.changes, data);
 
+    for (const field of Object.keys(state.changes)) {
+      this.state._formMixin.errors.clearField(field); // clear validation
+      this.state._formMixin.warnings.clearField(field);
+    }
+
     if (this.state._formMixin.autoSubmit) {
       this.submit((err, result) => {
         this.state._formMixin.autoSubmitHandler(err, result);
@@ -351,10 +356,6 @@ const FormMixin = {
     }
 
     if (validate) {
-      for (const field of Object.keys(state.changes)) {
-        this.state._formMixin.errors.clearField(field); // clear validation
-        this.state._formMixin.warnings.clearField(field);
-      }
       this.setState(this.state, () => this.validateForm(cb));
       return;
     }
