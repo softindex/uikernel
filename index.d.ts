@@ -1,35 +1,31 @@
 declare module 'uikernel' {
-  export interface TValidator<TField, TRecord> {
-    field: (field: TField, cb: (value: any) => string | undefined) => TValidator<TField, TRecord>;
+  export class Validator<TRecord> {
+    static create<TRecord>(): Validator<TRecord>;
+    field: (field: keyof TRecord, cb: (value: any) => string | undefined) => Validator<TRecord>;
     asyncField: (
-      field: TField,
+      field: keyof TRecord,
       cb: (value: any) => Promise<string | undefined>
-    ) => TValidator<TField, TRecord>;
+    ) => Validator<TRecord>;
     fields: (
-      fields: TField[],
+      fields: (keyof TRecord)[],
       cb: (record: Partial<TRecord>, errors: any) => any
-    ) => TValidator<TField, TRecord>;
+    ) => Validator<TRecord>;
     asyncFields: (
-      fields: TField[],
+      fields: (keyof TRecord)[],
       cb: (record: Partial<TRecord>, errors: any) => Promise<any>
-    ) => TValidator<TField, TRecord>;
-    asyncDependence: (fields: TField[]) => TValidator<TField, TRecord>;
-    getValidationDependency: (fields: TField[]) => TField[];
+    ) => Validator<TRecord>;
+    asyncDependence: (fields: (keyof TRecord)[]) => Validator<TRecord>;
+    getValidationDependency: (fields: (keyof TRecord)[]) => (keyof TRecord)[];
     isValidRecord: (record: Partial<TRecord>) => Promise<any>;
   }
 
-  export interface TValidatorConstructor {
-    new <TField, TRecord>(): TValidator<TField, TRecord>;
-    create<TField, TRecord>(): TValidator<TField, TRecord>;
-  }
-
-  interface TUIKernel {
-    Validator: TValidatorConstructor;
-    createValidator: <TField, TRecord>() => TValidator<TField, TRecord>;
+  interface UIKernel {
+    Validator: typeof Validator;
+    createValidator: <TRecord>() => Validator<TRecord>;
     [key: string]: any;
   }
 
-  const x: TUIKernel;
+  const x: UIKernel;
   export default x;
 }
 
