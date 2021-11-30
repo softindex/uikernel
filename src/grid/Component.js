@@ -365,9 +365,8 @@ class GridComponent extends React.Component {
               return;
             }
 
-            const rowId = this._getRowID(recordId);
             try {
-              await this._checkWarnings(rowId);
+              await this._checkWarnings(recordId);
             } catch (e) {
               if (!(e instanceof ThrottleError)) {
                 throw e;
@@ -868,8 +867,13 @@ class GridComponent extends React.Component {
   _setData = async (changes) => {
     // Apply all changes
     for (const [recordId, data] of changes) {
+      if (!this._isRecordLoaded(recordId)) {
+        continue;
+      }
+
       // Firstly we update the state
       this._setRecordData(recordId, data);
+
       // Then we validate the updated data in state
       try {
         await this._checkWarnings(recordId);
@@ -1258,8 +1262,9 @@ class GridComponent extends React.Component {
    */
   async _checkWarnings(recordId) {
     if (!this.props.warningsValidator) {
-      return new EqualMap();
+      return;
     }
+
     const warnings = await this._checkValidatorErrors(
       recordId,
       this.props.warningsValidator,
