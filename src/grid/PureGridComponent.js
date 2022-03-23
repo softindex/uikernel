@@ -797,7 +797,7 @@ class PureGridComponent extends React.Component {
               <select
                 className="dgrid-pagination-view-variants-select"
                 value={viewCount}
-                onChange={onChangeViewCount}
+                onChange={e => onChangeViewCount(Number(e.target.value))}
               >
                 {this.props.viewVariants.map((option, key) => <option key={key} value={option}>{option}</option>, this)}
               </select>
