@@ -1404,15 +1404,14 @@ class GridComponent extends React.Component {
   /**
    * Change event handler of displayed rows count in a table
    *
-   * @param {Event} event
+   * @param {Number} viewCount
    */
-  handleChangeViewCount = (event) => {
-    const count = event.target.value;
+  handleChangeViewCount = (viewCount) => {
     if (this._isViewCountPropsMode()) {
-      this.props.onChangeViewCount(count);
+      this.props.onChangeViewCount(viewCount);
       return;
     }
-    this.setViewCount(count);
+    this.setViewCount(viewCount);
   }
 
   /**
