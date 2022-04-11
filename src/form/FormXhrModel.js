@@ -89,7 +89,7 @@ class FormXhrModel extends EventsModel {
    *
    * @param {Object}      record
    */
-  async isValidRecord(record, recordId) {
+  async isValidRecord(record) {
     if (this._validateOnClient) {
       return this._validator.isValidRecord(record);
     }
@@ -101,10 +101,7 @@ class FormXhrModel extends EventsModel {
       response = await this._xhr({
         method: 'POST',
         uri: url.format(parsedUrl),
-        body: {
-          record,
-          id: recordId
-        },
+        body: record,
         json: true
       });
     } catch (err) {
