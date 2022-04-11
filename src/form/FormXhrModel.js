@@ -24,6 +24,7 @@ class FormXhrModel extends EventsModel {
 
     this._multipartFormDataEncoded = settings.multipartFormData || false;
     this._validator = settings.validator || new Validator();
+    this._validateOnClient = settings.validateOnClient || false;
     this._xhr = settings.xhr || defaultXhr;
     this._apiUrl = settings.api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
@@ -88,8 +89,38 @@ class FormXhrModel extends EventsModel {
    *
    * @param {Object}      record
    */
-  isValidRecord(record) {
-    return this._validator.isValidRecord(record);
+  async isValidRecord(record, recordId) {
+    if (this._validateOnClient) {
+      return this._validator.isValidRecord(record);
+    }
+    const parsedUrl = url.parse(this._apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
+
+    let response;
+    try {
+      response = await this._xhr({
+        method: 'POST',
+        uri: url.format(parsedUrl),
+        body: {
+          record,
+          id: recordId
+        },
+        json: true
+      });
+    } catch (err) {
+      if (err.statusCode === 413) {
+        // When request exceeds server limits and
+        // client validators are able to find errors,
+        // we need to return these errors{
+        const validationErrors = await this._validator.isValidRecord(record);
+        if (!validationErrors.isEmpty()) {
+          return validationErrors;
+        }
+      }
+      throw err;
+    }
+
+    return ValidationErrors.createFromJSON(response);
   }
 
   /**
