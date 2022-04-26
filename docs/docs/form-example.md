@@ -11,7 +11,7 @@ In this example, we use `UIKernel.Form` to create a simple form for editing grid
 * [Code]({{ site.github }}/examples/form){:target="_blank"}
 
 To initialize a form, we use `initForm` function and pass it a settings object with `fields` and `model` props as an argument.
-A settings object can also have [other props](form-mixin.html).
+A settings object can also have [other props](form-service.html).
 To update field values, you can use either `updateField` or `validateField`.
 `validateField` not only updates a field, but also validates it.
 `getValidationError` returns validation errors for a specific field.
