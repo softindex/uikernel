@@ -95,7 +95,12 @@ class FormService {
         warnings: new ValidationErrors(),
         isSubmitting: false
       };
-      emptyData.fields = this._getFields(emptyData.data, emptyData.changes, emptyData.errors, emptyData.warnings);
+      emptyData.fields = this._getFields(
+        emptyData.data,
+        emptyData.changes,
+        emptyData.errors,
+        emptyData.warnings
+      );
       return emptyData;
     }
 
@@ -176,9 +181,12 @@ class FormService {
   }
 
   async validateField(field, value) {
-    await this.set({
-      [field]: parseValueFromEvent(value)
-    }, true);
+    await this.set(
+      {
+        [field]: parseValueFromEvent(value)
+      },
+      true
+    );
   }
 
   /**
@@ -346,21 +354,24 @@ class FormService {
 
     return {
       errors: !displayedErrors.isEmpty() ? displayedErrors : null,
-      warnings: !displayedWarning.isEmpty() ? displayedWarning : null,
+      warnings: !displayedWarning.isEmpty() ? displayedWarning : null
     };
   }
 
   _getFields(data, changes, errors, warnings) {
-    const proxy = new Proxy({}, {
-      get(target, fieldName) {
-        return {
-          value: data[fieldName],
-          isChanged: changes.hasOwnProperty(fieldName),
-          errors: errors.getFieldErrors(fieldName),
-          warnings: warnings.getFieldErrors(fieldName)
-        };
+    const proxy = new Proxy(
+      {},
+      {
+        get(target, fieldName) {
+          return {
+            value: data[fieldName],
+            isChanged: changes.hasOwnProperty(fieldName),
+            errors: errors.getFieldErrors(fieldName),
+            warnings: warnings.getFieldErrors(fieldName)
+          };
+        }
       }
-    });
+    );
 
     // Explicit declaration of fields in an object
     if (this.fields) {
@@ -386,7 +397,8 @@ class FormService {
    *
    * @return {{}}
    */
-  _getChangesFields() { // TODO _getChanges
+  _getChangesFields() {
+    // TODO _getChanges
     const changes = {};
     for (const field in this._changes) {
       if (!this._isDependentField(field)) {
@@ -406,9 +418,9 @@ class FormService {
     const filteredErrors = validationErrors.clone();
 
     for (const field of validationErrors.getErrors().keys()) {
-      const isFieldPristine = !this._changes.hasOwnProperty(field)
-        || isEqual(this._changes[field], this._data[field]);
-      if (this._hiddenValidationFields.includes(field) || this._partialErrorChecking && isFieldPristine) {
+      const isFieldPristine =
+        !this._changes.hasOwnProperty(field) || isEqual(this._changes[field], this._data[field]);
+      if (this._hiddenValidationFields.includes(field) || (this._partialErrorChecking && isFieldPristine)) {
         filteredErrors.clearField(field);
       }
     }
@@ -462,9 +474,7 @@ class FormService {
       throw e;
     }
 
-    if (isEqual(data, getData())) {
-      this[output] = validErrors;
-    }
+    this[output] = validErrors;
   }
 }
 
