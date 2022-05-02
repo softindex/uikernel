@@ -336,17 +336,18 @@ class FormService {
     const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
     this.validating = true;
 
+    let result;
     try {
-      await Promise.all([
+      result = await Promise.all([
         this._runValidator(this.model, this._getChanges, '_errors'),
         this._runValidator(this._warningsValidator, this._getData, '_warnings')
       ]);
     } finally {
-      this.validating = false;
-
-      this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
-
-      this._setState();
+      if (!result || (result[0] && result[1])) {
+        this.validating = false;
+        this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
+        this._setState();
+      }
     }
 
     const displayedErrors = this._getDisplayedErrors(this._errors);
@@ -463,7 +464,7 @@ class FormService {
     const data = getData();
     if (isEmpty(data)) {
       this[output].clear();
-      return;
+      return false;
     }
     let validErrors;
 
@@ -474,7 +475,12 @@ class FormService {
       throw e;
     }
 
-    this[output] = validErrors;
+    if (isEqual(data, getData())) {
+      this[output] = validErrors;
+      return true;
+    }
+
+    return false;
   }
 }
 
