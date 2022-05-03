@@ -464,10 +464,10 @@ class FormService {
     const data = getData();
     if (isEmpty(data)) {
       this[output].clear();
-      return false;
+      return true;
     }
-    let validErrors;
 
+    let validErrors;
     try {
       validErrors = await validator.isValidRecord(data);
     } catch (e) {
@@ -475,12 +475,12 @@ class FormService {
       throw e;
     }
 
-    if (isEqual(data, getData())) {
-      this[output] = validErrors;
-      return true;
+    if (!isEqual(data, getData())) {
+      return false;
     }
 
-    return false;
+    this[output] = validErrors;
+    return true;
   }
 }
 
