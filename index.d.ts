@@ -24,7 +24,7 @@ declare module 'uikernel' {
     getErrors: () => readonly Map<TField, ValidationErrorInstance[]>;
   }
 
-  export class Validator<TRecord> {
+  export class Validator<TRecord extends string> {
     static create<TRecord>(): Validator<TRecord>;
     field: (field: keyof TRecord, cb: (value: any) => string | undefined) => Validator<TRecord>;
     asyncField: (field: keyof TRecord, cb: (value: any) => Promise<string | undefined>) => Validator<TRecord>;
