@@ -4,7 +4,7 @@ declare module 'uikernel' {
     [extra: string]: any;
   }
 
-  export class ValidationErrors<TField> {
+  export class ValidationErrors<TField extends string> {
     static createFromJSON: (
       jsonObject: Record<TField, (ValidationJSONError | string)[]>
     ) => ValidationErrors<TField>;
