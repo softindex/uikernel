@@ -1,6 +1,6 @@
 {
   "name": "uikernel",
-  "version": "1.0.1-dev11.3",
+  "version": "1.0.1-dev11.4",
   "license": "BSD",
   "description": "UI library",
   "keywords": [
@@ -73,8 +73,8 @@
     "yargs": "^11.1.0"
   },
   "peerDependencies": {
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react": ">=16.12.0",
+    "react-dom": ">=16.12.0"
   },
   "jest": {
     "testRegex": "/__tests__/",
