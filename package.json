@@ -23,7 +23,7 @@
     "@babel/polyfill": "^7.0.0",
     "@babel/runtime": "^7.1.2",
     "classnames": "^2.2.6",
-    "csv-stringify": "^1.0.4",
+    "csv-stringify": "^5.6.5",
     "date-fns": "^2.19.0",
     "express": "^4.16.4",
     "http-errors": "^1.7.3",
@@ -86,5 +86,6 @@
     ],
     "setupTestFrameworkScriptFile": "<rootDir>/src/test/setupTestFramework.js",
     "testURL": "http://localhost"
-  }
+  },
+  "packageManager": "yarn@3.2.3"
 }
