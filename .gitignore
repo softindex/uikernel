@@ -9,4 +9,9 @@ lib
 dist
 coverage
 .DS_Store
-yarn.lock
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

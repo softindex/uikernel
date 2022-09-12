@@ -244,7 +244,7 @@ describe('validateField', () => {
   });
 });
 
-describe('set', async () => {
+describe('set', () => {
   const initSettings = getInitSettings();
   const form = new Form();
   const stateHandler = jest.fn();
@@ -268,7 +268,7 @@ describe('set', async () => {
   });
 });
 
-describe('submitData', async () => {
+describe('submitData', () => {
   it('It\'s set & submit', async () => {
     form.set = jest.fn();
     form.submit = jest.fn();
@@ -485,7 +485,7 @@ describe('validateForm', () => {
   });
 });
 
-describe('Before init', async () => {
+describe('Before init', () => {
   getInitSettings();
   const form = new Form();
   const func = [
@@ -502,7 +502,6 @@ describe('Before init', async () => {
     const promises = func.map(async (elem) => {
       const result = await elem();
       expect(result).toBeUndefined();
-      return;
     });
     await Promise.all(promises);
   });
