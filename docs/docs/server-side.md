@@ -95,6 +95,7 @@ with the server's model:
 `client/js/model/model.js`
 {% highlight javascript %}
 const UIKernel = require('uikernel');
+const validator = require('./validation');
 
 const model = new UIKernel.Models.Grid.Xhr({
   api: '/api/records',
@@ -102,7 +103,7 @@ const model = new UIKernel.Models.Grid.Xhr({
 });
 
 // do not forget to define a delete method for UserGridModel
-model.deleteItem = async function (recordId) {
+model.delete = async function (recordId) {
   await this._xhr({
     method: 'DELETE',
     uri: this._apiUrl + '/' + recordId

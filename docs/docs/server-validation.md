@@ -8,7 +8,7 @@ next: server-model.html
 UIKernel supports client-side and server-side validation.
 To define the server-side validation, we're going to use [UIKernel validator](/docs/validator.html).
 
-`userGrid/validations.js`:
+`userGrid/validation.js`:
 {% highlight javascript %}
 const UIKernel = require('uikernel');
 // define a validator using UIKernel.createValidator

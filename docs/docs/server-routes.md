@@ -7,7 +7,7 @@ next: server-validation.html
 
 First, let's define the main router of our app.
 
-`router.js`:
+`api.js`:
 {% highlight javascript %}
 const express = require('express');
 const userGridRouter = require('./modules/userGrid/router');

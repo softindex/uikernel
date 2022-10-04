@@ -68,9 +68,8 @@ class UserGridModel {
     return data;
   }
   // ...
-
-  module.exports = UserGridModel;
 }
+module.exports = UserGridModel;
 {% endhighlight %}
 
 The `read` method returns an object with two properties: `records` and `count`(the number of returned records).
