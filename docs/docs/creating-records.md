@@ -10,7 +10,7 @@ next: server-side.html
 
 First, let's create a form for adding new records to our grid.
 
-`CreateFormComponent.js`:
+`CreateForm.js`:
 {% highlight javascript %}
 import React from 'react';
 import UIKernel from 'uikernel';
@@ -301,9 +301,9 @@ render() {
               <UIKernel.Grid
                 ref={(grid) => this.grid = grid}
                 model={this.state.model}
-                columns={columns}
+                cols={columns}
                 viewCount={10}
-                defaultSort={{column: "name", direction: "asc"}} // default sorting
+                defaultSort={ {column: "name", direction: "asc"} } // default sorting
               />
               <div className="panel-footer">
                 <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>

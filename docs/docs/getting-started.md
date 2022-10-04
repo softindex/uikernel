@@ -17,6 +17,8 @@ cd react-app
 
 # Install UIKernel
 npm i uikernel
+# Install url
+npm i url
 {% endhighlight%}
 {:start="2"}
 

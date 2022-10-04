@@ -136,7 +136,7 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
 <UIKernel.Grid
   ref={(grid) => this.grid = grid}
   model={this.state.model}
-  columns={columns}
+  cols={columns}
   viewCount={10}
 />
 <div className="panel-footer">
