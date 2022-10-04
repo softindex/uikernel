@@ -94,7 +94,7 @@ onFiltersChange(filters) {
 
 Now let’s create a form with three filters: `search`, `age`, and `gender`. Here's the code for that:
 
-`FiltersForm.js`:
+`components/FiltersForm.js`:
 {% highlight javascript %}
 import React from 'react';
 import UIKernel from 'uikernel';
@@ -195,7 +195,7 @@ Finally, let's add our form into the `render` method of `MainComponent`.
             </div>
             <UIKernel.Grid
               model={this.state.model}
-              columns={columns}
+              col s={columns}
               viewCount={10}
             />
           </div>

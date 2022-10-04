@@ -15,7 +15,7 @@ To create pagination, we'll pass our `UIKernel.Grid` the `viewCount` property. I
 {% highlight javascript %}
 <UIKernel.Grid
   model={this.state.model}
-  columns={columns}
+  cols={columns}
   viewCount={10} // display 10 records per page
 />
 {% endhighlight %}

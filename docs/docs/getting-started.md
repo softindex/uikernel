@@ -7,13 +7,14 @@ redirect_from: "docs/index.html"
 
 To get started follow next steps:
 
-1. Setup Create React App in terminal
+1. Setup Next App in terminal
 
 {% highlight bash %}
-# Setup React boilerplate
-npm install -g create-react-app
-create-react-app react-app
-cd react-app
+# Setup Next boilerplate
+npx create-next-app
+cd my-app
+npm install react
+npm install next
 
 # Install UIKernel
 npm i uikernel
@@ -22,60 +23,66 @@ npm i url
 {% endhighlight%}
 {:start="2"}
 
-2. Open up `src/index.js` and replace all with the next piece of code
+2. Create folder `my-app/src/pages`. Then create file `index.jsx` inside `pages` folder. Open up `pages/index.jsx` and replace all with the next piece of code
 
  {% highlight javascript %}
- import React from 'react';
- import ReactDOM from 'react-dom';
- import UIKernel from 'uikernel';
- import 'uikernel/dist/themes/base/uikernel.css';
+ import React from "react";
+import UIKernel from "uikernel";
+import 'uikernel/dist/themes/base/uikernel.css';
 
- const model = new UIKernel.Models.Grid.Collection({
-   data: [
-     [1, {
-       name: 'Pace',
-       surname: 'White',
-       age: 20
-     }],
-     [2, {
-       name: 'Evangeline',
-       surname: 'Terrell',
-       age: 72
-     }],
-     [3, {
-       name: 'Roach',
-       surname: 'Potts',
-       age: 14
-     }]
-   ]
- });
+const model = new UIKernel.Models.Grid.Collection({
+  data: [
+    [
+      1,
+      {
+        name: "Pace",
+        surname: "White",
+        age: 20
+      }
+    ],
+    [
+      2,
+      {
+        name: "Evangeline",
+        surname: "Terrell",
+        age: 72
+      }
+    ],
+    [
+      3,
+      {
+        name: "Roach",
+        surname: "Potts",
+        age: 14
+      }
+    ]
+  ]
+});
 
- const columns = {
-   name: {
-     name: 'First Name',
-     render: ['name', record => record.name]
-   },
-   surname: {
-     name: 'Last Name',
-     render: ['surname', record => record.surname]
-   },
-   age: {
-     name: 'Age',
-     render: ['age', record => record.age]
-   }
- };
+const columns = {
+  name: {
+    name: "First Name",
+    render: ["name", record => record.name]
+  },
+  surname: {
+    name: "Last Name",
+    render: ["surname", record => record.surname]
+  },
+  age: {
+    name: "Age",
+    render: ["age", record => record.age]
+  }
+};
 
- ReactDOM.render(
-   <UIKernel.Grid columns={columns} model={model}/>,
-   document.getElementById('root')
- );
+export default () => <UIKernel.Grid cols={columns} model={model} />
+
  {% endhighlight %}
 
 {:start="3"}
-3. Try it out now using the `npm start` command
+1. Try it out now using the `npm run dev` command
 
 
-As you can see, we've passed `UIKernel.Grid` two props: `columns` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
+As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `cols` and `model` script parts as you can see in comments.
 
 Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 

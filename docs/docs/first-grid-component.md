@@ -11,7 +11,7 @@ next: sorting-and-pagination.html
 
 First, let's create a client model for our grid and pass it some fake data.
 
-`model.js`:
+`src/components/model.js`:
 {% highlight javascript %}
 import UIKernel from 'uikernel';
 
@@ -39,7 +39,7 @@ const model = new UIKernel.Models.Grid.Xhr({
 
 Next, we'll configure columns.
 
-`columns.js`:
+`src/components/columns.js`:
 {% highlight javascript %}
 const columns = {
   name: {
@@ -81,11 +81,11 @@ You can read about them [here](/docs/grid-columns.html).
 
 Now we need to render our grid. Let's do it in the `render` method of another component named `MainComponent`.
 
-`MainComponent.js`:
+`src/components/MainComponent.js`:
 {% highlight javascript %}
 import React from 'react';
-import columns from '../columns';
-import model from '../model';
+import columns from './columns';
+import model from './model';
 import UIKernel from 'uikernel';
 
 class MainComponent extends React.Component {
@@ -99,7 +99,7 @@ class MainComponent extends React.Component {
       <div>
         <UIKernel.Grid
           model={this.state.model} // Grid model
-          columns={columns} // columns configuration
+          cols={columns} // columns configuration
         />
       </div>
     );
@@ -111,14 +111,12 @@ export default MainComponent
 
 Finally, let's render `MainComponent`.
 
-`index.js`:
+`src/pages/index.js`:
 {% highlight javascript %}
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React from "react";
+import UIKernel from "uikernel";
 import 'uikernel/dist/themes/base/uikernel.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './main.css';
-import MainComponent from './Components/MainComponent.js';
+import MainComponent from "../components/MainComponent";
 
-ReactDOM.render(<MainComponent/>, document.getElementById(('root')));
+export default () => <MainComponent />
 {% endhighlight %}

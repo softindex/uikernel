@@ -10,11 +10,11 @@ next: server-side.html
 
 First, let's create a form for adding new records to our grid.
 
-`CreateForm.js`:
+`components/CreateForm.js`:
 {% highlight javascript %}
 import React from 'react';
 import UIKernel from 'uikernel';
-import model from '../model';
+import model from './model';
 
 class CreateForm extends React.Component {
   constructor(props) {
