@@ -11,7 +11,7 @@ We are going to use Node.js, Express and MySql.
 Our app will have the following structure:
 
 {% highlight html %}
-|-- src
+|-- serverSide
     |-- client // the client-side part of the app described in the previous tutorial
     |-- server
         |-- common
@@ -22,13 +22,26 @@ Our app will have the following structure:
                 router.js
                 validation.js
         api.js
-package.json
-server.js
+        package.json
+        server.js
+{% endhighlight %}
+First, we need configure proxy on our client, for this create file `client/my-app/next.configure.js`
+{% highlight javascript %}
+module.exports = {
+    async rewrites() {
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:8000/api/:path*' // Proxy to Backend
+        }
+      ]
+    }
+  }
 {% endhighlight %}
 
-First, we'll define packages in `package.json`.
+Then, we'll define packages in `package.json`.
 
-`package.json`:
+`server/package.json`:
 {% highlight javascript %}
 {
   "name": "uikernel-server-example",
@@ -50,7 +63,7 @@ To install them, we'll need to run `npm i` from the command line.
 
 Next, let's configure the server.
 
-`server.js`:
+`server/server.js`:
 {% highlight javascript %}
 const express = require('express');
 const bodyParser = require('body-parser');

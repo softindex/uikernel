@@ -73,3 +73,22 @@ const MySQLWrapper = {
 
 module.exports = MySQLWrapper;
 {% endhighlight %}
+
+Also you need to create database, for this in mysql write this code
+
+{% highlight javascript %}
+CREATE DATABASE database
+{% endhighlight %}
+
+Finally, you need to create table 'records', in mysql write this code
+{% highlight javascript %}
+CREATE TABLE `records` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  `surname` varchar(45) DEFAULT NULL,
+  `phone` varchar(45) DEFAULT NULL,
+  `age` varchar(45) DEFAULT NULL,
+  `gender` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+{% endhighlight %}
