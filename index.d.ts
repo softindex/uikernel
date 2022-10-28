@@ -26,15 +26,21 @@ declare module 'uikernel' {
 
   export class Validator<TRecord> {
     static create<TRecord>(): Validator<TRecord>;
-    field: (field: keyof TRecord, cb: (value: any) => string | undefined) => Validator<TRecord>;
-    asyncField: (field: keyof TRecord, cb: (value: any) => Promise<string | undefined>) => Validator<TRecord>;
+    field: <TField extends keyof TRecord>(
+      field: TField,
+      cb: (value?: TRecord[TField]) => string | undefined
+    ) => Validator<TRecord>;
+    asyncField: <TField extends keyof TRecord>(
+      field: TField,
+      cb: (value?: TRecord[TField]) => Promise<string | undefined>
+    ) => Validator<TRecord>;
     fields: (
       fields: (keyof TRecord)[],
-      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord>) => any
+      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord>) => void
     ) => Validator<TRecord>;
     asyncFields: (
       fields: (keyof TRecord)[],
-      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord>) => Promise<any>
+      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord>) => Promise<void>
     ) => Validator<TRecord>;
     asyncDependence: (fields: (keyof TRecord)[]) => Validator<TRecord>;
     getValidationDependency: (fields: (keyof TRecord)[]) => (keyof TRecord)[];
