@@ -28,7 +28,6 @@ npm i url
  {% highlight javascript %}
  import React from "react";
 import UIKernel from "uikernel";
-import 'uikernel/dist/themes/base/uikernel.css';
 
 const model = new UIKernel.Models.Grid.Collection({
   data: [
@@ -76,10 +75,21 @@ const columns = {
 
 export default () => <UIKernel.Grid columns={columns} model={model} />
 
- {% endhighlight %}
+ {% endhighlight javascript %}
 
 {:start="3"}
-1. Try it out now using the `npm run dev` command
+3. Then create file `_app.js` inside `pages` folder. Open up `pages/_app.js` and replace all with the next piece of code
+
+  {% highlight javascript %}
+import 'uikernel/dist/themes/base/uikernel.css';
+
+export default function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+
+  {% endhighlight javascript %}
+
+4. Try it out now using the `npm run dev` command
 
 
 As you can see, we've passed `UIKernel.Grid` two props: `columns` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.

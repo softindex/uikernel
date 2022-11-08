@@ -1,6 +1,5 @@
 import React from "react";
 import UIKernel from "uikernel";
-import 'uikernel/dist/themes/base/uikernel.css';
 
 const model = new UIKernel.Models.Grid.Collection({
   data: [
@@ -46,4 +45,4 @@ const columns = {
   }
 };
 
-export default () => <UIKernel.Grid columns={columns} model={model} />
+export default () => <UIKernel.Grid columns={columns} model={model} />;
