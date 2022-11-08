@@ -52,7 +52,7 @@ class MainComponent extends React.Component {
             <div className="panel-heading">
               <h3 className="panel-title">Records</h3>
             </div>
-            <UIKernel.Grid ref={grid => (this.grid = grid)} model={this.state.model} cols={columns} viewCount={10} />
+            <UIKernel.Grid ref={grid => (this.grid = grid)} model={this.state.model} columns={columns} viewCount={10} />
             <div className="panel-footer">
               <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>
                 Clear

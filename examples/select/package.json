@@ -8,7 +8,7 @@
     "react-scripts": "2.1.3",
     "lodash": "4.17.11",
     "bootstrap": "4.2.1",
-    "uikernel": "*"
+    "uikernel": "1.0.1-dev11.5"
   },
   "scripts": {
     "start": "react-scripts start",

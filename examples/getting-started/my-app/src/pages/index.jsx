@@ -46,4 +46,4 @@ const columns = {
   }
 };
 
-export default () => <UIKernel.Grid cols={columns} model={model} />
+export default () => <UIKernel.Grid columns={columns} model={model} />

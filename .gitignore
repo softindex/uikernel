@@ -1,4 +1,5 @@
 node_modules
+.next
 .idea
 .vscode
 _site

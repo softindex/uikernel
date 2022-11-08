@@ -74,7 +74,7 @@ const columns = {
   }
 };
 
-export default () => <UIKernel.Grid cols={columns} model={model} />
+export default () => <UIKernel.Grid columns={columns} model={model} />
 
  {% endhighlight %}
 
@@ -82,7 +82,7 @@ export default () => <UIKernel.Grid cols={columns} model={model} />
 1. Try it out now using the `npm run dev` command
 
 
-As you can see, we've passed `UIKernel.Grid` two props: `cols` and `model`. We've defined these props in the `cols` and `model` script parts as you can see in comments.
+As you can see, we've passed `UIKernel.Grid` two props: `columns` and `model`. We've defined these props in the `columns` and `model` script parts as you can see in comments.
 
 Then, to create a grid model, we've used [UIKernel.Models.Grid.Collection](/docs/grid-model-collection.html).
 

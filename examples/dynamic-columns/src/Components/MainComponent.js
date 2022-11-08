@@ -34,7 +34,7 @@ class MainComponent extends React.Component {
     return (
       <div>
         <Form
-          cols={ this.state.cols}
+          columns={ this.state.cols}
           onChange ={
             (cols) => {
               this.setState({cols})
@@ -42,7 +42,7 @@ class MainComponent extends React.Component {
           }
         />
         <UIKernel.Grid
-          cols={columns}
+          columns={columns}
           model={this.state.model}
           viewColumns={this.state.cols}
           viewCount={20}

@@ -14,7 +14,7 @@ class MainComponent extends React.Component {
       <div>
         <UIKernel.Grid
           model={this.state.model} // Grid model
-          cols={columns} // columns configuration
+          columns={columns} // columns configuration
         />
       </div>
     );
