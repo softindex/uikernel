@@ -67,7 +67,7 @@ class MainComponent extends React.Component {
           <UIKernel.Grid
             ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
-            cols={columns} // columns configuration
+            columns={columns} // columns configuration
             viewCount={10} // display 10 records per page
           />
           <div className="panel-footer">

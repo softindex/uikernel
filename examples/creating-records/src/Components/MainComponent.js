@@ -88,7 +88,7 @@ class MainComponent extends React.Component {
               <UIKernel.Grid
                 ref={(grid) => this.grid = grid}
                 model={this.state.model}
-                cols={columns}
+                columns={columns}
                 viewCount={10}
                 defaultSort = {{column: 'name', direction: 'asc'}}// default sorting
               />

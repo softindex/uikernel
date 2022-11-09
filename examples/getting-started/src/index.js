@@ -47,6 +47,6 @@ import React from 'react';
  };
 
  ReactDOM.render(
-   <UIKernel.Grid cols={columns} model={model}/>,
+   <UIKernel.Grid columns={columns} model={model}/>,
    document.getElementById('root')
  );
