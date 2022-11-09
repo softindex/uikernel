@@ -8,6 +8,7 @@
 
 import columns from '../columns';
 import React from 'react';
+import {Button, Modal} from 'react-bootstrap';
 
 class FormCheckbox extends React.Component {
   onChangeHandler() {
@@ -18,7 +19,7 @@ class FormCheckbox extends React.Component {
     const id = `col-${this.props.id}`;
 
     return (
-      <div className="form-check form-check-inline">
+      <div className="row">
         <div className="col-lg-3">
           <input
             id={id}
@@ -39,15 +40,20 @@ class Form extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      cols:{...this.props.cols} // Copy all columns
+      cols:{...this.props.cols}, // Copy all columns
+      showModal: false
+
     };
     this.applyChanges = this.applyChanges.bind(this);
     this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
 
   }
-
+  toggleModal(isShow){
+    this.setState({showModal: isShow})
+  }
   applyChanges() {
     this.props.onChange({...this.state.cols});
+    this.toggleModal(false)
   }
 
   onChangeCheckbox(key, value) {
@@ -61,11 +67,19 @@ class Form extends React.Component {
   }
 
   render() {
+    const {showModal} = this.state;
     return (
-        <div className="modal-content animated fadeIn">
-          <div className="modal-body">
-            <form className="form-horizontal">
-              {
+      <>
+      <Button variant="outline-secondary" onClick={(e)=>this.toggleModal(true)}>
+        Columns
+      </Button>
+      <Modal show={showModal} onHide={(e)=>this.toggleModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Columns</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form className="form-horizontal">
+            {
                 Object.keys(columns).map((key)=>{
                   return(
                       <FormCheckbox
@@ -78,12 +92,19 @@ class Form extends React.Component {
                   )
                 })
               }
-            </form>
-          </div>
-          <div className="modal-footer" >
-            <button type= "submit" className="btn btn-primary" onClick={this.applyChanges}>Apply</button>
-          </div>
-        </div>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary"  onClick={(e)=>this.toggleModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary"  onClick={this.applyChanges}>
+            Apply
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      </>
+
     );
   }
 }

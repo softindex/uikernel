@@ -13,69 +13,121 @@ You can dynamically show and hide grid columns by changing the `viewColumns` pro
 In this example, we've created a form with checkboxes and column names as options.
 When checkboxes are clicked, the value of viewColumns changes and the grid updates appropriately.
 
+For this example you need additionaly to instal `react-bootstrap`:
+
+{% highlight bash %}
+
+  npm i react-bootstrap
+
+{% endhighlight%}
+
 `Form.js`:
 {% highlight javascript %}
 import columns from '../columns';
 import React from 'react';
+import {Button, Modal} from 'react-bootstrap';
 
-class Form extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      columns: _.clone(this.props.columns) // Copy all columns
-    };
-    this.applyChanges = this.applyChanges.bind(this);
-    this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
-  }
-
-  applyChanges() {
-    this.props.onChange(_.clone(this.state.columns));
-  }
-
-  onChangeCheckbox(key, value) {
-    this.state.columns[key] = value; // Change checkbox value
-    this.forceUpdate(); // and update it
+class FormCheckbox extends React.Component {
+  onChangeHandler() {
+    this.props.onChange(!this.props.value); // Change state of our value
   }
 
   render() {
+    const id = `col-${this.props.id}`;
+
     return (
-      <div className="modal-dialog">
-        <div className="modal-content animated fadeIn">
-          <div className="modal-header">
-            <button type="button" className="close" data-dismiss="modal">
-              <span aria-hidden="true">×</span>
-              <span className="sr-only">Close</span>
-            </button>
-            <h4 className="modal-title">Columns</h4>
-          </div>
-          <div className="modal-body">
-            <form className="form-horizontal">
-              {
-                Object.keys(columns).map((key)=>{
-                  return(
-                    <FormCheckbox
-                      id={key}
-                      key={key}
-                      value={this.state.columns[key]}
-                      label={columns[key].name}
-                      onChange={this.onChangeCheckbox.bind(null, key)}
-                    />
-                  )
-                })
-              }
-            </form>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-white" data-dismiss="modal">Cancel</button>
-            <button type="submit" className="btn btn-primary" onClick={this.applyChanges}>Apply</button>
-          </div>
+      <div className="row">
+        <div className="col-lg-3">
+          <input
+            id={id}
+            type="checkbox"
+            checked={this.props.value}
+            onChange={this.onChangeHandler.bind(this)}
+          />
+        </div>
+        <div className="col-lg-9">
+          <label htmlFor={id}>{this.props.label}</label>
         </div>
       </div>
     );
   }
 }
 
+class Form extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      cols:{...this.props.cols}, // Copy all columns
+      showModal: false
+
+    };
+    this.applyChanges = this.applyChanges.bind(this);
+    this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
+
+  }
+  toggleModal(isShow){
+    this.setState({showModal: isShow})
+  }
+  applyChanges() {
+    this.props.onChange({...this.state.cols});
+    this.toggleModal(false)
+  }
+
+  onChangeCheckbox(key, value) {
+    // Change checkbox value
+    this.setState({
+      cols: {
+        ...this.state.cols,
+        [key]: value
+      }
+    });
+  }
+
+  render() {
+    const {showModal} = this.state;
+    return (
+      <>
+      <Button variant="outline-secondary" onClick={(e)=>this.toggleModal(true)}>
+        Columns
+      </Button>
+      <Modal show={showModal} onHide={(e)=>this.toggleModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Columns</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form className="form-horizontal">
+            {
+                Object.keys(columns).map((key)=>{
+                  return(
+                      <FormCheckbox
+                          id={key}
+                          key={key}
+                          value={this.state.cols[key]}
+                          label={columns[key].name}
+                          onChange={this.onChangeCheckbox.bind(null, key)}
+                      />
+                  )
+                })
+              }
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-secondary"  onClick={(e)=>this.toggleModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary"  onClick={this.applyChanges}>
+            Apply
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      </>
+
+    );
+  }
+}
+
 export default Form
+
 {% endhighlight %}
 ---
 
