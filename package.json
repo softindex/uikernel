@@ -29,7 +29,7 @@
     "http-errors": "^1.7.3",
     "multer": "^1.4.1",
     "prop-types": "^15.6.2",
-    "react-datepicker": "^3.6.0",
+    "react-datepicker": "^4.8.0",
     "xhr": "^2.5.0"
   },
   "devDependencies": {
