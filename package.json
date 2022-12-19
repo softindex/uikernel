@@ -78,6 +78,9 @@
     "react-dom": ">=16.12.0"
   },
   "jest": {
+    "transform": {
+      "^.+\\.(t|j)sx?$": "ts-jest"
+    },
     "testRegex": "/__tests__/",
     "roots": [
       "<rootDir>/src"
@@ -88,10 +91,15 @@
     "setupFilesAfterEnv": [
       "<rootDir>/src/test/setupTestFramework.js"
     ],
-    "testEnvironmentOptions": {
-      "url": "http://localhost"
-    },
-    "testEnvironment": "jsdom"
+    "testURL": "http://localhost",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "packageManager": "yarn@3.2.3"
 }
