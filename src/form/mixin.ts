@@ -77,7 +77,7 @@ const FormMixin = {
 
       if (err) {
         this.state._formMixin.globalError = err;
-        await toPromise(::this.setState, true)(this.state);
+        await toPromise(this.setState.bind(this), true)(this.state);
         throw err;
       }
 
@@ -85,7 +85,7 @@ const FormMixin = {
     }
 
     this.state._formMixin.model.on('update', this._handleModelChange);
-    await toPromise(::this.setState, true)(this.state);
+    await toPromise(this.setState.bind(this), true)(this.state);
     if (!settings.partialErrorChecking) {
       await this.validateForm();
     }
@@ -440,7 +440,7 @@ const FormMixin = {
       }, this);
     }
 
-    await toPromise(::this.setState, true)(this.state);
+    await toPromise(this.setState.bind(this), true)(this.state);
 
     if (err) {
       throw err;

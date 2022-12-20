@@ -54,7 +54,7 @@ class DatePickerEditor extends React.Component {
         {...otherProps}
         dateFormat={this.props.textFormat}
         selected={this.parseDate(this.props.value)}
-        onChange={::this.onChange}
+        onChange={this.onChange.bind(this)}
         minDate={this.parseDate(this.props.min)}
         maxDate={this.parseDate(this.props.max)}
         startDate={this.parseDate(this.props.startDate)}

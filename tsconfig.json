@@ -25,6 +25,8 @@
     "allowSyntheticDefaultImports": true,
     "checkJs": false,
     "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "typeRoots": ["./node_modules/@types"]
   },

@@ -10,8 +10,10 @@
  * React table component
  */
 
-import React from 'react';
 import PropTypes from 'prop-types';
+import React from 'react';
+import EqualMap from '../common/EqualMap';
+import ThrottleError from '../common/ThrottleError';
 import {
   throttle,
   isEqual,
@@ -26,10 +28,8 @@ import {
   parseValueFromEvent,
   findIndex
 } from '../common/utils';
-import EqualMap from '../common/EqualMap';
 import ValidationErrors from '../common/validation/ValidationErrors';
 import PureGridComponent from './PureGridComponent';
-import ThrottleError from '../common/ThrottleError';
 
 const RESET_MODEL = 'RESET_MODEL';
 const RESET_VIEW_COLUMNS = 'RESET_VIEW_COLUMNS';
@@ -46,10 +46,7 @@ const propTypes = (() => {
     column: PropTypes.string,
     direction: PropTypes.any
   });
-  const sortProp = PropTypes.oneOfType([
-    sortElementProp,
-    PropTypes.arrayOf(sortElementProp)
-  ]);
+  const sortProp = PropTypes.oneOfType([sortElementProp, PropTypes.arrayOf(sortElementProp)]);
   return {
     className: PropTypes.string,
     model: PropTypes.shape({
@@ -61,10 +58,7 @@ const propTypes = (() => {
       off: PropTypes.func
     }),
     columns: PropTypes.object,
-    viewColumns: PropTypes.oneOfType([
-      PropTypes.arrayOf(PropTypes.string),
-      PropTypes.object
-    ]),
+    viewColumns: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.object]),
     selected: PropTypes.array,
     // sort: PropTypes.object,
     page: PropTypes.number,
@@ -90,10 +84,12 @@ const propTypes = (() => {
       if (!props.defaultSort) {
         return;
       }
+
       const validProp = sortProp(props, propName, ...rest);
       if (validProp) {
         return validProp;
       }
+
       if (props.hasOwnProperty('sort')) {
         return Error('You can not set "defaultSort" when the "sort" prop is specified');
       }
@@ -102,10 +98,12 @@ const propTypes = (() => {
       if (!props.sort) {
         return;
       }
+
       const validProp = sortProp(props, propName, ...rest);
       if (validProp) {
         return validProp;
       }
+
       if (!props.onSorting) {
         return Error('You need to define the "onSorting" prop when "sort" is set');
       }
@@ -155,7 +153,7 @@ class GridComponent extends React.Component {
     colsWithEscapeErrors: {},
     selectBlackListMode: false,
     selected: [...this.props.selected],
-    showLoader: false,
+    showLoader: false
   };
 
   componentDidMount() {
@@ -165,6 +163,7 @@ class GridComponent extends React.Component {
       this.props.model.on('update', this._setData);
       this.props.model.on('delete', this.updateTable);
     }
+
     this.updateTable();
   }
 
@@ -175,6 +174,7 @@ class GridComponent extends React.Component {
       this.props.model.off('update', this._setData);
       this.props.model.off('delete', this.updateTable);
     }
+
     if (this.props.onDestroy) {
       this.props.onDestroy();
     }
@@ -186,24 +186,30 @@ class GridComponent extends React.Component {
     if (this.props.model !== nextProps.model) {
       reset.add(RESET_MODEL);
     }
+
     if (this.props.viewColumns !== nextProps.viewColumns) {
       reset.add(RESET_VIEW_COLUMNS);
     }
+
     if (!isEqual(this.props.sort, nextProps.sort)) {
       reset.add(RESET_SORT);
     }
+
     if (this.props.viewCount !== nextProps.viewCount) {
       reset.add(RESET_VIEW_COUNT);
     }
+
     if (
-      !isEqual(this.props.selected, nextProps.selected)
-      || this.props.selectBlackListMode !== nextProps.selectBlackListMode
+      !isEqual(this.props.selected, nextProps.selected) ||
+      this.props.selectBlackListMode !== nextProps.selectBlackListMode
     ) {
       reset.add(RESET_SELECTED_COLUMNS);
     }
+
     if (!isEqual(this.props.blackListMode, nextProps.blackListMode)) {
       reset.add(RESET_BLACK_LIST_MODE);
     }
+
     if (this._statusesOnlyViaPropsEnabled && this.props.statuses !== nextProps.statuses) {
       reset.add(RESET_STATUSES);
     }
@@ -215,12 +221,15 @@ class GridComponent extends React.Component {
     if (reset.has(RESET_SELECTED_COLUMNS)) {
       this.state.selected = [...nextProps.selected];
     }
+
     if (reset.has(RESET_VIEW_COLUMNS)) {
       this.state.viewColumns = nextProps.viewColumns;
     }
+
     if (reset.has(RESET_BLACK_LIST_MODE)) {
       this.state.selectBlackListMode = !this.state.selectBlackListMode;
     }
+
     if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
       this._setPage(0);
     }
@@ -231,6 +240,7 @@ class GridComponent extends React.Component {
         this.props.model.off('create', this._onRecordsCreated);
         this.props.model.off('update', this._setData);
       }
+
       if (nextProps.model) {
         nextProps.model.on('create', this._onRecordsCreated);
         nextProps.model.on('update', this._setData);
@@ -265,7 +275,7 @@ class GridComponent extends React.Component {
 
     this.setState({statuses: nextStatuses}, () => {
       if (needUpdateTable) {
-        this.updateTable().catch(err => {
+        this.updateTable().catch((err) => {
           console.error(err);
         });
       }
@@ -298,9 +308,11 @@ class GridComponent extends React.Component {
         if (this._isMounted) {
           this.setState({showLoader: false});
         }
+
         if (!(e instanceof ThrottleError)) {
           throw e;
         }
+
         return;
       }
 
@@ -322,32 +334,36 @@ class GridComponent extends React.Component {
       }
 
       const data = new EqualMap(loadedData.records || []);
-      const extra = new EqualMap((loadedData.extraRecords || []).filter(([recordId]) => {
-        return !data.has(recordId);
-      }));
+      const extra = new EqualMap(
+        (loadedData.extraRecords || []).filter(([recordId]) => {
+          return !data.has(recordId);
+        })
+      );
       const recordIds = [...data.keys(), ...extra.keys()];
-      this.setState({
-        data,
-        extra,
-        count: loadedData.count,
-        totals: loadedData.totals,
-        errors: this._pick(this.state.errors, recordIds),
-        changes: this._pick(this.state.changes, recordIds),
-        showLoader: false
-      }, () => {
-        if (this.props.onPageLoad) {
-          this.props.onPageLoad(loadedData);
+      this.setState(
+        {
+          data,
+          extra,
+          count: loadedData.count,
+          totals: loadedData.totals,
+          errors: this._pick(this.state.errors, recordIds),
+          changes: this._pick(this.state.changes, recordIds),
+          showLoader: false
+        },
+        () => {
+          if (this.props.onPageLoad) {
+            this.props.onPageLoad(loadedData);
+          }
         }
-      });
+      );
     });
 
     return (...args) => {
-      return throttled(...args)
-        .catch(error => {
-          if (!(error instanceof ThrottleError)) {
-            throw error;
-          }
-        });
+      return throttled(...args).catch((error) => {
+        if (!(error instanceof ThrottleError)) {
+          throw error;
+        }
+      });
     };
   })();
 
@@ -360,7 +376,7 @@ class GridComponent extends React.Component {
     this.updateTable()
       .then(() => {
         return Promise.all(
-          recordIds.map(async recordId => {
+          recordIds.map(async (recordId) => {
             if (!this._isRecordLoaded(recordId)) {
               return;
             }
@@ -392,6 +408,7 @@ class GridComponent extends React.Component {
       if (err && this.props.onError) {
         this.props.onError(err);
       }
+
       throw err;
     }
 
@@ -409,6 +426,7 @@ class GridComponent extends React.Component {
     for (const [recordId] of this.state.changes) {
       additionalIds.add(recordId);
     }
+
     return additionalIds;
   }
 
@@ -425,6 +443,7 @@ class GridComponent extends React.Component {
     for (i in cols) {
       columns = union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
     }
+
     return columns;
   }
 
@@ -442,12 +461,15 @@ class GridComponent extends React.Component {
    * Switches records selection mode to "whitelist"
    */
   unselectAll() {
-    this.setState({
-      selected: [],
-      selectBlackListMode: false
-    }, () => {
-      this._emitChangeSelectedNum();
-    });
+    this.setState(
+      {
+        selected: [],
+        selectBlackListMode: false
+      },
+      () => {
+        this._emitChangeSelectedNum();
+      }
+    );
   }
 
   /**
@@ -470,6 +492,7 @@ class GridComponent extends React.Component {
       if (!direction.length) {
         return null;
       }
+
       return direction.map(toArray);
     }
 
@@ -487,6 +510,7 @@ class GridComponent extends React.Component {
     for (const [key] of this.state.statuses) {
       ids.add(key);
     }
+
     return ids;
   }
 
@@ -500,6 +524,7 @@ class GridComponent extends React.Component {
     if (!this.state.data.has(recordId)) {
       throw new Error('Record with the ID is not contained in the table.');
     }
+
     return cloneDeep(this._getRecordWithChanges(recordId));
   }
 
@@ -554,6 +579,7 @@ class GridComponent extends React.Component {
       } else if (defaultValue !== undefined) {
         result.set(key, defaultValue);
       }
+
       return result;
     }, new EqualMap());
   }
@@ -568,9 +594,11 @@ class GridComponent extends React.Component {
     if (this.state.data.has(recordId)) {
       return {...this.state.data.get(recordId), ...this.state.changes.get(recordId)};
     }
+
     if (this.state.extra.has(recordId)) {
       return {...this.state.extra.get(recordId), ...this.state.changes.get(recordId)};
     }
+
     return null;
   };
 
@@ -583,20 +611,31 @@ class GridComponent extends React.Component {
    * @private
    */
   _setRowChanges(recordId, data) {
-    this.setState((state, props) => {
-      const changes = cloneDeep(state.changes);
-      changes.set(recordId, getRecordChanges(props.model, state.data.get(recordId) || state.extra.get(recordId), changes.get(recordId), data));
+    this.setState(
+      (state, props) => {
+        const changes = cloneDeep(state.changes);
+        changes.set(
+          recordId,
+          getRecordChanges(
+            props.model,
+            state.data.get(recordId) || state.extra.get(recordId),
+            changes.get(recordId),
+            data
+          )
+        );
 
-      if (isEmpty(changes.get(recordId))) {
-        changes.delete(recordId);
-      }
+        if (isEmpty(changes.get(recordId))) {
+          changes.delete(recordId);
+        }
 
-      return {changes};
-    }, () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state.changes, this.state.data);
+        return {changes};
+      },
+      () => {
+        if (this.props.onChange) {
+          this.props.onChange(this.state.changes, this.state.data);
+        }
       }
-    });
+    );
   }
 
   /**
@@ -710,17 +749,21 @@ class GridComponent extends React.Component {
         }
       }
     }
-    this.setState({
-      errors,
-      changes
-    }, () => {
-      if (this.props.onChange) {
-        this.props.onChange(changes, this.state.data);
-      }
-    });
 
-    const errorHandler = this.props.onError || ::console.error;
-    unhandledErrors.forEach(error => errorHandler(error));
+    this.setState(
+      {
+        errors,
+        changes
+      },
+      () => {
+        if (this.props.onChange) {
+          this.props.onChange(changes, this.state.data);
+        }
+      }
+    );
+
+    const errorHandler = this.props.onError || console.bind(console);
+    unhandledErrors.forEach((error) => errorHandler(error));
   }
 
   /**
@@ -772,23 +815,26 @@ class GridComponent extends React.Component {
    * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
   unselectRecord(recordId, ignoreBlackList) {
-    this.setState((state) => {
-      const selected = [...state.selected];
+    this.setState(
+      (state) => {
+        const selected = [...state.selected];
 
-      if (state.selectBlackListMode && !ignoreBlackList) {
-        this.selectRecord(recordId, true);
-        return null;
+        if (state.selectBlackListMode && !ignoreBlackList) {
+          this.selectRecord(recordId, true);
+          return null;
+        }
+
+        const pos = indexOf(selected, recordId);
+        if (pos >= 0) {
+          selected.splice(pos, 1);
+        }
+
+        return {selected};
+      },
+      () => {
+        this._emitChangeSelectedNum();
       }
-
-      const pos = indexOf(selected, recordId);
-      if (pos >= 0) {
-        selected.splice(pos, 1);
-      }
-
-      return {selected};
-    }, () => {
-      this._emitChangeSelectedNum();
-    });
+    );
   }
 
   /**
@@ -802,6 +848,7 @@ class GridComponent extends React.Component {
       if (this.state.selectBlackListMode) {
         selectedCount = this.getCountRecords() - selectedCount;
       }
+
       this.props.onSelectedChange(this.getAllSelected(), selectedCount);
     }
   }
@@ -813,32 +860,35 @@ class GridComponent extends React.Component {
    * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
   selectRecord(recordId, ignoreBlackList) {
-    this.setState((state) => {
-      const selected = [...state.selected];
+    this.setState(
+      (state) => {
+        const selected = [...state.selected];
 
-      if (state.selectBlackListMode && !ignoreBlackList) {
-        this.unselectRecord(recordId, true);
-        return null;
-      }
-
-      if (indexOf(selected, recordId) < 0) {
-        selected.push(recordId);
-
-        if (selected.length === state.count) {
-          if (state.selectBlackListMode) {
-            this.unselectAll();
-          } else {
-            this.selectAll();
-          }
-
+        if (state.selectBlackListMode && !ignoreBlackList) {
+          this.unselectRecord(recordId, true);
           return null;
         }
-      }
 
-      return {selected};
-    }, () => {
-      this._emitChangeSelectedNum();
-    });
+        if (indexOf(selected, recordId) < 0) {
+          selected.push(recordId);
+
+          if (selected.length === state.count) {
+            if (state.selectBlackListMode) {
+              this.unselectAll();
+            } else {
+              this.selectAll();
+            }
+
+            return null;
+          }
+        }
+
+        return {selected};
+      },
+      () => {
+        this._emitChangeSelectedNum();
+      }
+    );
   }
 
   /**
@@ -846,12 +896,15 @@ class GridComponent extends React.Component {
    * Switches records selection mode to "blacklist"
    */
   selectAll() {
-    this.setState({
-      selectBlackListMode: true,
-      selected: []
-    }, () => {
-      this._emitChangeSelectedNum();
-    });
+    this.setState(
+      {
+        selectBlackListMode: true,
+        selected: []
+      },
+      () => {
+        this._emitChangeSelectedNum();
+      }
+    );
   }
 
   getSelectAllStatus() {
@@ -897,16 +950,21 @@ class GridComponent extends React.Component {
       return;
     }
 
-    const nextData = new EqualMap([...this.state.data].map(([dataRecordId, record]) => {
-      if (!isEqual(recordId, dataRecordId)) {
-        return [dataRecordId, record];
-      }
+    const nextData = new EqualMap(
+      [...this.state.data].map(([dataRecordId, record]) => {
+        if (!isEqual(recordId, dataRecordId)) {
+          return [dataRecordId, record];
+        }
 
-      return [dataRecordId, {
-        ...record,
-        ...data
-      }];
-    }));
+        return [
+          dataRecordId,
+          {
+            ...record,
+            ...data
+          }
+        ];
+      })
+    );
     this.setState({data: nextData});
   }
 
@@ -977,6 +1035,7 @@ class GridComponent extends React.Component {
     if (!this._isSortingPropsMode()) {
       this._resetSorting();
     }
+
     this.updateTable();
   }
 
@@ -1017,6 +1076,7 @@ class GridComponent extends React.Component {
     if (this.props.defaultSort) {
       return cloneDeep(this.props.defaultSort);
     }
+
     return null;
   }
 
@@ -1041,10 +1101,7 @@ class GridComponent extends React.Component {
     const arr = [];
 
     for (const [recordId, value] of map) {
-      arr.push([
-        recordId,
-        clone(value)
-      ]);
+      arr.push([recordId, clone(value)]);
     }
 
     return arr;
@@ -1068,11 +1125,13 @@ class GridComponent extends React.Component {
       if (!Array.isArray(fields)) {
         fields = [fields];
       }
+
       for (i = 0; i < fields.length; i++) {
         if (this.state.changes.get(recordId).hasOwnProperty(fields[i])) {
           return true;
         }
       }
+
       return false;
     }
 
@@ -1094,28 +1153,31 @@ class GridComponent extends React.Component {
 
     const checkDeletingRecordIds = new Set();
 
-    this.setState((state) => {
-      const statuses = cloneDeep(state.statuses);
-      for (const [recordId, statusSet] of statuses) {
-        if (statusSet.has(status)) {
-          statusSet.delete(status);
+    this.setState(
+      (state) => {
+        const statuses = cloneDeep(state.statuses);
+        for (const [recordId, statusSet] of statuses) {
+          if (statusSet.has(status)) {
+            statusSet.delete(status);
+          }
+
+          if (!statusSet.size) {
+            statuses.delete(recordId);
+            checkDeletingRecordIds.add(recordId);
+          }
         }
 
-        if (!statusSet.size) {
-          statuses.delete(recordId);
-          checkDeletingRecordIds.add(recordId);
+        return {
+          statuses,
+          selected: status === 'selected' ? [] : state.selected
+        };
+      },
+      () => {
+        for (const recordId of checkDeletingRecordIds) {
+          this._removeExtraRecordIfNeed(recordId);
         }
       }
-
-      return {
-        statuses,
-        selected: status === 'selected' ? [] : state.selected
-      };
-    }, () => {
-      for (const recordId of checkDeletingRecordIds) {
-        this._removeExtraRecordIfNeed(recordId);
-      }
-    });
+    );
   }
 
   /**
@@ -1184,6 +1246,7 @@ class GridComponent extends React.Component {
             if (e.keyCode === ESCAPE_KEY) {
               this._setRowChanges(recordId, {[colId]: value[0]});
             }
+
             this._onBlurEditor(recordId);
           });
         }
@@ -1220,7 +1283,12 @@ class GridComponent extends React.Component {
     }
 
     try {
-      const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
+      const errors = await this._checkValidatorErrors(
+        recordId,
+        this.props.model,
+        this._getRecordChanges,
+        'errors'
+      );
       this.setState({errors});
     } catch (e) {
       if (!(e instanceof ThrottleError)) {
@@ -1233,7 +1301,12 @@ class GridComponent extends React.Component {
    * Validate row
    */
   async _validateRow(recordId) {
-    const errors = await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
+    const errors = await this._checkValidatorErrors(
+      recordId,
+      this.props.model,
+      this._getRecordChanges,
+      'errors'
+    );
     this.setState({errors});
   }
 
@@ -1254,6 +1327,7 @@ class GridComponent extends React.Component {
     if (this.state.changes.has(recordId)) {
       return cloneDeep(this.state.changes.get(recordId));
     }
+
     return {};
   };
 
@@ -1313,6 +1387,7 @@ class GridComponent extends React.Component {
         clonedResult.set(recordId, validErrors);
       }
     }
+
     return clonedResult;
   }
 
@@ -1333,6 +1408,7 @@ class GridComponent extends React.Component {
     if (errors.get(recordId).isEmpty()) {
       errors.delete(recordId);
     }
+
     this.setState({errors});
   }
 
@@ -1390,6 +1466,7 @@ class GridComponent extends React.Component {
     if (page * view >= count) {
       page = view ? Math.ceil(count / view) - 1 : 0;
     }
+
     return Math.max(0, page);
   }
 
@@ -1411,8 +1488,9 @@ class GridComponent extends React.Component {
       this.props.onChangeViewCount(viewCount);
       return;
     }
+
     this.setViewCount(viewCount);
-  }
+  };
 
   /**
    * Set displayed elements count
@@ -1443,11 +1521,16 @@ class GridComponent extends React.Component {
     if (this._isViewCountPropsMode()) {
       return this.props.viewCount;
     }
+
     return this.state.viewCount;
   }
 
   _removeExtraRecordIfNeed(recordId) {
-    if (this.state.extra.has(recordId) && !this.state.statuses.has(recordId) && !this.state.changes.has(recordId)) {
+    if (
+      this.state.extra.has(recordId) &&
+      !this.state.statuses.has(recordId) &&
+      !this.state.changes.has(recordId)
+    ) {
       this._removeExtraRecord(recordId);
     }
   }
@@ -1476,7 +1559,7 @@ class GridComponent extends React.Component {
 
     if (this.props.multipleSorting) {
       // Find an element among the other sorts
-      currentSortIndex = findIndex(newSorts, sort => sort.column === column);
+      currentSortIndex = findIndex(newSorts, (sort) => sort.column === column);
 
       if (currentSortIndex >= 0) {
         currentSort = newSorts[currentSortIndex];
@@ -1513,6 +1596,7 @@ class GridComponent extends React.Component {
       } else {
         newOrder = sortCycle[0];
       }
+
       if (newOrder === 'default') {
         newSorts = null;
       } else {
@@ -1545,23 +1629,26 @@ class GridComponent extends React.Component {
       return;
     }
 
-    this.setState((state) => {
-      let recordStatuses = state.statuses.get(recordId);
-      const statuses = cloneDeep(state.statuses);
-      // If list does not contain the record, mark its status as empty
-      if (!recordStatuses) {
-        recordStatuses = new Set();
-      }
+    this.setState(
+      (state) => {
+        let recordStatuses = state.statuses.get(recordId);
+        const statuses = cloneDeep(state.statuses);
+        // If list does not contain the record, mark its status as empty
+        if (!recordStatuses) {
+          recordStatuses = new Set();
+        }
 
-      recordStatuses.add(status);
-      statuses.set(recordId, recordStatuses);
+        recordStatuses.add(status);
+        statuses.set(recordId, recordStatuses);
 
-      return {statuses};
-    }, () => {
-      if (!this.state.data.has(recordId)) {
-        this.updateTable();
+        return {statuses};
+      },
+      () => {
+        if (!this.state.data.has(recordId)) {
+          this.updateTable();
+        }
       }
-    });
+    );
   }
 
   /**
@@ -1579,26 +1666,29 @@ class GridComponent extends React.Component {
     }
 
     const needTableUpdate = Boolean(recordIds.length);
-    this.setState((state) => {
-      const statuses = cloneDeep(state.statuses);
+    this.setState(
+      (state) => {
+        const statuses = cloneDeep(state.statuses);
 
-      for (const recordId of recordIds) {
-        let recordStatuses = statuses.get(recordId);
+        for (const recordId of recordIds) {
+          let recordStatuses = statuses.get(recordId);
 
-        if (!recordStatuses) {
-          recordStatuses = new Set();
+          if (!recordStatuses) {
+            recordStatuses = new Set();
+          }
+
+          recordStatuses.add(status);
+          statuses.set(recordId, recordStatuses);
         }
 
-        recordStatuses.add(status);
-        statuses.set(recordId, recordStatuses);
+        return {statuses};
+      },
+      () => {
+        if (needTableUpdate) {
+          this.updateTable();
+        }
       }
-
-      return {statuses};
-    }, () => {
-      if (needTableUpdate) {
-        this.updateTable();
-      }
-    });
+    );
   }
 
   /**
@@ -1617,31 +1707,34 @@ class GridComponent extends React.Component {
 
     let needCheckRemoveRecord;
 
-    this.setState((state) => {
-      // Cancel method execution if record has no statuses
-      if (!state.statuses.has(recordId)) {
-        return null;
-      }
+    this.setState(
+      (state) => {
+        // Cancel method execution if record has no statuses
+        if (!state.statuses.has(recordId)) {
+          return null;
+        }
 
-      const statuses = cloneDeep(state.statuses);
-      const recordStatuses = statuses.get(recordId);
+        const statuses = cloneDeep(state.statuses);
+        const recordStatuses = statuses.get(recordId);
 
-      // Remove status if record has i
+        // Remove status if record has i
 
-      if (recordStatuses.has(status)) {
-        recordStatuses.delete(status);
-        if (!recordStatuses.size) {
-          statuses.delete(recordId);
-          needCheckRemoveRecord = true;
+        if (recordStatuses.has(status)) {
+          recordStatuses.delete(status);
+          if (!recordStatuses.size) {
+            statuses.delete(recordId);
+            needCheckRemoveRecord = true;
+          }
+        }
+
+        return {statuses};
+      },
+      () => {
+        if (needCheckRemoveRecord) {
+          this._removeExtraRecordIfNeed(recordId);
         }
       }
-
-      return {statuses};
-    }, () => {
-      if (needCheckRemoveRecord) {
-        this._removeExtraRecordIfNeed(recordId);
-      }
-    });
+    );
   }
 
   /**
@@ -1655,6 +1748,7 @@ class GridComponent extends React.Component {
     if (this.state.statuses.has(recordId)) {
       return this.state.statuses.get(recordId).has(status);
     }
+
     return false;
   }
 
@@ -1672,6 +1766,7 @@ class GridComponent extends React.Component {
         records.push(recordId);
       }
     }
+
     return records;
   }
 
@@ -1698,6 +1793,7 @@ class GridComponent extends React.Component {
     if (this._isSortingPropsMode()) {
       return this.props.sort;
     }
+
     return this.state.sort;
   }
 
@@ -1770,9 +1866,11 @@ class GridComponent extends React.Component {
           if (!statuses.has(recordId)) {
             statuses.set(recordId, new Set());
           }
+
           statuses.get(recordId).add('selected');
         }
       }
+
       return statuses;
     }
 
@@ -1780,6 +1878,7 @@ class GridComponent extends React.Component {
       if (!statuses.has(recordId)) {
         statuses.set(recordId, new Set());
       }
+
       statuses.get(recordId).add('selected');
     }
 
@@ -1793,6 +1892,7 @@ class GridComponent extends React.Component {
     if (this.props.onToggleSelectAll) {
       return this.props.onToggleSelectAll();
     }
+
     if (this.state.selectBlackListMode) {
       this.unselectAll();
     } else {
@@ -1812,6 +1912,7 @@ class GridComponent extends React.Component {
     if (this.state.selectBlackListMode) {
       return !selected;
     }
+
     return selected;
   }
 
@@ -1824,6 +1925,7 @@ class GridComponent extends React.Component {
     if (this.props.onToggleSelected) {
       return this.props.onToggleSelected(recordId);
     }
+
     if (this.isSelected(recordId)) {
       this.unselectRecord(recordId);
     } else {
@@ -1836,23 +1938,9 @@ class GridComponent extends React.Component {
     const sort = this.getSortDirection();
     const viewCount = this.getViewCount();
     const statuses = this._getStatuses();
-    const {
-      showLoader,
-      totals,
-      count,
-      page,
-      data,
-      changes,
-      errors,
-      warnings,
-      editor,
-      extra,
-    } = this.state;
+    const {showLoader, totals, count, page, data, changes, errors, warnings, editor, extra} = this.state;
 
-    const {
-      viewVariants,
-      viewColumns
-    } = this.props;
+    const {viewVariants, viewColumns} = this.props;
 
     if (this.props.className) {
       gridClassNames.push(this.props.className);
