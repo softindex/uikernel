@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import notEmptyValidator from '../notEmpty.js';
+import notEmptyValidator from '../notEmpty';
 
 describe('notEmpty validator', () => {
   const validator = notEmptyValidator('test');

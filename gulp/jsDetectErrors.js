@@ -7,7 +7,7 @@
  */
 
 import gulp from 'gulp';
-import eslint from 'gulp-eslint';
+import eslint from 'gulp-eslint7';
 import gulpIf from 'gulp-if';
 
 /**
@@ -18,10 +18,11 @@ function isFixed(file) {
 }
 
 function jsDetectErrors() {
-  return gulp.src(['src/**/*.js', 'gulp/**/*.js'], {base: '.'})
+  return gulp.src(['src/**/*.{ts,tsx}'], {base: '.'})
     .pipe(eslint({fix: true}))
     .pipe(eslint.format())
-    .pipe(gulpIf(isFixed, gulp.dest('.')));
+    .pipe(gulpIf(isFixed, gulp.dest('.')))
+    .pipe(eslint.failAfterError());
 }
 
 export default jsDetectErrors;

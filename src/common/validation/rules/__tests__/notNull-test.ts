@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import notNullValidator from '../notNull.js';
+import notNullValidator from '../notNull';
 
 describe('notNull validator', () => {
   const validator = notNullValidator('test');

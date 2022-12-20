@@ -19,7 +19,7 @@ import release from './gulp/release';
 import buildSrc from './gulp/buildSrc';
 
 gulp.task('default', gulp.parallel([
-  gulp.series([jsDetectErrors, buildSrc]),
+  gulp.series([buildSrc]),
   styleBundle
 ]));
 
@@ -27,4 +27,3 @@ gulp.task('buildSite', gulp.series(['default', archive, clearSite, buildSite]));
 gulp.task('deploySite', gulp.series(['buildSite', deploySite]));
 
 gulp.task('release', gulp.series(['default', release]));
-

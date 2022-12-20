@@ -13,7 +13,7 @@ import changed from 'gulp-changed';
 import count from 'gulp-count';
 
 function buildSrc() {
-  return gulp.src('src/**/*.js')
+  return gulp.src(['src/**/*.{ts,tsx}'])
     .pipe(changed('lib', {hasChanged: changed.compareLastModifiedTime}))
     .pipe(count('babel transplit ## files'))
     .pipe(babel({sourceMap: argv.map ? 'inline' : false}))

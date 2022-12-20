@@ -1,49 +1,195 @@
-parser: "babel-eslint"
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2019,
+    "ecmaFeatures": {
+      "jsx": true,
+      "modules": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "import",
+    "typescript-custom-sort-keys",
+    "xss",
+    "prettier"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:jest/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
+    "alloy",
+    "alloy/react",
+    "alloy/typescript",
+    "plugin:import/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect" // Tells eslint-plugin-react to automatically detect the version of React to use
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".ts", ".jsx", ".tsx"]
+      }
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jest": true,
+    "jquery": true
+  },
+  "globals": {},
+  "ignorePatterns": ["next-env.d.ts", "lib/**/*.*"],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "trailingComma": "none",
+        "semi": true,
+        "singleQuote": true,
+        "bracketSpacing": false,
+        "printWidth": 110
+      }
+    ],
 
-extends: ["eslint:recommended", "plugin:react/recommended"]
+    "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
+    "@typescript-eslint/no-parameter-properties": ["error", {"allows": ["private", "private readonly"]}],
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/member-ordering": "error",
+    "@typescript-eslint/lines-between-class-members": ["error", "always", {"exceptAfterSingleLine": true}],
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-var-requires": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/consistent-type-assertions": "error",
 
-plugins: ["react"]
+    "typescript-custom-sort-keys/interface": [
+      "error",
+      "asc",
+      {
+        "caseSensitive": true,
+        "displayFirst": ["id"],
+        "showFunctionsAtEnd": true
+      }
+    ],
 
-settings:
-  react:
-    version: "0.14"
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+    "import/no-anonymous-default-export": "error",
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "never",
+        "alphabetize": {"order": "asc", "caseInsensitive": true},
+        "pathGroups": [
+          {
+            "pattern": "@evidnt/**",
+            "group": "external",
+            "position": "before"
+          }
+        ]
+      }
+    ],
 
-parserOptions:
-  ecmaVersion: 6
-  ecmaFeatures:
-    jsx: true
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-uses-react": "warn",
+    "react/jsx-uses-vars": "warn",
+    // "react/no-is-mounted": "off",
+    // "react/no-direct-mutation-state": "off",
+    // "react/no-find-dom-node": "off",
 
-env:
-  browser: true
-  jquery: true
-  node: true
-  es6: true
-  jest: true
+    "react-hooks/exhaustive-deps": "off",
 
-rules:
-  no-console: [2, {allow: ["warn", "error"]}]
-  prefer-const: 2
-  no-var: 2
-  strict: [2, "never"]
-  key-spacing: [2, {"beforeColon": false}]
-  comma-spacing: [2, {"before": false, "after": true}]
-  eol-last: [2, "always"]
-  no-multiple-empty-lines: [2, {"max": 1}]
-  padded-blocks: [2, "never"]
-  semi: [2, "always"]
-  arrow-spacing: 2
-  brace-style: 2
-  no-multi-spaces: 2
-  curly: 2
-  indent: [2, 2]
-  space-before-function-paren: [2, {"anonymous": "always", "named": "never", "asyncArrow": "always"}]
-  keyword-spacing: 2
-  space-before-blocks: 2
-  no-cond-assign: 0
-  no-underscore-dangle: 0
-  consistent-return: 0
-  require-yield: 0
-  react/prop-types: 0
-  react/no-is-mounted: 0
-  react/no-direct-mutation-state: 0
-  react/no-find-dom-node: 0
+    "jest/no-mocks-import": "off",
+
+    "no-var": "error",
+    "no-tabs": "error",
+    "eol-last": "error",
+    "no-trailing-spaces": "error",
+    "quotes": ["error", "single", {"avoidEscape": true, "allowTemplateLiterals": true}],
+    // "strict": ["off", "global"],
+    "strict": [2, "never"],
+    "no-underscore-dangle": "off",
+    "no-loop-func": "off",
+    "no-undef": "error",
+    "consistent-return": "off",
+    "no-console": ["error", {"allow": ["warn", "error"]}],
+    "prefer-const": ["error", {"destructuring": "all"}],
+    "no-multiple-empty-lines": ["error", {"max": 1}],
+    "max-len": [
+      "error",
+      {
+        "code": 120,
+        "tabWidth": 4,
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true,
+        "ignoreRegExpLiterals": true
+      }
+    ],
+    "comma-dangle": ["error", "never"],
+    "camelcase": "off",
+    "no-unused-vars": ["error", {"vars": "all", "args": "after-used"}],
+    "jsx-quotes": ["error", "prefer-double"],
+    "no-case-declarations": "off",
+    "keyword-spacing": ["error", {"before": true, "after": true}],
+    "space-before-blocks": "error",
+    "no-cond-assign": "off",
+    "space-before-function-paren": [
+      "error",
+      {"anonymous": "always", "named": "never", "asyncArrow": "always"}
+    ],
+    "semi": "error",
+    "spaced-comment": "error",
+    "new-cap": "off",
+    "no-multi-spaces": "error",
+    "one-var": ["error", "never"],
+    "padded-blocks": ["error", "never"],
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": ["if", "class", "function", "export", "while", "for", "do"],
+        "next": "*"
+      },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": ["class", "function", "export", "while", "for", "do"]
+      },
+      {
+        "blankLine": "any",
+        "prev": ["const", "let"],
+        "next": ["if", "while", "for", "do"]
+      }
+    ],
+    "object-curly-spacing": ["error", "never"],
+    "no-else-return": ["error", {"allowElseIf": false}],
+    "curly": "error"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {"vars": "all", "args": "after-used", "argsIgnorePattern": "^_"}
+        ],
+        "no-unused-vars": "off",
+        "no-undef": "off"
+      }
+    }
+  ]
+}
