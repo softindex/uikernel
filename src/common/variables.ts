@@ -9,7 +9,7 @@
 const variables = {};
 
 export default {
-  get: key => variables[key],
+  get: (key) => variables[key],
   set: (key, value) => {
     variables[key] = value;
   }

@@ -22,10 +22,10 @@ export type ReadSettings<F> = {
 };
 
 export interface IServerGridModel<K, R, F> {
-  create(record: R): Promise<[K, R]>;
-  getRecord(id: K, fields: Array<string>): Promise<R>;
-  getValidationDependency(fields: Array<string>): Array<string>;
-  isValidRecord(record: R, recordId: K | null): Promise<ValidationErrors>;
-  read(settings: ReadSettings<F>): Promise<Records<K, R>>;
-  update(records: Array<[K, R]>): Promise<Array<[K, R | ValidationErrors]>>;
+  create: (record: R) => Promise<[K, R]>;
+  getRecord: (id: K, fields: Array<string>) => Promise<R>;
+  getValidationDependency: (fields: Array<string>) => Array<string>;
+  isValidRecord: (record: R, recordId: K | null) => Promise<ValidationErrors>;
+  read: (settings: ReadSettings<F>) => Promise<Records<K, R>>;
+  update: (records: Array<[K, R]>) => Promise<Array<[K, R | ValidationErrors]>>;
 }

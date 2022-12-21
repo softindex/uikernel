@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import url from 'url';
+import defaultXhr from '../../common/defaultXhr';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import Validator from '../../common/validation/Validator';
-import defaultXhr from '../../common/defaultXhr';
 import AbstractGridModel from './AbstractGridModel';
-import url from 'url';
 
 const MAX_URI_LENGTH = 2048;
 
@@ -30,7 +30,7 @@ class GridXhrModel extends AbstractGridModel {
     super();
 
     if (!api) {
-      throw new Error('Initialization problem: \'api\' must be specified.');
+      throw new Error("Initialization problem: 'api' must be specified.");
     }
 
     this._validator = validator || new Validator();
@@ -59,6 +59,7 @@ class GridXhrModel extends AbstractGridModel {
           ordinaryData[prop] = value;
         }
       }
+
       formData.append('rest', JSON.stringify(ordinaryData));
     }
 
@@ -66,7 +67,7 @@ class GridXhrModel extends AbstractGridModel {
       method: 'POST',
       uri: this._apiUrl,
       body: this._multipartFormDataEncoded ? formData : JSON.stringify(record),
-      ...!this._multipartFormDataEncoded && {headers: {'Content-type': 'application/json'}}
+      ...(!this._multipartFormDataEncoded && {headers: {'Content-type': 'application/json'}})
     });
 
     body = JSON.parse(body);
@@ -148,7 +149,7 @@ class GridXhrModel extends AbstractGridModel {
         }
 
         const filteredRecord = Object.keys(record)
-          .filter(key => !fileFieldNames.includes(key))
+          .filter((key) => !fileFieldNames.includes(key))
           .reduce((agr, key) => ({...agr, [key]: record[key]}), {});
 
         ordinaryRecordChanges.push([recordId, filteredRecord]);
@@ -159,11 +160,11 @@ class GridXhrModel extends AbstractGridModel {
 
     let body = await this._xhr({
       method: 'PUT',
-      ...!this._multipartFormDataEncoded && {
+      ...(!this._multipartFormDataEncoded && {
         headers: {
           'Content-type': 'application/json'
         }
-      },
+      }),
       uri: this._apiUrl,
       body: this._multipartFormDataEncoded ? formDataChanges : JSON.stringify(changes)
     });
@@ -175,6 +176,7 @@ class GridXhrModel extends AbstractGridModel {
       this.trigger('update', body.changes);
       res.push(...body.changes);
     }
+
     if (body.validation && body.validation.length) {
       for (const error of body.validation) {
         if (error && error[1]) {
@@ -183,6 +185,7 @@ class GridXhrModel extends AbstractGridModel {
         }
       }
     }
+
     if (body.errors && body.errors.length) {
       for (const error of body.errors) {
         if (error && error[1]) {
@@ -230,6 +233,7 @@ class GridXhrModel extends AbstractGridModel {
           return validationErrors;
         }
       }
+
       throw err;
     }
 
@@ -253,15 +257,19 @@ class GridXhrModel extends AbstractGridModel {
     if (settings.limit) {
       parsedUrl.query.limit = settings.limit;
     }
+
     if (settings.filters) {
       parsedUrl.query.filters = JSON.stringify(settings.filters);
     }
+
     if (settings.sort) {
       parsedUrl.query.sort = JSON.stringify(settings.sort);
     }
+
     if (settings.extra) {
       parsedUrl.query.extra = JSON.stringify(settings.extra);
     }
+
     delete parsedUrl.search;
 
     return parsedUrl;
@@ -274,12 +282,15 @@ class GridXhrModel extends AbstractGridModel {
     if (settings.limit) {
       requestBody.limit = settings.limit;
     }
+
     if (settings.filters) {
       requestBody.filters = settings.filters;
     }
+
     if (settings.sort) {
       requestBody.sort = settings.sort;
     }
+
     if (settings.extra) {
       requestBody.extra = settings.extra;
     }

@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {throttle, isEqual} from '../utils';
 import ThrottleError from '../ThrottleError';
+import {throttle, isEqual} from '../utils';
 
 async function makeRequest(data) {
   return new Promise((resolve) => {
@@ -33,23 +33,20 @@ describe('Throttle', () => {
     const request = throttle(makeRequest);
 
     // First request throws error
-    const firstRequest = request(1)
-      .catch(error => {
-        expect(error).toBeInstanceOf(ThrottleError);
-      });
+    const firstRequest = request(1).catch((error) => {
+      expect(error).toBeInstanceOf(ThrottleError);
+    });
 
     // Second request throws error
-    const secondRequest = request(2)
-      .catch(error => {
-        expect(error).toBeInstanceOf(ThrottleError);
-      });
+    const secondRequest = request(2).catch((error) => {
+      expect(error).toBeInstanceOf(ThrottleError);
+    });
 
     // Last request return value
     const lastRequest = request(3);
-    lastRequest
-      .then(data => {
-        expect(data).toBe(3);
-      });
+    lastRequest.then((data) => {
+      expect(data).toBe(3);
+    });
 
     return Promise.all([firstRequest, secondRequest, lastRequest]);
   });
@@ -74,15 +71,9 @@ describe('Throttle', () => {
       hasUnhandledRejection = true;
     });
 
-    await Promise.all([
-      asyncFuncCatchingThrottleErrors(),
-      asyncFuncCatchingThrottleErrors()
-    ]);
+    await Promise.all([asyncFuncCatchingThrottleErrors(), asyncFuncCatchingThrottleErrors()]);
 
-    await Promise.all([
-      asyncFuncCatchingThrottleErrors(),
-      asyncFuncCatchingThrottleErrors()
-    ]);
+    await Promise.all([asyncFuncCatchingThrottleErrors(), asyncFuncCatchingThrottleErrors()]);
 
     expect(hasUnhandledRejection).toBeFalsy();
   });

@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../common/validation/ValidationErrors';
-import Validator from '../common/validation/Validator';
+import url from 'url';
 import defaultXhr from '../common/defaultXhr';
 import EventsModel from '../common/Events';
-import url from 'url';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import Validator from '../common/validation/Validator';
 
 const MAX_URI_LENGTH = 2048;
 
@@ -19,7 +19,7 @@ class FormXhrModel extends EventsModel {
     super();
 
     if (!settings.api) {
-      throw new Error('Initialization problem: \'api\' must be specified.');
+      throw new Error("Initialization problem: 'api' must be specified.");
     }
 
     this._multipartFormDataEncoded = settings.multipartFormData || false;
@@ -60,16 +60,17 @@ class FormXhrModel extends EventsModel {
           ordinaryData[prop] = value;
         }
       }
+
       formData.append('rest', JSON.stringify(ordinaryData));
     }
 
     let body = await this._xhr({
       method: 'POST',
-      ...!this._multipartFormDataEncoded && {
+      ...(!this._multipartFormDataEncoded && {
         headers: {
           'Content-type': 'application/json'
         }
-      },
+      }),
       uri: this._apiUrl,
       body: this._multipartFormDataEncoded ? formData : JSON.stringify(record)
     });
@@ -93,6 +94,7 @@ class FormXhrModel extends EventsModel {
     if (this._validateOnClient) {
       return this._validator.isValidRecord(record);
     }
+
     const parsedUrl = url.parse(this._apiUrl, true);
     parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
 
@@ -114,6 +116,7 @@ class FormXhrModel extends EventsModel {
           return validationErrors;
         }
       }
+
       throw err;
     }
 
@@ -138,7 +141,7 @@ class FormXhrModel extends EventsModel {
       method: 'POST',
       json: true,
       uri: url.format(parsedUrl),
-      body: { fields }
+      body: {fields}
     });
   }
 }

@@ -6,7 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationError from '../ValidationErrors';
 import boolean from '../rules/boolean';
 import date from '../rules/date';
 import enumValidator from '../rules/enum';
@@ -15,6 +14,7 @@ import notNull from '../rules/notNull';
 import number from '../rules/number';
 import regExp from '../rules/regExp';
 import set from '../rules/set';
+import ValidationError from '../ValidationErrors';
 import Validator from '../Validator';
 
 describe('ValidationError', () => {
@@ -70,8 +70,10 @@ describe('ValidationError', () => {
   it('merge', () => {
     const validationError = ValidationError.createFromJSON({test: ['error']});
     const errorToMerge = ValidationError.createFromJSON({test2: [{message: 'error2'}]});
-    expect(validationError.merge(errorToMerge).toJSON())
-      .toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
+    expect(validationError.merge(errorToMerge).toJSON()).toEqual({
+      test: [{message: 'error'}],
+      test2: [{message: 'error2'}]
+    });
   });
 });
 
@@ -165,7 +167,7 @@ describe('Validator', () => {
     let result = await validator.isValidRecord({name: true});
     expect(result.toJSON()).toEqual({});
     result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({'name': [{message: 'err text'}]});
+    expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
   });
 
   it('field', async () => {
@@ -173,6 +175,6 @@ describe('Validator', () => {
     let result = await validator.isValidRecord({name: true});
     expect(result.toJSON()).toEqual({});
     result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({'name': [{message: 'err text'}]});
+    expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
   });
 });

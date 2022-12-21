@@ -6,72 +6,44 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+type EventListener<TParams extends unknown[]> = (...args: TParams) => void;
+type Subscribers<TListeners> = {
+  [K in keyof TListeners & string]?: TListeners[K][];
+};
+
 /**
  * Events control model
  */
-class EventsModel {
-  constructor() {
-    this._subscribers = {};
+class EventsModel<TListeners extends Record<string, EventListener<unknown[]>>> {
+  private subscribers: Subscribers<TListeners> = {};
+
+  on<TEventName extends keyof TListeners & string>(event: TEventName, cb: TListeners[TEventName]): void {
+    const listeners = this.subscribers[event] || [];
+    this.subscribers[event] = listeners;
+
+    listeners.push(cb);
   }
 
-  /**
-   * Subscribe to inner model event
-   *
-   * @param {string}      event   Event ID
-   * @param {Function}    cb      CallBack function
-   */
-  on(event, cb) {
-    if (typeof this._subscribers[event] !== 'object') {
-      this._subscribers[event] = [];
-    }
-    this._subscribers[event].push(cb);
+  off<TEventName extends keyof TListeners & string>(event: TEventName, cb: TListeners[TEventName]): void {
+    const listeners = this.subscribers[event] || [];
+    this.subscribers[event] = listeners.filter((listener) => listener !== cb);
   }
 
-  /**
-   * Unsubscribe from inner model event
-   *
-   * @param {number}      event   Event ID
-   * @param {Function}    cb      CallBack function
-   */
-  off(event, cb) {
-    if (this._subscribers[event]) {
-      this._subscribers[event] = this._subscribers[event].filter(subscriber => {
-        return subscriber !== cb;
-      });
-    }
-  }
-
-  /**
-   * Trigger inner model event
-   *
-   * @param {number}  event   Event ID
-   * @param {...*}    params
-   */
-  trigger(event, ...params) {
-    if (!this._subscribers[event] || !this._subscribers[event].length) {
-      return;
-    }
-    for (const subscriber of this._subscribers[event]) {
+  trigger<TEventName extends keyof TListeners & string>(
+    event: TEventName,
+    ...params: Parameters<TListeners[TEventName]>
+  ): void {
+    for (const subscriber of this.subscribers[event] || []) {
       subscriber(...params);
     }
   }
 
-  /**
-   * Returns the number of listeners listening to the event
-   *
-   * @param {string} event name
-   */
-  listenerCount(event) {
-    return this._subscribers[event] ? this._subscribers[event].length : 0;
+  listenerCount(event: keyof TListeners & string): number {
+    return this.subscribers[event]?.length || 0;
   }
 
-  /**
-   * Removes all listeners of the specified event
-   *
-   * @param {string} event name
-   */
-  removeAllListeners(event) {
-    this._subscribers[event] = [];
+  removeAllListeners(event: keyof TListeners & string): void {
+    this.subscribers[event] = [];
   }
 }
 

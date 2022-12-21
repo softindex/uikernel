@@ -6,13 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import React from 'react';
+import {findDOMNode} from 'react-dom';
+import Portal from '../common/Portal';
+import ThrottleError from '../common/ThrottleError';
 import toPromise from '../common/toPromise';
 import {throttle, isEqual, findIndex, parents, omit} from '../common/utils';
-import Portal from '../common/Portal';
-import {findDOMNode} from 'react-dom';
-import React from 'react';
-import PropTypes from 'prop-types';
-import ThrottleError from '../common/ThrottleError';
 
 const popupId = '__suggestBoxPopUp';
 const classes = {
@@ -37,26 +36,26 @@ const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
 
-class SuggestBoxEditor extends React.Component {
-  static propTypes = {
-    disabled: PropTypes.bool,
-    model: PropTypes.shape({
-      read: PropTypes.func,
-      getLabel: PropTypes.func
-    }),
-    onChange: PropTypes.func.isRequired,
-    onLabelChange: PropTypes.func,
-    onMetadataChange: PropTypes.func,
-    value: PropTypes.any,
-    defaultLabel: PropTypes.string,
-    label: PropTypes.string,
-    notFoundElement: PropTypes.element,
-    loadingElement: PropTypes.element,
-    onFocus: PropTypes.func,
-    withEmptyOption: PropTypes.bool,
-    defaultOpenTop: PropTypes.bool
+type Props = {
+  defaultLabel: string;
+  defaultOpenTop: bool;
+  disabled: boolean;
+  label: string;
+  loadingElement: React.ReactNode;
+  model: {
+    getLabel: (...args: any[]) => any;
+    read: (...args: any[]) => any;
   };
+  notFoundElement: React.ReactNode;
+  value: any;
+  withEmptyOption: bool;
+  onChange: (...args: any[]) => any;
+  onFocus: (...args: any[]) => any;
+  onLabelChange: (...args: any[]) => any;
+  onMetadataChange: (...args: any[]) => any;
+};
 
+class SuggestBoxEditor extends React.Component {
   static defaultProps = {
     disabled: false,
     notFoundElement: <div>Nothing found</div>,
@@ -67,7 +66,7 @@ class SuggestBoxEditor extends React.Component {
     defaultOpenTop: false
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this._loadData = throttle(this._loadData);
     this.state = {
@@ -104,9 +103,11 @@ class SuggestBoxEditor extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return this.state !== nextState
-      || !isEqual(this.props.value, nextProps.value)
-      || this.props.disabled !== nextProps.disabled;
+    return (
+      this.state !== nextState ||
+      !isEqual(this.props.value, nextProps.value) ||
+      this.props.disabled !== nextProps.disabled
+    );
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -115,6 +116,7 @@ class SuggestBoxEditor extends React.Component {
         this._getLabelFromModel(nextProps.model, nextProps.value);
       }
     }
+
     if (this.props.label !== nextProps.label) {
       this._setLabelTo(nextProps.label, true);
     }
@@ -128,6 +130,7 @@ class SuggestBoxEditor extends React.Component {
     if (label === null || label === undefined) {
       label = '';
     }
+
     this.setState({
       label: label,
       lastValidLabel: markAsValid ? label : this.state.lastValidLabel
@@ -139,14 +142,16 @@ class SuggestBoxEditor extends React.Component {
       return this._setLabelTo('', true);
     }
 
-    model.getLabel(id)
+    model
+      .getLabel(id)
       .then((label) => {
         if (!this._isMounted) {
           return;
         }
+
         this._setLabelTo(label, true);
       })
-      .catch(err => {
+      .catch((err) => {
         if (err) {
           console.error(err);
           throw err;
@@ -162,6 +167,7 @@ class SuggestBoxEditor extends React.Component {
       if (!(e instanceof ThrottleError)) {
         throw e;
       }
+
       return;
     }
 
@@ -187,6 +193,7 @@ class SuggestBoxEditor extends React.Component {
         position: 'static'
       };
     }
+
     this._scrollListTo();
   }
 
@@ -204,7 +211,10 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    await toPromise(this.setState.bind(this), true)({
+    await toPromise(
+      this.setState.bind(this),
+      true
+    )({
       isOpened: true,
       loading: true,
       popupStyles
@@ -248,9 +258,11 @@ class SuggestBoxEditor extends React.Component {
     if (shouldBlur) {
       findDOMNode(this.input).blur();
     }
+
     if (!this.state.isOpened || !this._isMounted) {
       return;
     }
+
     this.setState({
       options: [],
       selectedOptionKey: null,
@@ -276,9 +288,11 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option.label);
     }
+
     if (this.props.onMetadataChange) {
       this.props.onMetadataChange(option.metadata);
     }
+
     findDOMNode(this.input).select();
   }
 
@@ -286,6 +300,7 @@ class SuggestBoxEditor extends React.Component {
     if (shouldSetLabel === true) {
       this._setLabelTo(this.state.options[key].label);
     }
+
     if (this.state.isOpened) {
       this._focusOptionAndScrollIntoView(key);
     } else {
@@ -301,9 +316,11 @@ class SuggestBoxEditor extends React.Component {
     if (focusedItems) {
       focusedItems.classList.remove(classes.optionFocused);
     }
+
     if (currentItem) {
       currentItem.classList.add(classes.optionFocused);
     }
+
     const domOption = document.querySelectorAll(`#${popupId} li[data-key="${key}"]`)[0];
     this._scrollListTo(domOption);
   }
@@ -324,6 +341,7 @@ class SuggestBoxEditor extends React.Component {
         return this._focusOption(key, true);
       }
     }
+
     for (key = 0; key < this.state.selectedOptionKey + 1; key++) {
       if (this.state.options[key].id) {
         return this._focusOption(key, true);
@@ -343,6 +361,7 @@ class SuggestBoxEditor extends React.Component {
         return this._focusOption(key, true);
       }
     }
+
     for (key = this.state.options.length - 1; key > this.state.selectedOptionKey - 1; key--) {
       if (this.state.options[key].id) {
         return this._focusOption(key, true);
@@ -375,6 +394,7 @@ class SuggestBoxEditor extends React.Component {
         return true;
       }
     }
+
     return false;
   }
 
@@ -382,11 +402,13 @@ class SuggestBoxEditor extends React.Component {
     if (e.button !== 0) {
       return;
     }
+
     let target = e.target;
     if (isOwner) {
       if (!target.classList.contains(classes.option)) {
         target = target.parentNode;
       }
+
       if (target.classList.contains(classes.optionSelectable) && this.state.isOpened) {
         this._selectOption(this.state.options[target.getAttribute('data-key')]);
         if (this.props.closeMenuOnSelect) {
@@ -402,6 +424,7 @@ class SuggestBoxEditor extends React.Component {
           this._setLabelTo(this.state.lastValidLabel);
         }
       }
+
       if (!this._isParentOf(e.target)) {
         this._closeList(true);
       }
@@ -426,44 +449,50 @@ class SuggestBoxEditor extends React.Component {
     if (this.props.disabled) {
       return;
     }
-    switch (e.keyCode) {
-    case ARROW_DOWN_KEY:
-      e.preventDefault();
-      if (!this.state.isOpened) {
-        return this._openList('', true);
-      }
-      this._focusNextOption();
-      break;
-    case ARROW_UP_KEY:
-      e.preventDefault();
-      if (!this.state.isOpened) {
-        return this._openList();
-      }
-      this._focusPrevOption();
-      break;
-    case ENTER_KEY:
-      e.preventDefault();
 
-      if (this.state.selectedOptionKey === null) {
-        this._selectOption(null);
-      } else {
-        this._selectOption(this.state.options[this.state.selectedOptionKey]);
-      }
-      this._closeList();
-      break;
-    case TAB_KEY:
-    case ESCAPE_KEY:
-      if (e.keyCode === ESCAPE_KEY) {
+    switch (e.keyCode) {
+      case ARROW_DOWN_KEY:
         e.preventDefault();
-      }
-      if (!e.target.value || !this.props.value) {
-        this._setLabelTo('');
-        this._selectOption(null);
-      } else {
-        this._setLabelTo(this.state.lastValidLabel);
-      }
-      this._closeList();
-      break;
+        if (!this.state.isOpened) {
+          return this._openList('', true);
+        }
+
+        this._focusNextOption();
+        break;
+      case ARROW_UP_KEY:
+        e.preventDefault();
+        if (!this.state.isOpened) {
+          return this._openList();
+        }
+
+        this._focusPrevOption();
+        break;
+      case ENTER_KEY:
+        e.preventDefault();
+
+        if (this.state.selectedOptionKey === null) {
+          this._selectOption(null);
+        } else {
+          this._selectOption(this.state.options[this.state.selectedOptionKey]);
+        }
+
+        this._closeList();
+        break;
+      case TAB_KEY:
+      case ESCAPE_KEY:
+        if (e.keyCode === ESCAPE_KEY) {
+          e.preventDefault();
+        }
+
+        if (!e.target.value || !this.props.value) {
+          this._setLabelTo('');
+          this._selectOption(null);
+        } else {
+          this._setLabelTo(this.state.lastValidLabel);
+        }
+
+        this._closeList();
+        break;
     }
   }
 
@@ -555,10 +584,11 @@ class SuggestBoxEditor extends React.Component {
                 onMouseOver={this._focusOption.bind(this, key)}
                 className={optionClassNames.join(' ')}
               >
-                {
-                  Array.isArray(option.label) ? option.label.map((label, columnKey) => <div
-                    key={columnKey}>{label}</div>) : <div>{option.label}</div>
-                }
+                {Array.isArray(option.label) ? (
+                  option.label.map((label, columnKey) => <div key={columnKey}>{label}</div>)
+                ) : (
+                  <div>{option.label}</div>
+                )}
               </li>
             );
           });
@@ -584,10 +614,20 @@ class SuggestBoxEditor extends React.Component {
       <div className="__suggestBox">
         <div className={classes.searchBlock}>
           <input
-            {...omit(this.props,
-              ['model', 'value', 'onChange', 'onLabelChange', 'onFocus',
-                'select', 'notFoundElement', 'loadingElement', 'defaultLabel', 'onMetadataChange', 'withEmptyOption'])}
-            ref={(input) => this.input = input}
+            {...omit(this.props, [
+              'model',
+              'value',
+              'onChange',
+              'onLabelChange',
+              'onFocus',
+              'select',
+              'notFoundElement',
+              'loadingElement',
+              'defaultLabel',
+              'onMetadataChange',
+              'withEmptyOption'
+            ])}
+            ref={(input) => (this.input = input)}
             type="text"
             onClick={this._openList}
             onFocus={this._onInputFocus}
@@ -596,7 +636,7 @@ class SuggestBoxEditor extends React.Component {
             value={this.state.label}
           />
           <div onClick={this._toggleList} className={classes.selectBtn}>
-            <div className={arrowClasses.join(' ')}/>
+            <div className={arrowClasses.join(' ')} />
           </div>
         </div>
         {optionsPopup}

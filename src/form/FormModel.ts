@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {clone} from '../common/utils';
 import Validator from '../common/validation/Validator';
 import AbstractFormModel from './AbstractFormModel';
-import {clone} from '../common/utils';
 
 class FormModel extends AbstractFormModel {
   /**
@@ -53,6 +53,7 @@ class FormModel extends AbstractFormModel {
     if (!validErrors.isEmpty()) {
       throw validErrors;
     }
+
     Object.assign(this._data, changes);
     this.trigger('update', changes);
     return changes;

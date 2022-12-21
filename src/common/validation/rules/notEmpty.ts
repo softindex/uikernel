@@ -17,13 +17,7 @@ import {isEmpty} from '../../utils';
 export default function (error) {
   error = error || 'Can not be empty';
   return function (value) {
-    if (
-      isEmpty(value) ||
-      (typeof value === 'number' && (
-        isNaN(value) ||
-        !isFinite(value)
-      ))
-    ) {
+    if (isEmpty(value) || (typeof value === 'number' && (isNaN(value) || !isFinite(value)))) {
       return error;
     }
   };

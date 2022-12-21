@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import defaultXhr from '../common/defaultXhr';
 import url from 'url';
+import defaultXhr from '../common/defaultXhr';
 
 class ListXMLHttpRequestModel {
   /**

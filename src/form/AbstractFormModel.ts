@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../common/validation/ValidationErrors';
 import EventsModel from '../common/Events';
+import ValidationErrors from '../common/validation/ValidationErrors';
 
 class AbstractFormModel extends EventsModel {
   /**
@@ -26,7 +26,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  getData(/*fields*/) {
+  getData(/* fields */) {
     return Promise.resolve({});
   }
 
@@ -37,7 +37,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  submit(/*changes*/) {
+  submit(/* changes */) {
     return Promise.resolve();
   }
 
@@ -48,7 +48,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Object}  Promise
    * @abstract
    */
-  isValidRecord(/*record*/) {
+  isValidRecord(/* record */) {
     return Promise.resolve(new ValidationErrors());
   }
 
@@ -59,7 +59,7 @@ class AbstractFormModel extends EventsModel {
    * @returns {Array}  Dependencies
    * @abstract
    */
-  getValidationDependency(/*fields*/) {
+  getValidationDependency(/* fields */) {
     return [];
   }
 }

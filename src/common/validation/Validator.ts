@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from './ValidationErrors';
 import ArgumentsError from '../ArgumentsError';
 import {pluck, isIntersection} from '../utils';
+import ValidationErrors from './ValidationErrors';
 
 class Validator {
   /**
@@ -41,6 +41,7 @@ class Validator {
     if (!this._settings.validators[field]) {
       this._settings.validators[field] = [];
     }
+
     this._settings.validators[field] = this._settings.validators[field].concat(validators);
     return this;
   }
@@ -82,6 +83,7 @@ class Validator {
     if (!this._settings.asyncValidators[field]) {
       this._settings.asyncValidators[field] = [];
     }
+
     this._settings.asyncValidators[field].push(validatorFunction);
     return this;
   }
@@ -122,15 +124,18 @@ class Validator {
         if (!isIntersection(groups[i], fields) && !isIntersection(groups[i], result)) {
           continue;
         }
+
         for (let j = 0; j < groups[i].length; j++) {
           const field = groups[i][j];
           if (fields.indexOf(field) >= 0 || result.indexOf(field) >= 0) {
             continue;
           }
+
           result.push(field);
         }
       }
     }
+
     return result;
   }
 
@@ -167,9 +172,7 @@ class Validator {
       if (asyncValidators) {
         for (const asyncValidator of asyncValidators) {
           awaitStack.push(field);
-          promises.push(
-            await asyncValidator(value)
-          );
+          promises.push(await asyncValidator(value));
         }
       }
     }
@@ -184,9 +187,7 @@ class Validator {
     for (const asyncGroupValidator of this._settings.asyncGroupValidators) {
       if (isIntersection(asyncGroupValidator.fields, fields)) {
         awaitStack.push(null);
-        promises.push(
-          await asyncGroupValidator.fn(record, errors)
-        );
+        promises.push(await asyncGroupValidator.fn(record, errors));
       }
     }
 

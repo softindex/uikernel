@@ -14,6 +14,7 @@ function baseValidator(notNull, variants, error, value) {
     if (notNull) {
       return error;
     }
+
     return;
   }
 

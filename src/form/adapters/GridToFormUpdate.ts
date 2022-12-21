@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../../common/validation/ValidationErrors';
 import Events from '../../common/Events';
 import {isEqual, clone} from '../../common/utils';
+import ValidationErrors from '../../common/validation/ValidationErrors';
 
 class GridToFormUpdate extends Events {
   /**
@@ -76,7 +76,7 @@ class GridToFormUpdate extends Events {
       return;
     }
 
-    this._onUpdateHandlers.forEach(handler => {
+    this._onUpdateHandlers.forEach((handler) => {
       if (handler.originalCallback === cb) {
         ctx._adapter.model.off('update', handler.wrappedCallback);
       } else {
@@ -115,6 +115,7 @@ class GridToFormUpdate extends Events {
     if (result instanceof Error || result instanceof ValidationErrors) {
       throw result;
     }
+
     return result;
   }
 

@@ -6,55 +6,81 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-class EqualMap extends Map {
-  constructor(iterable) {
-    super(iterable);
-  }
+class EqualMap<TKey, TValue> implements Map<TKey, TValue> {
+  private map = new Map<string, TValue>();
 
-  set(key, value) {
-    return Map.prototype.set.call(
-      this,
-      JSON.stringify(key),
-      value
-    );
-  }
-
-  get(key) {
-    return Map.prototype.get.call(
-      this,
-      JSON.stringify(key)
-    );
-  }
-
-  delete(key) {
-    return Map.prototype.delete.call(this, JSON.stringify(key));
-  }
-
-  has(key) {
-    return Map.prototype.has.call(
-      this,
-      JSON.stringify(key)
-    );
-  }
-
-  *keys() {
-    for (const jsonKey of Map.prototype.keys.call(this)) {
-      yield JSON.parse(jsonKey);
+  constructor(entries?: Iterable<[TKey, TValue]>) {
+    if (entries) {
+      for (const [key, value] of entries) {
+        this.set(key, value);
+      }
     }
   }
 
-  *entries() {
-    for (const [jsonKey, value] of Map.prototype.entries.call(this)) {
-      yield [JSON.parse(jsonKey), value];
+  set(key: TKey, value: TValue): this {
+    this.map.set(JSON.stringify(key), value);
+    return this;
+  }
+
+  get(key: TKey): ReturnType<Map<TKey, TValue>['get']> {
+    return this.map.get(JSON.stringify(key));
+  }
+
+  clear(): ReturnType<Map<TKey, TValue>['clear']> {
+    return this.map.clear();
+  }
+
+  get size(): Map<TKey, TValue>['size'] {
+    return this.map.size;
+  }
+
+  get [Symbol.toStringTag](): string {
+    return this.map[Symbol.toStringTag];
+  }
+
+  delete(key: TKey): ReturnType<Map<TKey, TValue>['delete']> {
+    return this.map.delete(JSON.stringify(key));
+  }
+
+  forEach(
+    func: (value: TValue, key: TKey, map: EqualMap<TKey, TValue>) => void,
+    thisArg?: EqualMap<TKey, TValue>
+  ): void {
+    for (const [key, value] of this.entries()) {
+      func.call(thisArg, value, key, this);
     }
   }
 
-  *[Symbol.iterator]() {
-    for (const [key, value] of Map.prototype[Symbol.iterator].call(this)) {
+  has(key: TKey): ReturnType<Map<TKey, TValue>['has']> {
+    return this.map.has(JSON.stringify(key));
+  }
+
+  *keys(): ReturnType<Map<TKey, TValue>['keys']> {
+    for (const key of this.map.keys()) {
+      const parsed = JSON.parse(key);
+      yield parsed;
+    }
+  }
+
+  *values(): ReturnType<Map<TKey, TValue>['values']> {
+    for (const value of this.map.values()) {
+      yield value;
+    }
+  }
+
+  *entries(): ReturnType<Map<TKey, TValue>['entries']> {
+    for (const [key, value] of this.map.entries()) {
+      const parsed = JSON.parse(key);
+      yield [parsed, value];
+    }
+  }
+
+  *[Symbol.iterator](): Generator<[TKey, TValue], void, unknown> {
+    for (const [key, value] of this.map[Symbol.iterator]()) {
       const parsed = JSON.parse(key);
       yield [parsed, value];
     }
   }
 }
 
-module.exports = EqualMap;
+export default EqualMap;

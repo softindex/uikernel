@@ -15,6 +15,7 @@ function baseValidator(notNull, min, max, error, value) {
     if (notNull) {
       return error;
     }
+
     return;
   }
 
@@ -31,6 +32,7 @@ function baseValidator(notNull, min, max, error, value) {
   if (min && toDate(min) > value) {
     return error;
   }
+
   if (max && toDate(max) < value) {
     return error;
   }

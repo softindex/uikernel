@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import {toEncodedString, isEqual, last, isDefined, escape, parents, findIndex} from '../common/utils';
 import classNames from 'classnames';
+import React from 'react';
 import ReactDOM from 'react-dom';
+import {toEncodedString, isEqual, last, isDefined, escape, parents, findIndex} from '../common/utils';
 
 const findDOMNode = ReactDOM.findDOMNode;
 const EXTRA_RECORD_CLASS_NAME = 'dgrid-others';
@@ -56,6 +56,7 @@ class PureGridComponent extends React.Component {
     if (this.props.records === prevProps.records && this.props.extraRecords === prevProps.extraRecords) {
       return;
     }
+
     if (this.props.records && this.props.extraRecords) {
       const records = [...this.props.extraRecords.keys(), ...this.props.records.keys()];
       this._recordMap = records.reduce((accum, recordId) => {
@@ -91,7 +92,8 @@ class PureGridComponent extends React.Component {
 
       const prevKeys = [...prevProps[records].keys()];
       const nextKeys = [...this.props[records].keys()];
-      for (let i = 0; i < prevKeys.length; i++) { // prevKeys.length === nextKeys.length
+      for (let i = 0; i < prevKeys.length; i++) {
+        // prevKeys.length === nextKeys.length
         // if changed order
         if (!isEqual(prevKeys[i], nextKeys[i])) {
           return true;
@@ -152,7 +154,7 @@ class PureGridComponent extends React.Component {
           continue;
         }
 
-        if ((prop.has(recordId) && prevProp.has(recordId)) && this._isRecordLoaded(recordId)) {
+        if (prop.has(recordId) && prevProp.has(recordId) && this._isRecordLoaded(recordId)) {
           if (!isEqual(prop.get(recordId), prevProp.get(recordId))) {
             rowsToReRender.add(recordId);
           }
@@ -179,6 +181,7 @@ class PureGridComponent extends React.Component {
     if (!editor.recordId && !prevEditor.recordId) {
       return;
     }
+
     // check for editor changes only if records to display exist
     if (this.props.records) {
       // if editor was and exists now
@@ -187,15 +190,18 @@ class PureGridComponent extends React.Component {
         if (editor === prevEditor) {
           return;
         }
+
         rowsToReRender.add(prevEditor.recordId);
         rowsToReRender.add(editor.recordId);
         return;
       }
+
       // there wasn't editor before
       if (!prevEditor.recordId && editor.recordId) {
         rowsToReRender.add(editor.recordId);
         return;
       }
+
       // there is no editor now
       if (!editor.recordId && prevEditor.recordId) {
         rowsToReRender.add(prevEditor.recordId);
@@ -216,6 +222,7 @@ class PureGridComponent extends React.Component {
     if (this.props[recordsType] === prevProps[recordsType]) {
       return;
     }
+
     // check for records differences only if data exists
     if (props[recordsType] && prevProps[recordsType]) {
       // if previous records aren't the same as current
@@ -239,6 +246,7 @@ class PureGridComponent extends React.Component {
     if (!this.props.records) {
       return;
     }
+
     let htmlExtra = '';
     let htmlBody = '';
 
@@ -246,6 +254,7 @@ class PureGridComponent extends React.Component {
       if (this.props.records.has(recordId)) {
         continue;
       }
+
       htmlExtra += this._getRowHTML(recordId);
     }
 
@@ -288,6 +297,7 @@ class PureGridComponent extends React.Component {
         count++;
       }
     }
+
     return count;
   }
 
@@ -302,13 +312,14 @@ class PureGridComponent extends React.Component {
    */
   _renderCell(recordId, colId, row, prevEditor) {
     // if editor is on the current cell - only render editor
-    const columns = Object.keys(this.props.columns).filter(colId => this._isViewColumn(colId));
+    const columns = Object.keys(this.props.columns).filter((colId) => this._isViewColumn(colId));
     if (recordId === this.props.editor.recordId) {
       if (colId === this.props.editor.column) {
         const indexOfColumn = columns.indexOf(this.props.editor.column);
         this._renderEditor(row.children[indexOfColumn]);
         return;
       }
+
       return;
     }
 
@@ -362,7 +373,7 @@ class PureGridComponent extends React.Component {
   _renderEditor = (parentElement) => {
     let ref;
     const elementWithRef = React.cloneElement(this.props.editor.element, {
-      ref: value => ref = value
+      ref: (value) => (ref = value)
     });
     ReactDOM.render(elementWithRef, parentElement, () => {
       // Maybe component was unmounted and ref === undefined
@@ -400,17 +411,15 @@ class PureGridComponent extends React.Component {
           </td>`;
       }
     }
+
     return `${html}</tr>`;
   }
 
   _getRowClassNames(recordId, selected) {
-    return classNames(
-      [...this._getRowStatusNames(recordId)].join(' '),
-      {
-        [EXTRA_RECORD_CLASS_NAME]: this.props.extraRecords.has(recordId),
-        [SELECTED_RECORD_CLASS_NAME]: selected
-      }
-    );
+    return classNames([...this._getRowStatusNames(recordId)].join(' '), {
+      [EXTRA_RECORD_CLASS_NAME]: this.props.extraRecords.has(recordId),
+      [SELECTED_RECORD_CLASS_NAME]: selected
+    });
   }
 
   // called in _getRowHTML
@@ -459,9 +468,9 @@ class PureGridComponent extends React.Component {
           this._colsWithEscapeErrors[columnId] = true;
           console.error(
             `UIKernel.Grid warning: ` +
-            `You send record with fields of Object type in escaped column "${columnId}". ` +
-            `To use Objects, set column config "escape" to false, ` +
-            `and escape "${columnId}" field in render function by yourself`
+              `You send record with fields of Object type in escaped column "${columnId}". ` +
+              `To use Objects, set column config "escape" to false, ` +
+              `and escape "${columnId}" field in render function by yourself`
           );
         }
       }
@@ -524,6 +533,7 @@ class PureGridComponent extends React.Component {
         return true;
       }
     }
+
     return false;
   }
 
@@ -546,11 +556,13 @@ class PureGridComponent extends React.Component {
       if (!Array.isArray(fields)) {
         fields = [fields];
       }
+
       for (i = 0; i < fields.length; i++) {
         if (this.props.changes.get(recordId).hasOwnProperty(fields[i])) {
           return true;
         }
       }
+
       return false;
     }
 
@@ -594,6 +606,7 @@ class PureGridComponent extends React.Component {
     if (rowStatuses) {
       return rowStatuses.has('selected');
     }
+
     return false;
   }
 
@@ -609,9 +622,11 @@ class PureGridComponent extends React.Component {
     if (this.props.records.has(recordId)) {
       return {...this.props.records.get(recordId), ...this.props.changes.get(recordId)};
     }
+
     if (this.props.extraRecords.has(recordId)) {
       return {...this.props.extraRecords.get(recordId), ...this.props.changes.get(recordId)};
     }
+
     return null;
   }
 
@@ -622,7 +637,14 @@ class PureGridComponent extends React.Component {
    * @private
    */
   _formHeader() {
-    const rows = [[/* top */], [/* bottom */]];
+    const rows = [
+      [
+        /* top */
+      ],
+      [
+        /* bottom */
+      ]
+    ];
     const colGroup = [];
     let lastParent = {name: ''};
 
@@ -632,13 +654,7 @@ class PureGridComponent extends React.Component {
         continue;
       }
 
-      colGroup.push(
-        <col
-          key={columnId}
-          width={column.width}
-          className={this._getColumnClass(columnId)}
-        />
-      );
+      colGroup.push(<col key={columnId} width={column.width} className={this._getColumnClass(columnId)} />);
 
       const classNames = [this._getColumnClass(columnId)];
       const addInfo = {
@@ -661,13 +677,18 @@ class PureGridComponent extends React.Component {
 
       if (column.parent) {
         if (column.parent !== lastParent.name) {
-          lastParent = rows[0][rows[0].push({
-            name: this.props.columns[columnId].parent,
-            cols: 1, rows: 1
-          }) - 1];
+          lastParent =
+            rows[0][
+              rows[0].push({
+                name: this.props.columns[columnId].parent,
+                cols: 1,
+                rows: 1
+              }) - 1
+            ];
         } else {
           lastParent.cols++;
         }
+
         rows[1].push(addInfo);
       } else {
         lastParent = {name: ''};
@@ -702,13 +723,14 @@ class PureGridComponent extends React.Component {
     }
 
     if (this.props.multipleSorting) {
-      sortIndex = findIndex(sorts, sort => sort.column === params.column);
+      sortIndex = findIndex(sorts, (sort) => sort.column === params.column);
 
       if (sortIndex < 0 || sortIndex < sorts.length - 1) {
         params.direction = 'default';
       } else {
         params.direction = sorts[sortIndex].direction;
       }
+
       return params;
     }
 
@@ -752,6 +774,7 @@ class PureGridComponent extends React.Component {
     if (cellHtml === undefined) {
       return '';
     }
+
     return cellHtml;
   }
 
@@ -773,12 +796,9 @@ class PureGridComponent extends React.Component {
       element = parents(target, 'td.dgrid-cell')[0];
     }
 
-    if (
-      element
-      && !(refParent && refParent.hasAttribute('disabled'))
-    ) {
+    if (element && !(refParent && refParent.hasAttribute('disabled'))) {
       const columnIndex = [...element.parentNode.children].indexOf(element);
-      const colId = Object.keys(this.props.columns).filter(colId => this._isViewColumn(colId))[columnIndex];
+      const colId = Object.keys(this.props.columns).filter((colId) => this._isViewColumn(colId))[columnIndex];
       const key = element.parentNode.getAttribute('key');
       const recordId = this._recordMap.get(key);
       this.props.onCellClick(event, recordId, colId, (refParent || event.target).getAttribute('ref'));
@@ -787,71 +807,84 @@ class PureGridComponent extends React.Component {
 
   _renderPagination() {
     const viewCount = this.props.viewCount;
-    const {onChangeViewCount, onClickFirstPage, onClickPrevPage, onClickNextPage, onClickLastPage, onRefreshTable} = this.props;
-    return Boolean(viewCount) && (
-      <div className="dgrid-footer">
-        {Boolean(this.props.viewVariants) && (
-          <>
-            <div className="dgrid-pagination-page-size"> {this.props.pageSizeLabel}</div>
-            <div className="dgrid-pagination-view-variants">
-              <select
-                className="dgrid-pagination-view-variants-select"
-                value={viewCount}
-                onChange={e => onChangeViewCount(Number(e.target.value))}
-              >
-                {this.props.viewVariants.map((option, key) => <option key={key} value={option}>{option}</option>, this)}
-              </select>
+    const {
+      onChangeViewCount,
+      onClickFirstPage,
+      onClickPrevPage,
+      onClickNextPage,
+      onClickLastPage,
+      onRefreshTable
+    } = this.props;
+    return (
+      Boolean(viewCount) && (
+        <div className="dgrid-footer">
+          {Boolean(this.props.viewVariants) && (
+            <>
+              <div className="dgrid-pagination-page-size"> {this.props.pageSizeLabel}</div>
+              <div className="dgrid-pagination-view-variants">
+                <select
+                  className="dgrid-pagination-view-variants-select"
+                  value={viewCount}
+                  onChange={(e) => onChangeViewCount(Number(e.target.value))}
+                >
+                  {this.props.viewVariants.map(
+                    (option, key) => (
+                      <option key={key} value={option}>
+                        {option}
+                      </option>
+                    ),
+                    this
+                  )}
+                </select>
+              </div>
+            </>
+          )}
+          <button
+            aria-label="first page"
+            className="btn-first-page"
+            onClick={withPreventDefault(onClickFirstPage)}
+          >
+            &nbsp;
+          </button>
+          <button
+            aria-label="prev page"
+            className="btn-prev-page"
+            onClick={withPreventDefault(onClickPrevPage)}
+          >
+            &nbsp;
+          </button>
+          {Boolean(this.props.count) && (
+            <div>
+              {this.props.page * viewCount + 1}
+              {' - '}
+              {Math.min((this.props.page + 1) * viewCount, this.props.count)}
+              {' of '}
+              {this.props.count}
             </div>
-          </>
-        )}
-        <button
-          aria-label="first page"
-          className="btn-first-page"
-          onClick={withPreventDefault(onClickFirstPage)}
-        >
-          &nbsp;
-        </button>
-        <button
-          aria-label="prev page"
-          className="btn-prev-page"
-          onClick={withPreventDefault(onClickPrevPage)}
-        >
-          &nbsp;
-        </button>
-        {Boolean(this.props.count) && (
-          <div>
-            {(this.props.page * viewCount) + 1}
-            {' - '}
-            {Math.min(
-              (this.props.page + 1) * viewCount,
-              this.props.count
-            )}
-            {' of '}
-            {this.props.count}
-          </div>
-        )}
-        <button
-          aria-label="next page"
-          className="btn-next-page"
-          onClick={withPreventDefault(onClickNextPage)}
-        >
-          &nbsp;
-        </button>
-        <button
-          aria-label="last page"
-          className="btn-last-page"
-          onClick={withPreventDefault(onClickLastPage)}
-        >
-          &nbsp;
-        </button>
-        <button
-          aria-label="refresh page"
-          className="btn-refresh-page"
-          onClick={withPreventDefault(onRefreshTable)}
-        >
-          &nbsp;
-        </button>
-      </div>
+          )}
+          <button
+            aria-label="next page"
+            className="btn-next-page"
+            onClick={withPreventDefault(onClickNextPage)}
+          >
+            &nbsp;
+          </button>
+          <button
+            aria-label="last page"
+            className="btn-last-page"
+            onClick={withPreventDefault(onClickLastPage)}
+          >
+            &nbsp;
+          </button>
+          <button
+            aria-label="refresh page"
+            className="btn-refresh-page"
+            onClick={withPreventDefault(onRefreshTable)}
+          >
+            &nbsp;
+          </button>
+        </div>
+      )
     );
   }
 
@@ -893,14 +926,14 @@ class PureGridComponent extends React.Component {
       return (
         <table cellSpacing="0" className="dgrid-totals">
           <colgroup>{header.colGroup}</colgroup>
-          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
+          <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}} />
         </table>
       );
     }
 
     return (
       <tfoot className="dgrid-totals">
-        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}}/>
+        <tr dangerouslySetInnerHTML={{__html: totalsRowHTML}} />
       </tfoot>
     );
   }
@@ -929,14 +962,16 @@ class PureGridComponent extends React.Component {
                           colSpan: col.cols,
                           rowSpan: col.rows
                         };
-                        return (
-                          typeof header === 'string' ?
-                            <th
-                              {...props}
-                              dangerouslySetInnerHTML={{
-                                __html: header
-                              }}/>
-                            : <th {...props}>{header}</th>);
+                        return typeof header === 'string' ? (
+                          <th
+                            {...props}
+                            dangerouslySetInnerHTML={{
+                              __html: header
+                            }}
+                          />
+                        ) : (
+                          <th {...props}>{header}</th>
+                        );
                       })}
                     </tr>
                   );
@@ -946,23 +981,20 @@ class PureGridComponent extends React.Component {
           </div>
           <div
             style={{maxHeight: this.props.height, height: this.props.height}}
-            className='dgrid-body-wrapper dgrid-scrollable'
+            className="dgrid-body-wrapper dgrid-scrollable"
           >
             <div className="dgrid-body">
-              <div className={this.props.showLoader ? 'dgrid-loader' : ''} ref={(loader) => this.loader = loader}/>
-              <table
-                cellSpacing="0"
-                ref={(body) => this.body = body}
-                onClick={this._handleBodyClick}
-              >
+              <div
+                className={this.props.showLoader ? 'dgrid-loader' : ''}
+                ref={(loader) => (this.loader = loader)}
+              />
+              <table cellSpacing="0" ref={(body) => (this.body = body)} onClick={this._handleBodyClick}>
                 <colgroup>{colGroup}</colgroup>
-                <tbody className="dgrid-body-table" ref={(tbody) => this.tBody = tbody}/>
+                <tbody className="dgrid-body-table" ref={(tbody) => (this.tBody = tbody)} />
               </table>
             </div>
           </div>
-          <div className="wrapper-totals">
-            {this._renderTotals(this.props.height)}
-          </div>
+          <div className="wrapper-totals">{this._renderTotals(this.props.height)}</div>
           {this._renderPagination()}
         </div>
       );
@@ -971,12 +1003,11 @@ class PureGridComponent extends React.Component {
     // If not scrollable grid
     return (
       <div className={classNames.join(' ')}>
-        <div className={this.props.showLoader ? 'dgrid-loader' : ''} ref={(loader) => this.loader = loader}/>
-        <table
-          cellSpacing="0"
-          className={'dgrid-body-table'}
-          onClick={this._handleBodyClick}
-        >
+        <div
+          className={this.props.showLoader ? 'dgrid-loader' : ''}
+          ref={(loader) => (this.loader = loader)}
+        />
+        <table cellSpacing="0" className="dgrid-body-table" onClick={this._handleBodyClick}>
           <colgroup>{colGroup}</colgroup>
           <thead>
             {cols.map((row, colKey) => {
@@ -991,23 +1022,22 @@ class PureGridComponent extends React.Component {
                       colSpan: col.cols,
                       rowSpan: col.rows
                     };
-                    return (
-                      typeof header === 'string'
-                        ? (
-                          <th
-                            {...props}
-                            dangerouslySetInnerHTML={{
-                              __html: header
-                            }}/>
-                        )
-                        : <th {...props}>{header}</th>
+                    return typeof header === 'string' ? (
+                      <th
+                        {...props}
+                        dangerouslySetInnerHTML={{
+                          __html: header
+                        }}
+                      />
+                    ) : (
+                      <th {...props}>{header}</th>
                     );
                   })}
                 </tr>
               );
             })}
           </thead>
-          <tbody className="dgrid-body-table" ref={(tbody) => this.tBody = tbody}/>
+          <tbody className="dgrid-body-table" ref={(tbody) => (this.tBody = tbody)} />
           {this._renderTotals(height)}
         </table>
         {this._renderPagination()}
@@ -1042,11 +1072,11 @@ PureGridComponent.defaultProps = {
   errors: new Map(),
   warnings: new Map(),
   editor: {},
-  grid: this,
+  grid: this
 };
 
 function withPreventDefault(handler) {
-  return event => {
+  return (event) => {
     event.preventDefault();
     handler(event);
   };

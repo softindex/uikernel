@@ -6,36 +6,40 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {format, parseISO} from 'date-fns';
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import {format, parseISO} from 'date-fns';
-import PropTypes from 'prop-types';
 import {omit} from '../common/utils';
 
-class DatePickerEditor extends React.Component {
-  static propTypes = {
-    format: PropTypes.string,
-    textFormat: PropTypes.string,
-    todayButton: PropTypes.string,
-    min: PropTypes.any,
-    max: PropTypes.any,
-    startDate: PropTypes.any,
-    endDate: PropTypes.any,
-    value: PropTypes.any,
-    show: PropTypes.bool,
-    onBlur: PropTypes.func,
-    onChange: PropTypes.func.isRequired
-  };
+type Props = {
+  endDate: any;
+  format: string;
+  max: any;
+  min: any;
+  show: boolean;
+  startDate: any;
+  textFormat: string;
+  todayButton: string;
+  value: any;
+  onBlur: (...args: any[]) => any;
+  onChange: (...args: any[]) => any;
+};
 
+class DatePickerEditor extends React.Component {
   static defaultProps = {
     textFormat: 'yyyy-MM-dd',
     todayButton: 'Today'
   };
 
+  constructor(props: Props) {
+    super(props);
+  }
+
   onChange(date) {
     if (date) {
       date = format(date, this.props.format);
     }
+
     this.props.onChange(date);
   }
 

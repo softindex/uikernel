@@ -14,6 +14,7 @@ function baseValidator(notNull, regExp, error, value) {
     if (notNull) {
       return error;
     }
+
     return;
   }
 

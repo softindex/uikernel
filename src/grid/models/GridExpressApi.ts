@@ -7,10 +7,10 @@
  */
 
 import express from 'express';
-import multer from 'multer';
 import httpError from 'http-errors';
-import ValidationErrors from '../../common/validation/ValidationErrors';
+import multer from 'multer';
 import {asyncHandler, parseJson} from '../../common/utils';
+import ValidationErrors from '../../common/validation/ValidationErrors';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
@@ -33,80 +33,98 @@ class GridExpressApi {
     });
 
     this.middlewares = {
-      readGet: [asyncHandler(async (req, res, next) => {
-        const settings = {};
-        if (req.query.limit) {
-          settings.limit = parseInt(req.query.limit);
-        }
-        if (req.query.offset) {
-          settings.offset = parseInt(req.query.offset);
-        }
-        if (req.query.sort) {
-          settings.sort = parseJson(req.query.sort, 'Invalid JSON in "sort"');
-        }
-        if (req.query.fields) {
-          settings.fields = parseJson(req.query.fields, 'Invalid JSON in "fields"');
-        } else {
-          settings.fields = [];
-        }
-        if (req.query.extra) {
-          settings.extra = parseJson(req.query.extra, 'Invalid JSON in "extra"');
-        }
-        if (req.query.filters) {
-          settings.filters = parseJson(req.query.filters, 'Invalid JSON in "filters"');
-        }
-        await this._commonReadMiddleware(req, res, next, settings);
-      })],
-      readPost: [asyncHandler(async (req, res, next) => {
-        const settings = {};
-        if (req.body.limit) {
-          settings.limit = parseInt(req.body.limit);
-        }
-        if (req.body.offset) {
-          settings.offset = parseInt(req.body.offset);
-        }
-        if (req.body.sort) {
-          settings.sort = req.body.sort;
-        }
-        if (req.body.fields) {
-          settings.fields = req.body.fields;
-        } else {
-          settings.fields = [];
-        }
-        if (req.body.extra) {
-          settings.extra = req.body.extra;
-        }
-        if (req.body.filters) {
-          settings.filters = req.body.filters;
-        }
-        await this._commonReadMiddleware(req, res, next, settings);
-      })],
-      validate: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        const result = this._result('validate');
-        try {
-          const errors = await model.isValidRecord(req.body.record, req.body.id);
-          result(null, errors, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
-        }
-      })],
-      getRecord: [asyncHandler(async (req, res, next) => {
-        const cols = req.query.cols
-          ? parseJson(req.query.cols, 'Invalid JSON in "cols"')
-          : null;
-        const recordId = req.params.recordId
-          ? parseJson(req.params.recordId, 'Invalid JSON in "recordId"')
-          : null;
-        const model = this._getModel(req, res);
-        const result = this._result('getRecord');
-        try {
-          const response = await model.getRecord(recordId, cols);
-          result(null, response, req, res, next);
-        } catch (err) {
-          result(err, null, req, res, next);
-        }
-      })],
+      readGet: [
+        asyncHandler(async (req, res, next) => {
+          const settings = {};
+          if (req.query.limit) {
+            settings.limit = parseInt(req.query.limit);
+          }
+
+          if (req.query.offset) {
+            settings.offset = parseInt(req.query.offset);
+          }
+
+          if (req.query.sort) {
+            settings.sort = parseJson(req.query.sort, 'Invalid JSON in "sort"');
+          }
+
+          if (req.query.fields) {
+            settings.fields = parseJson(req.query.fields, 'Invalid JSON in "fields"');
+          } else {
+            settings.fields = [];
+          }
+
+          if (req.query.extra) {
+            settings.extra = parseJson(req.query.extra, 'Invalid JSON in "extra"');
+          }
+
+          if (req.query.filters) {
+            settings.filters = parseJson(req.query.filters, 'Invalid JSON in "filters"');
+          }
+
+          await this._commonReadMiddleware(req, res, next, settings);
+        })
+      ],
+      readPost: [
+        asyncHandler(async (req, res, next) => {
+          const settings = {};
+          if (req.body.limit) {
+            settings.limit = parseInt(req.body.limit);
+          }
+
+          if (req.body.offset) {
+            settings.offset = parseInt(req.body.offset);
+          }
+
+          if (req.body.sort) {
+            settings.sort = req.body.sort;
+          }
+
+          if (req.body.fields) {
+            settings.fields = req.body.fields;
+          } else {
+            settings.fields = [];
+          }
+
+          if (req.body.extra) {
+            settings.extra = req.body.extra;
+          }
+
+          if (req.body.filters) {
+            settings.filters = req.body.filters;
+          }
+
+          await this._commonReadMiddleware(req, res, next, settings);
+        })
+      ],
+      validate: [
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          const result = this._result('validate');
+          try {
+            const errors = await model.isValidRecord(req.body.record, req.body.id);
+            result(null, errors, req, res, next);
+          } catch (err) {
+            result(err, null, req, res, next);
+          }
+        })
+      ],
+      getRecord: [
+        asyncHandler(async (req, res, next) => {
+          const cols = req.query.cols ? parseJson(req.query.cols, 'Invalid JSON in "cols"') : null;
+          const recordId = req.params.recordId
+            ? parseJson(req.params.recordId, 'Invalid JSON in "recordId"')
+            : null;
+          const model = this._getModel(req, res);
+          const result = this._result('getRecord');
+          try {
+            const response = await model.getRecord(recordId, cols);
+            result(null, response, req, res, next);
+          } catch (err) {
+            result(err, null, req, res, next);
+          }
+        })
+      ],
       update: [
         ...(multipartFormData ? [upload.any()] : []),
         asyncHandler(async (req, res, next) => {
@@ -126,16 +144,19 @@ class GridExpressApi {
               if (!filesByRecordId[recordId]) {
                 filesByRecordId[recordId] = {};
               }
+
               filesByRecordId[recordId][field] = buffer;
             }
 
-            body = parseJson(body.rest, 'Incorrect "rest" json')
-              .map(([recordId, record]) => {
-                return [recordId, {
+            body = parseJson(body.rest, 'Incorrect "rest" json').map(([recordId, record]) => {
+              return [
+                recordId,
+                {
                   ...record,
                   ...filesByRecordId[recordId]
-                }];
-              });
+                }
+              ];
+            });
           }
 
           if (!Array.isArray(body)) {
@@ -148,7 +169,8 @@ class GridExpressApi {
           } catch (err) {
             result(err, null, req, res, next);
           }
-        })],
+        })
+      ],
       create: [
         ...(multipartFormData ? [upload.any()] : []),
         asyncHandler(async (req, res, next) => {
@@ -171,7 +193,8 @@ class GridExpressApi {
           } catch (err) {
             result(err, null, req, res, next);
           }
-        })]
+        })
+      ]
     };
   }
 
@@ -187,6 +210,7 @@ class GridExpressApi {
     } else {
       this._getModel = () => model;
     }
+
     return this;
   }
 
@@ -229,6 +253,7 @@ class GridExpressApi {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
+
     this.middlewares[method] = middlewares.concat(this.middlewares[method]);
     return this;
   }
@@ -250,6 +275,7 @@ class GridExpressApi {
             if (!record) {
               return result;
             }
+
             if (record[1] instanceof Error) {
               result.errors.push(record);
             } else if (record[1] instanceof ValidationErrors) {
@@ -257,6 +283,7 @@ class GridExpressApi {
             } else {
               result.changes.push(record);
             }
+
             return result;
           },
           {changes: [], errors: [], validation: []}
@@ -272,8 +299,10 @@ class GridExpressApi {
           if (!(err instanceof ValidationErrors)) {
             return send(err, null, req, res, next);
           }
+
           return send(null, {data: null, error: err}, req, res, next);
         }
+
         return send(null, {data: data, error: null}, req, res, next);
       };
     }

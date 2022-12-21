@@ -25,8 +25,9 @@ class ValidationErrors {
   static createFromJSON(jsonObject) {
     const validationErrors = new ValidationErrors();
     for (const [key, value] of Object.entries(jsonObject)) {
-      value.forEach(errMessage => validationErrors.add(key, errMessage));
+      value.forEach((errMessage) => validationErrors.add(key, errMessage));
     }
+
     return validationErrors;
   }
 
@@ -67,10 +68,12 @@ class ValidationErrors {
       this._fields.set(field, [error]);
       return this;
     }
+
     const fieldErrors = this._fields.get(field);
     if (!fieldErrors.includes(error)) {
       fieldErrors.push(error);
     }
+
     return this;
   }
 
@@ -103,7 +106,7 @@ class ValidationErrors {
   getFieldErrorMessages(field) {
     const fieldErrors = this._fields.get(field);
     if (fieldErrors) {
-      return fieldErrors.map(error => error.message);
+      return fieldErrors.map((error) => error.message);
     }
 
     return [];
@@ -158,6 +161,7 @@ class ValidationErrors {
     for (const [key, value] of this._fields) {
       json[key] = value;
     }
+
     return json;
   }
 
@@ -182,6 +186,7 @@ class ValidationErrors {
         errors = [];
         this._fields.set(field, errors);
       }
+
       errors.push(...newErrors);
     }
 
@@ -203,9 +208,11 @@ class ValidationErrors {
         message: error
       };
     }
+
     if (!error.message) {
       throw new Error('Invalid error value. Error must be string or object with "message" property.');
     }
+
     return error;
   }
 }

@@ -9,6 +9,7 @@
 import {warn} from '../common/utils';
 
 const functionsNames = [];
+
 export default function (func, hideWarning = false) {
   const funcName = func.name;
 
@@ -25,10 +26,10 @@ export default function (func, hideWarning = false) {
       const result = func.apply(this, args);
       if (result && result.then) {
         result
-          .then(data => {
+          .then((data) => {
             cb(null, data);
           })
-          .catch(err => {
+          .catch((err) => {
             cb(err);
           });
       }

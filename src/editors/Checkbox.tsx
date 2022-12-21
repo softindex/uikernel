@@ -7,15 +7,18 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 
-function Checkbox(props) {
+type Props = {
+  indeterminate: boolean;
+};
+
+function Checkbox(props: Props) {
   const {indeterminate, ...otherProps} = props;
   return (
     <input
       {...otherProps}
       type="checkbox"
-      ref={input => {
+      ref={(input) => {
         if (input) {
           input.indeterminate = indeterminate;
         }
@@ -23,9 +26,5 @@ function Checkbox(props) {
     />
   );
 }
-
-Checkbox.propTypes = {
-  indeterminate: PropTypes.bool
-};
 
 export default Checkbox;

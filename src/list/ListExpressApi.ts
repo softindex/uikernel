@@ -22,25 +22,29 @@ class ListExpressApi {
 
   constructor() {
     this.middlewares = {
-      read: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        try {
-          const response = await model.read(req.query.v);
-          this._result(null, response, req, res, next);
-        } catch (err) {
-          this._result(err, null, req, res, next);
-        }
-      })],
-      getLabel: [asyncHandler(async (req, res, next) => {
-        const id = JSON.parse(req.params.id);
-        const model = this._getModel(req, res);
-        try {
-          const response = await model.getLabel(id);
-          this._result(null, response, req, res, next);
-        } catch (err) {
-          this._result(err, null, req, res, next);
-        }
-      })]
+      read: [
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          try {
+            const response = await model.read(req.query.v);
+            this._result(null, response, req, res, next);
+          } catch (err) {
+            this._result(err, null, req, res, next);
+          }
+        })
+      ],
+      getLabel: [
+        asyncHandler(async (req, res, next) => {
+          const id = JSON.parse(req.params.id);
+          const model = this._getModel(req, res);
+          try {
+            const response = await model.getLabel(id);
+            this._result(null, response, req, res, next);
+          } catch (err) {
+            this._result(err, null, req, res, next);
+          }
+        })
+      ]
     };
   }
 
@@ -56,19 +60,19 @@ class ListExpressApi {
     } else {
       this._getModel = () => model;
     }
+
     return this;
   }
 
   getRouter() {
-    return new express.Router()
-      .get('/', this.middlewares.read)
-      .get('/label/:id', this.middlewares.getLabel);
+    return new express.Router().get('/', this.middlewares.read).get('/label/:id', this.middlewares.getLabel);
   }
 
   read(middlewares) {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
+
     this.middlewares.read = middlewares.concat(this.middlewares.read);
     return this;
   }
@@ -77,6 +81,7 @@ class ListExpressApi {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
+
     this.middlewares.getLabel = middlewares.concat(this.middlewares.getLabel);
     return this;
   }
@@ -93,6 +98,7 @@ class ListExpressApi {
       if (typeof data === 'number') {
         data = data.toString();
       }
+
       res.json(data);
     }
   }

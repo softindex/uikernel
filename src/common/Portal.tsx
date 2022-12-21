@@ -6,15 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ReactDOM from 'react-dom';
 import React from 'react';
-import PropTypes from 'prop-types';
+import ReactDOM from 'react-dom';
 import {omit} from './utils';
 
 const portalClass = '__portal';
 
+type Props = {
+  children: React.ReactNode;
+  onDocumentMouseDown: (...args: any[]) => any;
+  onDocumentMouseScroll: (...args: any[]) => any;
+};
+
 class Portal extends React.Component {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
     this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
@@ -44,7 +49,7 @@ class Portal extends React.Component {
   }
 
   _isDocumentEventOwner(target) {
-    return (target === this.portal || this.portal.contains(target));
+    return target === this.portal || this.portal.contains(target);
   }
 
   _onDocumentMouseDown(e) {
@@ -61,9 +66,7 @@ class Portal extends React.Component {
 
   renderPortal() {
     ReactDOM.render(
-      <div
-        {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll'])}
-      >
+      <div {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll'])}>
         {this.props.children}
       </div>,
       this.portal
@@ -74,11 +77,5 @@ class Portal extends React.Component {
     return null;
   }
 }
-
-Portal.propTypes = {
-  children: PropTypes.node,
-  onDocumentMouseDown: PropTypes.func,
-  onDocumentMouseScroll: PropTypes.func,
-};
 
 export default Portal;

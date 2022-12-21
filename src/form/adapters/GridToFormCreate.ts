@@ -35,6 +35,7 @@ class GridToFormCreate extends Events {
     if (fields && fields.length) {
       return pick(this._adapter.initialData, fields);
     }
+
     return this._adapter.initialData;
   }
 

@@ -14,6 +14,7 @@ function baseValidator(notNull, min, max, error, value) {
     if (notNull) {
       return error;
     }
+
     return;
   }
 
@@ -21,8 +22,8 @@ function baseValidator(notNull, min, max, error, value) {
     typeof value !== 'number' ||
     isNaN(value) ||
     !isFinite(value) ||
-    typeof min === 'number' && value < min ||
-    typeof max === 'number' && value > max
+    (typeof min === 'number' && value < min) ||
+    (typeof max === 'number' && value > max)
   ) {
     return error;
   }

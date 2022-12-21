@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import Form from '../FormService';
 import ValidationErrors from '../../common/validation/ValidationErrors';
 import FormModelMock from '../__mocks__/FormModelMock';
+import Form from '../FormService';
 
 function getInitSettings(mockMethods) {
   jest.resetModules();
@@ -32,7 +32,7 @@ beforeEach(async () => {
 describe('Init form', () => {
   const initSettings = getInitSettings();
 
-  it('Settings dosn\'t have model property', async () => {
+  it("Settings dosn't have model property", async () => {
     const form = new Form();
     try {
       await form.init({});
@@ -86,6 +86,7 @@ describe('Get all', () => {
       age: ['Age must be greater then 100']
     });
   }
+
   const initSettings = getInitSettings({isValidRecord});
   const form = new Form();
   const defaultState = {
@@ -269,7 +270,7 @@ describe('set', () => {
 });
 
 describe('submitData', () => {
-  it('It\'s set & submit', async () => {
+  it("It's set & submit", async () => {
     form.set = jest.fn();
     form.submit = jest.fn();
 
@@ -382,6 +383,7 @@ describe('validateForm', () => {
       if (!record.name) {
         return validationError;
       }
+
       return new ValidationErrors();
     };
 

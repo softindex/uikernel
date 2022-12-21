@@ -14,6 +14,7 @@ function baseValidator(notNull, error, value) {
     if (notNull) {
       return error;
     }
+
     return;
   }
 
@@ -28,7 +29,7 @@ function baseValidator(notNull, error, value) {
  * @param {string} error Error message
  * @returns {Function} Validator
  */
-const validator = error => baseValidator.bind(null, false, error);
-validator.notNull = error => baseValidator.bind(null, true, error);
+const validator = (error) => baseValidator.bind(null, false, error);
+validator.notNull = (error) => baseValidator.bind(null, true, error);
 
 export default validator;

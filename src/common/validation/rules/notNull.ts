@@ -14,16 +14,13 @@ import {isDefined} from '../../utils';
  * @param {string} [error = "Can not be empty"] Error message
  * @returns {Function}
  */
-export default error => {
+export default (error) => {
   error = error || 'Can not be empty';
-  return value => {
+  return (value) => {
     if (
       !isDefined(value) ||
       value === '' ||
-      (typeof value === 'number' && (
-        isNaN(value) ||
-        !isFinite(value)
-      ))
+      (typeof value === 'number' && (isNaN(value) || !isFinite(value)))
     ) {
       return error;
     }

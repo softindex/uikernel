@@ -16,7 +16,7 @@ class AbstractListModel {
    * @param {string}    search  Search query
    * @abstract
    */
-  read(/*search*/) {
+  read(/* search */) {
     return Promise.resolve([]);
   }
 
@@ -26,7 +26,7 @@ class AbstractListModel {
    * @param {*}         id  Option ID
    * @abstract
    */
-  getLabel(/*id*/) {
+  getLabel(/* id */) {
     return Promise.resolve('');
   }
 }

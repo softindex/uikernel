@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../common/validation/ValidationErrors';
 import express from 'express';
 import multer from 'multer';
 import {asyncHandler, parseJson} from '../common/utils';
+import ValidationErrors from '../common/validation/ValidationErrors';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
@@ -26,14 +26,18 @@ class FormExpressApi {
     });
 
     this.middlewares = {
-      getData: [asyncHandler(async (req, res, next) => {
-        const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
-        this._commonGetDataMiddleware(req, res, next, fields);
-      })],
-      getDataPost: [asyncHandler(async (req, res, next) => {
-        const fields = req.body.fields || null;
-        this._commonGetDataMiddleware(req, res, next, fields);
-      })],
+      getData: [
+        asyncHandler(async (req, res, next) => {
+          const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
+          this._commonGetDataMiddleware(req, res, next, fields);
+        })
+      ],
+      getDataPost: [
+        asyncHandler(async (req, res, next) => {
+          const fields = req.body.fields || null;
+          this._commonGetDataMiddleware(req, res, next, fields);
+        })
+      ],
       submit: [
         ...(multipartFormData ? [upload.any()] : []),
         asyncHandler(async (req, res, next) => {
@@ -57,19 +61,22 @@ class FormExpressApi {
               this._result(err, null, req, res, next);
               return;
             }
+
             this._result(null, {data: null, error: err}, req, res, next);
           }
         })
       ],
-      validate: [asyncHandler(async (req, res, next) => {
-        const model = this._getModel(req, res);
-        try {
-          const data = await model.isValidRecord(req.body);
-          this._result(null, data, req, res, next);
-        } catch (err) {
-          this._result(err, null, req, res, next);
-        }
-      })]
+      validate: [
+        asyncHandler(async (req, res, next) => {
+          const model = this._getModel(req, res);
+          try {
+            const data = await model.isValidRecord(req.body);
+            this._result(null, data, req, res, next);
+          } catch (err) {
+            this._result(err, null, req, res, next);
+          }
+        })
+      ]
     };
   }
 
@@ -79,6 +86,7 @@ class FormExpressApi {
     } else {
       this._getModel = () => model;
     }
+
     return this;
   }
 
@@ -94,9 +102,11 @@ class FormExpressApi {
   getData(middlewares) {
     return this._addMidelwares('getData', middlewares);
   }
+
   submit(middlewares) {
     return this._addMidelwares('submit', middlewares);
   }
+
   validate(middlewares) {
     return this._addMidelwares('validate', middlewares);
   }
@@ -105,6 +115,7 @@ class FormExpressApi {
     if (!Array.isArray(middlewares)) {
       middlewares = [middlewares];
     }
+
     this.middlewares[method] = middlewares.concat(this.middlewares[method]);
     return this;
   }

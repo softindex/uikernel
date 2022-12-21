@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../../common/validation/ValidationErrors';
 import EventsModel from '../../common/Events';
+import ValidationErrors from '../../common/validation/ValidationErrors';
 
 /**
  * Grid model abstraction
@@ -26,7 +26,7 @@ class AbstractGridModel extends EventsModel {
    * @param {Object}      record  Record object
    * @abstract
    */
-  create(/*record*/) {
+  create(/* record */) {
     return Promise.resolve();
   }
 
@@ -42,7 +42,7 @@ class AbstractGridModel extends EventsModel {
    * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
    * @abstract
    */
-  read(/*settings*/) {
+  read(/* settings */) {
     return Promise.resolve({
       records: [], // Primary records
       ids: [], // Extra records
@@ -57,7 +57,7 @@ class AbstractGridModel extends EventsModel {
    * @param {Array}     fields  Required fields
    * @abstract
    */
-  getRecord(/*id, fields*/) {
+  getRecord(/* id, fields */) {
     return Promise.resolve();
   }
 
@@ -67,7 +67,7 @@ class AbstractGridModel extends EventsModel {
    * @param {Array}       changes     Changes array
    * @abstract
    */
-  update(/*changes*/) {
+  update(/* changes */) {
     return Promise.resolve([]);
   }
 
@@ -78,7 +78,7 @@ class AbstractGridModel extends EventsModel {
    * @param {*|null}      recordId
    * @abstract
    */
-  isValidRecord(/*record, recordId*/) {
+  isValidRecord(/* record, recordId */) {
     return Promise.resolve(new ValidationErrors());
   }
 

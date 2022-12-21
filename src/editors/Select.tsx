@@ -7,27 +7,26 @@
  */
 
 import React from 'react';
-import PropTypes from 'prop-types';
 import {findIndex, isEqual, omit} from '../common/utils';
 
-class SelectEditor extends React.Component {
-  static propTypes = {
-    options: PropTypes.array, // shape: [[value, label, props], ...] or [label1, label2, ...]
-    //                           `props` will be passed to each corresponding <option />
-    model: PropTypes.shape({
-      read: PropTypes.func
-    }),
-    disabled: PropTypes.bool,
-    onChange: PropTypes.func.isRequired,
-    onLabelChange: PropTypes.func,
-    value: PropTypes.any
+type Props = {
+  disabled: boolean; // shape: [[value, label, props], ...] or [label1, label2, ...]
+  //                           `props` will be passed to each corresponding <option />
+  model: {
+    read: (...args: any[]) => any;
   };
+  options: any[];
+  value: any;
+  onChange: (...args: any[]) => any;
+  onLabelChange: (...args: any[]) => any;
+};
 
+class SelectEditor extends React.Component {
   static defaultProps = {
     options: []
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       options: props.options,
@@ -37,8 +36,9 @@ class SelectEditor extends React.Component {
 
   componentDidMount() {
     if (this.props.model) {
-      this.props.model.read('')
-        .then(data => {
+      this.props.model
+        .read('')
+        .then((data) => {
           data.unshift([null, '']);
 
           this.setState({
@@ -46,7 +46,7 @@ class SelectEditor extends React.Component {
             loading: false
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     }
@@ -61,6 +61,7 @@ class SelectEditor extends React.Component {
     if (!(option instanceof Array)) {
       option = [option, option];
     }
+
     this.props.onChange(option[0]);
     if (this.props.onLabelChange) {
       this.props.onLabelChange(option[1]);
@@ -69,7 +70,7 @@ class SelectEditor extends React.Component {
 
   render() {
     const options = this.getOptions();
-    const valueIndex = findIndex(options, option => {
+    const valueIndex = findIndex(options, (option) => {
       return isEqual(option instanceof Array ? option[0] : option, this.props.value);
     });
 
@@ -81,7 +82,7 @@ class SelectEditor extends React.Component {
         disabled={this.props.disabled || this.state.loading}
       >
         {options.map((item, index) => {
-          const optionProps = ((item instanceof Array) && (item[2] instanceof Object)) ? item[2] : {};
+          const optionProps = item instanceof Array && item[2] instanceof Object ? item[2] : {};
           return (
             <option key={index} value={index} {...optionProps}>
               {item instanceof Array ? item[1] : item}

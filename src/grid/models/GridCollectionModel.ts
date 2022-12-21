@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {cloneDeep, isEqual, without, clone, forEach, find} from '../../common/utils';
 import Validator from '../../common/validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
-import {cloneDeep, isEqual, without, clone, forEach, find} from '../../common/utils';
 
 class GridCollectionModel extends AbstractGridModel {
   /**
@@ -91,8 +91,8 @@ class GridCollectionModel extends AbstractGridModel {
    * @returns {Number}    recordId    return id of deleted record
    */
   async delete(recordIds) {
-    this._data = this._data.filter(record => {
-      return !recordIds.find(recordId => isEqual(recordId, record[0]));
+    this._data = this._data.filter((record) => {
+      return !recordIds.find((recordId) => isEqual(recordId, record[0]));
     });
     this.trigger('delete', recordIds);
   }
@@ -142,7 +142,7 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Get extra records
     if (settings.extra && settings.extra.length > 0) {
-      result.extraRecords = data.filter(record => {
+      result.extraRecords = data.filter((record) => {
         for (const recordId of settings.extra) {
           if (isEqual(recordId, record[0])) {
             return true;
@@ -153,7 +153,7 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Delete unnecessary fields
     if (settings.fields) {
-      forEach(result.extraRecords, record => {
+      forEach(result.extraRecords, (record) => {
         forEach(record[1], (value, key) => {
           if (settings.fields.indexOf(key) === -1) {
             delete record[1][key];
@@ -170,11 +170,13 @@ class GridCollectionModel extends AbstractGridModel {
       data = data.sort((prev, next) => {
         if (prev[1][sortField] < next[1][sortField]) {
           return sortMode === 'asc' ? -1 : 1;
-        } else if (prev[1][sortField] > next[1][sortField]) {
-          return sortMode === 'asc' ? 1 : -1;
-        } else {
-          return 0;
         }
+
+        if (prev[1][sortField] > next[1][sortField]) {
+          return sortMode === 'asc' ? 1 : -1;
+        }
+
+        return 0;
       });
     }
 
@@ -188,13 +190,13 @@ class GridCollectionModel extends AbstractGridModel {
     // Offset and limit
     if (settings.offset || settings.limit) {
       const start = settings.offset || 0;
-      const end = (settings.offset + settings.limit) || data.length;
+      const end = settings.offset + settings.limit || data.length;
       data = data.slice(start, end);
     }
 
     // Delete unnecessary fields
     if (settings.fields) {
-      forEach(data, record => {
+      forEach(data, (record) => {
         forEach(record[1], (value, key) => {
           if (settings.fields.indexOf(key) === -1) {
             delete record[1][key];
@@ -248,18 +250,16 @@ class GridCollectionModel extends AbstractGridModel {
     const appliedChanges = [];
 
     const result = await Promise.all(
-      changes.map(
-        async ([recordId, changes]) => {
-          const validErrors = await this.isValidRecord(changes);
+      changes.map(async ([recordId, changes]) => {
+        const validErrors = await this.isValidRecord(changes);
 
-          if (!validErrors.isEmpty()) {
-            return [recordId, validErrors];
-          }
-
-          appliedChanges.push([recordId, changes]);
-          return [recordId, changes];
+        if (!validErrors.isEmpty()) {
+          return [recordId, validErrors];
         }
-      )
+
+        appliedChanges.push([recordId, changes]);
+        return [recordId, changes];
+      })
     );
 
     if (appliedChanges.length) {
@@ -270,10 +270,13 @@ class GridCollectionModel extends AbstractGridModel {
             return [dataRecordId, dataRecord];
           }
 
-          return [dataRecordId, {
-            ...dataRecord,
-            ...changes
-          }];
+          return [
+            dataRecordId,
+            {
+              ...dataRecord,
+              ...changes
+            }
+          ];
         });
       }
 
@@ -306,11 +309,12 @@ class GridCollectionModel extends AbstractGridModel {
     while (this._getRecordByID(this._id)) {
       this._id++;
     }
+
     return this._id++;
   }
 
   _getRecordByID(id) {
-    return find(this._data, record => isEqual(record[0], id));
+    return find(this._data, (record) => isEqual(record[0], id));
   }
 
   _create(record, id) {

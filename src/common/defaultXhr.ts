@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import variables from './variables';
 import xhr from 'xhr';
+import variables from './variables';
 
 function defaultXhr(settings) {
   return new Promise((resolve, reject) => {

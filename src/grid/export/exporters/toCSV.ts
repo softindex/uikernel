@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import toPromise from '../../../common/toPromise';
 import csv from 'csv-stringify';
+import toPromise from '../../../common/toPromise';
 
 async function toCSV(data) {
   const csvData = await toPromise(csv, true)(data.records.concat([data.totals]), {

@@ -6,15 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
 import {mount} from 'enzyme';
+import React from 'react';
 import Number from '../Number';
 
 function getOnChangeHandler(eventValue, eventIsValid) {
   const onChange = jest.fn();
-  const renderedComponent = mount(
-    <Number value={null} onChange={onChange}/>
-  );
+  const renderedComponent = mount(<Number value={null} onChange={onChange} />);
 
   const input = renderedComponent.find('input');
   input.simulate('change', {
@@ -49,9 +47,7 @@ describe('NumberEditor type converting', () => {
 
 describe('Check props', () => {
   it('Other value prop should change input value', () => {
-    const renderedComponent = mount(
-      <Number value={1} onChange={jest.fn()}/>
-    );
+    const renderedComponent = mount(<Number value={1} onChange={jest.fn()} />);
     const inputDOMNode = renderedComponent.find('input').getDOMNode();
 
     renderedComponent.setProps({value: 2});
@@ -60,9 +56,7 @@ describe('Check props', () => {
   });
 
   it('Same value prop should not change input value', () => {
-    const renderedComponent = mount(
-      <Number value={1} onChange={jest.fn()}/>
-    );
+    const renderedComponent = mount(<Number value={1} onChange={jest.fn()} />);
     // Handle input.value setter
     const onSetInputValue = jest.fn();
     const inputDOMNode = renderedComponent.find('input').getDOMNode();

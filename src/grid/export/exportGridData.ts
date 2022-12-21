@@ -15,7 +15,9 @@ function formatColumns(columns, viewColumns) {
 
   for (i = 0; i < viewColumns.length; i++) {
     columnId = viewColumns[i];
-    formattedColumns[columnId] = `${columns[columnId].parent ? columns[columnId].parent + ' ' : ''}${columns[columnId].name}`;
+    formattedColumns[columnId] = `${columns[columnId].parent ? columns[columnId].parent + ' ' : ''}${
+      columns[columnId].name
+    }`;
   }
 
   return formattedColumns;
@@ -35,11 +37,12 @@ function formatRecord(record, columns, viewColumns) {
 function formatData(records, totals, columns, viewColumns) {
   const formatted = {
     columns: formatColumns(columns, viewColumns),
-    records: records.map(record => formatRecord(record[1], columns, viewColumns))
+    records: records.map((record) => formatRecord(record[1], columns, viewColumns))
   };
   if (totals) {
     formatted.totals = formatRecord(totals, columns, viewColumns);
   }
+
   return formatted;
 }
 

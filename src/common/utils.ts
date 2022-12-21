@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ThrottleError from './ThrottleError';
 import ArgumentsError from './ArgumentsError';
+import ThrottleError from './ThrottleError';
 
 function baseClone(obj, isDeep) {
   let cloned;
@@ -19,6 +19,7 @@ function baseClone(obj, isDeep) {
 
   if (Array.isArray(obj)) {
     cloned = [];
+
     for (const el of obj) {
       cloned.push(isDeep ? baseClone(el, true) : el);
     }
@@ -26,10 +27,12 @@ function baseClone(obj, isDeep) {
     cloned = new obj.constructor(isDeep ? baseClone([...obj], true) : obj);
   } else {
     cloned = Object.create(obj.__proto__);
+
     for (const [field, value] of Object.entries(obj)) {
       cloned[field] = isDeep ? baseClone(value, true) : value;
     }
   }
+
   return cloned;
 }
 
@@ -43,11 +46,13 @@ export function isIntersection(a, b) {
     a = b;
     b = c;
   }
+
   for (const el of a) {
     if (indexOf(b, el) > -1) {
       return true;
     }
   }
+
   return false;
 }
 
@@ -74,6 +79,7 @@ export function indexOf(arr, item) {
       return i;
     }
   }
+
   return -1;
 }
 
@@ -86,9 +92,9 @@ export function throttle(func) {
   return function () {
     if (typeof arguments[arguments.length - 1] === 'function') {
       return throttleCallback(func).apply(this, arguments);
-    } else {
-      return throttlePromise(func).apply(this, arguments);
     }
+
+    return throttlePromise(func).apply(this, arguments);
   };
 
   // it is still used in FormMixin._validateForm so we can't remove it yet
@@ -127,6 +133,7 @@ export function throttle(func) {
           run.apply(ctx, args);
           return true;
         }
+
         return false;
       }
     };
@@ -144,6 +151,7 @@ export function throttle(func) {
           if (nextArguments) {
             nextReject(ThrottleError.createWithParentStack(parentStack));
           }
+
           nextArguments = args;
           nextResolve = resolve;
           nextReject = reject;
@@ -152,8 +160,9 @@ export function throttle(func) {
 
         worked = true;
 
-        func.apply(this, args)
-          .then(result => {
+        func
+          .apply(this, args)
+          .then((result) => {
             worked = false;
             if (nextArguments) {
               nextResolve(run.apply(this, nextArguments));
@@ -162,9 +171,10 @@ export function throttle(func) {
               reject(ThrottleError.createWithParentStack(parentStack));
               return;
             }
+
             resolve(result);
           })
-          .catch(err => {
+          .catch((err) => {
             worked = false;
             reject(err);
           });
@@ -175,14 +185,16 @@ export function throttle(func) {
 
 export function parseValueFromEvent(event) {
   if (
-    event && typeof event === 'object' &&
-    event.target && ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
+    event &&
+    typeof event === 'object' &&
+    event.target &&
+    ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
   ) {
     switch (event.target.type) {
-    case 'checkbox':
-      return event.target.checked;
-    case 'file':
-      return event.target.files[0];
+      case 'checkbox':
+        return event.target.checked;
+      case 'file':
+        return event.target.files[0];
     }
 
     return event.target.value;
@@ -215,27 +227,27 @@ export function decorate(obj, decor) {
  */
 export function isEqual(a, b) {
   if (
-    a === null
-    || b === null
-    || a === undefined
-    || b === undefined
-    || typeof a === 'function'
-    || typeof b === 'function'
-    || a instanceof RegExp
-    || b instanceof RegExp
+    a === null ||
+    b === null ||
+    a === undefined ||
+    b === undefined ||
+    typeof a === 'function' ||
+    typeof b === 'function' ||
+    a instanceof RegExp ||
+    b instanceof RegExp
   ) {
     return String(a) === String(b);
   }
 
-  if (a === b || a.valueOf() === b.valueOf() || a !== a && b !== b) {
+  if (a === b || a.valueOf() === b.valueOf() || (a !== a && b !== b)) {
     return true;
   }
 
   if (
-    (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length))
-    || typeof a !== 'object'
-    || typeof b !== 'object'
-    || a.constructor !== b.constructor
+    (Array.isArray(a) && (!Array.isArray(b) || a.length !== b.length)) ||
+    typeof a !== 'object' ||
+    typeof b !== 'object' ||
+    a.constructor !== b.constructor
   ) {
     return false;
   }
@@ -249,10 +261,7 @@ export function isEqual(a, b) {
   }
 
   const keys = Object.keys(a);
-  return (
-    Object.keys(b).every(key => keys.includes(key))
-    && keys.every(key => isEqual(a[key], b[key]))
-  );
+  return Object.keys(b).every((key) => keys.includes(key)) && keys.every((key) => isEqual(a[key], b[key]));
 }
 
 /**
@@ -273,15 +282,19 @@ export function isEmpty(value) {
   if (!value) {
     return true;
   }
+
   if (Array.isArray(value)) {
     return value.length === 0;
   }
+
   if (typeof value === 'object') {
     return Object.keys(value).length === 0;
   }
+
   if (typeof value === 'string') {
     return value.trim().length === 0;
   }
+
   return false;
 }
 
@@ -296,7 +309,7 @@ export function forEach(obj, func, ctx) {
 }
 
 export function pluck(arr, field) {
-  return arr.map(item => item[field]);
+  return arr.map((item) => item[field]);
 }
 
 export function find(arr, func) {
@@ -305,6 +318,7 @@ export function find(arr, func) {
       return arr[i];
     }
   }
+
   return null;
 }
 
@@ -314,6 +328,7 @@ export function findIndex(obj, func) {
       return i;
     }
   }
+
   return -1;
 }
 
@@ -328,6 +343,7 @@ export function omit(obj, predicate) {
       result[field] = value;
     }
   }
+
   return result;
 }
 
@@ -338,13 +354,14 @@ export function escape(string) {
     '<': '&lt;',
     '>': '&gt;',
     '"': '&quot;',
-    '\'': '&#39;',
+    "'": '&#39;',
     '`': '&#96;'
   };
   string = `${string === null ? '' : string.toString()}`;
   if (string && reUnescaped.test(string)) {
-    return string.replace(reUnescaped, chr => escapes[chr]);
+    return string.replace(reUnescaped, (chr) => escapes[chr]);
   }
+
   return string;
 }
 
@@ -353,6 +370,7 @@ export function zipObject(keys, values) {
   for (let i = 0; i < keys.length; i++) {
     result[keys[i]] = values[i];
   }
+
   return result;
 }
 
@@ -363,6 +381,7 @@ export function pick(obj, keys, defaultValue) {
     } else if (defaultValue !== undefined) {
       result[key] = defaultValue;
     }
+
     return result;
   }, {});
 }
@@ -381,6 +400,7 @@ export function reduce(obj, func, value) {
   for (const i in obj) {
     value = func(value, obj[i], i);
   }
+
   return value;
 }
 
@@ -388,6 +408,7 @@ export function reduceMap(map, func, value) {
   for (const [key, mapValue] of map) {
     value = func(value, mapValue, key);
   }
+
   return value;
 }
 
@@ -398,6 +419,7 @@ export function union(...args) {
       elements[el] = el;
     }
   }
+
   return Object.values(elements);
 }
 
@@ -406,9 +428,11 @@ export function at(obj, keys) {
   if (!Array.isArray(keys)) {
     return [obj[keys]];
   }
+
   for (const key of keys) {
     result.push(obj[key]);
   }
+
   return result;
 }
 
@@ -417,6 +441,7 @@ export function pairs(obj) {
   for (const i in obj) {
     result.push([i, obj[i]]);
   }
+
   return result;
 }
 
@@ -429,7 +454,7 @@ export function toDate(value) {
 
   if (typeof value === 'string') {
     date = new Date(value);
-    date.setTime(date.getTime() + (date.getTimezoneOffset() * 60 * 1000)); // Convert UTC to local time
+    date.setTime(date.getTime() + date.getTimezoneOffset() * 60 * 1000); // Convert UTC to local time
     return date;
   }
 
@@ -442,8 +467,10 @@ export function without(arr, el) {
     if (Array.isArray(el) ? indexOf(el, arr[i]) > -1 : isEqual(arr[i], el)) {
       continue;
     }
+
     result.push(arr[i]);
   }
+
   return result;
 }
 
@@ -460,10 +487,7 @@ export function getRecordChanges(model, data, changes, newChanges) {
     }
   }
 
-  Object.assign(result, pick(
-    data,
-    model.getValidationDependency(Object.keys(result))
-  ));
+  Object.assign(result, pick(data, model.getValidationDependency(Object.keys(result))));
 
   return result;
 }
@@ -478,7 +502,8 @@ export function getStack(deep = 0) {
   try {
     throw new Error();
   } catch (e) {
-    if (e.stack) { // Error.stack is unavailable in old browsers
+    if (e.stack) {
+      // Error.stack is unavailable in old browsers
       stack = e.stack
         .split('\n')
         .slice(2 + deep) // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
@@ -495,7 +520,7 @@ export function warn(message) {
 }
 
 export function toEncodedString(value) {
-  return encodeURIComponent((typeof value === 'string' ? value : JSON.stringify(value)));
+  return encodeURIComponent(typeof value === 'string' ? value : JSON.stringify(value));
 }
 
 export function asyncHandler(router) {
@@ -504,6 +529,7 @@ export function asyncHandler(router) {
     if (promise && promise.then) {
       return promise.catch(next);
     }
+
     next(new Error('asyncHandler expected to take async function.'));
   };
 }
@@ -515,6 +541,7 @@ export function parents(element, selector) {
       result.push(element);
     }
   }
+
   return result;
 }
 

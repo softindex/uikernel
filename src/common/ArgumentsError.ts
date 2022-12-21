@@ -8,16 +8,18 @@
 
 import {getStack} from './utils';
 
-function ArgumentsError(message) {
-  Error.call(this, message);
+class ArgumentsError extends Error {
+  status: number;
+  statusCode: number;
+  stack: string;
 
-  this.name = 'ArgumentsError';
-  this.message = message;
-  this.status = this.statusCode = 422;
-  this.stack = getStack();
+  constructor(message: string) {
+    super(message);
+
+    this.name = 'ArgumentsError';
+    this.status = this.statusCode = 422;
+    this.stack = getStack();
+  }
 }
-
-ArgumentsError.prototype = Object.create(Error.prototype);
-ArgumentsError.prototype.constructor = ArgumentsError;
 
 export default ArgumentsError;

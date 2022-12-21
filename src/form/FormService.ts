@@ -7,10 +7,10 @@
  */
 
 import EventEmitter from '../common/Events';
-import Validator from '../common/validation/Validator';
-import ValidationErrors from '../common/validation/ValidationErrors';
-import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty} from '../common/utils';
 import ThrottleError from '../common/ThrottleError';
+import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty} from '../common/utils';
+import ValidationErrors from '../common/validation/ValidationErrors';
+import Validator from '../common/validation/Validator';
 
 class FormService {
   constructor(fields = null) {
@@ -70,6 +70,7 @@ class FormService {
     if (settings.hasOwnProperty('fields')) {
       this.fields = settings.fields;
     }
+
     if (!this._data) {
       this._data = await settings.model.getData(this.fields);
     }
@@ -253,6 +254,7 @@ class FormService {
         this._setState();
         throw err;
       }
+
       validationErrors = err;
     }
 
@@ -406,6 +408,7 @@ class FormService {
         changes[field] = this._changes[field];
       }
     }
+
     return changes;
   }
 
@@ -445,7 +448,7 @@ class FormService {
   }
 
   _getData() {
-    return Object.assign({}, this._data, this._changes);
+    return {...this._data, ...this._changes};
   }
 
   _getChanges() {
@@ -453,6 +456,7 @@ class FormService {
     if (this.submitAll) {
       return this._getData();
     }
+
     return this._changes;
   }
 
