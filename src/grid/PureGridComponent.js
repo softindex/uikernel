@@ -385,7 +385,7 @@ class PureGridComponent extends React.Component {
     const initialRecord = this.props.records.get(recordId) || this.props.extraRecords.get(recordId);
     const selected = this.isSelected(recordId);
     const gridRowClass = this._getRowClassNames(recordId, selected);
-    let html = `<tr key=${toEncodedString(recordId)} class="${gridRowClass}">`;
+    let html = `<tr key="${toEncodedString(recordId)}" class="${gridRowClass}">`;
     for (colId of Object.keys(this.props.columns)) {
       if (this._isViewColumn(colId)) {
         const gridCellClass = classNames(this._getColumnClass(colId), {
