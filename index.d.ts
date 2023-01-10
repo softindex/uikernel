@@ -4,12 +4,47 @@ declare module 'uikernel' {
     [extra: string]: any;
   }
 
+  export type Order<TFields extends string = string> = [TFields, 'ASC' | 'DESC'][];
+
+  export type ReadResult<TKey, TRecord, TField extends keyof TRecord> = {
+    count: number;
+    extraRecords?: [TKey, Pick<TRecord, TField>][];
+    records: [TKey, Pick<TRecord, TField>][];
+    totals?: Partial<Pick<TRecord, TField>>;
+  };
+
+  export type ReadOptions<TKey, TRecord, TField extends keyof TRecord, TFilter> = {
+    extra?: TKey[];
+    fields: readonly TField[];
+    filters?: TFilter;
+    limit?: number;
+    offset?: number;
+    sort?: Order<keyof TRecord & string>;
+  };
+
+  interface GridModel<TKey, TRecord, TFilter> {
+    create(record: Partial<TRecord>): Promise<TKey>;
+    getRecord<TField extends keyof TRecord>(
+      id: TKey,
+      fields: readonly TField[]
+    ): Promise<Pick<TRecord, TField> | null>;
+    getValidationDependency(fields: readonly (keyof TRecord & string)[]): (keyof TRecord & string)[];
+    isValidRecord(record: Partial<TRecord>, recordId?: TKey): Promise<ValidationErrors<keyof TRecord & string>>;
+    read<TField extends keyof TRecord & string>(
+      props: ReadOptions<TKey, TRecord, TField, TFilter>
+    ): Promise<ReadResult<TKey, TRecord, TField>>;
+    update(
+      changes: [TKey, Partial<TRecord>][]
+    ): Promise<[TKey, Partial<TRecord> | Error | ValidationErrors<keyof TRecord & string>][]>;
+  }
+
   export class ValidationErrors<TField extends string> {
     static createFromJSON: <TField extends string>(
       jsonObject: Record<TField, (ValidationJSONError | string)[]>
     ) => ValidationErrors<TField>;
     static createWithError: <TField extends string>(
-      field: TField, error: ValidationJSONError | string
+      field: TField,
+      error: ValidationJSONError | string
     ) => ValidationErrors<TField>;
 
     add: (field: TField, error: ValidationJSONError | string) => ValidationErrors<TField>;
@@ -20,27 +55,32 @@ declare module 'uikernel' {
     isEmpty: () => boolean;
     clearField: (field: TField) => ValidationErrors<TField>;
     clear: () => ValidationErrors<TField>;
-    toJSON: () => Record<TField, ValidationJSONError[]>;
+    toJSON: () => Record<string, ValidationJSONError[]>;
     clone: () => ValidationErrors<TField>;
     merge<T extends string>(validationErrors: ValidationErrors<T>): ValidationErrors<TField | T>;
     getErrors: () => Map<TField, ValidationJSONError[]>;
   }
 
-  export class Validator<TRecord> {
+  export interface IValidator<TRecord> {
+    getValidationDependency: (fields: (keyof TRecord & string)[]) => (keyof TRecord & string)[];
+    isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TRecord & string>>;
+  }
+
+  export class Validator<TRecord> implements IValidator<TRecord> {
     static create<TRecord>(): Validator<TRecord>;
-    field: (field: keyof TRecord, cb: (value: any) => string | undefined) => Validator<TRecord>;
-    asyncField: (field: keyof TRecord, cb: (value: any) => Promise<string | undefined>) => Validator<TRecord>;
+    field: (field: keyof TRecord & string, cb: (value: any) => string | undefined) => Validator<TRecord>;
+    asyncField: (field: keyof TRecord & string, cb: (value: any) => Promise<string | undefined>) => Validator<TRecord>;
     fields: (
-      fields: (keyof TRecord)[],
-      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord>) => any
+      fields: (keyof TRecord & string)[],
+      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord & string>) => any
     ) => Validator<TRecord>;
     asyncFields: (
-      fields: (keyof TRecord)[],
-      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord>) => Promise<any>
+      fields: (keyof TRecord & string)[],
+      cb: (record: Partial<TRecord>, errors: ValidationErrors<keyof TRecord & string>) => Promise<any>
     ) => Validator<TRecord>;
-    asyncDependence: (fields: (keyof TRecord)[]) => Validator<TRecord>;
-    getValidationDependency: (fields: (keyof TRecord)[]) => (keyof TRecord)[];
-    isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TRecord>>;
+    asyncDependence: (fields: (keyof TRecord & string)[]) => Validator<TRecord>;
+    getValidationDependency: (fields: (keyof TRecord & string)[]) => (keyof TRecord & string)[];
+    isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TRecord & string>>;
   }
 
   export interface FormStateEmpty {
@@ -54,7 +94,7 @@ declare module 'uikernel' {
     warnings: ValidationErrors<never>;
   }
 
-  export interface FormState<TRecord, TField extends keyof TRecord> {
+  export interface FormState<TRecord, TField extends keyof TRecord & string> {
     isLoaded: boolean;
     isSubmitting: boolean;
     data: Partial<TRecord>;
@@ -68,8 +108,8 @@ declare module 'uikernel' {
         warnings: ReturnType<ValidationErrors<TField>['getFieldErrors']>;
       };
     };
-    errors: ValidationErrors<keyof TRecord>;
-    warnings: ValidationErrors<keyof TRecord>;
+    errors: ValidationErrors<TField>;
+    warnings: ValidationErrors<TField>;
   }
 
   export interface FormSettings<TRecord, TField extends keyof TRecord> {
@@ -83,13 +123,13 @@ declare module 'uikernel' {
     warningsValidator?: Validator<TRecord>;
   }
 
-  export class FormService<TRecord, TField extends keyof TRecord> {
+  export class FormService<TRecord, TField extends keyof TRecord & string> {
     init: (settings: FormSettings<TRecord, TField>) => Promise<void>;
     updateField: (field: TField, value: any) => Promise<void>;
     validateField: (field: TField, value: any) => Promise<void>;
     validateForm: () => Promise<{
-      errors: ValidationErrors<keyof TRecord> | null;
-      warnings: ValidationErrors<keyof TRecord> | null;
+      errors: ValidationErrors<TField> | null;
+      warnings: ValidationErrors<TField> | null;
     }>;
     submit: () => Promise<Partial<TRecord>>;
     submitData: (data: Partial<TRecord>) => Promise<Partial<TRecord>>;
@@ -111,7 +151,7 @@ declare module 'uikernel' {
     createValidator: <TRecord>() => Validator<TRecord>;
     ValidationErrors: typeof ValidationErrors;
     Form: typeof FormService;
-    useForm: <TRecord, TField extends keyof TRecord>(
+    useForm: <TRecord, TField extends keyof TRecord & string>(
       setting: FormSettings<TRecord, TField>,
       onError: (error: Error) => void
     ) => [ReturnType<FormService<TRecord, TField>['getAll']>, FormService<TRecord, TField>];
