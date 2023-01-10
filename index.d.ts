@@ -4,11 +4,13 @@ declare module 'uikernel' {
     [extra: string]: any;
   }
 
-  export class ValidationErrors<TField> {
-    static createFromJSON: (
+  export class ValidationErrors<TField extends PropertyKey> {
+    static createFromJSON: <TField extends PropertyKey>(
       jsonObject: Record<TField, (ValidationJSONError | string)[]>
     ) => ValidationErrors<TField>;
-    static createWithError: (field: TField, error: ValidationJSONError | string) => ValidationErrors<TField>;
+    static createWithError: <TField extends PropertyKey>(
+      field: TField, error: ValidationJSONError | string
+    ) => ValidationErrors<TField>;
 
     add: (field: TField, error: ValidationJSONError | string) => ValidationErrors<TField>;
     hasError: (field: TField) => boolean;
@@ -21,7 +23,7 @@ declare module 'uikernel' {
     toJSON: () => Record<TField, ValidationJSONError[]>;
     clone: () => ValidationErrors<TField>;
     merge<T extends string>(validationErrors: ValidationErrors<T>): ValidationErrors<TField | T>;
-    getErrors: () => readonly Map<TField, ValidationErrorInstance[]>;
+    getErrors: () => Map<TField, ValidationJSONError[]>;
   }
 
   export class Validator<TRecord> {
@@ -73,8 +75,8 @@ declare module 'uikernel' {
   export interface FormSettings<TRecord, TField extends keyof TRecord> {
     fields: readonly TField[];
     model: any;
-    data?: readonly Partial<TRecord>;
-    changes?: readonly Partial<TRecord>;
+    data?: Readonly<Partial<TRecord>>;
+    changes?: Readonly<Partial<TRecord>>;
     submitAll?: boolean;
     partialErrorChecking?: boolean;
     showDependentFields?: boolean;
