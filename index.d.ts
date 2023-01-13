@@ -4,11 +4,11 @@ declare module 'uikernel' {
     [extra: string]: any;
   }
 
-  export class ValidationErrors<TField extends PropertyKey> {
-    static createFromJSON: <TField extends PropertyKey>(
+  export class ValidationErrors<TField extends string> {
+    static createFromJSON: <TField extends string>(
       jsonObject: Record<TField, (ValidationJSONError | string)[]>
     ) => ValidationErrors<TField>;
-    static createWithError: <TField extends PropertyKey>(
+    static createWithError: <TField extends string>(
       field: TField, error: ValidationJSONError | string
     ) => ValidationErrors<TField>;
 
@@ -75,8 +75,8 @@ declare module 'uikernel' {
   export interface FormSettings<TRecord, TField extends keyof TRecord> {
     fields: readonly TField[];
     model: any;
-    data?: Readonly<Partial<TRecord>>;
-    changes?: Readonly<Partial<TRecord>>;
+    data?: Partial<TRecord>;
+    changes?: Partial<TRecord>;
     submitAll?: boolean;
     partialErrorChecking?: boolean;
     showDependentFields?: boolean;
