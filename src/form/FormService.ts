@@ -7,7 +7,7 @@
  */
 
 import ThrottleError from '../common/error/ThrottleError';
-import EventEmitter from '../common/Events';
+import EventEmitter from '../common/EventsModel';
 import throttle from '../common/throttle';
 import {EventListener} from '../common/types';
 import {getRecordChanges, keys, parseValueFromEvent, isEmpty, isEqual, warn} from '../common/utils';

@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import EventsModel from '../common/Events';
+import EventsModel from '../common/EventsModel';
 import {IObservable, EventListener} from '../common/types';
 import ValidationErrors from '../validation/ValidationErrors';
 import {IFormModel} from './types/IFormModel';

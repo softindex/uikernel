@@ -8,7 +8,7 @@
 
 import url from 'url';
 import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
-import EventsModel from '../common/Events';
+import EventsModel from '../common/EventsModel';
 import parseJson from '../common/parseJson';
 import {EventListener, IObservable} from '../common/types';
 import ValidationErrors from '../validation/ValidationErrors';

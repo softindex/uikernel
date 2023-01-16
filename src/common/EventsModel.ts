@@ -12,7 +12,6 @@ type Subscribers<TListenerArgsByEventName extends Record<string, unknown[]>> = {
   [K in keyof TListenerArgsByEventName & string]?: EventListener<TListenerArgsByEventName[K]>[];
 };
 
-// TODO Vlad rename file to EventsModel
 /**
  * Events control model
  */

@@ -8,7 +8,7 @@
 
 import ArgumentsError from './common/error/ArgumentsError';
 import ThrottleError from './common/error/ThrottleError';
-import Events from './common/Events';
+import Events from './common/EventsModel';
 import './common/setImmediate';
 import variables from './common/variables';
 import Checkbox from './editors/Checkbox';
@@ -38,9 +38,9 @@ import booleanValidationRule from './validation/rules/boolean';
 import dateValidationRule from './validation/rules/date';
 import enumValidationRule from './validation/rules/enum';
 import floatValidationRule from './validation/rules/float';
+import numberValidationRule from './validation/rules/integer';
 import notEmptyValidationRule from './validation/rules/notEmpty';
 import notNullValidationRule from './validation/rules/notNull';
-import numberValidationRule from './validation/rules/number';
 import regExpValidationRule from './validation/rules/regExp';
 import setValidationRule from './validation/rules/set';
 import ValidationErrors from './validation/ValidationErrors';

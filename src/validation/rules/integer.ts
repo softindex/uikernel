@@ -10,7 +10,6 @@ import isNil from 'lodash/isNil';
 
 type Limit = number | null | undefined;
 
-// TODO Vlad rename to int validator
 function baseValidator(
   notNull: boolean,
   min: Limit,

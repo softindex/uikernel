@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import numberValidator from '../number';
+import numberValidator from '../integer';
 
 describe('Without range and can be empty', () => {
   const validator = numberValidator(null, null, 'test');
