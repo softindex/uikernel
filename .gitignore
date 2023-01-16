@@ -9,6 +9,7 @@ lib
 dist
 coverage
 .DS_Store
+.eslintcache
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

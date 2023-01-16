@@ -6,112 +6,60 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import Events from '../../common/Events';
-import {isEqual, clone} from '../../common/utils';
-import ValidationErrors from '../../common/validation/ValidationErrors';
+import EventsModel from '../../common/Events';
+import {IObservable, EventListener} from '../../common/types';
+import {isEqual} from '../../common/utils';
+import AbstractGridModel from '../../grid/models/AbstractGridModel';
+import {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
+import ValidationErrors from '../../validation/ValidationErrors';
+import {IFormModel} from '../types/IFormModel';
 
-class GridToFormUpdate extends Events {
-  /**
-   * Adapter that allows us to use Grid model record as a form model
-   *
-   * @param {AbstractGridModel} model   Grid model
-   * @param {number|string}     id      Record ID
-   * @constructor
-   */
-  constructor(model, id) {
-    super();
+type RequiredGridModelListenerArgsByEventName<TKey, TRecord extends {}> = Pick<
+  GridModelListenerArgsByEventName<TKey, TRecord>,
+  'update'
+>;
 
-    this._adapter = {
-      model: model,
-      id: id
-    };
+/**
+ * Adapter that allows us to use Grid model record as a form model
+ */
+class GridToFormUpdate<
+  TKey,
+  TRecord extends {},
+  TListenerArgsByEventName extends {
+    [x: string]: unknown[];
+    update: [Partial<TRecord>];
+  },
+  TFilters
+> implements IFormModel<TRecord>, IObservable<TListenerArgsByEventName>
+{
+  private eventsModel = new EventsModel<TListenerArgsByEventName>();
+  private onUpdateHandlers: {
+    originalCallback: EventListener<TListenerArgsByEventName['update']>;
+    wrappedCallback: EventListener<RequiredGridModelListenerArgsByEventName<TKey, TRecord>['update']>;
+  }[] = [];
 
-    this._onUpdateHandlers = [];
+  constructor(
+    private gridModel: AbstractGridModel<
+      TKey,
+      TRecord,
+      TFilters,
+      RequiredGridModelListenerArgsByEventName<TKey, TRecord>
+    >,
+    private id: TKey
+  ) {}
+
+  getData(): Promise<Partial<TRecord>>;
+  getData<TField extends keyof TRecord & string>(fields: TField[]): Promise<Partial<Pick<TRecord, TField>>>;
+  async getData<TField extends keyof TRecord & string>(
+    fields?: TField[]
+  ): Promise<Partial<Pick<TRecord, TField>>> {
+    return await this.gridModel.getRecord(this.id, fields || []);
   }
 
-  /**
-   * Subscribe to inner model event
-   *
-   * @param {string}      event   Event ID
-   * @param {Function}    cb      CallBack function
-   */
-  on(event, cb) {
-    const ctx = this;
+  async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
+    const record = {...changes};
 
-    if (event !== 'update') {
-      Events.prototype.on.call(this, event, cb);
-      return;
-    }
-
-    // onChange filters out table events, that do not regard to our record
-    function onChange(changes) {
-      for (let i = 0; i < changes.length; i++) {
-        if (isEqual(changes[i][0], ctx._adapter.id)) {
-          cb(changes[i][1]);
-          return;
-        }
-      }
-    }
-
-    this._onUpdateHandlers.push({
-      originalCallback: cb,
-      wrappedCallback: onChange
-    });
-
-    this._adapter.model.on('update', onChange);
-  }
-
-  /**
-   * Unsubscribe from inner model event
-   *
-   * @param {string}      event   Event ID
-   * @param {Function}    cb      CallBack function
-   */
-  off(event, cb) {
-    const ctx = this;
-    const newOnUpdateHandlers = [];
-
-    if (event !== 'update') {
-      Events.prototype.off.call(this, event, cb);
-      return;
-    }
-
-    this._onUpdateHandlers.forEach((handler) => {
-      if (handler.originalCallback === cb) {
-        ctx._adapter.model.off('update', handler.wrappedCallback);
-      } else {
-        newOnUpdateHandlers.push(handler);
-      }
-    });
-
-    this._onUpdateHandlers = newOnUpdateHandlers;
-  }
-
-  listenerCount(event) {
-    return this._adapter.model.listenerCount(event);
-  }
-
-  /**
-   * Get data
-   *
-   * @param {Array}     fields     Required fields
-   */
-  async getData(fields) {
-    const model = this._adapter.model;
-    return await model.getRecord(this._adapter.id, fields);
-  }
-
-  /**
-   * Apply changes
-   *
-   * @param   {Object}      changes     Form data
-   */
-  async submit(changes) {
-    const record = clone(changes);
-    const model = this._adapter.model;
-
-    let result = await model.update([[this._adapter.id, record]]);
-    result = result[0][1];
+    const [[, result]] = await this.gridModel.update([[this.id, record]]);
     if (result instanceof Error || result instanceof ValidationErrors) {
       throw result;
     }
@@ -119,24 +67,65 @@ class GridToFormUpdate extends Events {
     return result;
   }
 
-  /**
-   * Record validity check
-   *
-   * @param {Object}      record  Record object
-   */
-  async isValidRecord(record) {
-    const model = this._adapter.model;
-    return await model.isValidRecord(record, this._adapter.id);
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+    return await this.gridModel.isValidRecord(record, this.id);
   }
 
-  /**
-   * Get all dependent fields, that are required for validation
-   *
-   * @param   {Array}  fields  Fields list
-   * @returns {Array}  Dependencies
-   */
-  getValidationDependency(fields) {
-    return this._adapter.model.getValidationDependency(fields);
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return this.gridModel.getValidationDependency(fields);
+  }
+
+  on<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ): this {
+    if (eventName !== 'update') {
+      this.eventsModel.on(eventName, cb);
+      return this;
+    }
+
+    const callback = cb as EventListener<TListenerArgsByEventName['update']>;
+
+    // onChange filters out table events, that do not regard to our record
+    const onChange: EventListener<RequiredGridModelListenerArgsByEventName<TKey, TRecord>['update']> = (
+      changes
+    ) => {
+      for (const [key, record] of changes) {
+        if (isEqual(key, this.id)) {
+          callback(record);
+        }
+      }
+    };
+
+    this.onUpdateHandlers.push({
+      originalCallback: callback,
+      wrappedCallback: onChange
+    });
+
+    this.gridModel.on('update', onChange);
+
+    return this;
+  }
+
+  off<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ): this {
+    if (eventName !== 'update') {
+      this.eventsModel.off(eventName, cb);
+      return this;
+    }
+
+    this.onUpdateHandlers = this.onUpdateHandlers.filter((handler) => {
+      if (handler.originalCallback === cb) {
+        this.gridModel.off('update', handler.wrappedCallback);
+        return false;
+      }
+
+      return true;
+    });
+
+    return this;
   }
 }
 

@@ -7,53 +7,93 @@
  */
 
 import url from 'url';
-import defaultXhr from '../../common/defaultXhr';
-import ValidationErrors from '../../common/validation/ValidationErrors';
-import Validator from '../../common/validation/Validator';
+import defaultXhr, {DefaultXhr} from '../../common/defaultXhr';
+import parseJson from '../../common/parseJson';
+import {IObservable} from '../../common/types';
+import {keys} from '../../common/utils';
+import ValidationErrors from '../../validation/ValidationErrors';
+import Validator from '../../validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
+import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
+import {
+  IGridModelReadParams,
+  IGridModel,
+  IGridModelReadResult,
+  IGridModelUpdateResult
+} from './types/IGridModel';
+import {JsonGridApiResult} from './types/JsonGridApiResult';
 
 const MAX_URI_LENGTH = 2048;
 
+type GridXhrModelParams<TRecord extends {}> = {
+  /**
+   * @description API address
+   */
+  api: string;
+  /**
+   * @description Send form data with enctype='multipart/form-data' - Default `false`
+   */
+  multipartFormData?: boolean;
+  /**
+   * @description Don't send validation request to server - Default `false`
+   */
+  validateOnClient?: boolean;
+  /**
+   * @description General validator
+   */
+  validator?: Validator<TRecord>;
+  xhr?: DefaultXhr;
+};
+
 /**
  * Grid model, that works with API via XHR
- *
- * @param {Object}    settings                                 Model settings
- * @param {string}    settings.api                             API address
- * @param {Validator} [settings.validator]                     General validator
- * @param {Function}  [settings.xhr]                           XHR interface
- * @param {boolean}   [settings.validateOnClient=false]        Don't send validation request to server
- * @param {boolean}   [settings.multipartFormData=false] Send form data with enctype='multipart/form-data'
- * @constructor
  */
-class GridXhrModel extends AbstractGridModel {
-  constructor({api, validator, xhr, validateOnClient, multipartFormData}) {
+class GridXhrModel<TKey, TRecord extends {}, TFilters>
+  extends AbstractGridModel<TKey, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
+  implements
+    IGridModel<TKey, TRecord, TFilters>,
+    IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>
+{
+  private xhr: DefaultXhr;
+  private validator: Validator<TRecord>;
+  private apiUrl: string;
+  private validateOnClient: boolean;
+  private multipartFormDataEncoded: boolean;
+
+  constructor({
+    api,
+    validator = new Validator(),
+    xhr = defaultXhr,
+    validateOnClient = false,
+    multipartFormData = false
+  }: GridXhrModelParams<TRecord>) {
     super();
 
-    if (!api) {
-      throw new Error("Initialization problem: 'api' must be specified.");
-    }
-
-    this._validator = validator || new Validator();
-    this._xhr = xhr || defaultXhr;
-    this._validateOnClient = validateOnClient || false;
-    this._multipartFormDataEncoded = multipartFormData || false;
-    this._apiUrl = api
+    this.validator = validator;
+    this.xhr = xhr;
+    this.validateOnClient = validateOnClient;
+    this.multipartFormDataEncoded = multipartFormData;
+    this.apiUrl = api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
   /**
    * Add a record
-   *
-   * @param {Object}      record  Record object
    */
-  async create(record) {
+  async create(record: Partial<TRecord>): Promise<TKey> {
     const formData = new FormData();
 
-    if (this._multipartFormDataEncoded) {
-      const ordinaryData = {};
-      for (const [prop, value] of Object.entries(record)) {
+    if (this.multipartFormDataEncoded) {
+      const ordinaryData: Partial<TRecord> = {};
+      for (const prop in record) {
+        if (!Object.prototype.hasOwnProperty.call(record, prop)) {
+          continue;
+        }
+
+        const value = record[prop];
         if (value instanceof File) {
+          // reslove name collision with "rest"
           formData.append(JSON.stringify(prop), value);
         } else {
           ordinaryData[prop] = value;
@@ -63,93 +103,84 @@ class GridXhrModel extends AbstractGridModel {
       formData.append('rest', JSON.stringify(ordinaryData));
     }
 
-    let body = await this._xhr({
+    const rawBody = await this.xhr({
       method: 'POST',
-      uri: this._apiUrl,
-      body: this._multipartFormDataEncoded ? formData : JSON.stringify(record),
-      ...(!this._multipartFormDataEncoded && {headers: {'Content-type': 'application/json'}})
+      uri: this.apiUrl,
+      body: this.multipartFormDataEncoded ? formData : JSON.stringify(record),
+      ...(!this.multipartFormDataEncoded && {headers: {'Content-type': 'application/json'}})
     });
 
-    body = JSON.parse(body);
+    const {data, error} = parseJson(rawBody) as JsonGridApiResult<TKey, TRecord>['create'];
 
-    if (body.error) {
-      throw ValidationErrors.createFromJSON(body.error);
+    if (error) {
+      throw ValidationErrors.createFromJSON(error);
     }
 
-    this.trigger('create', [body.data]);
+    this.trigger('create', [data as TKey]);
 
-    return body.data;
+    return data as TKey;
   }
 
   /**
    * Get records list
-   *
-   * @param {Object}      settings                Request
-   * @param {Array}       settings.fields         Fields
-   * @param {number}      [settings.limit]        Limit
-   * @param {number}      [settings.offset=0]     Offset
-   * @param {Object}      [settings.filters]      Filter values object
-   * @param {Array}       [settings.sort]         Sort parameters
-   * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
    */
-  async read(settings) {
-    const queryUrl = this._getQueryUrl(settings);
+  async read(
+    settings: IGridModelReadParams<TKey, TRecord, TFilters>
+  ): Promise<IGridModelReadResult<TKey, TRecord>> {
+    const queryUrl = this.getQueryUrl(settings);
 
     if (url.format(queryUrl).length > MAX_URI_LENGTH) {
-      return await this._readPostRequest(settings);
+      return await this.readPostRequest(settings);
     }
 
-    const response = await this._xhr({
+    return (await this.xhr({
       method: 'GET',
-      uri: url.format(queryUrl)
-    });
-
-    return JSON.parse(response);
+      uri: url.format(queryUrl),
+      json: true
+    })) as JsonGridApiResult<TKey, TRecord>['read'];
   }
 
   /**
    * Get the particular record
-   *
-   * @param {number|string}   id      Record ID
-   * @param {Array}           fields  Required fields
    */
-  async getRecord(id, fields) {
-    const parsedUrl = url.parse(this._apiUrl, true);
+  async getRecord(id: TKey, fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
+    const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, JSON.stringify(id));
-    delete parsedUrl.search;
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname || '', JSON.stringify(id));
+    parsedUrl.search = null;
 
-    const body = await this._xhr({
+    return (await this.xhr({
       method: 'GET',
-      uri: url.format(parsedUrl)
-    });
-
-    return JSON.parse(body);
+      uri: url.format(parsedUrl),
+      json: true
+    })) as JsonGridApiResult<TKey, TRecord>['getRecord'];
   }
 
   /**
    * Apply record changes
-   *
-   * @param {[]}       changes     Changes array
-   * @abstract
    */
-  async update(changes) {
+  async update(changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
     const formDataChanges = new FormData();
 
-    if (this._multipartFormDataEncoded) {
-      const ordinaryRecordChanges = [];
+    if (this.multipartFormDataEncoded) {
+      const ordinaryRecordChanges: [TKey, Partial<TRecord>][] = [];
 
       for (const [recordId, record] of changes) {
-        const fileFieldNames = [];
-        for (const field of Object.keys(record)) {
-          if (record[field] instanceof File) {
-            formDataChanges.append(JSON.stringify({recordId, field}), record[field]);
-            fileFieldNames.push(field);
+        const fileFieldNames = new Set<keyof TRecord & string>();
+        for (const field in record) {
+          if (!Object.prototype.hasOwnProperty.call(record, field)) {
+            continue;
+          }
+
+          const value = record[field];
+          if (value instanceof File) {
+            formDataChanges.append(JSON.stringify({recordId, field}), value);
+            fileFieldNames.add(field);
           }
         }
 
-        const filteredRecord = Object.keys(record)
-          .filter((key) => !fileFieldNames.includes(key))
+        const filteredRecord: Partial<TRecord> = keys(record)
+          .filter((key) => !fileFieldNames.has(key))
           .reduce((agr, key) => ({...agr, [key]: record[key]}), {});
 
         ordinaryRecordChanges.push([recordId, filteredRecord]);
@@ -158,63 +189,54 @@ class GridXhrModel extends AbstractGridModel {
       formDataChanges.append('rest', JSON.stringify(ordinaryRecordChanges));
     }
 
-    let body = await this._xhr({
+    const rawBody = await this.xhr({
       method: 'PUT',
-      ...(!this._multipartFormDataEncoded && {
+      ...(!this.multipartFormDataEncoded && {
         headers: {
           'Content-type': 'application/json'
         }
       }),
-      uri: this._apiUrl,
-      body: this._multipartFormDataEncoded ? formDataChanges : JSON.stringify(changes)
+      uri: this.apiUrl,
+      body: this.multipartFormDataEncoded ? formDataChanges : JSON.stringify(changes)
     });
 
-    body = JSON.parse(body);
-    const res = [];
+    const parsedBody = parseJson(rawBody) as JsonGridApiResult<TKey, TRecord>['update'];
+    const result: IGridModelUpdateResult<TKey, TRecord> = [];
 
-    if (body.changes && body.changes.length) {
-      this.trigger('update', body.changes);
-      res.push(...body.changes);
+    if (parsedBody.changes.length) {
+      this.trigger('update', parsedBody.changes);
+      result.push(...parsedBody.changes);
     }
 
-    if (body.validation && body.validation.length) {
-      for (const error of body.validation) {
-        if (error && error[1]) {
-          error[1] = ValidationErrors.createFromJSON(error[1]);
-          res.push(error);
-        }
-      }
+    for (const [key, validationErros] of parsedBody.validation) {
+      result.push([key, ValidationErrors.createFromJSON(validationErros)]);
     }
 
-    if (body.errors && body.errors.length) {
-      for (const error of body.errors) {
-        if (error && error[1]) {
-          error[1] = Object.assign(new Error(), error[1]); // Note, that Object spread operator won't work here
-          res.push(error);
-        }
-      }
+    for (const [key, customError] of parsedBody.errors) {
+      const preparedError = Object.assign(new Error(), customError); // Note, that Object spread operator won't work here
+      result.push([key, preparedError]);
     }
 
-    return res;
+    return result;
   }
 
   /**
    * Validation check
-   *
-   * @param {{[string]: *}} record
-   * @param {Promise<*>}    recordId
    */
-  async isValidRecord(record, recordId) {
-    if (this._validateOnClient) {
-      return await this._validator.isValidRecord(record);
+  async isValidRecord(
+    record: Partial<TRecord>,
+    recordId?: TKey | null
+  ): Promise<ValidationErrors<keyof TRecord & string>> {
+    if (this.validateOnClient) {
+      return await this.validator.isValidRecord(record);
     }
 
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
+    const parsedUrl = url.parse(this.apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname || '', 'validation');
 
-    let response;
+    let response: JsonGridApiResult<TKey, TRecord>['validate'];
     try {
-      response = await this._xhr({
+      response = (await this.xhr({
         method: 'POST',
         uri: url.format(parsedUrl),
         body: {
@@ -222,19 +244,20 @@ class GridXhrModel extends AbstractGridModel {
           id: recordId
         },
         json: true
-      });
-    } catch (err) {
-      if (err.statusCode === 413) {
+      })) as JsonGridApiResult<TKey, TRecord>['validate'];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.statusCode === 413) {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors{
-        const validationErrors = await this._validator.isValidRecord(record);
+        const validationErrors = await this.validator.isValidRecord(record);
         if (!validationErrors.isEmpty()) {
           return validationErrors;
         }
       }
 
-      throw err;
+      throw error;
     }
 
     return ValidationErrors.createFromJSON(response);
@@ -242,68 +265,80 @@ class GridXhrModel extends AbstractGridModel {
 
   /**
    * Get all dependent fields, that are required for validation
-   *
-   * @param   {string[]}  fields   Fields list
-   * @returns {string[]}  Dependencies
    */
-  getValidationDependency(fields) {
-    return this._validator.getValidationDependency(fields);
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return this.validator.getValidationDependency(fields);
   }
 
-  _getQueryUrl(settings) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.query.fields = JSON.stringify(settings.fields);
-    parsedUrl.query.offset = settings.offset || 0;
-    if (settings.limit) {
-      parsedUrl.query.limit = settings.limit;
+  private getQueryUrl({
+    fields,
+    extra,
+    filters,
+    limit,
+    offset,
+    sort
+  }: IGridModelReadParams<TKey, TRecord, TFilters>): url.UrlWithParsedQuery {
+    const parsedUrl = url.parse(this.apiUrl, true);
+    parsedUrl.query.fields = JSON.stringify(fields);
+    parsedUrl.query.offset = String(offset || 0);
+    if (limit) {
+      parsedUrl.query.limit = limit.toString();
     }
 
-    if (settings.filters) {
-      parsedUrl.query.filters = JSON.stringify(settings.filters);
+    if (filters) {
+      parsedUrl.query.filters = JSON.stringify(filters);
     }
 
-    if (settings.sort) {
-      parsedUrl.query.sort = JSON.stringify(settings.sort);
+    if (sort) {
+      parsedUrl.query.sort = JSON.stringify(sort);
     }
 
-    if (settings.extra) {
-      parsedUrl.query.extra = JSON.stringify(settings.extra);
+    if (extra) {
+      parsedUrl.query.extra = JSON.stringify(extra);
     }
 
-    delete parsedUrl.search;
+    parsedUrl.search = null;
 
     return parsedUrl;
   }
 
-  async _readPostRequest(settings) {
-    const requestBody = {};
-    requestBody.fields = settings.fields;
-    requestBody.offset = settings.offset || 0;
-    if (settings.limit) {
-      requestBody.limit = settings.limit;
+  private async readPostRequest({
+    fields,
+    extra,
+    filters,
+    limit,
+    offset,
+    sort
+  }: IGridModelReadParams<TKey, TRecord, TFilters>): Promise<IGridModelReadResult<TKey, TRecord>> {
+    const requestBody: IGridModelReadParams<TKey, TRecord, TFilters> = {
+      fields,
+      offset: offset || 0
+    };
+    if (limit) {
+      requestBody.limit = limit;
     }
 
-    if (settings.filters) {
-      requestBody.filters = settings.filters;
+    if (filters) {
+      requestBody.filters = filters;
     }
 
-    if (settings.sort) {
-      requestBody.sort = settings.sort;
+    if (sort) {
+      requestBody.sort = sort;
     }
 
-    if (settings.extra) {
-      requestBody.extra = settings.extra;
+    if (extra) {
+      requestBody.extra = extra;
     }
 
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'read');
+    const parsedUrl = url.parse(this.apiUrl, true);
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname || '', 'read');
 
-    return await this._xhr({
+    return (await this.xhr({
       method: 'POST',
       json: true,
       uri: url.format(parsedUrl),
       body: requestBody
-    });
+    })) as JsonGridApiResult<TKey, TRecord>['read'];
   }
 }
 

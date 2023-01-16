@@ -6,150 +6,158 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ArgumentsError from '../ArgumentsError';
-import {pluck, isIntersection} from '../utils';
+import lodashMap from 'lodash/map';
+import ArgumentsError from '../common/error/ArgumentsError';
+import {ArrayWithAtLeastOneElement} from '../common/types';
+import {isIntersection, keys} from '../common/utils';
 import ValidationErrors from './ValidationErrors';
 
-class Validator {
-  /**
-   * Validation check model
-   *
-   * @constructor
-   */
-  constructor() {
-    this._settings = {
-      validators: {},
-      groupValidators: [],
-      asyncValidators: {},
-      asyncGroupValidators: [],
-      asyncDependenies: []
-    };
-  }
+type ValidationFunction<TValue, TAsync extends 'async' | 'sync'> = (
+  value: TValue | undefined
+) => TAsync extends 'sync' ? string | undefined : Promise<string | undefined>;
+type GroupValidationFunction<TRecord extends {}, TAsync extends 'async' | 'sync'> = (
+  record: Partial<TRecord>,
+  errors: ValidationErrors<keyof TRecord & string>
+) => TAsync extends 'sync' ? undefined : Promise<undefined>;
 
-  static create() {
+type ValidatorSettings<TRecord extends {}> = {
+  asyncDependenies: ArrayWithAtLeastOneElement<keyof TRecord & string>[];
+  asyncGroupValidators: {
+    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>;
+    fn: GroupValidationFunction<TRecord, 'async'>;
+  }[];
+  asyncValidators: {
+    [K in keyof TRecord & string]?: ValidationFunction<TRecord[K], 'async'>[];
+  };
+  groupValidators: {
+    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>;
+    fn: GroupValidationFunction<TRecord, 'sync'>;
+  }[];
+  validators: {
+    [K in keyof TRecord & string]?: ValidationFunction<TRecord[K], 'sync'>[];
+  };
+};
+
+class Validator<TRecord extends {}> {
+  static create<TRecord extends {}>(): Validator<TRecord> {
     return new Validator();
   }
 
+  private settings: ValidatorSettings<TRecord> = {
+    validators: {},
+    groupValidators: [],
+    asyncValidators: {},
+    asyncGroupValidators: [],
+    asyncDependenies: []
+  };
+
   /**
    * Add field sync validators
-   *
-   * @param {string}      field       Field name
-   * @param {...Function} validators  Field validators
-   * @returns {Validator} validator
    */
-  field(field, ...validators) {
-    if (!this._settings.validators[field]) {
-      this._settings.validators[field] = [];
-    }
+  field<TField extends keyof TRecord & string>(
+    field: TField,
+    ...validationFunctions: ArrayWithAtLeastOneElement<ValidationFunction<TRecord[TField], 'sync'>>
+  ): this {
+    const validators = this.settings.validators[field] || [];
+    validators.concat(validationFunctions);
+    this.settings.validators[field] = validators.concat(validationFunctions);
 
-    this._settings.validators[field] = this._settings.validators[field].concat(validators);
     return this;
   }
 
   /**
    * Specify multiple sync validators for fields group
-   *
-   * @param {Array}      fields              Fields array
-   * @param {Function}   validatorFunction   Validator function
-   * @returns {Validator} validator
    */
-  fields(fields, validatorFunction) {
-    this._settings.groupValidators.push({
-      fields: fields,
-      fn: validatorFunction
+  fields(
+    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>,
+    groupValidationFunction: GroupValidationFunction<TRecord, 'sync'>
+  ): this {
+    this.settings.groupValidators.push({
+      fields,
+      fn: groupValidationFunction
     });
+
     return this;
   }
 
   /**
    * Point which fields server validation needs
-   *
-   * @param {Array}   fields   Fields array
-   * @returns {Validator} validator
    */
-  asyncDependence(fields) {
-    this._settings.asyncDependenies.push(fields);
+  asyncDependence(fields: ArrayWithAtLeastOneElement<keyof TRecord & string>): this {
+    this.settings.asyncDependenies.push(fields);
     return this;
   }
 
   /**
    * Add field async validators
-   *
-   * @param {string}     field               Field name
-   * @param {Function}   validatorFunction   Validator function
-   * @returns {Validator} validator
    */
-  asyncField(field, validatorFunction) {
-    if (!this._settings.asyncValidators[field]) {
-      this._settings.asyncValidators[field] = [];
-    }
+  asyncField<TField extends keyof TRecord & string>(
+    field: TField,
+    validationFunction: ValidationFunction<TRecord[TField], 'async'>
+  ): this {
+    const asyncValidators = this.settings.asyncValidators[field] || [];
+    asyncValidators.push(validationFunction);
+    this.settings.asyncValidators[field] = asyncValidators;
 
-    this._settings.asyncValidators[field].push(validatorFunction);
     return this;
   }
 
   /**
    * Specify multiple async validators for fields group
-   *
-   * @param {Array}      fields              Fields array
-   * @param {Function}   validatorFunction   Validator function
-   * @returns {Validator} validator
    */
-  asyncFields(fields, validatorFunction) {
-    this._settings.asyncGroupValidators.push({
-      fields: fields,
-      fn: validatorFunction
+  asyncFields(
+    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>,
+    groupValidationFunction: GroupValidationFunction<TRecord, 'async'>
+  ): this {
+    this.settings.asyncGroupValidators.push({
+      fields,
+      fn: groupValidationFunction
     });
+
     return this;
   }
 
   /**
    * Get all dependent fields validation needs
-   *
-   * @param {Array}   fields    Fields array
-   * @returns {Array} fields
    */
-  getValidationDependency(fields) {
-    const result = [];
-    let length;
-    const groups = pluck(
-      this._settings.groupValidators.concat(this._settings.asyncGroupValidators),
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    const uniqueFields = new Set(fields);
+    const result = new Set<keyof TRecord & string>();
+    let length: number | undefined;
+
+    const groupValidatorsFields = lodashMap(
+      [...this.settings.groupValidators, ...this.settings.asyncGroupValidators],
       'fields'
-    ).concat(this._settings.asyncDependenies);
+    );
+    const allGroupedDependenciesFields = [...groupValidatorsFields, ...this.settings.asyncDependenies];
 
-    while (length !== result.length) {
-      length = result.length;
+    while (length !== result.size) {
+      length = result.size;
 
-      for (let i = 0; i < groups.length; i++) {
-        if (!isIntersection(groups[i], fields) && !isIntersection(groups[i], result)) {
+      for (const groupFields of allGroupedDependenciesFields) {
+        if (!isIntersection(groupFields, fields) && !isIntersection(groupFields, [...result])) {
           continue;
         }
 
-        for (let j = 0; j < groups[i].length; j++) {
-          const field = groups[i][j];
-          if (fields.indexOf(field) >= 0 || result.indexOf(field) >= 0) {
+        for (const field of groupFields) {
+          if (uniqueFields.has(field) || result.has(field)) {
             continue;
           }
 
-          result.push(field);
+          result.add(field);
         }
       }
     }
 
-    return result;
+    return [...result];
   }
 
   /**
    * Check client record validity
-   *
-   * @param {Object}  record   Record
-   * @returns {ValidationErrors|null} Record validity
    */
-  async isValidRecord(record) {
-    const fields = Object.keys(record);
-    const errors = new ValidationErrors();
-    const awaitStack = [];
-    const promises = [];
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+    const fields = keys(record);
+    const errors = new ValidationErrors<keyof TRecord & string>();
 
     const dependentFields = this.getValidationDependency(fields);
     if (dependentFields.length) {
@@ -157,47 +165,35 @@ class Validator {
     }
 
     // Add sync and async validators
-    for (const [field, value] of Object.entries(record)) {
-      const validators = this._settings.validators[field];
-      if (validators) {
-        for (const validator of validators) {
-          const error = validator(value);
-          if (error) {
-            errors.add(field, error);
-          }
+    for (const field of fields) {
+      const value = record[field];
+      const validators = this.settings.validators[field] || [];
+      for (const validator of validators) {
+        const error = validator(value);
+        if (error) {
+          errors.add(field, error);
         }
       }
 
-      const asyncValidators = this._settings.asyncValidators[field];
-      if (asyncValidators) {
-        for (const asyncValidator of asyncValidators) {
-          awaitStack.push(field);
-          promises.push(await asyncValidator(value));
+      const asyncValidators = this.settings.asyncValidators[field] || [];
+      for (const asyncValidator of asyncValidators) {
+        const error = await asyncValidator(value);
+        if (error) {
+          errors.add(field, error);
         }
       }
     }
 
     // Add sync and async group validators
-    for (const groupValidator of this._settings.groupValidators) {
+    for (const groupValidator of this.settings.groupValidators) {
       if (isIntersection(groupValidator.fields, fields)) {
         groupValidator.fn(record, errors);
       }
     }
 
-    for (const asyncGroupValidator of this._settings.asyncGroupValidators) {
+    for (const asyncGroupValidator of this.settings.asyncGroupValidators) {
       if (isIntersection(asyncGroupValidator.fields, fields)) {
-        awaitStack.push(null);
-        promises.push(await asyncGroupValidator.fn(record, errors));
-      }
-    }
-
-    const asyncErrors = await Promise.all(promises);
-    while (asyncErrors.length) {
-      const error = asyncErrors.pop();
-      const field = awaitStack.pop();
-
-      if (error && field) {
-        errors.add(field, error);
+        await asyncGroupValidator.fn(record, errors);
       }
     }
 

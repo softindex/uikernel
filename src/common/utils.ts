@@ -6,76 +6,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ArgumentsError from './ArgumentsError';
-import ThrottleError from './ThrottleError';
-
-function baseClone(obj, isDeep) {
-  let cloned;
-  const es6types = ['[object Set]', '[object WeakSet]', '[object Map]', '[object WeakMap]'];
-
-  if (!(obj instanceof Object) || obj instanceof Date || obj instanceof Function || obj instanceof RegExp) {
-    return obj;
-  }
-
-  if (Array.isArray(obj)) {
-    cloned = [];
-
-    for (const el of obj) {
-      cloned.push(isDeep ? baseClone(el, true) : el);
-    }
-  } else if (es6types.includes(obj.toString())) {
-    cloned = new obj.constructor(isDeep ? baseClone([...obj], true) : obj);
-  } else {
-    cloned = Object.create(obj.__proto__);
-
-    for (const [field, value] of Object.entries(obj)) {
-      cloned[field] = isDeep ? baseClone(value, true) : value;
-    }
-  }
-
-  return cloned;
-}
+import pick from 'lodash/pick';
+import ArgumentsError from './error/ArgumentsError';
 
 /**
  * Check if two arrays intersection exists
  */
-export function isIntersection(a, b) {
-  let c;
-  if (a.length > b.length) {
-    c = a;
-    a = b;
-    b = c;
+export function isIntersection(values: string[], searchValues: string[]): boolean {
+  if (values.length > searchValues.length) {
+    return isIntersection(searchValues, values);
   }
 
-  for (const el of a) {
-    if (indexOf(b, el) > -1) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Define object size
- *
- * @param   {Object}    obj     Object
- * @return  {number}    Object size
- */
-export function size(obj) {
-  return Object.keys(obj).length;
+  const searchValuesSet = new Set(searchValues);
+  return values.some((value) => searchValuesSet.has(value));
 }
 
 /**
  * Element position (isEqual checking)
- *
- * @param   {Array}   arr   Array
- * @param   {*}       item  Element item
- * @return  {number}
  */
-export function indexOf(arr, item) {
-  for (let i = 0; i < arr.length; i++) {
-    if (isEqual(arr[i], item)) {
+export function indexOf(array: unknown[], item: unknown): number {
+  for (let i = 0; i < array.length; i++) {
+    if (isEqual(array[i], item)) {
       return i;
     }
   }
@@ -83,149 +34,59 @@ export function indexOf(arr, item) {
   return -1;
 }
 
-export function throttle(func) {
-  let worked = false;
-  let nextArguments;
-  let nextResolve;
-  let nextReject;
+export function parseValueFromEvent(value: unknown): unknown;
 
-  return function () {
-    if (typeof arguments[arguments.length - 1] === 'function') {
-      return throttleCallback(func).apply(this, arguments);
-    }
+export function parseValueFromEvent<TElement extends {target: {tagName: 'INPUT'; type: 'checkbox'}}>(
+  event: React.SyntheticEvent<TElement>
+): boolean;
 
-    return throttlePromise(func).apply(this, arguments);
-  };
+export function parseValueFromEvent<TElement extends {target: {tagName: 'INPUT'; type: 'file'}}>(
+  event: React.SyntheticEvent<TElement>
+): File | null | undefined;
 
-  // it is still used in FormMixin._validateForm so we can't remove it yet
-  function throttleCallback(func) {
-    return function run() {
-      const ctx = this; // Function context
-      const cb = arguments[arguments.length - 1];
-      const argumentsArray = [].slice.call(arguments);
+export function parseValueFromEvent<TElement extends {target: {tagName: 'SELECT' | 'TEXTAREA'}}>(
+  event: React.SyntheticEvent<TElement>
+): string;
 
-      if (worked) {
-        // Set as the next call
-        nextArguments = arguments;
-        return;
-      }
+export function parseValueFromEvent(eventOrValue: unknown): unknown {
+  const target =
+    eventOrValue &&
+    typeof eventOrValue === 'object' &&
+    'target' in eventOrValue &&
+    typeof eventOrValue.target === 'object'
+      ? (eventOrValue.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement)
+      : undefined;
 
-      worked = true;
-
-      const cbWrapper = function () {
-        if (!nextWorker() && typeof cb === 'function') {
-          cb.apply(null, arguments);
-        }
-      };
-
-      if (typeof cb === 'function') {
-        argumentsArray[argumentsArray.length - 1] = cbWrapper;
-        func.apply(this, argumentsArray.concat(nextWorker));
-      } else {
-        func.apply(this, argumentsArray.concat(cbWrapper, nextWorker));
-      }
-
-      function nextWorker() {
-        worked = false;
-        if (nextArguments) {
-          const args = nextArguments;
-          nextArguments = null;
-          run.apply(ctx, args);
-          return true;
-        }
-
-        return false;
-      }
-    };
-  }
-
-  function throttlePromise(func) {
-    /**
-     * @throws {ThrottleError} Too many function call
-     */
-    return function run(...args) {
-      const parentStack = getStack(2);
-
-      return new Promise((resolve, reject) => {
-        if (worked) {
-          if (nextArguments) {
-            nextReject(ThrottleError.createWithParentStack(parentStack));
-          }
-
-          nextArguments = args;
-          nextResolve = resolve;
-          nextReject = reject;
-          return;
-        }
-
-        worked = true;
-
-        func
-          .apply(this, args)
-          .then((result) => {
-            worked = false;
-            if (nextArguments) {
-              nextResolve(run.apply(this, nextArguments));
-              nextArguments = null;
-
-              reject(ThrottleError.createWithParentStack(parentStack));
-              return;
-            }
-
-            resolve(result);
-          })
-          .catch((err) => {
-            worked = false;
-            reject(err);
-          });
-      });
-    };
-  }
-}
-
-export function parseValueFromEvent(event) {
-  if (
-    event &&
-    typeof event === 'object' &&
-    event.target &&
-    ['INPUT', 'TEXTAREA', 'SELECT'].indexOf(event.target.tagName) >= 0
-  ) {
-    switch (event.target.type) {
+  if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) {
+    switch (target.type) {
       case 'checkbox':
-        return event.target.checked;
+        return (target as HTMLInputElement).checked;
       case 'file':
-        return event.target.files[0];
+        return (target as HTMLInputElement).files?.[0];
     }
 
-    return event.target.value;
+    return target.value;
   }
 
-  return event;
+  return eventOrValue;
 }
 
-export function Decorator(obj, decor) {
-  Object.assign(this, decor);
-
-  for (const i in obj) {
-    if (typeof obj[i] === 'function' && !decor[i]) {
-      this[i] = obj[i].bind(obj);
+export function forEach<T extends {}>(
+  obj: T | null | undefined,
+  func: <TProp extends string & keyof T>(value: T[TProp], prop: TProp) => void
+): void {
+  for (const prop in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, prop)) {
+      func(obj[prop], prop);
     }
   }
 }
 
-export function decorate(obj, decor) {
-  Decorator.prototype = obj;
-  return new Decorator(obj, decor);
-}
-
+// lodash/isEqual is not compatible with test case described in utils-test
 /**
  * Checking at equals params
- *
- * @param a
- * @param b
- * @returns {boolean}
  */
-export function isEqual(a, b) {
+export function isEqual(a: unknown, b: unknown): boolean {
   if (
     a === null ||
     b === null ||
@@ -239,6 +100,7 @@ export function isEqual(a, b) {
     return String(a) === String(b);
   }
 
+  // eslint-disable-next-line no-self-compare
   if (a === b || a.valueOf() === b.valueOf() || (a !== a && b !== b)) {
     return true;
   }
@@ -252,33 +114,27 @@ export function isEqual(a, b) {
     return false;
   }
 
-  if (typeof File === 'function' && a instanceof File) {
-    return a.size === b.size && a.name === b.name;
+  if (typeof File === 'function' && (a instanceof File || b instanceof File)) {
+    return a instanceof File && b instanceof File && a.size === b.size && a.name === b.name;
   }
 
-  if (a instanceof Set || a instanceof Map) {
-    return isEqual([...a], [...b]);
+  if (a instanceof Set || a instanceof Map || b instanceof Set || b instanceof Map) {
+    if ((a instanceof Set && b instanceof Set) || (a instanceof Map && b instanceof Map)) {
+      return isEqual([...a], [...b]);
+    }
+
+    return false;
   }
 
   const keys = Object.keys(a);
-  return Object.keys(b).every((key) => keys.includes(key)) && keys.every((key) => isEqual(a[key], b[key]));
+  return (
+    Object.keys(b).every((key) => keys.includes(key)) &&
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    keys.every((key) => isEqual((a as any)[key], (b as any)[key]))
+  );
 }
 
-/**
- * Clone object
- *
- * @param obj
- * @returns {*}
- */
-export function clone(obj) {
-  return baseClone(obj, false);
-}
-
-export function cloneDeep(obj) {
-  return baseClone(obj, true);
-}
-
-export function isEmpty(value) {
+export function isEmpty(value: unknown): boolean {
   if (!value) {
     return true;
   }
@@ -298,201 +154,24 @@ export function isEmpty(value) {
   return false;
 }
 
-export function isDefined(value) {
-  return value !== null && value !== undefined;
-}
-
-export function forEach(obj, func, ctx) {
-  for (const i in obj) {
-    func.call(ctx, obj[i], i);
-  }
-}
-
-export function pluck(arr, field) {
-  return arr.map((item) => item[field]);
-}
-
-export function find(arr, func) {
-  for (const i in arr) {
-    if (func(arr[i], i)) {
-      return arr[i];
-    }
-  }
-
-  return null;
-}
-
-export function findIndex(obj, func) {
-  for (const i in obj) {
-    if (func(obj[i], i)) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-export function omit(obj, predicate) {
-  const result = {};
-  for (const [field, value] of Object.entries(obj)) {
-    if (
-      (typeof predicate === 'string' && predicate !== field) ||
-      (Array.isArray(predicate) && !predicate.includes(field)) ||
-      (typeof predicate === 'function' && !predicate(value, field))
-    ) {
-      result[field] = value;
-    }
-  }
-
-  return result;
-}
-
-export function escape(string) {
-  const reUnescaped = /[&<>"'`]/g;
-  const escapes = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-    '`': '&#96;'
-  };
-  string = `${string === null ? '' : string.toString()}`;
-  if (string && reUnescaped.test(string)) {
-    return string.replace(reUnescaped, (chr) => escapes[chr]);
-  }
-
-  return string;
-}
-
-export function zipObject(keys, values) {
-  const result = {};
-  for (let i = 0; i < keys.length; i++) {
-    result[keys[i]] = values[i];
-  }
-
-  return result;
-}
-
-export function pick(obj, keys, defaultValue) {
-  return keys.reduce((result, key) => {
-    if (obj.hasOwnProperty(key)) {
-      result[key] = obj[key];
-    } else if (defaultValue !== undefined) {
-      result[key] = defaultValue;
-    }
-
-    return result;
-  }, {});
-}
-
-export function mapKeys(object, iteratee) {
-  const result = {};
-
-  for (const [key, value] of Object.entries(object)) {
-    result[iteratee(value, key)] = value;
-  }
-
-  return result;
-}
-
-export function reduce(obj, func, value) {
-  for (const i in obj) {
-    value = func(value, obj[i], i);
-  }
-
-  return value;
-}
-
-export function reduceMap(map, func, value) {
-  for (const [key, mapValue] of map) {
-    value = func(value, mapValue, key);
-  }
-
-  return value;
-}
-
-export function union(...args) {
-  const elements = {};
-  for (const arg of args) {
-    for (const el of arg) {
-      elements[el] = el;
-    }
-  }
-
-  return Object.values(elements);
-}
-
-export function at(obj, keys) {
-  const result = [];
-  if (!Array.isArray(keys)) {
-    return [obj[keys]];
-  }
-
-  for (const key of keys) {
-    result.push(obj[key]);
-  }
-
-  return result;
-}
-
-export function pairs(obj) {
-  const result = [];
-  for (const i in obj) {
-    result.push([i, obj[i]]);
-  }
-
-  return result;
-}
-
-export function toDate(value) {
-  let date;
-
-  if (typeof value === 'number') {
-    return new Date(value);
-  }
-
-  if (typeof value === 'string') {
-    date = new Date(value);
-    date.setTime(date.getTime() + date.getTimezoneOffset() * 60 * 1000); // Convert UTC to local time
-    return date;
-  }
-
-  return new Date(value);
-}
-
-export function without(arr, el) {
-  const result = [];
-  for (let i = 0; i < arr.length; i++) {
-    if (Array.isArray(el) ? indexOf(el, arr[i]) > -1 : isEqual(arr[i], el)) {
-      continue;
-    }
-
-    result.push(arr[i]);
-  }
-
-  return result;
-}
-
-export function last(arr) {
-  return arr[arr.length - 1];
-}
-
-export function getRecordChanges(model, data, changes, newChanges) {
+export function getRecordChanges<TRecord extends {}>(
+  getValidationDependency: (fields: (string & keyof TRecord)[]) => (string & keyof TRecord)[],
+  data: Partial<TRecord>,
+  changes: Partial<TRecord>,
+  newChanges: Partial<TRecord>
+): Partial<TRecord> {
   const result = {...changes, ...newChanges};
 
-  for (const fieldName of Object.keys(result)) {
+  for (const fieldName of keys(result)) {
     if (isEqual(data[fieldName], result[fieldName])) {
       delete result[fieldName];
     }
   }
 
-  Object.assign(result, pick(data, model.getValidationDependency(Object.keys(result))));
-
-  return result;
+  return {...result, ...pick(data, getValidationDependency(keys(result)))};
 }
 
-export function getStack(deep = 0) {
+export function getStack(deep = 0): string {
   // We add here try..catch because in IE Error.stack is available only
   // for thrown errors: https://msdn.microsoft.com/ru-ru/library/windows/apps/hh699850.aspx
 
@@ -501,10 +180,11 @@ export function getStack(deep = 0) {
   Error.stackTraceLimit = deep + 12;
   try {
     throw new Error();
-  } catch (e) {
-    if (e.stack) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.stack) {
       // Error.stack is unavailable in old browsers
-      stack = e.stack
+      stack = error.stack
         .split('\n')
         .slice(2 + deep) // Here we delete rows 'Error' and 'at getStack(utils.js:427)'
         .join('\n');
@@ -515,44 +195,36 @@ export function getStack(deep = 0) {
   return stack;
 }
 
-export function warn(message) {
+export function warn(message: string): void {
   console.warn(message, '\n', getStack(1));
 }
 
-export function toEncodedString(value) {
+export function toEncodedString(value: unknown): string {
   return encodeURIComponent(typeof value === 'string' ? value : JSON.stringify(value));
 }
 
-export function asyncHandler(router) {
-  return (req, res, next) => {
-    const promise = router(req, res, next);
-    if (promise && promise.then) {
-      return promise.catch(next);
-    }
-
-    next(new Error('asyncHandler expected to take async function.'));
-  };
-}
-
-export function parents(element, selector) {
+export function parents(element: Element, selector: string): Element[] {
+  let parentElement = element.parentElement;
   const result = [];
-  while ((element = element.parentElement)) {
-    if (element.matches(selector)) {
-      result.push(element);
+  while (parentElement) {
+    if (parentElement.matches(selector)) {
+      result.push(parentElement);
     }
+
+    parentElement = parentElement.parentElement;
   }
 
   return result;
 }
 
-export function parseJson(json, errorMessage = 'Incorrect JSON') {
-  let result;
-
-  try {
-    result = JSON.parse(json);
-  } catch (err) {
-    throw new ArgumentsError(errorMessage);
-  }
-
-  return result;
+export function keys<T extends {}>(obj: T): (string & keyof T)[] {
+  return Object.keys(obj) as (string & keyof T)[];
 }
+
+type Assert = (value: unknown, message?: string) => asserts value;
+
+export const assert: Assert = (value, message) => {
+  if (!value) {
+    throw new ArgumentsError(`Wrong value: "${value}"\nMessage: ${message || 'Expect trusty value'}`);
+  }
+};

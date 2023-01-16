@@ -6,157 +6,180 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import ThrottleError from '../common/error/ThrottleError';
 import EventEmitter from '../common/Events';
-import ThrottleError from '../common/ThrottleError';
-import {throttle, parseValueFromEvent, getRecordChanges, isEqual, isEmpty} from '../common/utils';
-import ValidationErrors from '../common/validation/ValidationErrors';
-import Validator from '../common/validation/Validator';
+import throttle from '../common/throttle';
+import {EventListener} from '../common/types';
+import {getRecordChanges, keys, parseValueFromEvent, isEmpty, isEqual, warn} from '../common/utils';
+import ValidationErrors from '../validation/ValidationErrors';
+import Validator from '../validation/Validator';
+import AbstractFormModel from './AbstractFormModel';
+import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import IFormService, {
+  IFormServiceEmptyState,
+  IFormServiceParams,
+  IFormServiceState,
+  IFormServiceStateFields,
+  IFormServiceListenerArgsByEventName
+} from './types/IFormService';
 
-class FormService {
-  constructor(fields = null) {
-    this._data = undefined;
-    this._changes = null;
-    this._errors = new ValidationErrors();
-    this._warnings = new ValidationErrors();
-    this._warningsValidator = null;
-    this._eventEmitter = new EventEmitter();
-    this._isNotInitialized = true;
+type InitalizedState<TRecord extends {}> =
+  | {
+      data: Partial<TRecord>;
+      initialized: true;
+      model: AbstractFormModel<TRecord, FormModelListenerArgsByEventName<TRecord>>;
+      warningsValidator: Validator<TRecord>;
+    }
+  | {
+      data: undefined;
+      initialized: false;
+      model: null;
+      warningsValidator: null;
+    };
+
+class FormService<TRecord extends {}, TAvailableField extends keyof TRecord & string>
+  implements IFormService<TRecord, TAvailableField>
+{
+  validating = false;
+  submitting = false;
+  private eventEmitter = new EventEmitter<IFormServiceListenerArgsByEventName<TRecord, TAvailableField>>();
+
+  private errors = new ValidationErrors<keyof TRecord & string>();
+  private warnings = new ValidationErrors<keyof TRecord & string>();
+  private hiddenValidationFields: (keyof TRecord & string)[] = [];
+
+  // next props will be redefined via the "init"
+  private changes: Partial<TRecord> = {};
+  private fields: readonly (keyof TRecord & string)[];
+  private partialErrorChecking = false;
+  private partialErrorCheckingDefault = false;
+  private submitAll = false;
+  private initalizedState: InitalizedState<TRecord> = {
+    initialized: false,
+    data: undefined,
+    model: null,
+    warningsValidator: null
+  };
+
+  constructor(fields: TAvailableField[] | undefined = []) {
     this.fields = fields;
-    this._validateForm = throttle(this._validateForm.bind(this));
+    this.throttledValidateForm = throttle(this.throttledValidateForm.bind(this));
     this.validateForm = this.validateForm.bind(this);
-    this._onModelChange = this._onModelChange.bind(this);
+    this.onModelChange = this.onModelChange.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.clearError = this.clearError.bind(this);
     this.clearValidation = this.clearValidation.bind(this);
     this.updateField = this.updateField.bind(this);
     this.validateField = this.validateField.bind(this);
-    this._getData = this._getData.bind(this);
-    this._getChanges = this._getChanges.bind(this);
+    this.getData = this.getData.bind(this);
+    this.getChanges = this.getChanges.bind(this);
   }
 
   /**
    * Initialize form
-   *
-   * @param {Object}            settings                                Configuration
-   * @param {Array}             settings.fields                         Fields list, that are required to display
-   * @param {FormModel}         settings.model                          Model of form
-   * @param {Object}            [settings.data]                         Preset data
-   * @param {Object}            [settings.changes                       Preset changes
-   * @param {bool}              [settings.submitAll=false]              Send all form for validity check
-   * @param {bool}              [settings.partialErrorChecking=false]   Activate partial gradual form validation
-   * @param {bool}              [settings.showDependentFields=false]    Mark the fields which are involved in the group validation
-   * @param {Validator}         [settings.warningsValidator]            Warnings validator for fields
    */
-  async init(settings) {
-    if (!settings.model) {
+  async init({
+    fields,
+    model,
+    data,
+    changes = {},
+    warningsValidator = new Validator(),
+    partialErrorChecking = false,
+    submitAll = false
+  }: IFormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>): Promise<void> {
+    if (!model) {
       throw new Error('You must specify the model');
     }
 
-    this._data = settings.data;
-    this._changes = settings.changes || {};
-    this._isSubmitting = false;
-    this.showDependentFields = settings.showDependentFields || false;
-    this._partialErrorChecking = settings.partialErrorChecking; // Current mode
-    this._partialErrorCheckingDefault = settings.partialErrorChecking; // Default mode
-    this.model = settings.model; // FormModel
-    this.submitAll = settings.submitAll;
-    this._warningsValidator = settings.warningsValidator || new Validator();
-
+    this.changes = changes;
+    this.hiddenValidationFields = [];
+    this.partialErrorCheckingDefault = this.partialErrorChecking = partialErrorChecking;
+    this.submitAll = submitAll;
     this.validating = false;
-    this._hiddenValidationFields = [];
     this.submitting = false;
-    this._isNotInitialized = false;
 
-    if (settings.hasOwnProperty('fields')) {
-      this.fields = settings.fields;
+    this.initalizedState.data = data;
+    this.initalizedState.model = model;
+    this.initalizedState.warningsValidator = warningsValidator;
+    this.initalizedState.initialized = true;
+
+    if (fields) {
+      this.fields = fields;
     }
 
-    if (!this._data) {
-      this._data = await settings.model.getData(this.fields);
+    if (!this.initalizedState.data) {
+      this.initalizedState.data = (await this.initalizedState.model.getData([
+        ...this.fields
+      ])) as Partial<TRecord>;
     }
 
-    this.model.on('update', this._onModelChange);
-    this._setState();
+    this.initalizedState.model.on('update', this.onModelChange);
+    this.setState();
 
-    if (!settings.partialErrorChecking) {
+    if (!this.partialErrorChecking) {
       await this.validateForm();
     }
   }
 
-  getAll() {
-    const isLoaded = this._isLoaded();
-
-    if (!isLoaded) {
-      const emptyData = {
-        isLoaded,
-        data: {},
-        originalData: {},
-        changes: {},
-        errors: new ValidationErrors(),
-        warnings: new ValidationErrors(),
-        isSubmitting: false
-      };
-      emptyData.fields = this._getFields(
-        emptyData.data,
-        emptyData.changes,
-        emptyData.errors,
-        emptyData.warnings
-      );
-      return emptyData;
+  getAll(): IFormServiceEmptyState<TRecord> | IFormServiceState<TRecord, TAvailableField> {
+    if (!this.isLoaded()) {
+      return this.getEmptyState();
     }
 
-    const data = this._getData();
-    const changes = this._getChangesFields();
-    const errors = this._getDisplayedErrors(this._errors);
-    const warnings = this._getDisplayedErrors(this._warnings);
+    const data = this.getData();
+    const changes = this.getChangesFields();
+    const errors = this.getDisplayedErrors(this.errors);
+    const warnings = this.getDisplayedErrors(this.warnings);
 
     return {
-      isLoaded,
+      isLoaded: true,
       data,
-      originalData: this._data,
+      originalData: this.initalizedState.data || {},
       changes,
       errors,
       warnings,
       // Note that we return errors and warnings both in bunch as a property and for each field separately
       // - it is redundantly, but handy :)
-      fields: this._getFields(data, changes, errors, warnings),
-      isSubmitting: this._isSubmitting
+      fields: this.getFields(data, changes, errors, warnings),
+      isSubmitting: this.submitting
     };
   }
 
   /**
    * Update form value. Is used as the Editors onChange handler
-   *
-   * @param {string}  field  Parameter
-   * @param {*}       value  Event or data
    */
-  async updateField(field, value) {
-    await this.set({
-      [field]: parseValueFromEvent(value)
-    });
+  async updateField<TField extends keyof TRecord & string>(
+    field: TField,
+    value: Element | TRecord[TField]
+  ): Promise<void> {
+    const changes: Partial<TRecord> = {};
+    changes[field] = parseValueFromEvent(value) as TRecord[TField] | undefined;
+
+    await this.set(changes);
   }
 
-  addChangeListener(func) {
-    this._eventEmitter.on('update', func);
+  addChangeListener(
+    func: EventListener<IFormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
+  ): void {
+    this.eventEmitter.on('update', func);
   }
 
-  removeChangeListener(func) {
-    this._eventEmitter.off('update', func);
-    if (this._eventEmitter.listenerCount('update') === 0 && !this._isNotInitialized) {
-      this.model.off('update', this._onModelChange);
+  removeChangeListener(
+    func: (state: ReturnType<IFormService<TRecord, TAvailableField>['getAll']>) => void
+  ): void {
+    this.eventEmitter.off('update', func);
+    if (this.eventEmitter.listenerCount('update') === 0 && this.initalizedState.initialized) {
+      this.initalizedState.model.off('update', this.onModelChange);
     }
   }
 
-  removeAllListeners() {
-    this._eventEmitter.removeAllListeners('update');
-    this.model.off('update', this._onModelChange);
+  removeAllListeners(): void {
+    this.eventEmitter.removeAllListeners('update');
+    this.initalizedState.model?.off('update', this.onModelChange);
   }
 
-  /**
-   * @param {string|string[]} fields
-   */
-  clearValidation(fields) {
-    if (this._isNotInitialized) {
+  clearValidation(fields: (keyof TRecord & string)[] | (keyof TRecord & string)): void {
+    if (!this.initalizedState.initialized) {
       return;
     }
 
@@ -168,58 +191,64 @@ class FormService {
     // shouldn't show error for field 'age' because the user has just focused it. Then user blured field 'age', a new
     // validation stated and it should show errors for field 'age'.
     if (Array.isArray(fields)) {
-      this._hiddenValidationFields.push(...fields);
+      this.hiddenValidationFields.push(...fields);
     } else {
-      this._hiddenValidationFields.push(fields);
+      this.hiddenValidationFields.push(fields);
     }
 
-    this._setState();
+    this.setState();
   }
 
-  clearError(field) {
-    console.warn('Deprecated: FormService method "clearError" renamed to "clearValidation"');
+  /**
+   * @deprecated
+   */
+  clearError(field: keyof TRecord & string): void {
+    warn('Deprecated: FormService method "clearError" renamed to "clearValidation"');
     this.clearValidation(field);
   }
 
-  async validateField(field, value) {
-    await this.set(
-      {
-        [field]: parseValueFromEvent(value)
-      },
-      true
-    );
+  async validateField<TField extends keyof TRecord & string>(
+    field: TField,
+    value: Element | TRecord[TField]
+  ): Promise<void> {
+    const changes: Partial<TRecord> = {};
+    changes[field] = parseValueFromEvent(value) as TRecord[TField] | undefined;
+
+    await this.set(changes, true);
   }
 
   /**
    * Set data in the form
-   *
-   * @param {Object}    data              Data
-   * @param {bool}      [validate=false]  Validate form
    */
-  async set(data, validate) {
-    if (!this._isLoaded()) {
+  async set(data: Partial<TRecord>, validate = false): Promise<void> {
+    if (!this.isLoaded() || !this.initalizedState.initialized) {
       return;
     }
 
-    this._changes = getRecordChanges(this.model, this._data, this._changes, data);
+    this.changes = getRecordChanges(
+      this.initalizedState.model.getValidationDependency.bind(this.initalizedState.model),
+      this.initalizedState.data,
+      this.changes,
+      data
+    );
 
-    const changedFields = Object.keys(data);
-    const validationDependencies = this.model.getValidationDependency(changedFields);
+    const changedFields = keys(data);
+    const validationDependencies = this.initalizedState.model.getValidationDependency(changedFields);
     this.clearValidation(changedFields.concat(validationDependencies));
 
     if (validate) {
       try {
         await this.validateForm();
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
+      } catch (error) {
+        if (!(error instanceof ThrottleError)) {
+          throw error;
         }
       }
     }
   }
 
-  async submitData(data) {
-    if (this._isNotInitialized) {
+  async submitData(data: Partial<TRecord>): Promise<Partial<TRecord> | undefined> {
+    if (!this.initalizedState.initialized) {
       return;
     }
 
@@ -230,51 +259,51 @@ class FormService {
   /**
    * Send form data to the model
    */
-  async submit() {
-    if (this._isNotInitialized || this._isSubmitting) {
+  async submit(): Promise<Partial<TRecord> | undefined> {
+    if (!this.initalizedState.initialized || this.submitting) {
       return;
     }
 
-    const changes = this._getChanges();
+    const changes = this.getChanges();
 
-    this._isSubmitting = true;
-    this._partialErrorChecking = false;
-    const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
+    this.submitting = true;
+    this.partialErrorChecking = false;
+    const countOfHiddenValidationFieldsToRemove = this.hiddenValidationFields.length;
 
-    this._setState();
+    this.setState();
 
     // Send changes to model
     let data;
     let validationErrors;
     try {
-      data = await this.model.submit(changes);
-    } catch (err) {
-      if (!(err instanceof ValidationErrors)) {
-        this._isSubmitting = false;
-        this._setState();
-        throw err;
+      data = await this.initalizedState.model.submit(changes);
+    } catch (error) {
+      if (!(error instanceof ValidationErrors)) {
+        this.submitting = false;
+        this.setState();
+        throw error;
       }
 
-      validationErrors = err;
+      validationErrors = error;
     }
 
-    this._isSubmitting = false;
+    this.submitting = false;
 
-    const newChanges = this._getChanges();
+    const newChanges = this.getChanges();
     const actualChanges = isEqual(changes, newChanges);
 
     if (actualChanges) {
       if (validationErrors) {
-        this._errors = validationErrors;
+        this.errors = validationErrors;
       } else {
-        this._errors = new ValidationErrors();
-        this._changes = {};
+        this.errors = new ValidationErrors();
+        this.changes = {};
       }
     }
 
-    this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
+    this.hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
 
-    this._setState();
+    this.setState();
 
     if (validationErrors) {
       throw validationErrors;
@@ -283,50 +312,64 @@ class FormService {
     return data;
   }
 
-  clearFieldChanges(field) {
-    if (this._isNotInitialized) {
+  clearFieldChanges(field: keyof TRecord & string): void {
+    if (!this.initalizedState.initialized) {
       return;
     }
 
-    this._errors.clearField(field);
-    this._warnings.clearField(field);
-    delete this._changes[field];
-    this._setState();
+    this.errors.clearField(field);
+    this.warnings.clearField(field);
+    delete this.changes[field];
+    this.setState();
   }
 
-  clearChanges() {
-    if (this._isNotInitialized) {
+  clearChanges(): void {
+    if (!this.initalizedState.initialized) {
       return;
     }
 
-    this._errors.clear();
-    this._warnings.clear();
-    this._changes = {};
-    this._partialErrorChecking = this._partialErrorCheckingDefault;
-    this._setState();
+    this.errors.clear();
+    this.warnings.clear();
+    this.changes = {};
+    this.partialErrorChecking = this.partialErrorCheckingDefault;
+    this.setState();
   }
 
-  setPartialErrorChecking(value) {
-    this._partialErrorChecking = value;
-    this._setState();
+  setPartialErrorChecking(value: boolean): void {
+    this.partialErrorChecking = value;
+    this.setState();
   }
 
-  getPartialErrorChecking() {
-    return this._partialErrorChecking;
+  getPartialErrorChecking(): boolean {
+    return this.partialErrorChecking;
   }
 
-  async validateForm() {
+  async validateForm(): Promise<
+    | {
+        errors: ValidationErrors<keyof TRecord & string> | null;
+        warnings: ValidationErrors<keyof TRecord & string> | null;
+      }
+    | undefined
+  > {
     try {
-      return await this._validateForm();
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
+      return await this.throttledValidateForm();
+    } catch (error) {
+      if (!(error instanceof ThrottleError)) {
+        throw error;
       }
     }
+
+    return undefined;
   }
 
-  async _validateForm() {
-    if (this._isNotInitialized) {
+  private async throttledValidateForm(): Promise<
+    | {
+        errors: ValidationErrors<keyof TRecord & string> | null;
+        warnings: ValidationErrors<keyof TRecord & string> | null;
+      }
+    | undefined
+  > {
+    if (!this.initalizedState.initialized) {
       return;
     }
 
@@ -335,25 +378,25 @@ class FormService {
     // 1 for old validation call and 1 for the new).
     // Take into account that _validateForm is throttled, so next calls will be skipped or scheduled after current call
     // finishes. It means we don't need to care about parallel calls because they are impossible.
-    const countOfHiddenValidationFieldsToRemove = this._hiddenValidationFields.length;
+    const countOfHiddenValidationFieldsToRemove = this.hiddenValidationFields.length;
     this.validating = true;
 
     let result;
     try {
       result = await Promise.all([
-        this._runValidator(this.model, this._getChanges, '_errors'),
-        this._runValidator(this._warningsValidator, this._getData, '_warnings')
+        this.runValidator(this.initalizedState.model, this.getChanges, 'errors'),
+        this.runValidator(this.initalizedState.warningsValidator, this.getData, 'warnings')
       ]);
     } finally {
       if (!result || (result[0] && result[1])) {
         this.validating = false;
-        this._hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
-        this._setState();
+        this.hiddenValidationFields.splice(0, countOfHiddenValidationFieldsToRemove);
+        this.setState();
       }
     }
 
-    const displayedErrors = this._getDisplayedErrors(this._errors);
-    const displayedWarning = this._getDisplayedErrors(this._warnings);
+    const displayedErrors = this.getDisplayedErrors(this.errors);
+    const displayedWarning = this.getDisplayedErrors(this.warnings);
 
     return {
       errors: !displayedErrors.isEmpty() ? displayedErrors : null,
@@ -361,11 +404,17 @@ class FormService {
     };
   }
 
-  _getFields(data, changes, errors, warnings) {
-    const proxy = new Proxy(
+  private getFields<TField extends TAvailableField>(
+    data: Partial<TRecord>,
+    changes: Partial<TRecord>,
+    errors: ValidationErrors<keyof TRecord & string>,
+    warnings: ValidationErrors<keyof TRecord & string>
+  ): IFormServiceStateFields<TRecord, TAvailableField> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const proxy: any = new Proxy(
       {},
       {
-        get(target, fieldName) {
+        get(_target, fieldName: TField): IFormServiceStateFields<TRecord, TAvailableField>[TField] {
           return {
             value: data[fieldName],
             isChanged: changes.hasOwnProperty(fieldName),
@@ -376,11 +425,10 @@ class FormService {
       }
     );
 
-    // Explicit declaration of fields in an object
-    if (this.fields) {
-      for (const field of this.fields) {
-        proxy[field] = proxy[field];
-      }
+    // Explicit declaration of fields in an object - original object displayed in console, no proxy
+    for (const field of this.fields) {
+      // eslint-disable-next-line no-self-assign
+      proxy[field] = proxy[field];
     }
 
     return proxy;
@@ -388,24 +436,20 @@ class FormService {
 
   /**
    * Check is data loaded
-   *
-   * @returns {boolean}
    */
-  _isLoaded() {
-    return this._data !== undefined;
+  private isLoaded(): boolean {
+    return this.initalizedState.data !== undefined;
   }
 
   /**
    * Get form changes
-   *
-   * @return {{}}
    */
-  _getChangesFields() {
+  private getChangesFields(): Partial<TRecord> {
     // TODO _getChanges
-    const changes = {};
-    for (const field in this._changes) {
-      if (!this._isDependentField(field)) {
-        changes[field] = this._changes[field];
+    const changes: Partial<TRecord> = {};
+    for (const field in this.changes) {
+      if (!this.isDependentField(field)) {
+        changes[field] = this.changes[field];
       }
     }
 
@@ -414,17 +458,17 @@ class FormService {
 
   /**
    * Filter errors depending on the partialErrorChecking mode and clearValidation method
-   *
-   * @param {ValidationErrors}  validationErrors
-   * @returns {ValidationErrors} Form fields
    */
-  _getDisplayedErrors(validationErrors) {
+  private getDisplayedErrors(
+    validationErrors: ValidationErrors<keyof TRecord & string>
+  ): ValidationErrors<keyof TRecord & string> {
     const filteredErrors = validationErrors.clone();
+    const data: Partial<TRecord> = this.initalizedState.data || {};
 
     for (const field of validationErrors.getErrors().keys()) {
       const isFieldPristine =
-        !this._changes.hasOwnProperty(field) || isEqual(this._changes[field], this._data[field]);
-      if (this._hiddenValidationFields.includes(field) || (this._partialErrorChecking && isFieldPristine)) {
+        !this.changes.hasOwnProperty(field) || isEqual(this.changes[field], data[field]);
+      if (this.hiddenValidationFields.includes(field) || (this.partialErrorChecking && isFieldPristine)) {
         filteredErrors.clearField(field);
       }
     }
@@ -432,39 +476,44 @@ class FormService {
     return filteredErrors;
   }
 
-  _setState() {
-    this._eventEmitter.trigger('update', this.getAll());
+  private setState(): void {
+    this.eventEmitter.trigger('update', this.getAll());
   }
 
   /**
    * Model records changes handler
-   *
-   * @param {Object} changes  Changes
-   * @private
    */
-  _onModelChange(changes) {
-    this._data = {...this._data, ...changes};
-    this._setState();
+  private onModelChange(changes: Partial<TRecord>): void {
+    this.initalizedState.data = {...this.initalizedState.data, ...changes};
+    this.setState();
   }
 
-  _getData() {
-    return {...this._data, ...this._changes};
+  private getData(): Partial<TRecord> {
+    return {...this.initalizedState.data, ...this.changes};
   }
 
-  _getChanges() {
+  private getChanges(): Partial<TRecord> {
     // Send all data or just changed fields in addiction of form configuration
     if (this.submitAll) {
-      return this._getData();
+      return this.getData();
     }
 
-    return this._changes;
+    return this.changes;
   }
 
-  _isDependentField(field) {
-    return this._changes.hasOwnProperty(field) && isEqual(this._changes[field], this._data[field]);
+  private isDependentField(field: keyof TRecord & string): boolean {
+    return (
+      this.changes.hasOwnProperty(field) && isEqual(this.changes[field], this.initalizedState.data?.[field])
+    );
   }
 
-  async _runValidator(validator, getData, output) {
+  private async runValidator(
+    validator: {
+      isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TRecord & string>>;
+    },
+    getData: () => Partial<TRecord>,
+    output: 'errors' | 'warnings'
+  ): Promise<boolean> {
     const data = getData();
     if (isEmpty(data)) {
       this[output].clear();
@@ -474,9 +523,9 @@ class FormService {
     let validErrors;
     try {
       validErrors = await validator.isValidRecord(data);
-    } catch (e) {
+    } catch (error) {
       this[output].clear();
-      throw e;
+      throw error;
     }
 
     if (!isEqual(data, getData())) {
@@ -485,6 +534,24 @@ class FormService {
 
     this[output] = validErrors;
     return true;
+  }
+
+  private getEmptyState(): IFormServiceEmptyState<TRecord> {
+    const data: IFormServiceEmptyState<TRecord>['data'] = {};
+    const changes: IFormServiceEmptyState<TRecord>['changes'] = {};
+    const errors: IFormServiceEmptyState<TRecord>['errors'] = new ValidationErrors();
+    const warnings: IFormServiceEmptyState<TRecord>['warnings'] = new ValidationErrors();
+
+    return {
+      fields: this.getFields(data, changes, errors, warnings),
+      isLoaded: false,
+      isSubmitting: false,
+      originalData: {},
+      data,
+      changes,
+      errors,
+      warnings
+    };
   }
 }
 

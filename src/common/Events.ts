@@ -6,43 +6,56 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-type EventListener<TParams extends unknown[]> = (...args: TParams) => void;
-type Subscribers<TListeners> = {
-  [K in keyof TListeners & string]?: TListeners[K][];
+import {EventListener, IObservable} from './types';
+
+type Subscribers<TListenerArgsByEventName extends Record<string, unknown[]>> = {
+  [K in keyof TListenerArgsByEventName & string]?: EventListener<TListenerArgsByEventName[K]>[];
 };
 
+// TODO Vlad rename file to EventsModel
 /**
  * Events control model
  */
-class EventsModel<TListeners extends Record<string, EventListener<unknown[]>>> {
-  private subscribers: Subscribers<TListeners> = {};
+class EventsModel<TListenerArgsByEventName extends Record<string, unknown[]>>
+  implements IObservable<TListenerArgsByEventName>
+{
+  private subscribers: Subscribers<TListenerArgsByEventName> = {};
 
-  on<TEventName extends keyof TListeners & string>(event: TEventName, cb: TListeners[TEventName]): void {
-    const listeners = this.subscribers[event] || [];
-    this.subscribers[event] = listeners;
+  on<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ): this {
+    const listeners = this.subscribers[eventName] || [];
+    this.subscribers[eventName] = listeners;
 
     listeners.push(cb);
+    return this;
   }
 
-  off<TEventName extends keyof TListeners & string>(event: TEventName, cb: TListeners[TEventName]): void {
-    const listeners = this.subscribers[event] || [];
-    this.subscribers[event] = listeners.filter((listener) => listener !== cb);
+  off<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ): this {
+    const listeners = this.subscribers[eventName] || [];
+    this.subscribers[eventName] = listeners.filter((listener) => listener !== cb);
+
+    return this;
   }
 
-  trigger<TEventName extends keyof TListeners & string>(
+  trigger<TEventName extends keyof TListenerArgsByEventName & string>(
     event: TEventName,
-    ...params: Parameters<TListeners[TEventName]>
+    ...params: TListenerArgsByEventName[TEventName]
   ): void {
     for (const subscriber of this.subscribers[event] || []) {
       subscriber(...params);
     }
   }
 
-  listenerCount(event: keyof TListeners & string): number {
+  listenerCount(event: keyof TListenerArgsByEventName & string): number {
     return this.subscribers[event]?.length || 0;
   }
 
-  removeAllListeners(event: keyof TListeners & string): void {
+  removeAllListeners(event: keyof TListenerArgsByEventName & string): void {
     this.subscribers[event] = [];
   }
 }

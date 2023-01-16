@@ -7,90 +7,79 @@
  */
 
 import EventsModel from '../../common/Events';
-import ValidationErrors from '../../common/validation/ValidationErrors';
+import {EventListener, IObservable} from '../../common/types';
+import ValidationErrors from '../../validation/ValidationErrors';
+import {
+  IGridModelReadParams,
+  IGridModel,
+  IGridModelReadResult,
+  IGridModelUpdateResult
+} from './types/IGridModel';
 
 /**
  * Grid model abstraction
- *
- * @constructor
- * @extends EventsModel
  */
-class AbstractGridModel extends EventsModel {
-  constructor() {
-    super();
+abstract class AbstractGridModel<
+  TKey,
+  TRecord extends {},
+  TFilters,
+  TListenerArgsByEventName extends Record<string, unknown[]>
+> implements IGridModel<TKey, TRecord, TFilters>, IObservable<TListenerArgsByEventName>
+{
+  private eventsModel = new EventsModel<TListenerArgsByEventName>();
+
+  async create(_record: Partial<TRecord>): Promise<TKey> {
+    throw Error('method "create" not implemented yet');
   }
 
-  /**
-   * Add a record
-   *
-   * @param {Object}      record  Record object
-   * @abstract
-   */
-  create(/* record */) {
-    return Promise.resolve();
+  async read(
+    _params: IGridModelReadParams<TKey, TRecord, TFilters>
+  ): Promise<IGridModelReadResult<TKey, TRecord>> {
+    return {
+      records: []
+    };
   }
 
-  /**
-   * Get records list
-   *
-   * @param {Object}      settings                Request
-   * @param {Array}       settings.fields         Fields
-   * @param {number}      [settings.limit]        Limit
-   * @param {number}      [settings.offset]       Offset
-   * @param {Object}      [settings.filters]      Filter values object
-   * @param {Array}       [settings.sort]         Sort parameters
-   * @param {Array}       [settings.extra]        Record IDs, we need to get for sure
-   * @abstract
-   */
-  read(/* settings */) {
-    return Promise.resolve({
-      records: [], // Primary records
-      ids: [], // Extra records
-      extraRecords: 0 // In all records count
-    });
+  async getRecord(_id: TKey, _fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
+    return {};
   }
 
-  /**
-   * Get the particular record
-   *
-   * @param {*}         id      Record ID
-   * @param {Array}     fields  Required fields
-   * @abstract
-   */
-  getRecord(/* id, fields */) {
-    return Promise.resolve();
-  }
-
-  /**
-   * Apply record changes
-   *
-   * @param {Array}       changes     Changes array
-   * @abstract
-   */
-  update(/* changes */) {
-    return Promise.resolve([]);
-  }
-
-  /**
-   * Validation check
-   *
-   * @param {Object}      record
-   * @param {*|null}      recordId
-   * @abstract
-   */
-  isValidRecord(/* record, recordId */) {
-    return Promise.resolve(new ValidationErrors());
-  }
-
-  /**
-   * Get all dependent fields, that are required for validation
-   *
-   * @param   {Array}  fields   Fields list
-   * @returns {Array}  Dependencies
-   * @abstract
-   */
-  getValidationDependency() {
+  async update(_changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
     return [];
+  }
+
+  async isValidRecord(
+    _record: Partial<TRecord>,
+    _recordId?: TKey | null
+  ): Promise<ValidationErrors<keyof TRecord & string>> {
+    return new ValidationErrors();
+  }
+
+  getValidationDependency(_fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return [];
+  }
+
+  on<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ): this {
+    this.eventsModel.on(eventName, cb);
+    return this;
+  }
+
+  off<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ): this {
+    this.eventsModel.off(eventName, cb);
+    return this;
+  }
+
+  protected trigger<TEventName extends keyof TListenerArgsByEventName & string>(
+    eventName: TEventName,
+    ...args: TListenerArgsByEventName[TEventName]
+  ): void {
+    this.eventsModel.trigger(eventName, ...args);
   }
 }
 

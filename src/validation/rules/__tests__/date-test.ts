@@ -111,7 +111,7 @@ describe('Can not be empty', () => {
 });
 
 describe('Error message is not defined', () => {
-  const validator = dateValidator(/./);
+  const validator = dateValidator(undefined, undefined);
   it('Should be return default message', () => {
     expect(validator('abc')).toEqual('Invalid date');
   });

@@ -1,3 +1,4 @@
+// TODO Vlad try add "unicorn"
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
@@ -7,7 +8,8 @@
     "ecmaFeatures": {
       "jsx": true,
       "modules": true
-    }
+    },
+    "project": "./tsconfig.json"
   },
   "plugins": [
     "@typescript-eslint",
@@ -60,28 +62,6 @@
       }
     ],
 
-    "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
-    "@typescript-eslint/no-parameter-properties": ["error", {"allows": ["private", "private readonly"]}],
-    "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/member-ordering": "error",
-    "@typescript-eslint/lines-between-class-members": ["error", "always", {"exceptAfterSingleLine": true}],
-    "@typescript-eslint/ban-ts-comment": "off",
-    "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-var-requires": "error",
-    "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/consistent-type-assertions": "error",
-
-    "typescript-custom-sort-keys/interface": [
-      "error",
-      "asc",
-      {
-        "caseSensitive": true,
-        "displayFirst": ["id"],
-        "showFunctionsAtEnd": true
-      }
-    ],
-
     "import/first": "error",
     "import/newline-after-import": "error",
     "import/no-duplicates": "error",
@@ -90,14 +70,7 @@
       "error",
       {
         "newlines-between": "never",
-        "alphabetize": {"order": "asc", "caseInsensitive": true},
-        "pathGroups": [
-          {
-            "pattern": "@evidnt/**",
-            "group": "external",
-            "position": "before"
-          }
-        ]
+        "alphabetize": {"order": "asc", "caseInsensitive": true}
       }
     ],
 
@@ -105,11 +78,6 @@
     "react/react-in-jsx-scope": "off",
     "react/jsx-uses-react": "warn",
     "react/jsx-uses-vars": "warn",
-    // "react/no-is-mounted": "off",
-    // "react/no-direct-mutation-state": "off",
-    // "react/no-find-dom-node": "off",
-
-    "react-hooks/exhaustive-deps": "off",
 
     "jest/no-mocks-import": "off",
 
@@ -118,7 +86,6 @@
     "eol-last": "error",
     "no-trailing-spaces": "error",
     "quotes": ["error", "single", {"avoidEscape": true, "allowTemplateLiterals": true}],
-    // "strict": ["off", "global"],
     "strict": [2, "never"],
     "no-underscore-dangle": "off",
     "no-loop-func": "off",
@@ -140,7 +107,8 @@
       }
     ],
     "comma-dangle": ["error", "never"],
-    "camelcase": "off",
+    "complexity": "off",
+    "max-params": ["error", {"max": 10}],
     "no-unused-vars": ["error", {"vars": "all", "args": "after-used"}],
     "jsx-quotes": ["error", "prefer-double"],
     "no-case-declarations": "off",
@@ -183,10 +151,48 @@
     {
       "files": ["*.ts", "*.tsx"],
       "rules": {
+        "typescript-custom-sort-keys/interface": [
+          "error",
+          "asc",
+          {
+            "caseSensitive": true,
+            "displayFirst": ["id"],
+            "showFunctionsAtEnd": true
+          }
+        ],
+
         "@typescript-eslint/no-unused-vars": [
           "error",
           {"vars": "all", "args": "after-used", "argsIgnorePattern": "^_"}
         ],
+        "@typescript-eslint/lines-between-class-members": [
+          "error",
+          "always",
+          {"exceptAfterSingleLine": true}
+        ],
+        "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
+        "@typescript-eslint/no-parameter-properties": ["error", {"allows": ["private", "private readonly"]}],
+        "@typescript-eslint/consistent-type-definitions": "off",
+        "@typescript-eslint/member-ordering": "error",
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-explicit-any": ["error"],
+        "@typescript-eslint/no-var-requires": "error",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/consistent-type-assertions": "error",
+        "@typescript-eslint/explicit-function-return-type": ["error", {"allowExpressions": true}],
+        "@typescript-eslint/no-non-null-assertion": "error",
+        "@typescript-eslint/prefer-ts-expect-error": "error",
+        "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
+        "@typescript-eslint/prefer-return-this-type": "error",
+        "@typescript-eslint/no-redundant-type-constituents": "error",
+        "@typescript-eslint/no-unnecessary-qualifier": "error",
+        "@typescript-eslint/sort-type-constituents": ["error", {"checkIntersections": false}],
+        "@typescript-eslint/switch-exhaustiveness-check": "error",
+        "@typescript-eslint/array-type": "error",
+
+        "no-throw-literal": "off",
+        "no-magic-numbers": "off",
         "no-unused-vars": "off",
         "no-undef": "off"
       }

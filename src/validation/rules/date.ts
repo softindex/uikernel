@@ -6,12 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined, toDate} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, min, max, error, value) {
-  error = error || 'Invalid date';
+type Limit = Date | number | string | null | undefined;
 
-  if (!isDefined(value)) {
+const INVALID_DATE = 'Invalid Date';
+
+function baseValidator(
+  notNull: boolean,
+  min: Limit,
+  max: Limit,
+  error = 'Invalid date',
+  value: unknown
+): string | undefined {
+  if (isNil(value)) {
     if (notNull) {
       return error;
     }
@@ -19,34 +27,52 @@ function baseValidator(notNull, min, max, error, value) {
     return;
   }
 
-  const typeOfValue = typeof value;
-  if (typeOfValue !== 'number' && typeOfValue !== 'string' && !(value instanceof Date)) {
+  const date = toDate(value);
+  if (!date) {
     return error;
   }
 
-  value = toDate(value);
-  if (isNaN(value)) {
+  const [minDate, maxDate] = [toDate(min), toDate(max)];
+
+  if (minDate && minDate > date) {
     return error;
   }
 
-  if (min && toDate(min) > value) {
+  if (maxDate && maxDate < date) {
     return error;
   }
 
-  if (max && toDate(max) < value) {
-    return error;
-  }
+  return;
+}
+
+export interface DateValidation {
+  (min: Limit, max: Limit, error?: string): (value: unknown) => string | undefined;
+  notNull: (min: Limit, max: Limit, error?: string) => (value: unknown) => string | undefined;
 }
 
 /**
  * Create date validator
- *
- * @param {Date}    [min]   Min date
- * @param {Date}    [max]   Max date
- * @param {string}  error   Error message
- * @returns {Function} Validator
  */
-const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
+const validator: DateValidation = (min, max, error) => baseValidator.bind(null, false, min, max, error);
 validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
+
+function toDate(value: unknown): Date | null {
+  const typeOfValue = typeof value;
+  if (typeOfValue !== 'number' && typeOfValue !== 'string' && !(value instanceof Date)) {
+    return null;
+  }
+
+  const date = new Date(value as Date | number | string);
+
+  if (date.toString() === INVALID_DATE) {
+    return null;
+  }
+
+  if (typeof value === 'string') {
+    date.setTime(date.getTime() + date.getTimezoneOffset() * 60 * 1000); // Convert UTC to local time
+  }
+
+  return date;
+}
 
 export default validator;

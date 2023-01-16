@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {warn} from '../common/utils';
+import {warn} from './utils';
 
 const functionsNames = [];
 
-export default function (func, hideWarning = false) {
+function callbackify(func, hideWarning = false) {
   const funcName = func.name;
 
   return function (...args) {
@@ -23,8 +23,9 @@ export default function (func, hideWarning = false) {
         functionsNames.push(funcName);
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-invalid-this
       const result = func.apply(this, args);
-      if (result && result.then) {
+      if (result?.then) {
         result
           .then((data) => {
             cb(null, data);
@@ -34,7 +35,10 @@ export default function (func, hideWarning = false) {
           });
       }
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-invalid-this
       return func.apply(this, args);
     }
   };
 }
+
+export default callbackify;

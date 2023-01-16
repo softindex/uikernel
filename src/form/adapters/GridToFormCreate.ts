@@ -6,67 +6,55 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import Events from '../../common/Events';
-import {pick} from '../../common/utils';
+import pick from 'lodash/pick';
+import {IObservable} from '../../common/types';
+import AbstractGridModel from '../../grid/models/AbstractGridModel';
+import ValidationErrors from '../../validation/ValidationErrors';
+import {IFormModel} from '../types/IFormModel';
 
-class GridToFormCreate extends Events {
-  /**
-   * Adapter allows to use Grid model as a model for new form record creation
-   *
-   * @param {AbstractGridModel}   model           Grid model
-   * @param {Object}              [initialData]   Default field values
-   * @constructor
-   */
-  constructor(model, initialData) {
-    super();
+// TODO dispatch events not implemented
+/**
+ * Adapter allows to use Grid model as a model for new form record creation
+ */
+class GridToFormCreate<TKey, TRecord extends {}, TFilters> implements IFormModel<TRecord>, IObservable<{}> {
+  constructor(
+    private gridModel: AbstractGridModel<TKey, TRecord, TFilters, {}>,
+    private initialData: Partial<TRecord> = {}
+  ) {}
 
-    this._adapter = {
-      model: model,
-      initialData: initialData || {}
-    };
-  }
-
-  /**
-   * Get data
-   *
-   * @param {Array}     fields     Required fields
-   */
-  async getData(fields) {
-    if (fields && fields.length) {
-      return pick(this._adapter.initialData, fields);
+  getData(): Promise<Partial<TRecord>>;
+  getData<TField extends keyof TRecord & string>(
+    fields: TField[] | readonly TField[]
+  ): Promise<Partial<Pick<TRecord, TField>>>;
+  async getData<TField extends keyof TRecord & string>(
+    fields?: TField[] | readonly TField[]
+  ): Promise<Partial<Pick<TRecord, TField>>> {
+    if (fields?.length) {
+      return pick(this.initialData, fields);
     }
 
-    return this._adapter.initialData;
+    return this.initialData;
   }
 
-  /**
-   * Create new record
-   *
-   * @param   {Object}      data      Record
-   */
-  async submit(data) {
-    const model = this._adapter.model;
-    return await model.create(data);
+  async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
+    await this.gridModel.create(changes);
+    return changes;
   }
 
-  /**
-   * Validation checking
-   *
-   * @param {Object}      record  Record object
-   */
-  async isValidRecord(record) {
-    const model = this._adapter.model;
-    return await model.isValidRecord(record, null);
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+    return await this.gridModel.isValidRecord(record);
   }
 
-  /**
-   * Get all dependent fields, that are required for validation
-   *
-   * @param   {Array}  fields
-   * @returns {Array}  Dependencies
-   */
-  getValidationDependency(fields) {
-    return this._adapter.model.getValidationDependency(fields);
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return this.gridModel.getValidationDependency(fields);
+  }
+
+  on(): this {
+    return this;
+  }
+
+  off(): this {
+    return this;
   }
 }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-invalid-this */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -6,20 +7,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import clone from 'lodash/clone';
+import cloneDeep from 'lodash/cloneDeep';
 import callbackify from '../common/callbackify';
+import throttle from '../common/throttle';
 import toPromise from '../common/toPromise';
-import {
-  throttle,
-  isEmpty,
-  isEqual,
-  cloneDeep,
-  parseValueFromEvent,
-  getRecordChanges,
-  forEach,
-  clone
-} from '../common/utils';
-import ValidationErrors from '../common/validation/ValidationErrors';
-import Validator from '../common/validation/Validator';
+import {parseValueFromEvent, getRecordChanges, forEach, isEmpty, isEqual} from '../common/utils';
+import ValidationErrors from '../validation/ValidationErrors';
+import Validator from '../validation/Validator';
 
 /**
  * Grid form mixin
@@ -107,11 +102,7 @@ const FormMixin = {
    * @returns {boolean}
    */
   isLoaded: function () {
-    return (
-      this.state &&
-      this.state._formMixin &&
-      Boolean(this.state._formMixin.data || this.state._formMixin.globalError)
-    );
+    return this.state?._formMixin && Boolean(this.state._formMixin.data || this.state._formMixin.globalError);
   },
 
   /**
@@ -332,17 +323,16 @@ const FormMixin = {
   },
 
   validateForm: function (cb) {
-    this._validateForm(function (err) {
-      if (typeof cb === 'function') {
-        return cb(err);
-      }
+    const handler =
+      typeof cb === 'function'
+        ? cb
+        : (error) => {
+            if (error && !(error instanceof ValidationErrors)) {
+              console.error(error);
+            }
+          };
 
-      if (err) {
-        if (!(err instanceof ValidationErrors)) {
-          console.error(err);
-        }
-      }
-    });
+    this._validateForm().then(handler).catch(handler);
   },
 
   /**
@@ -357,13 +347,20 @@ const FormMixin = {
       return;
     }
 
+    let callback = cb;
+    let needValidate = validate;
     if (typeof validate === 'function' && !cb) {
-      cb = validate;
-      validate = false;
+      callback = validate;
+      needValidate = false;
     }
 
     const state = this.state._formMixin;
-    state.changes = getRecordChanges(state.model, state.data, state.changes, data);
+    state.changes = getRecordChanges(
+      state.model.getValidationDependency.bind(state.model),
+      state.data,
+      state.changes,
+      data
+    );
 
     const changedFields = Object.keys(data);
     const validationDependencies = this.state._formMixin.model.getValidationDependency(changedFields);
@@ -375,19 +372,19 @@ const FormMixin = {
     if (this.state._formMixin.autoSubmit) {
       this.submit((err, result) => {
         this.state._formMixin.autoSubmitHandler(err, result);
-        if (typeof cb === 'function') {
-          cb(err, result);
+        if (typeof callback === 'function') {
+          callback(err, result);
         }
       });
       return;
     }
 
-    if (validate) {
-      this.setState(this.state, () => this.validateForm(cb));
+    if (needValidate) {
+      this.setState(this.state, () => this.validateForm(callback));
       return;
     }
 
-    this.setState(this.state, typeof cb === 'function' ? cb : null);
+    this.setState(this.state, typeof callback === 'function' ? callback : null);
   },
 
   submitData: function (data, cb) {
@@ -458,15 +455,11 @@ const FormMixin = {
       this.state._formMixin.errors = new ValidationErrors();
       this.state._formMixin.changes = {};
     } else {
-      forEach(
-        changes,
-        function (value, field) {
-          if (isEqual(value, newChanges[field])) {
-            delete this.state._formMixin.changes[field];
-          }
-        },
-        this
-      );
+      forEach(changes, (value, field) => {
+        if (isEqual(value, newChanges[field])) {
+          delete this.state._formMixin.changes[field];
+        }
+      });
     }
 
     await toPromise(this.setState.bind(this), true)(this.state);
@@ -557,7 +550,7 @@ const FormMixin = {
   },
 
   _isNotInitialized: function () {
-    return !this.state || !this.state._formMixin;
+    return !this.state?._formMixin;
   },
 
   _validateForm: function (cb, stop) {
@@ -654,4 +647,4 @@ const FormMixin = {
   }
 };
 
-export default FormMixin;
+module.exports = FormMixin;

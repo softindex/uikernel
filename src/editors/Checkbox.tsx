@@ -8,17 +8,16 @@
 
 import React from 'react';
 
-type Props = {
+type Props = React.InputHTMLAttributes<HTMLInputElement> & {
   indeterminate: boolean;
 };
 
-function Checkbox(props: Props) {
-  const {indeterminate, ...otherProps} = props;
+function Checkbox({indeterminate, ...otherProps}: Props): JSX.Element {
   return (
     <input
       {...otherProps}
       type="checkbox"
-      ref={(input) => {
+      ref={(input): void => {
         if (input) {
           input.indeterminate = indeterminate;
         }

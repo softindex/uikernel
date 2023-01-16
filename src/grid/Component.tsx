@@ -1,3 +1,5 @@
+/* eslint-disable react/no-direct-mutation-state */
+/* eslint-disable react/no-unsafe */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -10,168 +12,188 @@
  * React table component
  */
 
-import PropTypes from 'prop-types';
+import cloneDeep from 'lodash/cloneDeep';
+import union from 'lodash/union';
 import React from 'react';
 import EqualMap from '../common/EqualMap';
-import ThrottleError from '../common/ThrottleError';
+import ThrottleError from '../common/error/ThrottleError';
+import throttle from '../common/throttle';
+import {EventListener, IObservable} from '../common/types';
 import {
-  throttle,
-  isEqual,
-  union,
-  cloneDeep,
-  getRecordChanges,
-  isEmpty,
+  assert,
   forEach,
+  getRecordChanges,
   indexOf,
-  clone,
-  at,
   parseValueFromEvent,
-  findIndex
+  isEmpty,
+  isEqual,
+  warn
 } from '../common/utils';
-import ValidationErrors from '../common/validation/ValidationErrors';
+import ValidationErrors from '../validation/ValidationErrors';
+import Validator from '../validation/Validator';
+import {GridModelListenerArgsByEventName} from './models/types/GridModelListenerArgsByEventName';
+import {
+  IGridModel,
+  IGridModelReadParams,
+  IGridModelReadResult,
+  IGridModelSortMode
+} from './models/types/IGridModel';
 import PureGridComponent from './PureGridComponent';
+import {EditorContext, GridColumns} from './types/GridColumns';
+import {GridEditor, IGridRef, SortElementProps, SortRuleType} from './types/IGridRef';
+import {getNextMultipleSorting, getNextSingleSorting} from './utils';
 
-const RESET_MODEL = 'RESET_MODEL';
-const RESET_VIEW_COLUMNS = 'RESET_VIEW_COLUMNS';
-const RESET_SORT = 'RESET_SORT';
-const RESET_VIEW_COUNT = 'RESET_VIEW_COUNT';
-const RESET_SELECTED_COLUMNS = 'RESET_SELECTED_COLUMNS';
-const RESET_BLACK_LIST_MODE = 'RESET_BLACK_LIST_MODE';
-const RESET_STATUSES = 'RESET_STATUSES';
+const ERROR_MESSAGE_DATA_UNAVAILABLE = '"data" is not avaiable yet';
+const ERROR_MESSAGE_MODEL_UNAVAILABLE = '"model" is not avaiable yet';
+
+enum ResetFlag {
+  Model = 'RESET_MODEL',
+  Sort = 'RESET_SORT',
+  ViewCount = 'RESET_VIEW_COUNT',
+  SelectedColumns = 'RESET_SELECTED_COLUMNS',
+  Statuses = 'RESET_STATUSES'
+}
+
 const ENTER_KEY = 13;
 const ESCAPE_KEY = 27;
 
-const propTypes = (() => {
-  const sortElementProp = PropTypes.shape({
-    column: PropTypes.string,
-    direction: PropTypes.any
-  });
-  const sortProp = PropTypes.oneOfType([sortElementProp, PropTypes.arrayOf(sortElementProp)]);
-  return {
-    className: PropTypes.string,
-    model: PropTypes.shape({
-      read: PropTypes.func.isRequired,
-      update: PropTypes.func,
-      isValidRecord: PropTypes.func,
-      getValidationDependency: PropTypes.func,
-      on: PropTypes.func,
-      off: PropTypes.func
-    }),
-    columns: PropTypes.object,
-    viewColumns: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.string), PropTypes.object]),
-    selected: PropTypes.array,
-    // sort: PropTypes.object,
-    page: PropTypes.number,
-    defaultViewCount: PropTypes.number,
-    viewCount: PropTypes.number,
-    viewVariants: PropTypes.arrayOf(PropTypes.number),
-    onChangeViewCount: PropTypes.func,
-    onChange: PropTypes.func,
-    onError: PropTypes.func,
-    onPageLoad: PropTypes.func,
-    onInit: PropTypes.func,
-    onDestroy: PropTypes.func,
-    autoSubmit: PropTypes.bool,
-    height: PropTypes.number,
-    onSelectedChange: PropTypes.func,
-    onSorting: PropTypes.func,
-    multipleSorting: PropTypes.bool,
-    selectAllStatus: PropTypes.any,
-    statuses: PropTypes.any,
-    onToggleSelected: PropTypes.func,
-    onToggleSelectAll: PropTypes.func,
-    defaultSort: (props, propName, ...rest) => {
-      if (!props.defaultSort) {
-        return;
-      }
+type Props<
+  TKey,
+  TRecord extends {},
+  TFilters,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+  TMultipleSorting extends boolean
+> = {
+  autoSubmit?: boolean;
+  className?: string;
+  columns: TColumns;
+  defaultSort?: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>;
+  defaultViewCount: number;
+  height?: number;
+  model?: IGridModel<TKey, TRecord, TFilters> & IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>;
+  multipleSorting?: TMultipleSorting;
+  page: number;
+  pageSizeLabel: string;
+  partialErrorChecking: boolean;
+  selectAllStatus?: string;
+  selected: TKey[];
+  sort?: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>;
+  statuses?: EqualMap<TKey, Set<string>>;
+  viewColumns?: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean};
+  viewCount?: number;
+  viewVariants?: number[];
+  warningsValidator?: Validator<TRecord>;
+  onChange?: (changes: EqualMap<TKey, Partial<TRecord>>) => void;
+  onChangeViewCount?: (viewCount: number) => void;
+  onDestroy?: () => void;
+  onError?: (error: Error) => void;
+  onInit?: () => void;
+  onPageLoad?: (data: IGridModelReadResult<TKey, TRecord>) => void;
+  onSelectedChange?: (selected: TKey[], selectedCount: number) => void;
+  onSorting?: <TColumnId extends string & keyof TColumns & keyof TRecord>(
+    newSorts: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>,
+    column?: TColumnId,
+    direction?: IGridModelSortMode
+  ) => void;
+  onToggleSelectAll?: () => void;
+  onToggleSelected?: (recordId: TKey) => void;
+};
 
-      const validProp = sortProp(props, propName, ...rest);
-      if (validProp) {
-        return validProp;
-      }
+type State<TKey, TRecord extends {}, TColumnId extends string, TMultipleSorting extends boolean> = {
+  changes: EqualMap<TKey, Partial<TRecord>>;
+  count: number;
+  data: EqualMap<TKey, Partial<TRecord>> | null;
+  editor: GridEditor<TKey, TColumnId>;
+  errors: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  extra: EqualMap<TKey, Partial<TRecord>>;
+  page: number;
+  partialErrorChecking: boolean;
+  selectBlackListMode: boolean;
+  selected: TKey[];
+  showLoader: boolean;
+  sort: SortRuleType<TMultipleSorting, TColumnId & keyof TRecord>;
+  statuses: EqualMap<TKey, Set<string>>;
+  totals: Partial<TRecord>;
+  viewCount: number;
+  warnings: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+};
 
-      if (props.hasOwnProperty('sort')) {
-        return Error('You can not set "defaultSort" when the "sort" prop is specified');
-      }
-    },
-    sort: (props, propName, ...rest) => {
-      if (!props.sort) {
-        return;
-      }
-
-      const validProp = sortProp(props, propName, ...rest);
-      if (validProp) {
-        return validProp;
-      }
-
-      if (!props.onSorting) {
-        return Error('You need to define the "onSorting" prop when "sort" is set');
-      }
-    },
-    saveFullRecord: PropTypes.bool,
-    partialErrorChecking: PropTypes.bool,
-    warningsValidator: PropTypes.shape({
-      isValidRecord: PropTypes.func,
-      getValidationDependency: PropTypes.func
-    }),
-    pageSizeLabel: PropTypes.string
-  };
-})();
-
-const defaultProps = {
+const DEFAULT_PROPS = {
   page: 0,
   defaultViewCount: 0,
   partialErrorChecking: false,
   selected: [],
   pageSizeLabel: 'Page Size'
-};
+} as const;
 
-class GridComponent extends React.Component {
-  constructor(props) {
+class GridComponent<
+    TKey,
+    TRecord extends {},
+    TFilters,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+    TMultipleSorting extends boolean = false
+  >
+  extends React.Component<
+    Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+    State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>
+  >
+  implements IGridRef<TKey, TRecord, TFilters, TColumns, TMultipleSorting>
+{
+  static defaultProps = DEFAULT_PROPS;
+
+  private statusesOnlyViaPropsEnabled: boolean;
+  private mounted = false;
+
+  private throttledUpdateTable = throttle(() => this.unsafeUpdateTable());
+
+  constructor(props: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>) {
     super(props);
-    this._statusesOnlyViaPropsEnabled = Boolean(props.statuses);
-    this._validateRow = throttle(this._validateRow.bind(this));
+
+    this.state = {
+      page: this.props.page,
+      viewCount: this.props.defaultViewCount,
+      count: 0,
+      statuses: this.props.statuses || new EqualMap(),
+      sort: this.getDefaultSort(),
+      data: null,
+      extra: new EqualMap(),
+      changes: new EqualMap(),
+      warnings: new EqualMap(),
+      errors: new EqualMap(),
+      totals: {},
+      partialErrorChecking: this.props.partialErrorChecking,
+      editor: {},
+      selectBlackListMode: false,
+      selected: [...this.props.selected],
+      showLoader: false
+    };
+
+    this.statusesOnlyViaPropsEnabled = Boolean(props.statuses);
+    this.validateRow = throttle(this.validateRow.bind(this));
+
     if (this.props.onInit) {
       this.props.onInit();
     }
   }
 
-  state = {
-    page: this.props.page,
-    viewCount: this.props.defaultViewCount,
-    count: 0,
-    statuses: this.props.statuses || new EqualMap(),
-    sort: this._getDefaultSort(),
-    data: null,
-    extra: new EqualMap(),
-    changes: new EqualMap(),
-    warnings: new EqualMap(),
-    errors: new EqualMap(),
-    totals: {},
-    partialErrorChecking: this.props.partialErrorChecking,
-    editor: {},
-    colsWithEscapeErrors: {},
-    selectBlackListMode: false,
-    selected: [...this.props.selected],
-    showLoader: false
-  };
-
-  componentDidMount() {
-    this._isMounted = true;
+  componentDidMount(): void {
+    this.mounted = true;
     if (this.props.model) {
-      this.props.model.on('create', this._onRecordsCreated);
-      this.props.model.on('update', this._setData);
+      this.props.model.on('create', this.onRecordsCreated);
+      this.props.model.on('update', this.setData);
       this.props.model.on('delete', this.updateTable);
     }
 
     this.updateTable();
   }
 
-  componentWillUnmount() {
-    this._isMounted = false;
+  componentWillUnmount(): void {
+    this.mounted = false;
     if (this.props.model) {
-      this.props.model.off('create', this._onRecordsCreated);
-      this.props.model.off('update', this._setData);
+      this.props.model.off('create', this.onRecordsCreated);
+      this.props.model.off('update', this.setData);
       this.props.model.off('delete', this.updateTable);
     }
 
@@ -180,96 +202,93 @@ class GridComponent extends React.Component {
     }
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
-    const reset = new Set();
+  UNSAFE_componentWillReceiveProps(
+    nextProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+  ): void {
+    const resetFlags = new Set<ResetFlag>();
 
     if (this.props.model !== nextProps.model) {
-      reset.add(RESET_MODEL);
-    }
-
-    if (this.props.viewColumns !== nextProps.viewColumns) {
-      reset.add(RESET_VIEW_COLUMNS);
+      resetFlags.add(ResetFlag.Model);
     }
 
     if (!isEqual(this.props.sort, nextProps.sort)) {
-      reset.add(RESET_SORT);
+      resetFlags.add(ResetFlag.Sort);
     }
 
     if (this.props.viewCount !== nextProps.viewCount) {
-      reset.add(RESET_VIEW_COUNT);
+      resetFlags.add(ResetFlag.ViewCount);
     }
 
-    if (
-      !isEqual(this.props.selected, nextProps.selected) ||
-      this.props.selectBlackListMode !== nextProps.selectBlackListMode
-    ) {
-      reset.add(RESET_SELECTED_COLUMNS);
+    if (!isEqual(this.props.selected, nextProps.selected)) {
+      resetFlags.add(ResetFlag.SelectedColumns);
     }
 
-    if (!isEqual(this.props.blackListMode, nextProps.blackListMode)) {
-      reset.add(RESET_BLACK_LIST_MODE);
+    if (this.statusesOnlyViaPropsEnabled && this.props.statuses !== nextProps.statuses) {
+      resetFlags.add(ResetFlag.Statuses);
     }
 
-    if (this._statusesOnlyViaPropsEnabled && this.props.statuses !== nextProps.statuses) {
-      reset.add(RESET_STATUSES);
-    }
-
-    if (!reset.size) {
+    if (!resetFlags.size) {
       return;
     }
 
-    if (reset.has(RESET_SELECTED_COLUMNS)) {
+    if (resetFlags.has(ResetFlag.SelectedColumns)) {
+      // @ts-expect-error state readonly
       this.state.selected = [...nextProps.selected];
     }
 
-    if (reset.has(RESET_VIEW_COLUMNS)) {
-      this.state.viewColumns = nextProps.viewColumns;
+    if (resetFlags.has(ResetFlag.Model) || resetFlags.has(ResetFlag.Sort)) {
+      // @ts-expect-error state readonly
+      this.state.page = this.getValidPage(0, this.state.viewCount, this.state.count);
     }
 
-    if (reset.has(RESET_BLACK_LIST_MODE)) {
-      this.state.selectBlackListMode = !this.state.selectBlackListMode;
-    }
-
-    if (reset.has(RESET_MODEL) || reset.has(RESET_SORT)) {
-      this._setPage(0);
-    }
-
-    if (reset.has(RESET_MODEL)) {
+    if (resetFlags.has(ResetFlag.Model)) {
+      // @ts-expect-error state readonly
       this.state.data = null;
       if (this.props.model) {
-        this.props.model.off('create', this._onRecordsCreated);
-        this.props.model.off('update', this._setData);
+        this.props.model.off('create', this.onRecordsCreated);
+        this.props.model.off('update', this.setData);
       }
 
       if (nextProps.model) {
-        nextProps.model.on('create', this._onRecordsCreated);
-        nextProps.model.on('update', this._setData);
+        nextProps.model.on('create', this.onRecordsCreated);
+        nextProps.model.on('update', this.setData);
       }
     }
 
-    let needUpdateTable = reset.has(RESET_MODEL) || reset.has(RESET_SORT) || reset.has(RESET_VIEW_COUNT);
+    let needUpdateTable =
+      resetFlags.has(ResetFlag.Model) ||
+      resetFlags.has(ResetFlag.Sort) ||
+      resetFlags.has(ResetFlag.ViewCount);
+
     let nextStatuses = this.state.statuses;
-    if (reset.has(RESET_STATUSES)) {
-      nextStatuses = nextProps.statuses;
+    if (resetFlags.has(ResetFlag.Statuses)) {
+      // statuses as required because RestFlag.Statuses exists only statuses passed via props
+      // (statusesOnlyViaPropsEnabled = true)
+      nextStatuses = nextProps.statuses as State<
+        TKey,
+        TRecord,
+        string & keyof TColumns,
+        TMultipleSorting
+      >['statuses'];
 
       if (!needUpdateTable) {
+        assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
         for (const recordId of nextStatuses.keys()) {
           if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
             needUpdateTable = true;
             break;
           }
         }
-      }
 
-      if (!needUpdateTable) {
         const needRemoveRecordIds = [];
-        for (const oldStatusRecordId of this._getRecordsWithStatus()) {
+        for (const oldStatusRecordId of this.state.statuses.keys()) {
           if (!nextStatuses.has(oldStatusRecordId) && !this.state.changes.has(oldStatusRecordId)) {
             needRemoveRecordIds.push(oldStatusRecordId);
           }
         }
 
-        this._removeExtraRecords(needRemoveRecordIds);
+        this.removeExtraRecords(needRemoveRecordIds);
       }
     }
 
@@ -285,174 +304,18 @@ class GridComponent extends React.Component {
   /**
    * Fetch server data
    */
-  updateTable = (() => {
-    const throttled = throttle(async () => {
-      this.setState({showLoader: true});
-
-      if (!this.props.model) {
-        return;
+  async updateTable(): Promise<void> {
+    this.throttledUpdateTable().catch((error) => {
+      if (!(error instanceof ThrottleError)) {
+        throw error;
       }
-
-      const viewCount = this.getViewCount();
-
-      let loadedData;
-      try {
-        loadedData = await this._loadData({
-          limit: viewCount,
-          offset: this.state.page * viewCount,
-          sort: this._sortingToArray(),
-          fields: this._getFieldsToRender(),
-          extra: [...this._getAdditionalIds()]
-        });
-      } catch (e) {
-        if (this._isMounted) {
-          this.setState({showLoader: false});
-        }
-
-        if (!(e instanceof ThrottleError)) {
-          throw e;
-        }
-
-        return;
-      }
-
-      if (!this._isMounted) {
-        return;
-      }
-
-      if (this.getViewCount() && !loadedData.hasOwnProperty('count')) {
-        throw new Error('Incorrect response from GridModel. "response.count" not defined');
-      }
-
-      // If required page is not included in the range of existing pages,
-      // request existing in a moment page
-      const page = this._checkPage(this.state.page, this.getViewCount(), loadedData.count);
-      if (page !== this.state.page) {
-        this.state.page = page;
-        this.updateTable();
-        return;
-      }
-
-      const data = new EqualMap(loadedData.records || []);
-      const extra = new EqualMap(
-        (loadedData.extraRecords || []).filter(([recordId]) => {
-          return !data.has(recordId);
-        })
-      );
-      const recordIds = [...data.keys(), ...extra.keys()];
-      this.setState(
-        {
-          data,
-          extra,
-          count: loadedData.count,
-          totals: loadedData.totals,
-          errors: this._pick(this.state.errors, recordIds),
-          changes: this._pick(this.state.changes, recordIds),
-          showLoader: false
-        },
-        () => {
-          if (this.props.onPageLoad) {
-            this.props.onPageLoad(loadedData);
-          }
-        }
-      );
     });
-
-    return (...args) => {
-      return throttled(...args).catch((error) => {
-        if (!(error instanceof ThrottleError)) {
-          throw error;
-        }
-      });
-    };
-  })();
-
-  _onRecordsCreated = async (recordIds) => {
-    if (!Array.isArray(recordIds)) {
-      console.warn('Not array recordsIds in "create" event is deprecated');
-      recordIds = [recordIds];
-    }
-
-    this.updateTable()
-      .then(() => {
-        return Promise.all(
-          recordIds.map(async (recordId) => {
-            if (!this._isRecordLoaded(recordId)) {
-              return;
-            }
-
-            try {
-              await this._checkWarnings(recordId);
-            } catch (e) {
-              if (!(e instanceof ThrottleError)) {
-                throw e;
-              }
-            }
-          })
-        );
-      })
-      .catch(this.props.onError);
-  };
-
-  /**
-   * Load model data
-   *
-   * @param {Object}      settings    Request parameters
-   * @private
-   */
-  async _loadData(settings) {
-    let data;
-    try {
-      data = await this.props.model.read(settings);
-    } catch (err) {
-      if (err && this.props.onError) {
-        this.props.onError(err);
-      }
-
-      throw err;
-    }
-
-    return data;
-  }
-
-  /**
-   * Find record IDs that need to be displayed additionally
-   *
-   * @returns {Array} Additional IDs array
-   * @private
-   */
-  _getAdditionalIds() {
-    const additionalIds = this._getRecordsWithStatus();
-    for (const [recordId] of this.state.changes) {
-      additionalIds.add(recordId);
-    }
-
-    return additionalIds;
-  }
-
-  /**
-   * Get the names of the parameters that are required to display the grid
-   *
-   * @return {string[]}
-   * @private
-   */
-  _getFieldsToRender() {
-    let i;
-    const cols = this.props.columns;
-    let columns = [];
-    for (i in cols) {
-      columns = union(columns, cols[i].render.slice(0, cols[i].render.length - 1));
-    }
-
-    return columns;
   }
 
   /**
    * Get current records selection mode
-   *
-   * @returns {boolean} Records selection mode. true - Blacklist; false - Whitelist
    */
-  isSelectBlackMode() {
+  isSelectBlackMode(): boolean {
     return this.state.selectBlackListMode;
   }
 
@@ -460,190 +323,72 @@ class GridComponent extends React.Component {
    * Unselect all records status
    * Switches records selection mode to "whitelist"
    */
-  unselectAll() {
+  unselectAll(): void {
     this.setState(
       {
         selected: [],
         selectBlackListMode: false
       },
       () => {
-        this._emitChangeSelectedNum();
+        this.emitChangeSelectedNum();
       }
     );
   }
 
   /**
-   * Convert sorting to array
-   *
-   * @return {Object[]|Object} sorts
-   * @private
-   */
-  _sortingToArray() {
-    function toArray(sort) {
-      return [sort.column, sort.direction];
-    }
-
-    const direction = this.getSortDirection();
-    if (!direction) {
-      return null;
-    }
-
-    if (this.props.multipleSorting) {
-      if (!direction.length) {
-        return null;
-      }
-
-      return direction.map(toArray);
-    }
-
-    return [toArray(direction)];
-  }
-
-  /**
-   * Get record IDs that have a status
-   *
-   * @returns {Array}
-   * @private
-   */
-  _getRecordsWithStatus() {
-    const ids = new Set([]);
-    for (const [key] of this.state.statuses) {
-      ids.add(key);
-    }
-
-    return ids;
-  }
-
-  /**
    * Get record data
-   *
-   * @param {*} recordId Record ID
-   * @returns {Object}
    */
-  getRecord(recordId) {
+  getRecord(recordId: TKey): Partial<TRecord> | null {
+    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
     if (!this.state.data.has(recordId)) {
       throw new Error('Record with the ID is not contained in the table.');
     }
 
-    return cloneDeep(this._getRecordWithChanges(recordId));
+    return cloneDeep(this.getRecordWithChanges(recordId));
   }
 
   /**
    * Get record changes object
-   *
-   * @param   {*} recordId Record ID
-   * @return  {Object}
    */
-  getRecordChanges(recordId) {
-    return this._getRecordChanges(recordId);
-  }
+  getRecordChanges = (recordId: TKey): Partial<TRecord> => {
+    const recordChanges = this.state.changes.get(recordId) || {};
+    return cloneDeep(recordChanges);
+  };
 
-  getRecordWarnings(recordId) {
+  getRecordWarnings(recordId: TKey): ValidationErrors<string & keyof TRecord> {
     return this.state.warnings.get(recordId) || new ValidationErrors();
   }
 
   /**
    * Get record errors object
-   *
-   * @param   {*} recordId  Record ID
-   * @returns  {ValidationErrors}
-   * @private
+   * @deprecated - was marked as private, but not used in the component
    */
-  getRecordErrors(recordId) {
+  getRecordErrors(recordId: TKey): ValidationErrors<string & keyof TRecord> {
     return this.state.errors.get(recordId) || new ValidationErrors();
   }
 
   /**
    * Get validation errors
-   *
-   * @return {Array|null}
    */
-  getErrors() {
+  getErrors(): [TKey, ValidationErrors<string & keyof TRecord>][] | null {
     const result = [...this.state.errors.entries()];
     return result.length ? result : null;
   }
 
   /**
    * Get table model
-   *
-   * @returns {AbstractGridModel}
    */
-  getModel() {
+  getModel():
+    | (IGridModel<TKey, TRecord, TFilters> & IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>)
+    | undefined {
     return this.props.model;
-  }
-
-  _pick(map, keys, defaultValue) {
-    return keys.reduce((result, key) => {
-      if (map.has(key)) {
-        result.set(key, map.get(key));
-      } else if (defaultValue !== undefined) {
-        result.set(key, defaultValue);
-      }
-
-      return result;
-    }, new EqualMap());
-  }
-
-  /**
-   * Get record with changes
-   *
-   * @param   {*} recordId  Record ID
-   * @returns {Object}
-   */
-  _getRecordWithChanges = (recordId) => {
-    if (this.state.data.has(recordId)) {
-      return {...this.state.data.get(recordId), ...this.state.changes.get(recordId)};
-    }
-
-    if (this.state.extra.has(recordId)) {
-      return {...this.state.extra.get(recordId), ...this.state.changes.get(recordId)};
-    }
-
-    return null;
-  };
-
-  /**
-   * Pass changes to the table
-   * This method marks changed fields
-   *
-   * @param {*}      recordId    Record ID
-   * @param {Object}     data    Changed data
-   * @private
-   */
-  _setRowChanges(recordId, data) {
-    this.setState(
-      (state, props) => {
-        const changes = cloneDeep(state.changes);
-        changes.set(
-          recordId,
-          getRecordChanges(
-            props.model,
-            state.data.get(recordId) || state.extra.get(recordId),
-            changes.get(recordId),
-            data
-          )
-        );
-
-        if (isEmpty(changes.get(recordId))) {
-          changes.delete(recordId);
-        }
-
-        return {changes};
-      },
-      () => {
-        if (this.props.onChange) {
-          this.props.onChange(this.state.changes, this.state.data);
-        }
-      }
-    );
   }
 
   /**
    * Clear record changes
-   *
-   * @param {*} recordId Record ID
    */
-  clearRecordChanges(recordId) {
+  clearRecordChanges(recordId: TKey): void {
     const changes = cloneDeep(this.state.changes);
     const warnings = cloneDeep(this.state.warnings);
     const errors = cloneDeep(this.state.errors);
@@ -652,10 +397,10 @@ class GridComponent extends React.Component {
     errors.delete(recordId);
 
     this.setState({errors, changes, warnings}, () => {
-      this._removeExtraRecordIfNeed(recordId);
+      this.removeExtraRecordIfNeed(recordId);
 
       if (this.props.onChange) {
-        this.props.onChange(this.state.changes, this.state.data);
+        this.props.onChange(this.state.changes);
       }
     });
   }
@@ -663,17 +408,16 @@ class GridComponent extends React.Component {
   /**
    * Change table record
    * This method marks changed fields and validates them
-   *
-   * @param {*}         recordId      Record ID
-   * @param {Object}    recordChanges Changed data
-   * @param {Boolean}   validate      Is validation needed
    */
-  set(recordId, recordChanges, validate = false) {
+  set(recordId: TKey, recordChanges: Partial<TRecord>, validate = false): void {
+    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+
     const allChanges = cloneDeep(this.state.changes);
     const filteredRecordChanges = getRecordChanges(
-      this.props.model,
-      this.state.data.get(recordId) || this.state.extra.get(recordId),
-      allChanges.get(recordId),
+      this.props.model.getValidationDependency.bind(this.props.model),
+      this.state.data.get(recordId) || this.state.extra.get(recordId) || {},
+      allChanges.get(recordId) || {},
       recordChanges
     );
     allChanges.set(recordId, filteredRecordChanges);
@@ -683,16 +427,16 @@ class GridComponent extends React.Component {
     }
 
     if (this.props.onChange) {
-      this.props.onChange(this.state.changes, this.state.data);
+      this.props.onChange(this.state.changes);
     }
 
     this.setState({changes: allChanges}, () => {
       if (this.props.autoSubmit) {
         this.save();
       } else if (validate) {
-        this._validateRow(recordId);
+        this.validateRow(recordId);
       } else if (this.props.onChange) {
-        this.props.onChange(this.state.changes, this.state.data);
+        this.props.onChange(this.state.changes);
       }
     });
   }
@@ -700,23 +444,25 @@ class GridComponent extends React.Component {
   /**
    * Save grid changes
    */
-  async save() {
+  async save(): Promise<void> {
     const errors = cloneDeep(this.state.errors);
     const changes = cloneDeep(this.state.changes);
 
     // Cancel new record display
     this.removeRecordStatusAll('new');
 
-    const data = await this.props.model.update(this._dataMapToArray(changes));
-    if (!this._isMounted) {
+    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+    const data = await this.props.model.update(this.dataMapToArray(changes));
+    if (!this.mounted) {
       return;
     }
 
+    // @ts-expect-error state readonly
     this.state.partialErrorChecking = false;
 
     const unhandledErrors = [];
     for (const record of data) {
-      const recordId = this._getRowID(record[0]);
+      const recordId = this.getRowID(record[0]);
 
       // Skip records that are user changed while data processing
       if (!isEqual(changes.get(recordId), changes.get(recordId))) {
@@ -734,18 +480,20 @@ class GridComponent extends React.Component {
         continue;
       }
 
+      const recordChanges = changes.get(recordId) || {};
+
       // Cancel changed data status of the parameters, that are changed
-      forEach(changes.get(recordId), (value, field) => {
-        if (isEqual(value, changes.get(recordId)[field])) {
-          delete changes.get(recordId)[field];
+      forEach(recordChanges, (value, field) => {
+        if (isEqual(value, recordChanges[field])) {
+          delete recordChanges[field];
         }
       });
 
       // Clear changed data row if it's empty
-      if (isEmpty(changes.get(recordId))) {
+      if (isEmpty(recordChanges)) {
         changes.delete(recordId);
         if (this.state.extra.has(recordId)) {
-          this._removeExtraRecord(recordId);
+          this.removeExtraRecord(recordId);
         }
       }
     }
@@ -757,64 +505,19 @@ class GridComponent extends React.Component {
       },
       () => {
         if (this.props.onChange) {
-          this.props.onChange(changes, this.state.data);
+          this.props.onChange(changes);
         }
       }
     );
 
-    const errorHandler = this.props.onError || console.bind(console);
+    const errorHandler = this.props.onError || console.error.bind(console);
     unhandledErrors.forEach((error) => errorHandler(error));
   }
 
   /**
-   * Remove record
-   *
-   * @param {*}  recordId  Record ID
-   * @private
-   */
-  _removeExtraRecord(recordId) {
-    return this._removeExtraRecords([recordId]);
-  }
-
-  _removeExtraRecords(recordIds) {
-    if (!recordIds.length) {
-      return;
-    }
-
-    const changes = cloneDeep(this.state.changes);
-    const warnings = cloneDeep(this.state.warnings);
-    const errors = cloneDeep(this.state.errors);
-    const extra = cloneDeep(this.state.extra);
-    let editor = cloneDeep(this.state.editor);
-    let touchedChangesExists = false;
-
-    for (const recordId of recordIds) {
-      touchedChangesExists = touchedChangesExists || Boolean(changes.get(recordId));
-      this.unselectRecord(recordId);
-      extra.delete(recordId);
-      changes.delete(recordId);
-      warnings.delete(recordId);
-      errors.delete(recordId);
-
-      if (editor.recordId === recordId) {
-        editor = {};
-      }
-    }
-
-    this.setState({changes, extra, warnings, errors, editor}, () => {
-      if (touchedChangesExists && this.props.onChange) {
-        this.props.onChange(this.state.changes, this.state.data);
-      }
-    });
-  }
-
-  /**
    * Unselect record
-   *
-   * @param {number|string}   recordId                    Record ID
-   * @param {boolean}         [ignoreBlackList=false]     Ignore BlackList mode
    */
-  unselectRecord(recordId, ignoreBlackList) {
+  unselectRecord(recordId: TKey, ignoreBlackList = false): void {
     this.setState(
       (state) => {
         const selected = [...state.selected];
@@ -832,34 +535,15 @@ class GridComponent extends React.Component {
         return {selected};
       },
       () => {
-        this._emitChangeSelectedNum();
+        this.emitChangeSelectedNum();
       }
     );
   }
 
   /**
-   * Trigger selected records count change handler
-   *
-   * @private
-   */
-  _emitChangeSelectedNum() {
-    if (this.props.onSelectedChange) {
-      let selectedCount = this.state.selected.length;
-      if (this.state.selectBlackListMode) {
-        selectedCount = this.getCountRecords() - selectedCount;
-      }
-
-      this.props.onSelectedChange(this.getAllSelected(), selectedCount);
-    }
-  }
-
-  /**
    * Select a record
-   *
-   * @param {*}    recordId       Record ID
-   * @param {boolean}             [ignoreBlackList=false]     Ignore BlackList mode
    */
-  selectRecord(recordId, ignoreBlackList) {
+  selectRecord(recordId: TKey, ignoreBlackList = false): void {
     this.setState(
       (state) => {
         const selected = [...state.selected];
@@ -886,7 +570,7 @@ class GridComponent extends React.Component {
         return {selected};
       },
       () => {
-        this._emitChangeSelectedNum();
+        this.emitChangeSelectedNum();
       }
     );
   }
@@ -895,134 +579,45 @@ class GridComponent extends React.Component {
    * Select all records
    * Switches records selection mode to "blacklist"
    */
-  selectAll() {
+  selectAll(): void {
     this.setState(
       {
         selectBlackListMode: true,
         selected: []
       },
       () => {
-        this._emitChangeSelectedNum();
+        this.emitChangeSelectedNum();
       }
     );
   }
 
-  getSelectAllStatus() {
+  /**
+   * @deprecated
+   */
+  getSelectAllStatus(): string | undefined {
     return this.props.selectAllStatus;
-  }
-
-  /**
-   * Set table data
-   *
-   * @param {Array}  changes  Changes
-   * @private
-   */
-  _setData = async (changes) => {
-    // Apply all changes
-    for (const [recordId, data] of changes) {
-      if (!this._isRecordLoaded(recordId)) {
-        continue;
-      }
-
-      // Firstly we update the state
-      this._setRecordData(recordId, data);
-
-      // Then we validate the updated data in state
-      try {
-        await this._checkWarnings(recordId);
-      } catch (e) {
-        if (!(e instanceof ThrottleError)) {
-          throw e;
-        }
-      }
-    }
-  };
-
-  /**
-   * Set record data
-   *
-   * @param {*}       recordId  Record ID
-   * @param {Object}  data      Data
-   * @private
-   */
-  _setRecordData(recordId, data) {
-    if (!this._isRecordLoaded(recordId)) {
-      return;
-    }
-
-    const nextData = new EqualMap(
-      [...this.state.data].map(([dataRecordId, record]) => {
-        if (!isEqual(recordId, dataRecordId)) {
-          return [dataRecordId, record];
-        }
-
-        return [
-          dataRecordId,
-          {
-            ...record,
-            ...data
-          }
-        ];
-      })
-    );
-    this.setState({data: nextData});
-  }
-
-  /**
-   * Is record loaded
-   *
-   * @param {*}       recordId  Record ID
-   * @returns {boolean}
-   * @private
-   */
-  _isRecordLoaded(recordId) {
-    return this.state.data.has(recordId);
-  }
-
-  /**
-   * Is extra record loaded
-   *
-   * @param {*}       recordId  Record ID
-   * @returns {boolean}
-   * @private
-   */
-  _isExtraRecordLoaded(recordId) {
-    return this.state.extra.has(recordId);
-  }
-
-  /**
-   * Get row ID
-   *
-   * @param {*}       recordId  Record ID
-   * @returns {*}
-   * @private
-   */
-  _getRowID(recordId) {
-    if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
-      throw new Error('Record with the ID is not contained in the table.');
-    }
-
-    return recordId;
   }
 
   /**
    * Clear all table changes
    */
-  clearAllChanges() {
-    const nextProps = {
+  clearAllChanges(): void {
+    const nextState: Pick<
+      State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>,
+      'changes' | 'errors' | 'extra' | 'partialErrorChecking' | 'warnings'
+    > &
+      ({} | {statuses: State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>['statuses']}) = {
       extra: new EqualMap(),
       changes: new EqualMap(),
       warnings: new EqualMap(),
       errors: new EqualMap(),
-      partialErrorChecking: this.props.partialErrorChecking
+      partialErrorChecking: Boolean(this.props.partialErrorChecking),
+      ...(!this.statusesOnlyViaPropsEnabled && {statuses: new EqualMap()})
     };
-    if (!this._statusesOnlyViaPropsEnabled) {
-      nextProps.statuses = new EqualMap();
-    }
 
-    this.setState(nextProps, () => {
+    this.setState(nextState, () => {
       if (this.props.onChange) {
-        this.props.onChange(this.state.changes, this.state.data);
+        this.props.onChange(this.state.changes);
       }
     });
   }
@@ -1030,10 +625,12 @@ class GridComponent extends React.Component {
   /**
    * Reset to initial table state
    */
-  reset() {
-    this._setPage(0);
-    if (!this._isSortingPropsMode()) {
-      this._resetSorting();
+  reset(): void {
+    // @ts-expect-error state readonly
+    this.state.page = this.getValidPage(0, this.state.viewCount, this.state.count);
+    if (!this.isSortingPropsMode()) {
+      assert(this.props.onSorting, 'prop "onSorting" is required, because "sort" exists in props');
+      this.props.onSorting(this.getDefaultSort());
     }
 
     this.updateTable();
@@ -1041,117 +638,29 @@ class GridComponent extends React.Component {
 
   /**
    * Reset to default sort parameters
-   * @private
    */
-  _resetSorting() {
-    const sort = this._getDefaultSort();
-
-    if (this._isSortingPropsMode()) {
-      this.onSorting(sort);
-      return;
-    }
-
-    this.state.sort = sort;
-  }
-
-  /**
-   * Reset to default sort parameters
-   */
-  resetSorting() {
-    if (this._isSortingPropsMode()) {
+  resetSorting(): void {
+    if (this.isSortingPropsMode()) {
       throw new Error('You can not use function "resetSorting" when set prop "sort"');
     }
 
-    this._resetSorting();
+    // @ts-expect-error state readonly
+    this.state.sort = this.getDefaultSort();
     this.updateTable();
-  }
-
-  /**
-   * Get initial sort state
-   *
-   * @returns {Array} Initial sort state
-   * @private
-   */
-  _getDefaultSort() {
-    if (this.props.defaultSort) {
-      return cloneDeep(this.props.defaultSort);
-    }
-
-    return null;
-  }
-
-  /**
-   * Does sorting using props
-   *
-   * @return {boolean}
-   * @private
-   */
-  _isSortingPropsMode() {
-    return this.props.hasOwnProperty('sort');
-  }
-
-  /**
-   * This method converts data object to the array with keys presented as record ID hash
-   *
-   * @param   {Object}  obj     Data object
-   * @returns {Array}   Array result
-   * @private
-   */
-  _dataMapToArray(map) {
-    const arr = [];
-
-    for (const [recordId, value] of map) {
-      arr.push([recordId, clone(value)]);
-    }
-
-    return arr;
-  }
-
-  /**
-   * Table row changed flag
-   *
-   * @param   {string}        recordId         Row ID
-   * @param   {Array|string}  [fields]
-   * @return  {boolean}
-   * @private
-   */
-  _isChanged(recordId, fields) {
-    let i;
-    if (!this.state.changes.has(recordId)) {
-      return false;
-    }
-
-    if (fields) {
-      if (!Array.isArray(fields)) {
-        fields = [fields];
-      }
-
-      for (i = 0; i < fields.length; i++) {
-        if (this.state.changes.get(recordId).hasOwnProperty(fields[i])) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    return true;
   }
 
   /**
    * Remove records status
-   *
    * @deprecated
-   * @param {string}      status  Status
    */
-  removeRecordStatusAll(status) {
-    console.warn('method removeRecordStatusAll deprecated');
-    if (this._statusesOnlyViaPropsEnabled) {
+  removeRecordStatusAll(status: string): void {
+    warn('method removeRecordStatusAll deprecated');
+    if (this.statusesOnlyViaPropsEnabled) {
       console.error('statuses are controlled through properties');
       return;
     }
 
-    const checkDeletingRecordIds = new Set();
+    const checkDeletingRecordIds = new Set<TKey>();
 
     this.setState(
       (state) => {
@@ -1174,7 +683,7 @@ class GridComponent extends React.Component {
       },
       () => {
         for (const recordId of checkDeletingRecordIds) {
-          this._removeExtraRecordIfNeed(recordId);
+          this.removeExtraRecordIfNeed(recordId);
         }
       }
     );
@@ -1182,309 +691,143 @@ class GridComponent extends React.Component {
 
   /**
    * Select only these records
-   *
-   * @param {Array}   selectedIds       Record IDs
-   * @param {boolean} [blackListMode]   Is black list mode
    */
-  setSelectedRecords(selectedIds, blackListMode) {
-    this.setState({selected: clone(selectedIds), selectBlackListMode: blackListMode}, () => {
+  setSelectedRecords(selectedIds: TKey[], blackListMode: boolean): void {
+    this.setState({selected: [...selectedIds], selectBlackListMode: blackListMode}, () => {
       this.forceUpdate();
-      this._emitChangeSelectedNum();
+      this.emitChangeSelectedNum();
     });
   }
 
   /**
    * Set editor on grid
    */
-  createEditor = (event, recordId, colId, ref) => {
+  createEditor = (
+    event: React.MouseEvent<HTMLElement>,
+    recordId: TKey,
+    colId: string & keyof TColumns,
+    ref?: string
+  ): void => {
     // preventing of creating editor on same cell as it is
     if (recordId === this.state.editor.recordId && colId === this.state.editor.column) {
       return;
     }
 
-    const record = this._getRecordWithChanges(recordId);
     const columnConfig = this.props.columns[colId];
-    const binds = this._getBindParam(colId);
-    const value = at(record, binds);
+    assert(columnConfig, `"${colId}" column unavailable`);
+    const record = this.getRecordWithChanges(recordId);
+    assert(record, '"record" unknown');
+    const editorFieldName = this.getEditorFieldName(colId);
+    const value = record[editorFieldName];
 
     // Trigger click handler on the table configuration
     if (ref) {
+      assert(columnConfig.onClickRefs, '"onClickRefs" unknown');
+
       columnConfig.onClickRefs[ref](event, recordId, record, this);
     } else if (columnConfig.onClick) {
       columnConfig.onClick(event, recordId, record, this);
     }
 
-    const {editor} = this.props.columns[colId];
+    const {editor} = columnConfig;
     if (!editor) {
       return;
     }
 
-    const editorContext = {
+    const editorContext: EditorContext<Partial<TRecord>, typeof editorFieldName> = {
       updateField: (field, nextValue) => {
-        this._setRowChanges(recordId, {
-          [field]: nextValue
-        });
+        const recordChanges: Partial<TRecord> = {};
+        recordChanges[field] = nextValue;
+        this.setRowChanges(recordId, recordChanges);
       },
       set: (changes) => {
-        this._setRowChanges(recordId, changes);
-      }
-    };
-    editorContext.props = {
-      onChange: (values) => {
-        this._onChangeEditor(recordId, colId, values, editorContext);
+        this.setRowChanges(recordId, changes);
       },
-      onFocus: () => {
-        this._onFocusEditor(recordId, colId);
-      },
-      onBlur: () => {
-        // Remove Editor
-        this._onBlurEditor(recordId);
-      },
-      onKeyUp: (e) => {
-        if ([ENTER_KEY, ESCAPE_KEY].includes(e.keyCode)) {
-          this.setState({editor: {}}, () => {
-            if (e.keyCode === ESCAPE_KEY) {
-              this._setRowChanges(recordId, {[colId]: value[0]});
-            }
+      props: {
+        onChange: (eventOrValue) => {
+          this.onChangeEditor(recordId, colId, eventOrValue, editorContext);
+        },
+        onFocus: () => {
+          this.onFocusEditor(recordId, colId);
+        },
+        onBlur: () => {
+          // Remove Editor
+          this.onBlurEditor(recordId);
+        },
+        onKeyUp: (event) => {
+          if ([ENTER_KEY, ESCAPE_KEY].includes(event.keyCode)) {
+            this.setState({editor: {}}, () => {
+              if (event.keyCode === ESCAPE_KEY) {
+                const recordChanges: Partial<TRecord> = {};
+                recordChanges[editorFieldName] = value;
+                this.setRowChanges(recordId, recordChanges);
+              }
 
-            this._onBlurEditor(recordId);
-          });
-        }
-      },
-      value: value[0]
+              this.onBlurEditor(recordId);
+            });
+          }
+        },
+        value
+      }
     };
 
     const element = editor.call(editorContext, record, this);
-    if (element) {
-      this.setState({
-        editor: {
-          element,
-          recordId,
-          column: colId
-        }
-      });
-    }
-  };
-
-  async _onBlurEditor(recordId) {
-    this.setState({editor: {}});
-
-    try {
-      await this._checkWarnings(recordId);
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
-      }
-    }
-
-    if (this.props.autoSubmit) {
-      await this.save();
-      return;
-    }
-
-    try {
-      const errors = await this._checkValidatorErrors(
+    this.setState({
+      editor: {
+        element,
         recordId,
-        this.props.model,
-        this._getRecordChanges,
-        'errors'
-      );
-      this.setState({errors});
-    } catch (e) {
-      if (!(e instanceof ThrottleError)) {
-        throw e;
+        column: colId
       }
-    }
-  }
-
-  /**
-   * Validate row
-   */
-  async _validateRow(recordId) {
-    const errors = await this._checkValidatorErrors(
-      recordId,
-      this.props.model,
-      this._getRecordChanges,
-      'errors'
-    );
-    this.setState({errors});
-  }
-
-  /**
-   * Validate row
-   */
-  async _getValidationErrors(recordId) {
-    return await this._checkValidatorErrors(recordId, this.props.model, this._getRecordChanges, 'errors');
-  }
-
-  /**
-   * Get record changes object
-   *
-   * @param   {string}        recordId     Row ID
-   * @return  {Object}
-   */
-  _getRecordChanges = (recordId) => {
-    if (this.state.changes.has(recordId)) {
-      return cloneDeep(this.state.changes.get(recordId));
-    }
-
-    return {};
+    });
   };
-
-  /**
-   * Check warnings
-   */
-  async _checkWarnings(recordId) {
-    if (!this.props.warningsValidator) {
-      return;
-    }
-
-    const warnings = await this._checkValidatorErrors(
-      recordId,
-      this.props.warningsValidator,
-      this._getRecordWithChanges,
-      'warnings'
-    );
-
-    this.setState({warnings});
-  }
 
   /**
    * Get current page index number
-   *
-   * @returns {number}
    */
-  getCurrentPage() {
+  getCurrentPage(): number {
     return this.state.page;
   }
 
   /**
    * Get current page count
-   *
-   * @returns {number}
    */
-  getCountRecords() {
+  getCountRecords(): number {
     return this.state.count;
-  }
-
-  /**
-   * Check errors in "validator" object
-   *
-   * @param {string}        recordId    Row ID
-   * @param {Validator}     validator   Validator object
-   * @param {Function}      getData     Data provider function
-   * @param {{}}            result      Validation result object
-   * @private
-   */
-  async _checkValidatorErrors(recordId, validator, getData, resultField) {
-    const record = getData(recordId);
-    const validErrors = await validator.isValidRecord(record, recordId);
-    const clonedResult = clone(this.state[resultField]);
-    if (isEqual(record, getData(recordId))) {
-      if (validErrors.isEmpty()) {
-        clonedResult.delete(recordId);
-      } else {
-        clonedResult.set(recordId, validErrors);
-      }
-    }
-
-    return clonedResult;
-  }
-
-  _onFocusEditor(recordId, column) {
-    const errors = cloneDeep(this.state.errors);
-    if (!this.state.errors.has(recordId)) {
-      return;
-    }
-
-    let binds = this._getBindParam(column);
-    if (!Array.isArray(binds)) {
-      binds = [binds];
-    }
-
-    binds.forEach((field) => {
-      errors.get(recordId).clearField(field);
-    });
-    if (errors.get(recordId).isEmpty()) {
-      errors.delete(recordId);
-    }
-
-    this.setState({errors});
-  }
-
-  /**
-   * Get record field title that changes column Editor
-   *
-   * @param       {string}        id  Column ID
-   * @returns     {Array|string}     Fields that change Editor
-   * @private
-   */
-  _getBindParam(id) {
-    return this.props.columns[id].editorField || id;
-  }
-
-  _onChangeEditor(recordId, column, values, editorContext) {
-    values = cloneDeep(parseValueFromEvent(values));
-
-    const record = this._getRecordWithChanges(recordId);
-    const context = cloneDeep(editorContext);
-    context.props.value = values;
-    const element = this.props.columns[column].editor.call(context, record, this);
-    this._setRowChanges(recordId, {[column]: values});
-    this.setState({
-      editor: {
-        element,
-        recordId,
-        column
-      }
-    });
   }
 
   /**
    * Move to next page event handler
    *
    */
-  handleNextPage = () => {
+  handleNextPage = (): void => {
     this.setPage(this.state.page + 1);
   };
 
   /**
    * Move to other page
-   *
-   * @param {number}  page     Page index number
    */
-  setPage(page) {
-    this._setPage(page);
+  setPage(page: number): void {
+    // @ts-expect-error state readonly
+    this.state.page = this.getValidPage(page, this.state.viewCount, this.state.count);
     this.updateTable();
-  }
-
-  _setPage(page) {
-    this.state.page = this._checkPage(page, this.state.viewCount, this.state.count);
-  }
-
-  _checkPage(page, view, count) {
-    if (page * view >= count) {
-      page = view ? Math.ceil(count / view) - 1 : 0;
-    }
-
-    return Math.max(0, page);
   }
 
   /**
    * Move to previous page event handler
-   *
    */
-  handlePrevPage = () => {
+  handlePrevPage = (): void => {
     this.setPage(this.state.page - 1);
   };
 
   /**
    * Change event handler of displayed rows count in a table
-   *
-   * @param {Number} viewCount
    */
-  handleChangeViewCount = (viewCount) => {
-    if (this._isViewCountPropsMode()) {
+  handleChangeViewCount = (viewCount: number): void => {
+    if (this.isViewCountPropsMode()) {
+      assert(
+        this.props.onChangeViewCount,
+        'prop "onChangeViewCount" is required, because "viewCount" exists in props'
+      );
       this.props.onChangeViewCount(viewCount);
       return;
     }
@@ -1494,137 +837,41 @@ class GridComponent extends React.Component {
 
   /**
    * Set displayed elements count
-   *
-   * @param {number} viewCount
    */
-  setViewCount(viewCount) {
-    if (this._isViewCountPropsMode()) {
+  setViewCount(viewCount: number): void {
+    if (this.isViewCountPropsMode()) {
       throw new Error('You can not use function "setViewCount" when set prop "viewCount"');
     }
 
+    // @ts-expect-error state readonly
     this.state.viewCount = viewCount;
-    this.state.page = this._checkPage(this.state.page, viewCount, this.state.count);
+    // @ts-expect-error state readonly
+    this.state.page = this.getValidPage(this.state.page, viewCount, this.state.count);
     this.updateTable();
   }
 
   /**
    * Get pages count
-   *
-   * @return {number}
    */
-  getPagesCount() {
+  getPagesCount(): number {
     const viewCount = this.getViewCount();
     return viewCount ? Math.ceil(this.state.count / viewCount) : 1;
   }
 
-  getViewCount() {
-    if (this._isViewCountPropsMode()) {
-      return this.props.viewCount;
+  getViewCount(): number {
+    if (this.isViewCountPropsMode()) {
+      return this.props.viewCount as number;
     }
 
     return this.state.viewCount;
   }
 
-  _removeExtraRecordIfNeed(recordId) {
-    if (
-      this.state.extra.has(recordId) &&
-      !this.state.statuses.has(recordId) &&
-      !this.state.changes.has(recordId)
-    ) {
-      this._removeExtraRecord(recordId);
-    }
-  }
-
-  _isViewCountPropsMode() {
-    return this.props.hasOwnProperty('viewCount');
-  }
-
-  /**
-   * Use column name for table sort
-   *
-   * @param {string} column  Column name
-   * @private
-   */
-  _handleColumnClick = (column) => {
-    const {sortCycle} = this.props.columns[column];
-    if (!sortCycle) {
-      return;
-    }
-
-    let newOrder;
-    let newSorts = clone(this.getSortDirection());
-    const sortElement = {column: column};
-    let currentSortIndex;
-    let currentSort;
-
-    if (this.props.multipleSorting) {
-      // Find an element among the other sorts
-      currentSortIndex = findIndex(newSorts, (sort) => sort.column === column);
-
-      if (currentSortIndex >= 0) {
-        currentSort = newSorts[currentSortIndex];
-
-        // Determine the direction of sorting
-        if (currentSortIndex < newSorts.length - 1) {
-          newOrder = sortCycle[0];
-        } else {
-          // If the item is the last one, select the next direction of sorting
-          newOrder = sortCycle[(sortCycle.indexOf(currentSort.direction) + 1) % sortCycle.length];
-        }
-
-        if (newOrder === 'default') {
-          // Remove item from the sorts
-          newSorts.splice(currentSortIndex, 1);
-        } else if (currentSortIndex === newSorts.length - 1) {
-          // Set new direction, if the last element
-          currentSort.direction = newOrder;
-        } else {
-          // Move the item to the end, if it is already in sorts
-          newSorts.splice(currentSortIndex, 1);
-          sortElement.direction = newOrder;
-          newSorts.push(sortElement);
-        }
-      } else {
-        // Add new element
-        sortElement.direction = newOrder = sortCycle[0];
-        newSorts.push(sortElement);
-      }
-    } else {
-      if (newSorts && newSorts.column === column) {
-        // Select the next direction of sorting
-        newOrder = sortCycle[(sortCycle.indexOf(newSorts.direction) + 1) % sortCycle.length];
-      } else {
-        newOrder = sortCycle[0];
-      }
-
-      if (newOrder === 'default') {
-        newSorts = null;
-      } else {
-        sortElement.direction = newOrder;
-        newSorts = sortElement;
-      }
-    }
-
-    if (this.props.onSorting) {
-      this.props.onSorting(newSorts, column, newOrder);
-    }
-
-    if (!this._isSortingPropsMode()) {
-      this.state.sort = newSorts;
-      this.setPage(0);
-    }
-  };
-
   /**
    * Add record status
-   *
-   * @deprecated
-   * @param {*}    recordId    Record ID
-   * @param {string}           status      Record status
    */
-  addRecordStatus(recordId, status) {
-    console.warn('method addRecordStatus deprecated');
-    if (this._statusesOnlyViaPropsEnabled) {
+  addRecordStatus(recordId: TKey, status: string): void {
+    warn('method addRecordStatus deprecated');
+    if (this.statusesOnlyViaPropsEnabled) {
       console.error('statuses are controlled through properties');
       return;
     }
@@ -1644,7 +891,7 @@ class GridComponent extends React.Component {
         return {statuses};
       },
       () => {
-        if (!this.state.data.has(recordId)) {
+        if (this.state.data && !this.state.data.has(recordId)) {
           this.updateTable();
         }
       }
@@ -1653,14 +900,10 @@ class GridComponent extends React.Component {
 
   /**
    * Add status to records group
-   *
-   * @deprecated
-   * @param {Array}      recordIds   Record IDs array
-   * @param {string}     status      Status
    */
-  addRecordStatusGroup(recordIds, status) {
-    console.warn('method addRecordStatusGroup deprecated');
-    if (this._statusesOnlyViaPropsEnabled) {
+  addRecordStatusGroup(recordIds: TKey[], status: string): void {
+    warn('method addRecordStatusGroup deprecated');
+    if (this.statusesOnlyViaPropsEnabled) {
       console.error('statuses are controlled through properties');
       return;
     }
@@ -1693,19 +936,16 @@ class GridComponent extends React.Component {
 
   /**
    * Remove record status
-   *
    * @deprecated
-   * @param {*}       recordId    Record ID
-   * @param {string}  status      Record status
    */
-  removeRecordStatus(recordId, status) {
-    console.warn('method removeRecordStatus deprecated');
-    if (this._statusesOnlyViaPropsEnabled) {
+  removeRecordStatus(recordId: TKey, status: string): void {
+    warn('method removeRecordStatus deprecated');
+    if (this.statusesOnlyViaPropsEnabled) {
       console.error('statuses are controlled through properties');
       return;
     }
 
-    let needCheckRemoveRecord;
+    let needCheckRemoveRecord: boolean;
 
     this.setState(
       (state) => {
@@ -1716,6 +956,7 @@ class GridComponent extends React.Component {
 
         const statuses = cloneDeep(state.statuses);
         const recordStatuses = statuses.get(recordId);
+        assert(recordStatuses, '"recordStatuses" unknown');
 
         // Remove status if record has i
 
@@ -1731,7 +972,7 @@ class GridComponent extends React.Component {
       },
       () => {
         if (needCheckRemoveRecord) {
-          this._removeExtraRecordIfNeed(recordId);
+          this.removeExtraRecordIfNeed(recordId);
         }
       }
     );
@@ -1739,14 +980,11 @@ class GridComponent extends React.Component {
 
   /**
    * Check record status presence
-   *
-   * @param   {*}       recordId    Record ID
-   * @param   {number}  status      Record status
-   * @returns {boolean} Record has status flag
    */
-  hasRecordStatus(recordId, status) {
-    if (this.state.statuses.has(recordId)) {
-      return this.state.statuses.get(recordId).has(status);
+  hasRecordStatus(recordId: TKey, status: string): boolean {
+    const recordStatuses = this.state.statuses.get(recordId);
+    if (recordStatuses) {
+      return recordStatuses.has(status);
     }
 
     return false;
@@ -1754,11 +992,8 @@ class GridComponent extends React.Component {
 
   /**
    * Get all record IDs that have the status
-   *
-   * @param {number}  status  Status
-   * @returns {Array} Record IDs array
    */
-  getAllWithStatus(status) {
+  getAllWithStatus(status: string): TKey[] {
     const records = [];
 
     for (const [recordId, statuses] of this.state.statuses) {
@@ -1772,10 +1007,8 @@ class GridComponent extends React.Component {
 
   /**
    * Get all selected records
-   *
-   * @returns {Array}   Record IDs array
    */
-  getAllSelected() {
+  getAllSelected(): TKey[] {
     const selected = [];
     for (const recordId of this.state.selected) {
       selected.push(recordId);
@@ -1786,36 +1019,28 @@ class GridComponent extends React.Component {
 
   /**
    * Get sort direction
-   *
-   * @return {object|object[]}
    */
-  getSortDirection() {
-    if (this._isSortingPropsMode()) {
-      return this.props.sort;
-    }
-
-    return this.state.sort;
+  getSortDirection(): SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord> | undefined {
+    return this.isSortingPropsMode() ? this.props.sort : this.state.sort;
   }
 
   /**
    * Sort by column
-   *
-   * @param {string} column
-   * @param {string} direction
    */
-  sort(column, direction) {
-    if (this._isSortingPropsMode()) {
+  sort(column: string & keyof TColumns & keyof TRecord, direction: IGridModelSortMode): void {
+    if (this.isSortingPropsMode()) {
       throw new Error('You can not use function "sort" when set prop "sort"');
     }
 
-    const sort = {
-      column: column,
-      direction: direction
+    const sort: SortElementProps<string & keyof TColumns & keyof TRecord> = {
+      column,
+      direction
     };
 
     if (this.props.multipleSorting) {
-      this.state.sort.push(sort);
+      (this.state.sort as SortElementProps<string & keyof TColumns & keyof TRecord>[]).push(sort);
     } else {
+      // @ts-expect-error state readonly
       this.state.sort = sort;
     }
 
@@ -1828,67 +1053,29 @@ class GridComponent extends React.Component {
 
   /**
    * Move to first page event handler
-   *
-   * @param {Event} event
    */
-  handleFirstPage = () => {
+  handleFirstPage = (): void => {
     this.setPage(0);
   };
 
   /**
    * Move to last page event handler
-   *
-   * @param {Event} event
    */
-  handleLastPage = () => {
+  handleLastPage = (): void => {
     this.setPage(this.getPagesCount() - 1);
   };
 
   /**
    * Refresh table handler
-   *
    */
-  handleRefreshTable = () => {
+  handleRefreshTable = (): void => {
     this.updateTable();
   };
 
   /**
-   * Returns statuses Map combined with Array of selected records
-   *
-   * @returns {EqualMap} statuses
-   */
-  _getStatuses() {
-    const statuses = cloneDeep(this.state.statuses);
-
-    if (this.state.selectBlackListMode) {
-      for (const [recordId] of this.state.data) {
-        if (indexOf(this.state.selected, recordId) < 0) {
-          if (!statuses.has(recordId)) {
-            statuses.set(recordId, new Set());
-          }
-
-          statuses.get(recordId).add('selected');
-        }
-      }
-
-      return statuses;
-    }
-
-    for (const recordId of this.state.selected) {
-      if (!statuses.has(recordId)) {
-        statuses.set(recordId, new Set());
-      }
-
-      statuses.get(recordId).add('selected');
-    }
-
-    return statuses;
-  }
-
-  /**
    * Switch records selection mode
    */
-  toggleSelectAll() {
+  toggleSelectAll(): void {
     if (this.props.onToggleSelectAll) {
       return this.props.onToggleSelectAll();
     }
@@ -1903,12 +1090,9 @@ class GridComponent extends React.Component {
   /**
    * Is selected row flag in accordance with
    * current select mode (whitelist/blacklist).
-   *
-   * @param   {number|string}     recordId    Record ID
-   * @returns {boolean}           Is selected row flag
    */
-  isSelected(recordId) {
-    const selected = indexOf(this.state.selected, recordId) >= 0;
+  isSelected(recordId: TKey): boolean {
+    const selected = this.state.selected.findIndex((key) => isEqual(key, recordId)) >= 0;
     if (this.state.selectBlackListMode) {
       return !selected;
     }
@@ -1918,10 +1102,8 @@ class GridComponent extends React.Component {
 
   /**
    * Switch "select"
-   *
-   * @param {*}   recordId  Record ID
    */
-  toggleSelected(recordId) {
+  toggleSelected(recordId: TKey): void {
     if (this.props.onToggleSelected) {
       return this.props.onToggleSelected(recordId);
     }
@@ -1933,17 +1115,17 @@ class GridComponent extends React.Component {
     }
   }
 
-  render() {
+  render(): JSX.Element {
     const gridClassNames = ['data-grid'];
     const sort = this.getSortDirection();
     const viewCount = this.getViewCount();
-    const statuses = this._getStatuses();
+    const statuses = this.getStatuses();
     const {showLoader, totals, count, page, data, changes, errors, warnings, editor, extra} = this.state;
 
-    const {viewVariants, viewColumns} = this.props;
+    const {viewVariants, viewColumns, className, height, columns, pageSizeLabel} = this.props;
 
-    if (this.props.className) {
-      gridClassNames.push(this.props.className);
+    if (className) {
+      gridClassNames.push(className);
     }
 
     return (
@@ -1955,10 +1137,10 @@ class GridComponent extends React.Component {
         onClickLastPage={this.handleLastPage}
         onRefreshTable={this.handleRefreshTable}
         onCellClick={this.createEditor}
-        onColumnClick={this._handleColumnClick}
-        height={this.props.height}
-        columns={this.props.columns}
-        pageSizeLabel={this.props.pageSizeLabel}
+        onColumnClick={this.handleColumnClick}
+        height={height}
+        columns={columns}
+        pageSizeLabel={pageSizeLabel}
         viewCount={viewCount}
         sort={sort}
         classNames={gridClassNames}
@@ -1975,13 +1157,679 @@ class GridComponent extends React.Component {
         errors={errors}
         warnings={warnings}
         editor={editor}
-        grid={this}
+        gridRef={this}
       />
     );
   }
-}
 
-GridComponent.propTypes = propTypes;
-GridComponent.defaultProps = defaultProps;
+  private async unsafeUpdateTable(): Promise<void> {
+    this.setState({showLoader: true});
+
+    if (!this.props.model) {
+      return;
+    }
+
+    const viewCount = this.getViewCount();
+
+    let loadedData: IGridModelReadResult<TKey, TRecord>;
+    try {
+      loadedData = await this.loadData({
+        limit: viewCount,
+        offset: this.state.page * viewCount,
+        sort: this.sortingToArray() || undefined,
+        fields: this.getFieldsToRender(),
+        extra: [...this.getAdditionalIds()]
+      });
+    } catch (error) {
+      if (this.mounted) {
+        this.setState({showLoader: false});
+      }
+
+      if (!(error instanceof ThrottleError)) {
+        throw error;
+      }
+
+      return;
+    }
+
+    if (!this.mounted) {
+      return;
+    }
+
+    const currentViewCount = this.getViewCount();
+    if (loadedData.count === undefined) {
+      throw new Error('Incorrect response from GridModel. "response.count" not defined');
+    }
+
+    // If required page is not included in the range of existing pages,
+    // request existing in a moment page
+    const page = this.getValidPage(this.state.page, currentViewCount, loadedData.count);
+    if (page !== this.state.page) {
+      // @ts-expect-error state readonly
+      this.state.page = page;
+      this.updateTable();
+      return;
+    }
+
+    const data = new EqualMap(loadedData.records || []);
+    const extra = new EqualMap(
+      (loadedData.extraRecords || []).filter(([recordId]) => {
+        return !data.has(recordId);
+      })
+    );
+    const recordIds = [...data.keys(), ...extra.keys()];
+    this.setState(
+      {
+        data,
+        extra,
+        count: loadedData.count,
+        totals: loadedData.totals || {},
+        errors: this.equalPick(this.state.errors, recordIds),
+        changes: this.equalPick(this.state.changes, recordIds),
+        showLoader: false
+      },
+      () => {
+        if (this.props.onPageLoad) {
+          this.props.onPageLoad(loadedData);
+        }
+      }
+    );
+  }
+
+  private onRecordsCreated = async (recordIdOrIds: TKey | TKey[]): Promise<void> => {
+    let recordIds: TKey[];
+    if (!Array.isArray(recordIdOrIds)) {
+      warn('Not array recordsIds in "create" event is deprecated');
+      recordIds = [recordIdOrIds];
+    } else {
+      recordIds = recordIdOrIds;
+    }
+
+    this.updateTable()
+      .then(() => {
+        return Promise.all(
+          recordIds.map(async (recordId) => {
+            if (!this.isRecordLoaded(recordId)) {
+              return;
+            }
+
+            try {
+              await this.checkWarnings(recordId);
+            } catch (e) {
+              if (!(e instanceof ThrottleError)) {
+                throw e;
+              }
+            }
+          })
+        );
+      })
+      .catch(this.props.onError);
+  };
+
+  /**
+   * Load model data
+   */
+  private async loadData(
+    settings: IGridModelReadParams<TKey, TRecord, TFilters>
+  ): Promise<IGridModelReadResult<TKey, TRecord>> {
+    if (!this.props.model) {
+      throw new TypeError('"model" in props is required');
+    }
+
+    let data: IGridModelReadResult<TKey, TRecord>;
+    try {
+      data = await this.props.model.read(settings);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error && this.props.onError) {
+        this.props.onError(error);
+      }
+
+      throw error;
+    }
+
+    return data;
+  }
+
+  /**
+   * Find record IDs that need to be displayed additionally
+   */
+  private getAdditionalIds(): Set<TKey> {
+    const additionalIds = new Set(this.state.statuses.keys());
+    for (const [recordId] of this.state.changes) {
+      additionalIds.add(recordId);
+    }
+
+    return additionalIds;
+  }
+
+  /**
+   * Get the names of the parameters that are required to display the grid
+   */
+  private getFieldsToRender(): (string & keyof TRecord)[] {
+    const cols = this.props.columns;
+    let columnIds: (string & keyof TRecord)[] = [];
+    forEach(cols, (column) => {
+      if (column) {
+        columnIds = union(
+          columnIds,
+          column.render.slice(0, column.render.length - 1) as (string & keyof TRecord)[]
+        );
+      }
+    });
+
+    return columnIds;
+  }
+
+  /**
+   * Convert sorting to array
+   */
+  private sortingToArray(): [string & keyof TColumns & keyof TRecord, IGridModelSortMode][] | null {
+    function toArray<TColumnId extends string & keyof TColumns & keyof TRecord>(
+      sort: SortElementProps<TColumnId>
+    ): [TColumnId, IGridModelSortMode] {
+      return [sort.column, sort.direction];
+    }
+
+    const direction = this.getSortDirection();
+    if (!direction) {
+      return null;
+    }
+
+    if (this.props.multipleSorting) {
+      const multipleDirection = direction as SortElementProps<string & keyof TColumns & keyof TRecord>[];
+      if (!multipleDirection.length) {
+        return null;
+      }
+
+      return multipleDirection.map(toArray);
+    }
+
+    return [toArray(direction as SortElementProps<string & keyof TColumns & keyof TRecord>)];
+  }
+
+  private equalPick<TValue>(map: EqualMap<TKey, TValue>, keys: TKey[]): EqualMap<TKey, TValue> {
+    return keys.reduce((result, key) => {
+      if (map.has(key)) {
+        result.set(key, map.get(key) as TValue);
+      }
+
+      return result;
+    }, new EqualMap<TKey, TValue>());
+  }
+
+  /**
+   * Get record with changes
+   */
+  private getRecordWithChanges = (recordId: TKey): Partial<TRecord> | null => {
+    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
+    if (this.state.data.has(recordId)) {
+      return {...this.state.data.get(recordId), ...this.state.changes.get(recordId)};
+    }
+
+    if (this.state.extra.has(recordId)) {
+      return {...this.state.extra.get(recordId), ...this.state.changes.get(recordId)};
+    }
+
+    return null;
+  };
+
+  /**
+   * Pass changes to the table
+   * This method marks changed fields
+   */
+  private setRowChanges(recordId: TKey, data: Partial<TRecord>): void {
+    this.setState(
+      (state, props) => {
+        assert(state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+        assert(props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+
+        const changes = cloneDeep(state.changes);
+        changes.set(
+          recordId,
+          getRecordChanges(
+            props.model.getValidationDependency.bind(props.model),
+            state.data.get(recordId) || state.extra.get(recordId) || {},
+            changes.get(recordId) || {},
+            data
+          )
+        );
+
+        if (isEmpty(changes.get(recordId))) {
+          changes.delete(recordId);
+        }
+
+        return {changes};
+      },
+      () => {
+        if (this.props.onChange) {
+          this.props.onChange(this.state.changes);
+        }
+      }
+    );
+  }
+
+  /**
+   * Remove record
+   */
+  private removeExtraRecord(recordId: TKey): void {
+    return this.removeExtraRecords([recordId]);
+  }
+
+  private removeExtraRecords(recordIds: TKey[]): void {
+    if (!recordIds.length) {
+      return;
+    }
+
+    const changes = cloneDeep(this.state.changes);
+    const warnings = cloneDeep(this.state.warnings);
+    const errors = cloneDeep(this.state.errors);
+    const extra = cloneDeep(this.state.extra);
+    let editor = cloneDeep(this.state.editor);
+    let touchedChangesExists = false;
+
+    for (const recordId of recordIds) {
+      touchedChangesExists = touchedChangesExists || Boolean(changes.get(recordId));
+      this.unselectRecord(recordId);
+      extra.delete(recordId);
+      changes.delete(recordId);
+      warnings.delete(recordId);
+      errors.delete(recordId);
+
+      if (isEqual(editor.recordId, recordId)) {
+        editor = {};
+      }
+    }
+
+    this.setState({changes, extra, warnings, errors, editor}, () => {
+      if (touchedChangesExists && this.props.onChange) {
+        this.props.onChange(this.state.changes);
+      }
+    });
+  }
+
+  /**
+   * Trigger selected records count change handler
+   */
+  private emitChangeSelectedNum(): void {
+    if (!this.props.onSelectedChange) {
+      return;
+    }
+
+    let selectedCount = this.state.selected.length;
+    if (this.state.selectBlackListMode) {
+      selectedCount = this.getCountRecords() - selectedCount;
+    }
+
+    this.props.onSelectedChange(this.getAllSelected(), selectedCount);
+  }
+
+  /**
+   * Set table data
+   */
+  private setData: EventListener<GridModelListenerArgsByEventName<TKey, TRecord>['update']> = async (
+    changes
+  ) => {
+    // Apply all changes
+    for (const [recordId, data] of changes) {
+      if (!this.isRecordLoaded(recordId)) {
+        continue;
+      }
+
+      // Firstly we update the state
+      this.setRecordData(recordId, data);
+
+      // Then we validate the updated data in state
+      try {
+        await this.checkWarnings(recordId);
+      } catch (error) {
+        if (!(error instanceof ThrottleError)) {
+          throw error;
+        }
+      }
+    }
+  };
+
+  /**
+   * Set record data
+   */
+  private setRecordData(recordId: TKey, data: Partial<TRecord>): void {
+    if (!this.isRecordLoaded(recordId)) {
+      return;
+    }
+
+    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
+    const nextData = new EqualMap(
+      [...this.state.data].map(([dataRecordId, record]) => {
+        if (!isEqual(recordId, dataRecordId)) {
+          return [dataRecordId, record];
+        }
+
+        return [
+          dataRecordId,
+          {
+            ...record,
+            ...data
+          }
+        ];
+      })
+    );
+
+    this.setState({data: nextData});
+  }
+
+  /**
+   * Is record loaded
+   */
+  private isRecordLoaded(recordId: TKey): boolean {
+    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
+    return this.state.data.has(recordId);
+  }
+
+  /**
+   * Get row ID
+   */
+  private getRowID(recordId: TKey): TKey {
+    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
+    if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
+      throw new Error('Record with the ID is not contained in the table.');
+    }
+
+    return recordId;
+  }
+
+  /**
+   * Get initial sort state
+   */
+  private getDefaultSort(): SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord> {
+    if (this.props.defaultSort) {
+      return cloneDeep(this.props.defaultSort);
+    }
+
+    return null;
+  }
+
+  /**
+   * Does sorting using props
+   */
+  private isSortingPropsMode(): boolean {
+    return this.props.hasOwnProperty('sort');
+  }
+
+  /**
+   * This method converts data object to the array with keys presented as record ID hash
+   */
+  private dataMapToArray(map: EqualMap<TKey, Partial<TRecord>>): [TKey, Partial<TRecord>][] {
+    const result: [TKey, Partial<TRecord>][] = [];
+
+    for (const [recordId, value] of map) {
+      result.push([recordId, {...value}]);
+    }
+
+    return result;
+  }
+
+  private async onBlurEditor(recordId: TKey): Promise<void> {
+    this.setState({editor: {}});
+
+    await this.checkWarnings(recordId);
+
+    if (this.props.autoSubmit) {
+      await this.save();
+      return;
+    }
+
+    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+
+    try {
+      const errors = await this.checkValidatorErrors(
+        recordId,
+        this.props.model.isValidRecord.bind(this.props.model),
+        this.getRecordChanges,
+        'errors'
+      );
+      this.setState({errors});
+    } catch (e) {
+      if (!(e instanceof ThrottleError)) {
+        throw e;
+      }
+    }
+  }
+
+  /**
+   * Validate row
+   */
+  private async validateRow(recordId: TKey): Promise<void> {
+    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+
+    const errors = await this.checkValidatorErrors(
+      recordId,
+      this.props.model.isValidRecord.bind(this.props.model),
+      this.getRecordChanges,
+      'errors'
+    );
+    this.setState({errors});
+  }
+
+  /**
+   * Check warnings
+   */
+  private async checkWarnings(recordId: TKey): Promise<void> {
+    if (!this.props.warningsValidator) {
+      return;
+    }
+
+    const warnings = await this.checkValidatorErrors(
+      recordId,
+      this.props.warningsValidator.isValidRecord.bind(this.props.warningsValidator),
+      (recordId) => {
+        return this.getRecordWithChanges(recordId) || {};
+      },
+      'warnings'
+    );
+
+    this.setState({warnings});
+  }
+
+  /**
+   * Check errors in "validator" object
+   */
+  private async checkValidatorErrors<TStateValidationField extends 'errors' | 'warnings'>(
+    recordId: TKey,
+    validate: (
+      record: Partial<TRecord>,
+      recordId?: TKey
+    ) => Promise<ValidationErrors<string & keyof TRecord>>,
+    getData: (recordId: TKey) => Partial<TRecord>,
+    resultField: TStateValidationField
+  ): Promise<EqualMap<TKey, ValidationErrors<string & keyof TRecord>>> {
+    const record = getData(recordId);
+    const validErrors = await validate(record);
+    const clonedResult = new EqualMap(this.state[resultField]);
+    if (isEqual(record, getData(recordId))) {
+      if (validErrors.isEmpty()) {
+        clonedResult.delete(recordId);
+      } else {
+        clonedResult.set(recordId, validErrors);
+      }
+    }
+
+    return clonedResult;
+  }
+
+  private onFocusEditor(recordId: TKey, columnId: string & keyof TColumns): void {
+    const errors = cloneDeep(this.state.errors);
+    const columnErrors = errors.get(recordId);
+    if (!columnErrors) {
+      return;
+    }
+
+    const editorFieldName = this.getEditorFieldName(columnId);
+    columnErrors.clearField(editorFieldName);
+
+    if (columnErrors.isEmpty()) {
+      errors.delete(recordId);
+    }
+
+    this.setState({errors});
+  }
+
+  private onChangeEditor<TField extends string & keyof TRecord>(
+    recordId: TKey,
+    columnId: string & keyof TColumns,
+    eventOrValue:
+      | Partial<TRecord>[TField]
+      | React.SyntheticEvent<
+          Element & {
+            target: {
+              value: Partial<TRecord>[TField];
+            };
+          }
+        >,
+    editorContext: EditorContext<Partial<TRecord>, TField>
+  ): void {
+    const value = cloneDeep(parseValueFromEvent(eventOrValue)) as Partial<TRecord>[TField];
+
+    const columnConfig = this.props.columns[columnId];
+    assert(columnConfig, `"${columnId}" column unavailable`);
+    const record = this.getRecordWithChanges(recordId);
+    assert(record, '"record" unknown');
+    assert(columnConfig.editor, '"columnConfig.editor" unknown');
+
+    const context = cloneDeep(editorContext);
+    context.props.value = value;
+    const element = columnConfig.editor.call(context, record, this);
+    const recordChanges: Partial<TRecord> = {};
+    recordChanges[this.getEditorFieldName(columnId)] = value;
+    this.setRowChanges(recordId, recordChanges);
+    this.setState({
+      editor: {
+        element,
+        recordId,
+        column: columnId
+      }
+    });
+  }
+
+  private getValidPage(page: number, view: number, count: number): number {
+    let validPage = page;
+    if (validPage * view >= count) {
+      validPage = view ? Math.ceil(count / view) - 1 : 0;
+    }
+
+    return Math.max(0, validPage);
+  }
+
+  private removeExtraRecordIfNeed(recordId: TKey): void {
+    if (
+      this.state.extra.has(recordId) &&
+      !this.state.statuses.has(recordId) &&
+      !this.state.changes.has(recordId)
+    ) {
+      this.removeExtraRecord(recordId);
+    }
+  }
+
+  private isViewCountPropsMode(): boolean {
+    return this.props.hasOwnProperty('viewCount');
+  }
+
+  /**
+   * Use column name for table sort
+   */
+  private handleColumnClick = (columnId: string & keyof TColumns): void => {
+    const {sortCycle} = this.props.columns[columnId] || {};
+    if (!sortCycle) {
+      return;
+    }
+
+    const sortableColumn = columnId as string & keyof TColumns & keyof TRecord;
+
+    let nextSorting: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>;
+    let nextDirectionForColumn: IGridModelSortMode;
+
+    if (this.props.multipleSorting) {
+      const nextMultipleSorting = getNextMultipleSorting(
+        sortableColumn,
+        this.getSortDirection() as SortElementProps<string & keyof TColumns & keyof TRecord>[],
+        sortCycle
+      );
+
+      nextDirectionForColumn =
+        nextMultipleSorting[nextMultipleSorting.length - 1].column === columnId
+          ? nextMultipleSorting[nextMultipleSorting.length - 1].direction
+          : 'default';
+
+      nextSorting = nextMultipleSorting as SortRuleType<
+        TMultipleSorting,
+        string & keyof TColumns & keyof TRecord
+      >;
+    } else {
+      const nextSingleSorting = getNextSingleSorting(
+        sortableColumn,
+        this.getSortDirection() as SortElementProps<string & keyof TColumns & keyof TRecord> | null,
+        sortCycle
+      );
+
+      nextDirectionForColumn = nextSingleSorting.direction;
+
+      if (nextSingleSorting.direction === 'default') {
+        nextSorting = null;
+      } else {
+        nextSorting = nextSingleSorting as SortRuleType<
+          TMultipleSorting,
+          string & keyof TColumns & keyof TRecord
+        >;
+      }
+    }
+
+    this.props.onSorting?.(nextSorting, sortableColumn, nextDirectionForColumn);
+
+    if (!this.isSortingPropsMode()) {
+      // @ts-expect-error state readonly
+      this.state.sort = nextSorting;
+      this.setPage(0);
+    }
+  };
+
+  /**
+   * Returns statuses Map combined with Array of selected records
+   */
+  private getStatuses(): EqualMap<TKey, Set<string>> {
+    const statuses = cloneDeep(this.state.statuses);
+
+    if (this.state.selectBlackListMode) {
+      assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+
+      for (const [recordId] of this.state.data) {
+        if (indexOf(this.state.selected, recordId) < 0) {
+          const recordStatuses = statuses.get(recordId) || new Set();
+          recordStatuses.add('selected');
+
+          statuses.set(recordId, recordStatuses);
+        }
+      }
+
+      return statuses;
+    }
+
+    for (const recordId of this.state.selected) {
+      const recordStatuses = statuses.get(recordId) || new Set();
+      recordStatuses.add('selected');
+
+      statuses.set(recordId, recordStatuses);
+    }
+
+    return statuses;
+  }
+
+  private getEditorFieldName(columnId: string & keyof TColumns): string & keyof TRecord {
+    return this.props.columns[columnId]?.editorField || (columnId as string & keyof TRecord);
+  }
+}
 
 export default GridComponent;

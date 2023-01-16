@@ -12,8 +12,8 @@ if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') 
     let tail = head;
     const ID = Math.random();
 
-    function onMessage(e) {
-      if (e.data !== ID) {
+    function onMessage(error) {
+      if (error.data !== ID) {
         return;
       }
 

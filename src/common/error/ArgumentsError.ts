@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {getStack} from './utils';
+import {getStack} from '../utils';
 
 class ArgumentsError extends Error {
   status: number;

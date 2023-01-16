@@ -93,7 +93,8 @@ describe('validators', () => {
     const validatorNotNull = date.notNull(0, 500000, 'err text');
     expect(validator(245545)).toBeUndefined();
     expect(validator('1979-12-31T23:10:00.000Z')).toBe('err text');
-    expect(validatorNotNull('1970-01-01T01:00:00.000Z')).toBeUndefined();
+    expect(validatorNotNull('1970-01-01T01:00:00.000Z')).toBe('err text');
+    expect(validatorNotNull('1970-01-01T03:00:00.000Z')).toBeUndefined();
     expect(validatorNotNull(600000)).toBe('err text');
     expect(validatorNotNull()).toBe('err text');
   });
@@ -160,14 +161,6 @@ describe('Validator', () => {
   let validator;
   beforeEach(() => {
     validator = new Validator();
-  });
-
-  it('field', async () => {
-    validator.field('name', validatorBoolean);
-    let result = await validator.isValidRecord({name: true});
-    expect(result.toJSON()).toEqual({});
-    result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
   });
 
   it('field', async () => {

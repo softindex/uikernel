@@ -6,11 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, error, value) {
-  error = error || 'Not boolean';
-  if (!isDefined(value)) {
+function baseValidator(notNull: boolean, error = 'Not boolean', value: unknown): string | undefined {
+  if (isNil(value)) {
     if (notNull) {
       return error;
     }
@@ -21,15 +20,19 @@ function baseValidator(notNull, error, value) {
   if (typeof value !== 'boolean') {
     return error;
   }
+
+  return;
+}
+
+export interface BooleanValidation {
+  (error?: string): (value: unknown) => string | undefined;
+  notNull: (error?: string) => (value: unknown) => string | undefined;
 }
 
 /**
  * Create boolean validator
- *
- * @param {string} error Error message
- * @returns {Function} Validator
  */
-const validator = (error) => baseValidator.bind(null, false, error);
+const validator: BooleanValidation = (error) => baseValidator.bind(null, false, error);
 validator.notNull = (error) => baseValidator.bind(null, true, error);
 
 export default validator;

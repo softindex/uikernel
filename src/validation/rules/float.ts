@@ -6,11 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, min, max, error, value) {
-  error = error || 'Invalid float';
-  if (!isDefined(value)) {
+type Limit = number | null | undefined;
+
+function baseValidator(
+  notNull: boolean,
+  min: Limit,
+  max: Limit,
+  error = 'Invalid float',
+  value: unknown
+): string | undefined {
+  if (isNil(value)) {
     if (notNull) {
       return error;
     }
@@ -27,17 +34,19 @@ function baseValidator(notNull, min, max, error, value) {
   ) {
     return error;
   }
+
+  return;
+}
+
+export interface FloatValidation {
+  (min: Limit, max: Limit, error?: string): (value: unknown) => string | undefined;
+  notNull: (min: Limit, max: Limit, error?: string) => (value: unknown) => string | undefined;
 }
 
 /**
  * Create float validator
- *
- * @param min
- * @param max
- * @param {string} error Error message
- * @returns {Function}
  */
-const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
+const validator: FloatValidation = (min, max, error) => baseValidator.bind(null, false, min, max, error);
 validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
 
 export default validator;

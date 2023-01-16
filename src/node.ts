@@ -14,11 +14,14 @@ import exportGridData from './grid/export/exportGridData';
 import GridExpressApi from './grid/models/GridExpressApi';
 import ListExpressApi from './list/ListExpressApi';
 
-browserModule.gridExpressApi = GridExpressApi.create;
-browserModule.listExpressApi = ListExpressApi.create;
-browserModule.formExpressApi = FormExpressApi.create;
-browserModule.exportGridData = exportGridData;
-browserModule.toJSON = toJSON;
-browserModule.toCSV = toCSV;
+const nodeModule = {
+  ...browserModule,
+  gridExpressApi: GridExpressApi.create,
+  listExpressApi: ListExpressApi.create,
+  formExpressApi: FormExpressApi.create,
+  exportGridData: exportGridData,
+  toJSON: toJSON,
+  toCSV: toCSV
+};
 
-export default browserModule;
+export default nodeModule;

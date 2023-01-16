@@ -6,10 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ArgumentsError from '../../common/ArgumentsError';
+import ArgumentsError from '../../common/error/ArgumentsError';
+import {AnyFunction} from '../../common/types';
+import {keys} from '../../common/utils';
+import {IGridModelSortMode, IGridModel} from '../models/types/IGridModel';
+import {GridColumnConfig, GridGetColumn} from '../types/GridColumns';
 
-function formatColumns(columns, viewColumns) {
-  const formattedColumns = {};
+type FormatColumnsResult<TField extends string> = Record<TField, string>;
+
+function formatColumns<TRecord extends {}, TColumn extends string>(
+  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  viewColumns: TColumn[]
+): FormatColumnsResult<TColumn> {
+  const formattedColumns: FormatColumnsResult<TColumn> = {} as unknown as FormatColumnsResult<TColumn>;
   let columnId;
   let i;
 
@@ -23,19 +32,41 @@ function formatColumns(columns, viewColumns) {
   return formattedColumns;
 }
 
-function formatRecord(record, columns, viewColumns) {
-  const formattedRecord = {};
+type FormatRecordResult<TField extends string> = Record<TField, string>;
+
+function formatRecord<TRecord extends {}, TColumn extends string>(
+  record: Partial<TRecord>,
+  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  viewColumns: TColumn[]
+): FormatRecordResult<TColumn> {
+  const formattedRecord: FormatRecordResult<TColumn> = {} as unknown as FormatRecordResult<TColumn>;
 
   for (const viewColumn of viewColumns) {
     const column = columns[viewColumn];
-    formattedRecord[viewColumn] = column.render[column.render.length - 1](record);
+    formattedRecord[viewColumn] = (column.render[column.render.length - 1] as GridGetColumn<TRecord>)(
+      record,
+      false,
+      record,
+      undefined
+    );
   }
 
   return formattedRecord;
 }
 
-function formatData(records, totals, columns, viewColumns) {
-  const formatted = {
+type FormatDataResult<TColumn extends string> = {
+  columns: FormatColumnsResult<TColumn>;
+  records: FormatRecordResult<TColumn>[];
+  totals?: FormatRecordResult<TColumn>;
+};
+
+function formatData<TRecord extends {}, TColumn extends string>(
+  records: [unknown, Partial<TRecord>][],
+  totals: Partial<TRecord> | undefined,
+  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  viewColumns: TColumn[]
+): FormatDataResult<TColumn> {
+  const formatted: FormatDataResult<TColumn> = {
     columns: formatColumns(columns, viewColumns),
     records: records.map((record) => formatRecord(record[1], columns, viewColumns))
   };
@@ -46,27 +77,31 @@ function formatData(records, totals, columns, viewColumns) {
   return formatted;
 }
 
-function getFields(columns, viewColumns) {
-  const fields = {};
+function getFields<TRecord extends {}, TColumn extends string>(
+  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  viewColumns: TColumn[]
+): (keyof TRecord & string)[] {
+  const fields: Partial<Record<keyof TRecord & string, boolean>> = {};
   for (const columnId of viewColumns) {
-    for (let i = 0; i < columns[columnId].render.length - 1; i++) {
-      fields[columns[columnId].render[i]] = true;
+    const columnFields = columns[columnId].render.slice(0, -1) as (keyof TRecord & string)[];
+
+    for (const columnField of columnFields) {
+      fields[columnField] = true;
     }
   }
 
-  return Object.keys(fields);
+  return keys(fields);
 }
 
-/**
- * @param {{}} columns
- * @param {string[]} viewColumns
- */
-function assertValidViewColumns(columns, viewColumns) {
-  if (!viewColumns || !viewColumns.length) {
+function assertValidViewColumns<TRecord extends {}, TColumn extends string>(
+  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  viewColumns?: TColumn[] | null
+): void {
+  if (!viewColumns?.length) {
     throw new ArgumentsError('"viewColumns" can`t be empty');
   }
 
-  const notExistColumns = [];
+  const notExistColumns: string[] = [];
   for (const columnId of viewColumns) {
     if (!columns[columnId]) {
       notExistColumns.push(columnId);
@@ -78,29 +113,38 @@ function assertValidViewColumns(columns, viewColumns) {
   }
 }
 
-/**
- * @param {{}}                    gridModel
- * @param {{}}                    columns
- * @param {string[]}              viewColumns
- * @param {Function}              exporter
- * @param {{}}                    settings
- * @param {[string, string][]}      settings.sort
- * @param {number}                  settings.limit
- * @param {number}                  settings.offset
- * @param {string[]}                settings.viewColumns
- */
-async function exportGridData(gridModel, columns, viewColumns, exporter, settings) {
+type ExportRunner = AnyFunction<Promise<{data: unknown; mime: string}>>;
+
+type ExportGridDataSettings<TRecord extends {}> = {
+  limit?: number;
+  offset?: number;
+  sort?: {column: keyof TRecord & string; direction: IGridModelSortMode};
+};
+
+type ExportGridDataResult<TExportRunner extends ExportRunner> = TExportRunner extends AnyFunction<
+  Promise<infer RESULT>
+>
+  ? RESULT
+  : ReturnType<ExportRunner>;
+
+async function exportGridData<TRecord extends {}, TColumn extends string, TExportRunner extends ExportRunner>(
+  gridModel: IGridModel<unknown, TRecord, unknown>,
+  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  viewColumns: TColumn[],
+  exportRunner: TExportRunner,
+  settings: ExportGridDataSettings<TRecord>
+): Promise<ExportGridDataResult<TExportRunner>> {
   assertValidViewColumns(columns, viewColumns);
   const result = await gridModel.read({
     fields: getFields(columns, viewColumns),
-    sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : null,
+    sort: settings.sort ? [[settings.sort.column, settings.sort.direction]] : undefined,
     limit: settings.limit,
     offset: settings.offset
   });
 
   const data = formatData(result.records, result.totals, columns, viewColumns);
 
-  return await exporter(data);
+  return (await exportRunner(data)) as ExportGridDataResult<TExportRunner>;
 }
 
 export default exportGridData;

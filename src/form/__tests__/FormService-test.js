@@ -6,59 +6,70 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../../common/validation/ValidationErrors';
-import FormModelMock from '../__mocks__/FormModelMock';
-import Form from '../FormService';
+import createMockInstance from '../../common/mock-utils/createMockInstance';
+import ValidationErrors from '../../validation/ValidationErrors';
+import FormModel from '../FormModel';
+import FormService from '../FormService';
 
-function getInitSettings(mockMethods) {
+function getInitSettings() {
   jest.resetModules();
   return {
     fields: ['name', 'surname', 'phone', 'age'],
     partialErrorChecking: false,
-    model: {...new FormModelMock(), ...mockMethods}
+    model: createMockInstance(FormModel)
   };
 }
 
-let form;
-let stateHandler;
+async function createInitedInstance(initialData = {}) {
+  const instance = new FormService();
+  const initSettings = getInitSettings();
+  const modelMock = initSettings.model;
+  modelMock.getData.mockResolvedValueOnce(initialData);
+  modelMock.on.mockResolvedValueOnce(modelMock);
+  await instance.init(initSettings);
 
-beforeEach(async () => {
-  form = new Form();
-  await form.init(getInitSettings());
-  stateHandler = jest.fn();
-  form.addChangeListener(stateHandler);
-});
+  return {instance, modelMock};
+}
 
 describe('Init form', () => {
-  const initSettings = getInitSettings();
-
   it("Settings dosn't have model property", async () => {
-    const form = new Form();
+    const form = new FormService();
+
+    let receivedError;
     try {
       await form.init({});
     } catch (error) {
-      expect(error.message).toEqual('You must specify the model');
+      receivedError = error;
     }
+
+    expect(receivedError).toBeDefined();
+    expect(receivedError.message).toEqual('You must specify the model');
   });
 
   it('Init', async () => {
-    const form = new Form();
+    const form = new FormService();
+    const initSettings = getInitSettings();
+    initSettings.model.getData.mockResolvedValueOnce({});
+    initSettings.model.on.mockResolvedValueOnce(initSettings.model);
+
     const result = await form.init(initSettings);
+
     expect(result).toBeUndefined();
     expect(initSettings.model.on).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('Settings', () => {
-  const initSettings = getInitSettings();
-
   it('partialErrorChecking = true', async () => {
-    const form = new Form();
+    const initSettings = getInitSettings();
+    initSettings.model.getData.mockResolvedValueOnce({});
+    initSettings.model.on.mockResolvedValueOnce(initSettings.model);
+    const form = new FormService();
     const settings = {...initSettings};
     settings.partialErrorChecking = true;
     await form.init(settings);
 
-    form.model.isValidRecord = async () => ValidationErrors.createFromJSON({age: ['Error']});
+    initSettings.model.isValidRecord.mockResolvedValueOnce(ValidationErrors.createFromJSON({age: ['Error']}));
 
     await form.validateForm();
 
@@ -66,12 +77,16 @@ describe('Settings', () => {
   });
 
   it('partialErrorChecking = false', async () => {
-    const form = new Form();
+    const initSettings = getInitSettings();
+    initSettings.model.getData.mockResolvedValueOnce({});
+    initSettings.model.on.mockResolvedValueOnce(initSettings.model);
+    initSettings.model.getValidationDependency.mockReturnValue([]);
+    const form = new FormService();
     await form.init(initSettings);
     // runValidator in ValidateForm won't call model.isValidRecord
     // if there are no changes or data in form
-    form.set({age: 'test'});
-    form.model.isValidRecord = async () => ValidationErrors.createFromJSON({age: ['Error']});
+    await form.set({age: 'test'});
+    initSettings.model.isValidRecord.mockResolvedValueOnce(ValidationErrors.createFromJSON({age: ['Error']}));
 
     await form.validateForm();
 
@@ -80,31 +95,36 @@ describe('Settings', () => {
 });
 
 describe('Get all', () => {
-  async function isValidRecord() {
-    return ValidationErrors.createFromJSON({
-      surname: ['Surname is required'],
-      age: ['Age must be greater then 100']
-    });
-  }
-
-  const initSettings = getInitSettings({isValidRecord});
-  const form = new Form();
-  const defaultState = {
-    isLoaded: false,
-    data: {},
-    fields: {},
-    originalData: {},
-    changes: {},
-    isSubmitting: false,
-    warnings: new ValidationErrors(),
-    errors: new ValidationErrors()
-  };
-
   it('Before init', () => {
+    const initSettings = getInitSettings();
+    initSettings.model.getData.mockResolvedValueOnce({});
+    initSettings.model.on.mockResolvedValueOnce(initSettings.model);
+    const form = new FormService();
+    const defaultState = {
+      isLoaded: false,
+      data: {},
+      fields: {},
+      originalData: {},
+      changes: {},
+      isSubmitting: false,
+      warnings: new ValidationErrors(),
+      errors: new ValidationErrors()
+    };
+
     expect(form.getAll()).toEqual(defaultState);
   });
 
   it('After init', async () => {
+    const initSettings = getInitSettings();
+    initSettings.model.getData.mockResolvedValueOnce({});
+    initSettings.model.on.mockResolvedValueOnce(initSettings.model);
+    const form = new FormService();
+    initSettings.model.isValidRecord.mockImplementation(async () => {
+      return ValidationErrors.createFromJSON({
+        surname: ['Surname is required'],
+        age: ['Age must be greater then 100']
+      });
+    });
     const fields = {
       name: {
         value: 'newName',
@@ -134,70 +154,87 @@ describe('Get all', () => {
     initSettings.data = {name: 'Name', age: 45};
     initSettings.changes = {name: 'newName', phone: 123456};
     await form.init(initSettings);
+
     expect(form.getAll().fields).toEqual(fields);
   });
 });
 
 describe('updateField', () => {
   it('Valid record', async () => {
-    await form.updateField('name', 'John');
-    expect(form.getAll().fields.name.isChanged).toBeTruthy();
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+
+    await instance.updateField('name', 'John');
+
+    expect(instance.getAll().fields.name.isChanged).toBeTruthy();
   });
 });
 
 describe('Listeners', () => {
   it('Add listener', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const handler = jest.fn();
 
-    form.addChangeListener(handler);
-    await form.set({name: 'John'});
+    instance.addChangeListener(handler);
+    await instance.set({name: 'John'});
 
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it('Remove listener', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.off.mockResolvedValueOnce(modelMock);
+    modelMock.getValidationDependency.mockReturnValue([]);
     const handler = jest.fn();
+    instance.addChangeListener(handler);
 
-    form.addChangeListener(handler);
-    form.removeChangeListener(handler);
-    await form.set({name: 'John'});
+    instance.removeChangeListener(handler);
+    await instance.set({name: 'John'});
 
     expect(handler).toHaveBeenCalledTimes(0);
   });
 
   it('Add two listeners', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const firstHandler = jest.fn();
     const secondHandler = jest.fn();
 
-    form.addChangeListener(firstHandler);
-    form.addChangeListener(secondHandler);
-    await form.set({name: 'John'});
+    instance.addChangeListener(firstHandler);
+    instance.addChangeListener(secondHandler);
+    await instance.set({name: 'John'});
 
     expect(firstHandler).toHaveBeenCalledTimes(1);
     expect(secondHandler).toHaveBeenCalledTimes(1);
   });
 
   it('Remove one listener of two', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const firstHandler = jest.fn();
     const secondHandler = jest.fn();
 
-    form.addChangeListener(firstHandler);
-    form.addChangeListener(secondHandler);
-    form.removeChangeListener(firstHandler);
-    await form.set({name: 'John'});
+    instance.addChangeListener(firstHandler);
+    instance.addChangeListener(secondHandler);
+    instance.removeChangeListener(firstHandler);
+    await instance.set({name: 'John'});
 
     expect(firstHandler).toHaveBeenCalledTimes(0);
     expect(secondHandler).toHaveBeenCalledTimes(1);
   });
 
   it('Remove all listeners', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.off.mockReturnValueOnce(modelMock);
+    modelMock.getValidationDependency.mockReturnValue([]);
     const firstHandler = jest.fn();
     const secondHandler = jest.fn();
 
-    form.addChangeListener(firstHandler);
-    form.addChangeListener(secondHandler);
-    form.removeAllListeners();
-    await form.set({name: 'John'});
+    instance.addChangeListener(firstHandler);
+    instance.addChangeListener(secondHandler);
+    instance.removeAllListeners();
+    await instance.set({name: 'John'});
 
     expect(firstHandler).toHaveBeenCalledTimes(0);
     expect(secondHandler).toHaveBeenCalledTimes(0);
@@ -206,128 +243,157 @@ describe('Listeners', () => {
 
 describe('clearValidation', () => {
   it('Clear error', async () => {
-    form.model.isValidRecord = async function () {
-      return ValidationErrors.createFromJSON({name: ['Error']});
-    };
+    const {instance, modelMock} = await createInitedInstance();
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
+    modelMock.isValidRecord.mockResolvedValueOnce(ValidationErrors.createFromJSON({name: ['Error']}));
+    modelMock.getValidationDependency.mockReturnValue([]);
 
-    await form.set({name: 'John'}, true);
-    form.clearValidation('name');
+    await instance.set({name: 'John'}, true);
+    instance.clearValidation('name');
 
-    expect(form.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set changes, validation, clear error
   });
 
   it('Clear & validating conflict', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     // runValidator in ValidateForm won't call model.isValidRecord
     // if there are no changes or data in form
-    form.set({name: 'test', age: 'test'});
+    await instance.set({name: 'test', age: 'test'});
 
-    form.model.isValidRecord = async function () {
-      return ValidationErrors.createFromJSON({
+    modelMock.isValidRecord.mockResolvedValueOnce(
+      ValidationErrors.createFromJSON({
         name: ['Error'],
         age: ['Error']
-      });
-    };
+      })
+    );
 
-    const validatePromise = form.validateForm();
-    form.clearValidation('name');
+    const validatePromise = instance.validateForm();
+    instance.clearValidation('name');
 
     await validatePromise;
-    expect(form.getAll().fields.age.errors.length).toBe(1);
+    expect(instance.getAll().fields.age.errors.length).toBe(1);
   });
 });
 
 describe('validateField', () => {
-  it('Set run', () => {
-    form.set = jest.fn();
-    form.validateField('name', 'newName');
-    expect(form.set).toHaveBeenCalledTimes(1);
+  it('Set run', async () => {
+    const {instance} = await createInitedInstance();
+    instance.set = jest.fn(async () => {});
+
+    instance.validateField('name', 'newName');
+
+    expect(instance.set).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('set', () => {
-  const initSettings = getInitSettings();
-  const form = new Form();
-  const stateHandler = jest.fn();
-
   it('Before loaded', async () => {
-    expect(await form.set({name: 'newName'})).toBeUndefined();
+    const instance = new FormService();
+
+    expect(await instance.set({name: 'newName'})).toBeUndefined();
   });
 
   it('After loaded', async () => {
-    await form.init(initSettings);
-    form.addChangeListener(stateHandler);
-    form.validateForm = jest.fn();
-    stateHandler.mockClear();
-    expect(await form.set({name: 'newName'})).toBeUndefined();
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
+    instance.validateForm = jest.fn();
+
+    expect(await instance.set({name: 'newName'})).toBeUndefined();
     expect(stateHandler).toHaveBeenCalledTimes(1);
   });
 
   it('With validate = true', async () => {
-    await form.set({name: 'newName'}, true);
-    expect(form.validateForm).toHaveBeenCalledTimes(1);
+    const {instance, modelMock} = await createInitedInstance();
+    instance.validateForm = jest.fn(async () => {});
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.isValidRecord.mockResolvedValueOnce(new ValidationErrors());
+
+    await instance.set({name: 'newName'}, true);
+
+    expect(instance.validateForm).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('submitData', () => {
   it("It's set & submit", async () => {
-    form.set = jest.fn();
-    form.submit = jest.fn();
+    const {instance} = await createInitedInstance();
+    instance.set = jest.fn();
+    instance.submit = jest.fn();
 
-    await form.submitData({name: 'John'});
+    await instance.submitData({name: 'John'});
 
-    expect(form.set).toHaveBeenCalledTimes(1);
-    expect(form.submit).toHaveBeenCalledTimes(1);
+    expect(instance.set).toHaveBeenCalledTimes(1);
+    expect(instance.submit).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('submit', () => {
   it('Validation error', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
     const validationError = ValidationErrors.createFromJSON({name: ['Error']});
-    form.model.submit = async function () {
-      throw validationError;
-    };
+    modelMock.submit.mockRejectedValueOnce(validationError);
+    modelMock.getValidationDependency.mockReturnValue([]);
 
     let error;
     try {
-      await form.submit();
+      await instance.submit();
     } catch (err) {
       error = err;
     }
 
     expect(error).toEqual(validationError);
-    expect(form.getAll().fields.name.errors.length).toBe(1);
+    expect(instance.getAll().fields.name.errors.length).toBe(1);
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
 
   it('Not actual changes', async () => {
-    await form.set({name: 'John', age: 21});
-    const submitPromise = form.submit();
-    await form.set({name: 'Sophia'});
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.submit.mockResolvedValueOnce({});
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
+
+    await instance.set({name: 'John', age: 21});
+    const submitPromise = instance.submit();
+    await instance.set({name: 'Sophia'});
     await submitPromise;
 
-    expect(form.getAll().fields.name.isChanged).toBeTruthy();
+    expect(instance.getAll().fields.name.isChanged).toBeTruthy();
     expect(stateHandler).toHaveBeenCalledTimes(4); // Set values, submitting, set values, submit result
   });
 
   it('Clear errors and changes after submit', async () => {
-    await form.set({name: 'John'});
-    await form.submit();
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.submit.mockResolvedValueOnce({});
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
 
-    expect(form.getAll().fields.name.isChanged).toBeFalsy();
-    expect(form.getAll().fields.name.errors.length).toBe(0);
+    await instance.set({name: 'John'});
+    await instance.submit();
+
+    expect(instance.getAll().fields.name.isChanged).toBeFalsy();
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set values, submitting, submit result
   });
 
   it('Global error', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
     const globalError = new Error('Global error');
-    form.model.submit = async function () {
-      throw globalError;
-    };
+    modelMock.submit.mockRejectedValueOnce(globalError);
 
     let error;
     try {
-      await form.submit();
+      await instance.submit();
     } catch (err) {
       error = err;
     }
@@ -337,159 +403,191 @@ describe('submit', () => {
   });
 
   it('isSubmitting = true', async () => {
-    form.model.submit = jest.fn();
-    form.submit();
-    const result = await form.submit();
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.submit.mockResolvedValueOnce({});
+
+    instance.submit();
+    const result = await instance.submit();
+
     expect(result).toBeUndefined();
   });
 });
 
 describe('clearFieldChanges', () => {
   it('Delete changes', async () => {
-    await form.set({name: 'newName'});
-    form.clearFieldChanges('name');
-    expect(form.getAll().fields.name.isChanged).toBeFalsy();
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+
+    await instance.set({name: 'newName'});
+    instance.clearFieldChanges('name');
+
+    expect(instance.getAll().fields.name.isChanged).toBeFalsy();
   });
 
   it('Errors clear field', async () => {
-    await form.set({name: 'Error'}, true);
-    form.clearFieldChanges('name');
-    expect(form.getAll().fields.name.errors.length).toBe(0);
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.isValidRecord.mockResolvedValueOnce(new ValidationErrors());
+
+    await instance.set({name: 'Error'}, true);
+    instance.clearFieldChanges('name');
+
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Set state', async () => {
-    stateHandler.mockClear();
-    form.clearFieldChanges('name');
+    const {instance} = await createInitedInstance();
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
+
+    instance.clearFieldChanges('name');
+
     expect(stateHandler).toHaveBeenCalledTimes(1);
   });
 });
 
 describe('clearChanges', () => {
   it('Clear changed', async () => {
-    await form.set({name: 'Error'});
-    await form.validateForm();
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.isValidRecord.mockResolvedValueOnce(new ValidationErrors());
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
+
+    await instance.set({name: 'Error'});
+    await instance.validateForm();
     stateHandler.mockClear();
-    form.clearChanges();
+    instance.clearChanges();
+
     expect(stateHandler).toHaveBeenCalledTimes(1);
-    expect(form.getAll().fields.name.errors.length).toBe(0);
-    expect(form.getAll().fields.name.isChanged).toBeFalsy();
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.isChanged).toBeFalsy();
   });
 });
 
 describe('validateForm', () => {
   it('Validation error correction', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const validationError = ValidationErrors.createFromJSON({name: ['Name is required']});
-    form.model.isValidRecord = async function (record) {
-      if (!record.name) {
-        return validationError;
-      }
-
-      return new ValidationErrors();
-    };
+    modelMock.isValidRecord.mockResolvedValueOnce(validationError);
+    modelMock.isValidRecord.mockResolvedValueOnce(new ValidationErrors());
 
     // Not valid name
-    await form.set({name: ''}, true);
-    expect(form.getAll().fields.name.errors.length).toBeTruthy();
+    await instance.set({name: ''}, true);
+    expect(instance.getAll().fields.name.errors.length).toBeTruthy();
 
     // Valid name
-    await form.set({name: 'John'}, true);
-    expect(form.getAll().fields.name.errors.length).toBe(0);
+    await instance.set({name: 'John'}, true);
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Simple validation error', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const expectedValidation = ValidationErrors.createFromJSON({name: ['Error']});
-    form.model.isValidRecord = async function () {
-      return expectedValidation;
-    };
+    modelMock.isValidRecord.mockResolvedValueOnce(expectedValidation);
 
-    await form.set({name: 'John'}, true);
+    await instance.set({name: 'John'}, true);
 
-    expect(form.getAll().fields.name.errors.length).toBeTruthy();
+    expect(instance.getAll().fields.name.errors.length).toBeTruthy();
   });
 
   it('Global validation error', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const globalError = new Error('Global error');
-    form.model.isValidRecord = async function () {
-      throw globalError;
-    };
+    modelMock.isValidRecord.mockRejectedValueOnce(globalError);
 
     let error;
     try {
-      await form.set({name: 'John'}, true);
+      await instance.set({name: 'John'}, true);
     } catch (e) {
       error = e;
     }
 
     expect(error).toBe(globalError);
-    expect(form.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Set state', async () => {
-    await form.set({name: 'newName'});
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.isValidRecord.mockResolvedValueOnce(new ValidationErrors());
+    const stateHandler = jest.fn();
+    instance.addChangeListener(stateHandler);
+
+    await instance.set({name: 'newName'});
     stateHandler.mockClear();
-    await form.validateForm();
+    await instance.validateForm();
+
     expect(stateHandler).toHaveBeenCalledTimes(1);
   });
 
   it('Partial error checking', async () => {
-    form.model.isValidRecord = async function () {
-      return ValidationErrors.createFromJSON({
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
+    modelMock.isValidRecord.mockResolvedValueOnce(
+      ValidationErrors.createFromJSON({
         name: ['Error'],
         age: ['Error']
-      });
-    };
+      })
+    );
 
-    form.setPartialErrorChecking(true);
-    await form.set({name: 'John'}, true);
+    instance.setPartialErrorChecking(true);
+    await instance.set({name: 'John'}, true);
 
-    expect(form.getAll().fields.name.errors.length).toBeTruthy();
+    expect(instance.getAll().fields.name.errors.length).toBeTruthy();
   });
 
   it('Cancel not actual validation', async () => {
+    const {instance, modelMock} = await createInitedInstance();
+    modelMock.getValidationDependency.mockReturnValue([]);
     const validationError = ValidationErrors.createFromJSON({name: ['Error']});
-    form.model.isValidRecord = async function () {
-      return validationError;
-    };
+    modelMock.isValidRecord.mockResolvedValueOnce(validationError);
 
-    const validationPromise = form.set({name: 'John'}, true); // Validation
-    form.set({name: 'Sophia'}); // Cancel previous validation
+    const validationPromise = instance.set({name: 'John'}, true); // Validation
+    instance.set({name: 'Sophia'}); // Cancel previous validation
 
     await validationPromise;
-    expect(form.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors.length).toBe(0);
   });
 
   it('Validation dependencies', async () => {
-    form.model.getValidationDependency = () => {
-      return ['age'];
-    };
+    const {instance, modelMock} = await createInitedInstance({
+      name: null,
+      age: null
+    });
 
-    await form.set({name: 'John'}, true);
-    expect(form.model.isValidRecord.mock.calls[0][0]).toEqual({
+    modelMock.getValidationDependency.mockReturnValue(['age']);
+    modelMock.isValidRecord.mockResolvedValueOnce(new ValidationErrors());
+
+    await instance.set({name: 'John'}, true);
+
+    expect(modelMock.isValidRecord.mock.calls[0][0]).toStrictEqual({
       age: null,
       name: 'John'
     });
   });
 
   it('Hide errors on unchanged form fields', async () => {
-    form.setPartialErrorChecking(true);
-    form.model.getValidationDependency = () => {
-      return ['age'];
-    };
-    form.set({name: 'John'});
+    const {instance, modelMock} = await createInitedInstance();
+    instance.setPartialErrorChecking(true);
+    modelMock.getValidationDependency.mockReturnValue(['age']);
+    await instance.set({name: 'John'});
+    modelMock.isValidRecord.mockResolvedValueOnce(
+      ValidationErrors.createFromJSON({age: ['Age is required']})
+    );
 
-    form.model.isValidRecord = () => {
-      return ValidationErrors.createFromJSON({age: ['Age is required']});
-    };
+    const {errors} = await instance.validateForm();
 
-    const {errors} = await form.validateForm();
     expect(errors).toEqual(null);
-    form.setPartialErrorChecking(false);
   });
 });
 
 describe('Before init', () => {
   getInitSettings();
-  const form = new Form();
+  const form = new FormService();
   const func = [
     form.updateField.bind(form),
     form.clearValidation.bind(form),

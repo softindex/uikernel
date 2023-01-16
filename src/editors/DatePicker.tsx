@@ -9,61 +9,58 @@
 import {format, parseISO} from 'date-fns';
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import {omit} from '../common/utils';
+
+type AvailableDateValue = Date | null | undefined;
 
 type Props = {
-  endDate: any;
-  format: string;
-  max: any;
-  min: any;
-  show: boolean;
-  startDate: any;
+  endDate?: AvailableDateValue;
+  format?: string;
+  max?: AvailableDateValue;
+  min?: AvailableDateValue;
+  show?: boolean;
+  startDate?: AvailableDateValue;
   textFormat: string;
   todayButton: string;
-  value: any;
-  onBlur: (...args: any[]) => any;
-  onChange: (...args: any[]) => any;
+  value?: AvailableDateValue;
+  onBlur?: () => void;
+  onChange: (date: string | null) => void;
 };
 
-class DatePickerEditor extends React.Component {
-  static defaultProps = {
-    textFormat: 'yyyy-MM-dd',
-    todayButton: 'Today'
+const DEFAULT_PROPS = {
+  textFormat: 'yyyy-MM-dd',
+  todayButton: 'Today'
+} as const;
+
+class DatePickerEditor extends React.Component<Props> {
+  static defaultProps = DEFAULT_PROPS;
+
+  onChange = (date: Date | null): void => {
+    const formatedDate = date ? format(date, this.props.format || '') : date;
+    this.props.onChange(formatedDate);
   };
 
-  constructor(props: Props) {
-    super(props);
-  }
-
-  onChange(date) {
-    if (date) {
-      date = format(date, this.props.format);
+  parseDate(value: AvailableDateValue | string): AvailableDateValue {
+    if (!value) {
+      return null;
     }
 
-    this.props.onChange(date);
+    return typeof value === 'string' ? parseISO(value) : value;
   }
 
-  parseDate(value) {
-    if (value && typeof value === 'string') {
-      return parseISO(value);
-    }
+  render(): JSX.Element {
+    const {textFormat, value, min, max, onBlur, endDate, startDate, ...otherProps} = this.props;
 
-    return value;
-  }
-
-  render() {
-    const otherProps = omit(this.props, ['textFormat', 'value', 'onChange', 'min', 'max', 'onBlur']);
     return (
       <DatePicker
         {...otherProps}
-        dateFormat={this.props.textFormat}
-        selected={this.parseDate(this.props.value)}
-        onChange={this.onChange.bind(this)}
-        minDate={this.parseDate(this.props.min)}
-        maxDate={this.parseDate(this.props.max)}
-        startDate={this.parseDate(this.props.startDate)}
-        endDate={this.parseDate(this.props.endDate)}
-        onCalendarClose={this.props.onBlur}
+        dateFormat={textFormat}
+        selected={this.parseDate(value)}
+        onChange={this.onChange}
+        minDate={this.parseDate(min)}
+        maxDate={this.parseDate(max)}
+        startDate={this.parseDate(startDate)}
+        endDate={this.parseDate(endDate)}
+        onCalendarClose={onBlur}
       />
     );
   }

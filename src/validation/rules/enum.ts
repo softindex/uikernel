@@ -6,11 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, variants, error, value) {
-  error = error || 'Not in variants';
-  if (!isDefined(value)) {
+function baseValidator(
+  notNull: boolean,
+  variants: unknown[],
+  error = 'Not in variants',
+  value: unknown
+): string | undefined {
+  if (isNil(value)) {
     if (notNull) {
       return error;
     }
@@ -21,16 +25,19 @@ function baseValidator(notNull, variants, error, value) {
   if (variants.indexOf(value) < 0) {
     return error;
   }
+
+  return;
+}
+
+export interface EnumValidation {
+  (variants: unknown[], error?: string): (value: unknown) => string | undefined;
+  notNull: (variants: unknown[], error?: string) => (value: unknown) => string | undefined;
 }
 
 /**
  * Create enum validator
- *
- * @param variants
- * @param {string} error Error message
- * @returns {Function}
  */
-const validator = (variants, error) => baseValidator.bind(null, false, variants, error);
+const validator: EnumValidation = (variants, error) => baseValidator.bind(null, false, variants, error);
 validator.notNull = (variants, error) => baseValidator.bind(null, true, variants, error);
 
 export default validator;

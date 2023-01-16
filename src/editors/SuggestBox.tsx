@@ -1,3 +1,5 @@
+/* eslint-disable react/no-find-dom-node */
+/* eslint-disable react/no-unsafe */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -6,15 +8,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import omit from 'lodash/omit';
 import React from 'react';
 import {findDOMNode} from 'react-dom';
-import Portal from '../common/Portal';
-import ThrottleError from '../common/ThrottleError';
-import toPromise from '../common/toPromise';
-import {throttle, isEqual, findIndex, parents, omit} from '../common/utils';
+import {AsyncOrSync} from 'ts-essentials';
+import ThrottleError from '../common/error/ThrottleError';
+import throttle from '../common/throttle';
+import {parents, isEqual} from '../common/utils';
+import Portal from '../portal/Portal';
 
-const popupId = '__suggestBoxPopUp';
-const classes = {
+const PRODUCT_ID = '__suggestBoxPopUp';
+const CLASSES = {
   option: '__suggestBoxPopUp-option',
   optionFocused: '__suggestBoxPopUp-option-focused',
   optionSelectable: '__suggestBoxPopUp-option-selectable',
@@ -28,7 +32,7 @@ const classes = {
   selectBtn: '__suggestBox-select-btn',
   arrow: '__suggestBox-arrow',
   up: '__suggestBox-up'
-};
+} as const;
 const TAB_KEY = 9;
 const ENTER_KEY = 13;
 const ESCAPE_KEY = 27;
@@ -36,39 +40,71 @@ const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
 
-type Props = {
-  defaultLabel: string;
-  defaultOpenTop: bool;
-  disabled: boolean;
-  label: string;
-  loadingElement: React.ReactNode;
-  model: {
-    getLabel: (...args: any[]) => any;
-    read: (...args: any[]) => any;
-  };
-  notFoundElement: React.ReactNode;
-  value: any;
-  withEmptyOption: bool;
-  onChange: (...args: any[]) => any;
-  onFocus: (...args: any[]) => any;
-  onLabelChange: (...args: any[]) => any;
-  onMetadataChange: (...args: any[]) => any;
+type Option<TValue> = {
+  id: TValue;
+  label: string[] | string;
+  metadata?: Record<string, unknown>;
+  type?: string;
 };
 
-class SuggestBoxEditor extends React.Component {
-  static defaultProps = {
-    disabled: false,
-    notFoundElement: <div>Nothing found</div>,
-    loadingElement: <div>Loading...</div>,
-    value: null,
-    withEmptyOption: false,
-    closeMenuOnSelect: true,
-    defaultOpenTop: false
-  };
+type ComputedPopupStyles = Partial<{
+  bottom: number;
+  left: number;
+  maxHeight: number;
+  minWidth: string;
+  top: number;
+}>;
 
-  constructor(props: Props) {
+type State<TValue> = {
+  isOpened: boolean;
+  label: string[] | string;
+  lastValidLabel: string[] | string;
+  loading?: boolean;
+  options: Option<Exclude<TValue, null>>[] | [Option<null>, ...Option<Exclude<TValue, null>>[]];
+  popupStyles: ComputedPopupStyles;
+  selectedOptionKey: number | null;
+};
+
+type Props<TValue> = {
+  closeMenuOnSelect: boolean;
+  defaultLabel?: string[] | string;
+  defaultOpenTop: boolean;
+  disabled: boolean;
+  label?: string[] | string;
+  loadingElement: React.ReactNode;
+  model: {
+    getLabel: (id: Exclude<TValue, null>) => Promise<string[] | string>;
+    read: (search: string) => Promise<Option<Exclude<TValue, null>>[]>;
+  };
+  notFoundElement: React.ReactNode;
+  value: TValue | null;
+  withEmptyOption: boolean;
+  onChange: (value: TValue | null, option: Option<TValue | null>) => void;
+  onFocus?: (value: React.FocusEvent<HTMLInputElement, Element>) => void;
+  onLabelChange?: (value: string[] | string) => void;
+  onMetadataChange?: (value: Option<TValue | null>['metadata']) => void;
+};
+
+const DEFAULT_PROPS = {
+  disabled: false,
+  notFoundElement: <div>Nothing found</div>,
+  loadingElement: <div>Loading...</div>,
+  value: null,
+  withEmptyOption: false,
+  closeMenuOnSelect: true,
+  defaultOpenTop: false
+} as const;
+
+class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TValue>> {
+  static defaultProps = DEFAULT_PROPS;
+
+  private mounted = false;
+  private input: HTMLInputElement | null = null;
+
+  constructor(props: Props<TValue>) {
     super(props);
-    this._loadData = throttle(this._loadData);
+
+    this.loadData = throttle(this.loadData);
     this.state = {
       isOpened: false,
       options: [],
@@ -77,32 +113,32 @@ class SuggestBoxEditor extends React.Component {
       label: '',
       popupStyles: {}
     };
-    this._onInputFocus = this._onInputFocus.bind(this);
-    this._onInputKeyDown = this._onInputKeyDown.bind(this);
-    this._onInputValueChange = this._onInputValueChange.bind(this);
-    this._focusOption = this._focusOption.bind(this);
-    this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
-    this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
-    this._toggleList = this._toggleList.bind(this);
-    this._openList = this._openList.bind(this);
+    this.onInputFocus = this.onInputFocus.bind(this);
+    this.onInputKeyDown = this.onInputKeyDown.bind(this);
+    this.onInputValueChange = this.onInputValueChange.bind(this);
+    this.focusOption = this.focusOption.bind(this);
+    this.onDocumentMouseDown = this.onDocumentMouseDown.bind(this);
+    this.onDocumentMouseScroll = this.onDocumentMouseScroll.bind(this);
+    this.toggleList = this.toggleList.bind(this);
+    this.openList = this.openList.bind(this);
   }
 
-  componentDidMount() {
-    this._isMounted = true;
+  componentDidMount(): void {
+    this.mounted = true;
     if (this.props.defaultLabel) {
-      this._setLabelTo(this.props.defaultLabel, true);
+      this.setLabelTo(this.props.defaultLabel, true);
     } else if (this.props.hasOwnProperty('label')) {
-      this._setLabelTo(this.props.label, true);
+      this.setLabelTo(this.props.label, true);
     } else {
-      this._getLabelFromModel(this.props.model, this.props.value);
+      this.getLabelFromModel(this.props.model, this.props.value);
     }
   }
 
-  componentWillUnmount() {
-    this._isMounted = false;
+  componentWillUnmount(): void {
+    this.mounted = false;
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: Props<TValue>, nextState: State<TValue>): boolean {
     return (
       this.state !== nextState ||
       !isEqual(this.props.value, nextProps.value) ||
@@ -110,46 +146,154 @@ class SuggestBoxEditor extends React.Component {
     );
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props<TValue>): void {
     if (!isEqual(this.props.value, nextProps.value)) {
       if (!this.props.hasOwnProperty('label')) {
-        this._getLabelFromModel(nextProps.model, nextProps.value);
+        this.getLabelFromModel(nextProps.model, nextProps.value);
       }
     }
 
     if (this.props.label !== nextProps.label) {
-      this._setLabelTo(nextProps.label, true);
+      this.setLabelTo(nextProps.label, true);
     }
   }
 
-  _getOptionLabel(option) {
-    return Array.isArray(option.label) ? option.label[option.label.length - 1] : option.label;
+  focus(): void {
+    this.getInput().focus();
   }
 
-  _setLabelTo(label, markAsValid) {
-    if (label === null || label === undefined) {
-      label = '';
+  render(): JSX.Element {
+    const arrowClasses: string[] = [CLASSES.arrow];
+    let options;
+    let optionsPopup = null;
+
+    if (this.state.isOpened) {
+      arrowClasses.push(CLASSES.up);
+
+      if (this.state.loading) {
+        options = (
+          <li className={[CLASSES.option, CLASSES.optionTypes.empty].join(' ')}>
+            {this.props.loadingElement}
+          </li>
+        );
+      } else {
+        if (!this.state.options.length) {
+          options = (
+            <li className={[CLASSES.option, CLASSES.optionTypes.empty].join(' ')}>
+              {this.props.notFoundElement}
+            </li>
+          );
+        } else {
+          options = this.state.options.map((option, key) => {
+            const optionClassNames: string[] = [CLASSES.option];
+            if (key === this.state.selectedOptionKey) {
+              optionClassNames.push(CLASSES.optionFocused);
+            }
+
+            if (option.id !== undefined) {
+              optionClassNames.push(CLASSES.optionSelectable);
+            }
+
+            const optionType = option.type;
+            if (optionType) {
+              optionClassNames.push(
+                (Object.prototype.hasOwnProperty.call(CLASSES.optionTypes, optionType) &&
+                  CLASSES.optionTypes[optionType as keyof typeof CLASSES.optionTypes]) ||
+                  optionType
+              );
+            }
+
+            return (
+              <li
+                key={key}
+                data-key={key}
+                onMouseOver={(): Promise<void> => this.focusOption(key, false)}
+                className={optionClassNames.join(' ')}
+              >
+                {Array.isArray(option.label) ? (
+                  option.label.map((label, columnKey) => <div key={columnKey}>{label}</div>)
+                ) : (
+                  <div>{option.label}</div>
+                )}
+              </li>
+            );
+          });
+        }
+      }
+
+      optionsPopup = (
+        <Portal
+          id={PRODUCT_ID}
+          style={this.state.popupStyles}
+          onDocumentMouseDown={this.onDocumentMouseDown}
+          onDocumentMouseScroll={this.onDocumentMouseScroll}
+          className="__suggestBoxPopUp"
+        >
+          <div className="__suggestBoxPopUp-content">
+            <ul>{options}</ul>
+          </div>
+        </Portal>
+      );
     }
+
+    return (
+      <div className="__suggestBox">
+        <div className={CLASSES.searchBlock}>
+          <input
+            {...omit(this.props, [
+              'model',
+              'value',
+              'onChange',
+              'onLabelChange',
+              'onFocus',
+              'select',
+              'notFoundElement',
+              'loadingElement',
+              'defaultLabel',
+              'onMetadataChange',
+              'withEmptyOption'
+            ])}
+            ref={(input): void => {
+              this.input = input;
+            }}
+            type="text"
+            onClick={(): Promise<void> => this.openList()}
+            onFocus={this.onInputFocus}
+            onKeyDown={this.onInputKeyDown}
+            onChange={this.onInputValueChange}
+            value={this.state.label}
+          />
+          <div onClick={this.toggleList} className={CLASSES.selectBtn}>
+            <div className={arrowClasses.join(' ')} />
+          </div>
+        </div>
+        {optionsPopup}
+      </div>
+    );
+  }
+
+  private setLabelTo(label: string[] | string | null | undefined, markAsValid?: boolean): void {
+    const preparedLabel = label || '';
 
     this.setState({
-      label: label,
-      lastValidLabel: markAsValid ? label : this.state.lastValidLabel
+      label: preparedLabel,
+      lastValidLabel: markAsValid ? preparedLabel : this.state.lastValidLabel
     });
   }
 
-  _getLabelFromModel(model, id) {
+  private getLabelFromModel(model: Props<TValue>['model'], id: TValue | null): void {
     if (id === null || id === undefined) {
-      return this._setLabelTo('', true);
+      return this.setLabelTo('', true);
     }
 
     model
-      .getLabel(id)
+      .getLabel(id as Exclude<TValue, null>)
       .then((label) => {
-        if (!this._isMounted) {
+        if (!this.mounted) {
           return;
         }
 
-        this._setLabelTo(label, true);
+        this.setLabelTo(label, true);
       })
       .catch((err) => {
         if (err) {
@@ -159,10 +303,10 @@ class SuggestBoxEditor extends React.Component {
       });
   }
 
-  async _updateList(searchPattern) {
+  private async updateList(searchPattern?: string | null): Promise<void> {
     let options;
     try {
-      options = await this._loadData(searchPattern);
+      options = await this.loadData(searchPattern);
     } catch (e) {
       if (!(e instanceof ThrottleError)) {
         throw e;
@@ -171,57 +315,62 @@ class SuggestBoxEditor extends React.Component {
       return;
     }
 
-    if (options.length && this.props.withEmptyOption) {
-      options.unshift({
-        id: null,
-        label: '\u00A0' // Use this symbol for save line height
-      });
-    }
-
-    if (this.state.isOpened && this._isMounted) {
+    if (this.state.isOpened && this.mounted) {
       await this.setState({
-        options,
+        options:
+          options.length && this.props.withEmptyOption
+            ? [
+                {
+                  id: null,
+                  label: '\u00A0' // Use this symbol for save line height
+                },
+                ...options
+              ]
+            : options,
         selectedOptionKey: null,
         loading: false
       });
     }
 
-    const content = document.querySelector(`${popupId} .__suggestBoxPopUp-content`);
+    const content: HTMLElement | null = document.querySelector(`${PRODUCT_ID} .__suggestBoxPopUp-content`);
     if (content) {
+      // @ts-expect-error
       content.style = {
         bottom: 'auto',
         position: 'static'
       };
     }
 
-    this._scrollListTo();
+    this.scrollListTo(undefined);
   }
 
-  _loadData(searchPattern) {
+  private loadData(searchPattern?: string | null): Promise<Option<Exclude<TValue, null>>[]> {
     return this.props.model.read(searchPattern || '');
   }
 
-  async _openList(searchPattern, focusFirstOption = false) {
+  private async openList(searchPattern?: string | null, focusFirstOption = false): Promise<void> {
     if (this.props.disabled || this.state.isOpened) {
       return;
     }
 
-    const popupStyles = this._getComputedPopupStyles();
+    const popupStyles = this.getComputedPopupStyles();
     if (!popupStyles) {
       return;
     }
 
-    await toPromise(
-      this.setState.bind(this),
-      true
-    )({
-      isOpened: true,
-      loading: true,
-      popupStyles
+    await new Promise<void>((resolve) => {
+      this.setState(
+        {
+          isOpened: true,
+          loading: true,
+          popupStyles
+        },
+        resolve
+      );
     });
-    findDOMNode(this.input).select();
+    this.getInput().select();
 
-    await this._updateList(searchPattern); // TODO Handle errors
+    await this.updateList(searchPattern); // TODO Handle errors
 
     if (!this.state.options.length) {
       return;
@@ -229,37 +378,37 @@ class SuggestBoxEditor extends React.Component {
 
     if (focusFirstOption) {
       const key = this.state.options[0].type !== 'group' ? 0 : 1;
-      await this._focusOption(key, true);
+      await this.focusOption(key, true);
       return;
     }
 
-    const selectedOptionKey = findIndex(this.state.options, (option) => {
+    const selectedOptionKey = this.state.options.findIndex((option) => {
       return isEqual(option.id, this.props.value);
     });
 
     if (selectedOptionKey !== -1) {
-      this._focusOptionAndScrollIntoView(Number(selectedOptionKey));
+      this.focusOptionAndScrollIntoView(selectedOptionKey);
     }
   }
 
-  async _onInputFocus(e) {
-    await this._openList();
-    if (!this.state.isOpened || !this._isMounted) {
+  private async onInputFocus(event: React.FocusEvent<HTMLInputElement, Element>): Promise<void> {
+    await this.openList();
+    if (!this.state.isOpened || !this.mounted) {
       return;
     }
 
-    findDOMNode(this.input).select();
+    this.getInput().select();
     if (this.props.onFocus) {
-      this.props.onFocus(e);
+      this.props.onFocus(event);
     }
   }
 
-  _closeList(shouldBlur) {
+  private closeList(shouldBlur?: boolean): void {
     if (shouldBlur) {
-      findDOMNode(this.input).blur();
+      this.getInput().blur();
     }
 
-    if (!this.state.isOpened || !this._isMounted) {
+    if (!this.state.isOpened || !this.mounted) {
       return;
     }
 
@@ -270,107 +419,116 @@ class SuggestBoxEditor extends React.Component {
     });
   }
 
-  async _toggleList() {
+  private async toggleList(): Promise<void> {
     if (this.state.isOpened) {
-      this._closeList();
+      this.closeList();
     } else {
-      await this._openList();
+      await this.openList();
     }
   }
 
-  _selectOption(option) {
-    option = option || {
+  private selectOption(option: Option<TValue | null> | null | undefined): void {
+    const performedOption: Option<TValue | null> = option || {
       id: null,
       label: '',
       metadata: {}
     };
-    this.props.onChange(option.id, option);
+
+    this.props.onChange(performedOption.id, performedOption);
     if (this.props.onLabelChange) {
-      this.props.onLabelChange(option.label);
+      this.props.onLabelChange(performedOption.label);
     }
 
     if (this.props.onMetadataChange) {
-      this.props.onMetadataChange(option.metadata);
+      this.props.onMetadataChange(performedOption.metadata);
     }
 
-    findDOMNode(this.input).select();
+    this.getInput().select();
   }
 
-  async _focusOption(key, shouldSetLabel) {
-    if (shouldSetLabel === true) {
-      this._setLabelTo(this.state.options[key].label);
+  private async focusOption(key: number, shouldSetLabel?: boolean): Promise<void> {
+    if (shouldSetLabel) {
+      this.setLabelTo(this.state.options[key].label);
     }
 
     if (this.state.isOpened) {
-      this._focusOptionAndScrollIntoView(key);
+      this.focusOptionAndScrollIntoView(key);
     } else {
-      await this._openList(null);
-      this._focusOptionAndScrollIntoView(key);
+      await this.openList(null);
+      this.focusOptionAndScrollIntoView(key);
     }
   }
 
-  _focusOptionAndScrollIntoView(key) {
+  private focusOptionAndScrollIntoView(key: number): void {
+    // @ts-expect-error
+    // eslint-disable-next-line react/no-direct-mutation-state
     this.state.selectedOptionKey = key;
-    const focusedItems = document.querySelector(`.${classes.optionFocused}`);
-    const currentItem = document.querySelector(`.${classes.option}[data-key="${key}"]`);
+    const focusedItems = document.querySelector(`.${CLASSES.optionFocused}`);
+    const currentItem = document.querySelector(`.${CLASSES.option}[data-key="${key}"]`);
     if (focusedItems) {
-      focusedItems.classList.remove(classes.optionFocused);
+      focusedItems.classList.remove(CLASSES.optionFocused);
     }
 
     if (currentItem) {
-      currentItem.classList.add(classes.optionFocused);
+      currentItem.classList.add(CLASSES.optionFocused);
     }
 
-    const domOption = document.querySelectorAll(`#${popupId} li[data-key="${key}"]`)[0];
-    this._scrollListTo(domOption);
+    const domOption = document.querySelectorAll(`#${PRODUCT_ID} li[data-key="${key}"]`)[0] as
+      | HTMLElement
+      | undefined;
+    this.scrollListTo(domOption);
   }
 
-  _focusNextOption() {
+  private focusNextOption(): AsyncOrSync<void> {
     if (!this.state.options.length) {
       return;
     }
 
     if (this.state.selectedOptionKey === null) {
+      // @ts-expect-error
+      // eslint-disable-next-line react/no-direct-mutation-state
       this.state.selectedOptionKey = 0;
-      return this._focusOption(this.state.selectedOptionKey, true);
+      return this.focusOption(this.state.selectedOptionKey, true);
     }
 
     let key;
     for (key = this.state.selectedOptionKey + 1; key < this.state.options.length; key++) {
       if (this.state.options[key].id) {
-        return this._focusOption(key, true);
+        return this.focusOption(key, true);
       }
     }
 
     for (key = 0; key < this.state.selectedOptionKey + 1; key++) {
       if (this.state.options[key].id) {
-        return this._focusOption(key, true);
+        return this.focusOption(key, true);
       }
     }
   }
 
-  _focusPrevOption() {
+  private focusPrevOption(): AsyncOrSync<void> {
     if (this.state.selectedOptionKey === null) {
+      // @ts-expect-error
+      // eslint-disable-next-line react/no-direct-mutation-state
       this.state.selectedOptionKey = 0;
-      return this._focusOption(this.state.selectedOptionKey);
+      return this.focusOption(this.state.selectedOptionKey);
     }
 
     let key;
     for (key = this.state.selectedOptionKey - 1; key >= 0; key--) {
       if (this.state.options[key].id) {
-        return this._focusOption(key, true);
+        return this.focusOption(key, true);
       }
     }
 
     for (key = this.state.options.length - 1; key > this.state.selectedOptionKey - 1; key--) {
       if (this.state.options[key].id) {
-        return this._focusOption(key, true);
+        return this.focusOption(key, true);
       }
     }
   }
 
-  _scrollListTo(target) {
-    const container = document.querySelector(`#${popupId}:first-child`);
+  private scrollListTo(target: HTMLElement | null | undefined): void {
+    const container = document.querySelector(`#${PRODUCT_ID}:first-child`);
     if (!container) {
       return;
     }
@@ -387,10 +545,12 @@ class SuggestBoxEditor extends React.Component {
     }
   }
 
-  _isParentOf(child) {
-    while (child) {
-      child = child.parentNode;
-      if (child === findDOMNode(this)) {
+  private isParentOf(child: HTMLElement | null | undefined): boolean {
+    let currentChild = child;
+
+    while (currentChild) {
+      currentChild = currentChild.parentNode as HTMLElement | null | undefined;
+      if (currentChild === findDOMNode(this)) {
         return true;
       }
     }
@@ -398,120 +558,122 @@ class SuggestBoxEditor extends React.Component {
     return false;
   }
 
-  _onDocumentMouseDown(e, isOwner) {
-    if (e.button !== 0) {
+  private onDocumentMouseDown(event: MouseEvent, isOwner: boolean): void {
+    if (event.button !== 0) {
       return;
     }
 
-    let target = e.target;
+    let target = event.target as HTMLElement;
     if (isOwner) {
-      if (!target.classList.contains(classes.option)) {
-        target = target.parentNode;
+      if (!target.classList.contains(CLASSES.option)) {
+        target = target.parentNode as HTMLElement;
       }
 
-      if (target.classList.contains(classes.optionSelectable) && this.state.isOpened) {
-        this._selectOption(this.state.options[target.getAttribute('data-key')]);
+      if (target.classList.contains(CLASSES.optionSelectable) && this.state.isOpened) {
+        this.selectOption(this.state.options[Number(target.getAttribute('data-key'))]);
         if (this.props.closeMenuOnSelect) {
-          this._closeList(true);
+          this.closeList(true);
         }
       }
     } else {
       // q where to test
-      if (!parents(target, `.${classes.searchBlock}`).length) {
-        if (!findDOMNode(this.input).value) {
-          this._selectOption(null);
+      if (!parents(target, `.${CLASSES.searchBlock}`).length) {
+        if (!this.getInput().value) {
+          this.selectOption(null);
         } else {
-          this._setLabelTo(this.state.lastValidLabel);
+          this.setLabelTo(this.state.lastValidLabel);
         }
       }
 
-      if (!this._isParentOf(e.target)) {
-        this._closeList(true);
+      if (!this.isParentOf(target)) {
+        this.closeList(true);
       }
     }
   }
 
-  _onDocumentMouseScroll(e, isOwner) {
+  private onDocumentMouseScroll(_event: Event, isOwner: boolean): void {
     if (!isOwner && this.state.isOpened) {
-      const popupStyles = this._getComputedPopupStyles();
+      const popupStyles = this.getComputedPopupStyles();
       if (popupStyles) {
-        this.setState({
-          popupStyles: this._getComputedPopupStyles()
-        });
+        this.setState({popupStyles});
       } else {
-        this._setLabelTo(this.state.lastValidLabel);
-        this._closeList(true);
+        this.setLabelTo(this.state.lastValidLabel);
+        this.closeList(true);
       }
     }
   }
 
-  _onInputKeyDown(e) {
+  private onInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>): AsyncOrSync<void> {
     if (this.props.disabled) {
       return;
     }
 
-    switch (e.keyCode) {
+    const target = event.target as HTMLInputElement;
+
+    switch (event.keyCode) {
       case ARROW_DOWN_KEY:
-        e.preventDefault();
+        event.preventDefault();
         if (!this.state.isOpened) {
-          return this._openList('', true);
+          return this.openList('', true);
         }
 
-        this._focusNextOption();
+        this.focusNextOption();
         break;
       case ARROW_UP_KEY:
-        e.preventDefault();
+        event.preventDefault();
         if (!this.state.isOpened) {
-          return this._openList();
+          return this.openList();
         }
 
-        this._focusPrevOption();
+        this.focusPrevOption();
         break;
       case ENTER_KEY:
-        e.preventDefault();
+        event.preventDefault();
 
         if (this.state.selectedOptionKey === null) {
-          this._selectOption(null);
+          this.selectOption(null);
         } else {
-          this._selectOption(this.state.options[this.state.selectedOptionKey]);
+          this.selectOption(this.state.options[this.state.selectedOptionKey]);
         }
 
-        this._closeList();
+        this.closeList();
         break;
       case TAB_KEY:
       case ESCAPE_KEY:
-        if (e.keyCode === ESCAPE_KEY) {
-          e.preventDefault();
+        if (event.keyCode === ESCAPE_KEY) {
+          event.preventDefault();
         }
 
-        if (!e.target.value || !this.props.value) {
-          this._setLabelTo('');
-          this._selectOption(null);
+        if (!target.value || !this.props.value) {
+          this.setLabelTo('');
+          this.selectOption(null);
         } else {
-          this._setLabelTo(this.state.lastValidLabel);
+          this.setLabelTo(this.state.lastValidLabel);
         }
 
-        this._closeList();
+        this.closeList();
         break;
     }
   }
 
-  async _onInputValueChange(e) {
-    this._setLabelTo(e.target.value);
+  private async onInputValueChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+    const value = event.target.value;
+    this.setLabelTo(value);
     if (this.state.isOpened) {
-      await this._updateList(e.target.value);
+      await this.updateList(value);
     } else {
-      await this._openList(e.target.value);
+      await this.openList(value);
     }
   }
 
-  _getComputedPopupStyles() {
-    const inputStyles = window.getComputedStyle(findDOMNode(this.input));
-    const popupStyle = {};
+  private getComputedPopupStyles(): ComputedPopupStyles | null {
+    const inputNode = this.getInput();
+    const inputStyles = window.getComputedStyle(inputNode);
+    const popupStyle: ComputedPopupStyles = {};
 
-    const inputOffset = findDOMNode(this.input).getBoundingClientRect();
+    const inputOffset = inputNode.getBoundingClientRect();
     const inputWidth = inputStyles.width;
-    const inputHeight = parseInt(inputStyles.height);
+    const inputHeight = parseInt(inputStyles.height, 10);
 
     if (inputOffset.top + inputHeight <= 0 || inputOffset.top >= window.innerHeight) {
       return null;
@@ -537,111 +699,8 @@ class SuggestBoxEditor extends React.Component {
     return popupStyle;
   }
 
-  focus() {
-    findDOMNode(this.input).focus();
-  }
-
-  render() {
-    const arrowClasses = [classes.arrow];
-    let options;
-    let optionsPopup = null;
-
-    if (this.state.isOpened) {
-      arrowClasses.push(classes.up);
-
-      if (this.state.loading) {
-        options = (
-          <li className={[classes.option, classes.optionTypes.empty].join(' ')}>
-            {this.props.loadingElement}
-          </li>
-        );
-      } else {
-        if (!this.state.options.length) {
-          options = (
-            <li className={[classes.option, classes.optionTypes.empty].join(' ')}>
-              {this.props.notFoundElement}
-            </li>
-          );
-        } else {
-          options = this.state.options.map((option, key) => {
-            const optionClassNames = [classes.option];
-            if (key === this.state.selectedOptionKey) {
-              optionClassNames.push(classes.optionFocused);
-            }
-
-            if (option.id !== undefined) {
-              optionClassNames.push(classes.optionSelectable);
-            }
-
-            if (option.type) {
-              optionClassNames.push(classes.optionTypes[option.type] || option.type);
-            }
-
-            return (
-              <li
-                key={key}
-                data-key={key}
-                onMouseOver={this._focusOption.bind(this, key)}
-                className={optionClassNames.join(' ')}
-              >
-                {Array.isArray(option.label) ? (
-                  option.label.map((label, columnKey) => <div key={columnKey}>{label}</div>)
-                ) : (
-                  <div>{option.label}</div>
-                )}
-              </li>
-            );
-          });
-        }
-      }
-
-      optionsPopup = (
-        <Portal
-          id={popupId}
-          style={this.state.popupStyles}
-          onDocumentMouseDown={this._onDocumentMouseDown}
-          onDocumentMouseScroll={this._onDocumentMouseScroll}
-          className="__suggestBoxPopUp"
-        >
-          <div className="__suggestBoxPopUp-content">
-            <ul>{options}</ul>
-          </div>
-        </Portal>
-      );
-    }
-
-    return (
-      <div className="__suggestBox">
-        <div className={classes.searchBlock}>
-          <input
-            {...omit(this.props, [
-              'model',
-              'value',
-              'onChange',
-              'onLabelChange',
-              'onFocus',
-              'select',
-              'notFoundElement',
-              'loadingElement',
-              'defaultLabel',
-              'onMetadataChange',
-              'withEmptyOption'
-            ])}
-            ref={(input) => (this.input = input)}
-            type="text"
-            onClick={this._openList}
-            onFocus={this._onInputFocus}
-            onKeyDown={this._onInputKeyDown}
-            onChange={this._onInputValueChange}
-            value={this.state.label}
-          />
-          <div onClick={this._toggleList} className={classes.selectBtn}>
-            <div className={arrowClasses.join(' ')} />
-          </div>
-        </div>
-        {optionsPopup}
-      </div>
-    );
+  private getInput(): HTMLInputElement {
+    return findDOMNode(this.input) as HTMLInputElement;
   }
 }
 

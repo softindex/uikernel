@@ -6,11 +6,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-const variables = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const collection: Record<string, any> = {};
 
-export default {
-  get: (key) => variables[key],
-  set: (key, value) => {
-    variables[key] = value;
+const variables = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get: (key: string): any => collection[key],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set: (key: string, value: any): void => {
+    collection[key] = value;
   }
 };
+
+export default variables;

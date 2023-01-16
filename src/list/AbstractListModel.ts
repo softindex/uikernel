@@ -6,27 +6,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {IListModel, IListModelReadResult} from './types/IListModel';
+
 /**
  * Abstract List model
  */
-class AbstractListModel {
+abstract class AbstractListModel<TKey> implements IListModel<TKey> {
   /**
    * Get data
-   *
-   * @param {string}    search  Search query
-   * @abstract
    */
-  read(/* search */) {
+  read(_search?: string): Promise<IListModelReadResult<TKey>> {
     return Promise.resolve([]);
   }
 
   /**
-   * Get option name using ID
-   *
-   * @param {*}         id  Option ID
-   * @abstract
+   * Get option name using Id
    */
-  getLabel(/* id */) {
+  getLabel(_id: TKey): Promise<string> {
     return Promise.resolve('');
   }
 }

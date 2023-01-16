@@ -6,92 +6,127 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import express from 'express';
+import {Request, RequestHandler, Response, Router} from 'express';
 import multer from 'multer';
-import {asyncHandler, parseJson} from '../common/utils';
-import ValidationErrors from '../common/validation/ValidationErrors';
+import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
+import parseJson from '../common/parseJson';
+import ValidationErrors from '../validation/ValidationErrors';
+import AbstractFormModel from './AbstractFormModel';
+import {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 
-class FormExpressApi {
-  static create(settings) {
+type FormExpressApiParams = {
+  maxFileSize?: number;
+  multipartFormData?: boolean;
+};
+
+type FormExpressApiMiddlewares = {
+  getData: RequestHandler[];
+  getDataPost: RequestHandler[];
+  submit: RequestHandler[];
+  validate: RequestHandler[];
+};
+
+class FormExpressApi<TRecord extends {}> {
+  static create<TRecord extends {}>(settings: FormExpressApiParams): FormExpressApi<TRecord> {
     return new FormExpressApi(settings);
   }
 
-  constructor({multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE} = {}) {
+  private middlewares: FormExpressApiMiddlewares = {
+    getData: [],
+    getDataPost: [],
+    submit: [],
+    validate: []
+  };
+
+  constructor({multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE}: FormExpressApiParams = {}) {
     const upload = multer({
       limits: {
         fileSize: maxFileSize
       }
     });
 
-    this.middlewares = {
-      getData: [
-        asyncHandler(async (req, res, next) => {
-          const fields = req.query.fields ? JSON.parse(req.query.fields) : null;
-          this._commonGetDataMiddleware(req, res, next, fields);
-        })
-      ],
-      getDataPost: [
-        asyncHandler(async (req, res, next) => {
-          const fields = req.body.fields || null;
-          this._commonGetDataMiddleware(req, res, next, fields);
-        })
-      ],
-      submit: [
-        ...(multipartFormData ? [upload.any()] : []),
-        asyncHandler(async (req, res, next) => {
-          const model = this._getModel(req, res);
-          let body = req.body;
+    this.addMidelware(
+      'getData',
+      asyncServerRouteHandler(async (req, res) => {
+        const fields = req.query.fields ? JSON.parse(req.query.fields.toString()) : null;
+        const result = await this.getModel(req, res).getData(fields);
+        this.sendResult<'getData'>(res, result);
+      })
+    );
 
-          if (multipartFormData) {
-            body = parseJson(body.rest);
+    this.addMidelware(
+      'getDataPost',
+      asyncServerRouteHandler(async (req, res) => {
+        const fields = req.body.fields || null;
+        const result = await this.getModel(req, res).getData(fields);
+        this.sendResult<'getData'>(res, result);
+      })
+    );
 
-            for (const {fieldname, buffer} of req.files) {
-              const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name');
-              body[parsedFieldName] = buffer;
-            }
+    this.addMidelware('submit', [
+      ...(multipartFormData ? [upload.any()] : []),
+      asyncServerRouteHandler(async (req, res) => {
+        const model = this.getModel(req, res);
+        let body = req.body;
+
+        if (multipartFormData) {
+          body = parseJson(body.rest);
+          const files = req.files as Express.Multer.File[];
+
+          for (const {fieldname, buffer} of files) {
+            const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name') as string;
+            body[parsedFieldName] = buffer;
+          }
+        }
+
+        let data: Partial<TRecord> | undefined;
+        let validationErrors: ValidationErrors<keyof TRecord & string> | undefined;
+        try {
+          data = await model.submit(body);
+        } catch (error) {
+          if (!(error instanceof ValidationErrors)) {
+            throw error;
           }
 
-          try {
-            const data = await model.submit(body);
-            this._result(null, {data: data, error: null}, req, res, next);
-          } catch (err) {
-            if (err && !(err instanceof ValidationErrors)) {
-              this._result(err, null, req, res, next);
-              return;
-            }
+          validationErrors = error;
+        }
 
-            this._result(null, {data: null, error: err}, req, res, next);
-          }
-        })
-      ],
-      validate: [
-        asyncHandler(async (req, res, next) => {
-          const model = this._getModel(req, res);
-          try {
-            const data = await model.isValidRecord(req.body);
-            this._result(null, data, req, res, next);
-          } catch (err) {
-            this._result(err, null, req, res, next);
-          }
-        })
-      ]
-    };
+        if (validationErrors) {
+          this.sendResult<'submit'>(res, {data: null, error: validationErrors.toJSON()});
+        } else {
+          this.sendResult<'submit'>(res, {data: data as Partial<TRecord>, error: null});
+        }
+      })
+    ]);
+
+    this.addMidelware(
+      'validate',
+      asyncServerRouteHandler(async (req, res) => {
+        const model = this.getModel(req, res);
+        const validationErrors = await model.isValidRecord(req.body);
+        this.sendResult<'validate'>(res, validationErrors.toJSON());
+      })
+    );
   }
 
-  model(model) {
+  model(
+    model:
+      | AbstractFormModel<TRecord, Record<string, unknown[]>>
+      | ((req: Request, res: Response) => AbstractFormModel<TRecord, Record<string, unknown[]>>)
+  ): this {
     if (typeof model === 'function') {
-      this._getModel = model;
+      this.getModel = model;
     } else {
-      this._getModel = () => model;
+      this.getModel = () => model;
     }
 
     return this;
   }
 
-  getRouter() {
-    return new express.Router()
+  getRouter(): Router {
+    return Router()
       .get('/', this.middlewares.getData) // Deprecated
       .post('/', this.middlewares.submit)
       .get('/data', this.middlewares.getData)
@@ -99,48 +134,38 @@ class FormExpressApi {
       .post('/validation', this.middlewares.validate);
   }
 
-  getData(middlewares) {
-    return this._addMidelwares('getData', middlewares);
+  getData(middleware: RequestHandler | RequestHandler[]): this {
+    return this.addMidelware('getData', middleware);
   }
 
-  submit(middlewares) {
-    return this._addMidelwares('submit', middlewares);
+  submit(middleware: RequestHandler | RequestHandler[]): this {
+    return this.addMidelware('submit', middleware);
   }
 
-  validate(middlewares) {
-    return this._addMidelwares('validate', middlewares);
+  validate(middleware: RequestHandler | RequestHandler[]): this {
+    return this.addMidelware('validate', middleware);
   }
 
-  _addMidelwares(method, middlewares) {
-    if (!Array.isArray(middlewares)) {
-      middlewares = [middlewares];
-    }
+  private addMidelware(
+    method: keyof FormExpressApiMiddlewares,
+    middleware: RequestHandler | RequestHandler[]
+  ): this {
+    const middlewares = Array.isArray(middleware) ? middleware : [middleware];
 
     this.middlewares[method] = middlewares.concat(this.middlewares[method]);
     return this;
   }
 
   // Default implementation
-  _getModel() {
+  private getModel(_req: Request, _res: Response): AbstractFormModel<TRecord, Record<string, unknown[]>> {
     throw new Error('Model is not defined.');
   }
 
-  _result(err, data, req, res, next) {
-    if (err) {
-      next(err);
-    } else {
-      res.json(data);
-    }
-  }
-
-  async _commonGetDataMiddleware(req, res, next, fields) {
-    const model = this._getModel(req, res);
-    try {
-      const data = await model.getData(fields);
-      this._result(null, data, req, res, next);
-    } catch (err) {
-      this._result(err, null, req, res, next);
-    }
+  private sendResult<TMethodName extends keyof JsonFormApiResult<TRecord>>(
+    res: Response,
+    result: JsonFormApiResult<TRecord>[TMethodName]
+  ): void {
+    res.json(result);
   }
 }
 

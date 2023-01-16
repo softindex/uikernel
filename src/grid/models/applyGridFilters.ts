@@ -6,15 +6,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {decorate} from '../../common/utils';
+import decorate from '../../common/decorate';
+import {IObservable} from '../../common/types';
+import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
+import {IGridModel} from './types/IGridModel';
 
 /**
  * Defines filter values while reading Grid model data
- *
- * @param {AbstractGridModel} model       Grid model
- * @param {Object}            filters     Filter values
  */
-function applyGridFilters(model, filters) {
+function applyGridFilters<
+  TKey,
+  TRecord extends {},
+  TFilters extends {},
+  TListenerArgsByEventName extends GridModelListenerArgsByEventName<TKey, TRecord>
+>(
+  model: IGridModel<TKey, TRecord, TFilters> & IObservable<TListenerArgsByEventName>,
+  filters: TFilters
+): IGridModel<TKey, TRecord, TFilters> & IObservable<TListenerArgsByEventName> {
   return decorate(model, {
     async read(options) {
       options.filters = {

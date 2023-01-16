@@ -6,65 +6,46 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import omit from 'lodash/omit';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {omit} from './utils';
 
-const portalClass = '__portal';
+const PORTAL_CLASS_NAME = '__portal';
 
-type Props = {
-  children: React.ReactNode;
-  onDocumentMouseDown: (...args: any[]) => any;
-  onDocumentMouseScroll: (...args: any[]) => any;
+type Props = React.HTMLAttributes<HTMLDivElement> & {
+  onDocumentMouseDown?: (event: MouseEvent, isDocumentEventOwner: boolean) => void;
+  onDocumentMouseScroll?: (event: Event, isDocumentEventOwner: boolean) => void;
 };
 
-class Portal extends React.Component {
-  constructor(props: Props) {
-    super(props);
-    this._onDocumentMouseDown = this._onDocumentMouseDown.bind(this);
-    this._onDocumentMouseScroll = this._onDocumentMouseScroll.bind(this);
-  }
+class Portal extends React.Component<Props> {
+  private portal: HTMLDivElement | null = null;
 
-  componentDidMount() {
-    document.addEventListener('mousedown', this._onDocumentMouseDown, false);
-    document.addEventListener('scroll', this._onDocumentMouseScroll, true);
+  componentDidMount(): void {
+    document.addEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.addEventListener('scroll', this.onDocumentMouseScroll, true);
 
     const portal = document.createElement('div');
     document.body.appendChild(portal);
-    portal.className = portalClass;
+    portal.className = PORTAL_CLASS_NAME;
     this.portal = portal;
     this.renderPortal();
   }
 
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this._onDocumentMouseDown, false);
-    document.removeEventListener('scroll', this._onDocumentMouseScroll, true);
+  componentWillUnmount(): void {
+    document.removeEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.removeEventListener('scroll', this.onDocumentMouseScroll, true);
 
-    ReactDOM.unmountComponentAtNode(this.portal);
-    document.body.removeChild(this.portal);
+    if (this.portal) {
+      ReactDOM.unmountComponentAtNode(this.portal);
+      document.body.removeChild(this.portal);
+    }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(): void {
     this.renderPortal();
   }
 
-  _isDocumentEventOwner(target) {
-    return target === this.portal || this.portal.contains(target);
-  }
-
-  _onDocumentMouseDown(e) {
-    if (this.props.onDocumentMouseDown) {
-      this.props.onDocumentMouseDown(e, this._isDocumentEventOwner(e.target));
-    }
-  }
-
-  _onDocumentMouseScroll(e) {
-    if (this.props.onDocumentMouseScroll) {
-      this.props.onDocumentMouseScroll(e, this._isDocumentEventOwner(e.target));
-    }
-  }
-
-  renderPortal() {
+  renderPortal(): void {
     ReactDOM.render(
       <div {...omit(this.props, ['onDocumentMouseDown', 'onDocumentMouseScroll'])}>
         {this.props.children}
@@ -73,9 +54,25 @@ class Portal extends React.Component {
     );
   }
 
-  render() {
+  render(): null {
     return null;
   }
+
+  private isDocumentEventOwner(target: EventTarget | null): boolean {
+    return Boolean(this.portal && (target === this.portal || this.portal.contains(target as Node)));
+  }
+
+  private onDocumentMouseDown = (event: MouseEvent): void => {
+    if (this.props.onDocumentMouseDown) {
+      this.props.onDocumentMouseDown(event, this.isDocumentEventOwner(event.target));
+    }
+  };
+
+  private onDocumentMouseScroll = (event: Event): void => {
+    if (this.props.onDocumentMouseScroll) {
+      this.props.onDocumentMouseScroll(event, this.isDocumentEventOwner(event.target));
+    }
+  };
 }
 
 export default Portal;

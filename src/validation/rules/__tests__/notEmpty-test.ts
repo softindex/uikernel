@@ -8,39 +8,41 @@
 
 import notEmptyValidator from '../notEmpty';
 
+const ERROR_TEST = 'test invalid value';
+
 describe('notEmpty validator', () => {
-  const validator = notEmptyValidator('test');
+  const validator = notEmptyValidator(ERROR_TEST);
 
   it('"1" should be valid', () => {
     expect(validator('1')).toEqual(undefined);
   });
 
   it('"" should not be valid', () => {
-    expect(validator('')).not.toEqual(undefined);
+    expect(validator('')).toEqual(ERROR_TEST);
   });
 
   it('\\r\\n\\t should not be valid', () => {
-    expect(validator('\r\n\t')).not.toEqual(undefined);
+    expect(validator('\r\n\t')).toEqual(ERROR_TEST);
   });
 
   it('"  " should not be valid', () => {
-    expect(validator(' ')).not.toEqual(undefined);
+    expect(validator(' ')).toEqual(ERROR_TEST);
   });
 
   it('NaN should not be valid', () => {
-    expect(validator(NaN)).not.toEqual(undefined);
+    expect(validator(NaN)).toEqual(ERROR_TEST);
   });
 
   it('null should not be valid', () => {
-    expect(validator(null)).not.toEqual(undefined);
+    expect(validator(null)).toEqual(ERROR_TEST);
   });
 
   it('undefined should not be valid', () => {
-    expect(validator(undefined)).not.toEqual(undefined);
+    expect(validator(undefined)).toEqual(ERROR_TEST);
   });
 
   it('0 should not be valid', () => {
-    expect(validator(0)).not.toEqual(undefined);
+    expect(validator(0)).toEqual(ERROR_TEST);
   });
 
   it('1 should be valid', () => {
@@ -60,15 +62,15 @@ describe('notEmpty validator', () => {
   });
 
   it('{} should not be valid', () => {
-    expect(validator({})).not.toEqual(undefined);
+    expect(validator({})).toEqual(ERROR_TEST);
   });
 
   it('[] should not be valid', () => {
-    expect(validator([])).not.toEqual(undefined);
+    expect(validator([])).toEqual(ERROR_TEST);
   });
 
   it('Infinity should not be valid', () => {
-    expect(validator(Infinity)).not.toEqual(undefined);
+    expect(validator(Infinity)).toEqual(ERROR_TEST);
   });
 
   it('"1a" should be valid', () => {

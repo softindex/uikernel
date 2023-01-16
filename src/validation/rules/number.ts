@@ -6,11 +6,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, min, max, error, value) {
-  error = error || 'Invalid number';
-  if (!isDefined(value)) {
+type Limit = number | null | undefined;
+
+// TODO Vlad rename to int validator
+function baseValidator(
+  notNull: boolean,
+  min: Limit,
+  max: Limit,
+  error = 'Invalid number',
+  value: unknown
+): string | undefined {
+  if (isNil(value)) {
     if (notNull) {
       return error;
     }
@@ -21,23 +29,25 @@ function baseValidator(notNull, min, max, error, value) {
   if (
     typeof value !== 'number' ||
     isNaN(value) ||
-    parseInt(value, 10).toString() !== value.toString() ||
+    parseInt(value.toString(), 10).toString() !== value.toString() ||
     (typeof min === 'number' && value < min) ||
     (typeof max === 'number' && value > max)
   ) {
     return error;
   }
+
+  return;
+}
+
+export interface IntegerValidation {
+  (min: Limit, max: Limit, error?: string): (value: unknown) => string | undefined;
+  notNull: (min: Limit, max: Limit, error?: string) => (value: unknown) => string | undefined;
 }
 
 /**
- * Create range Number validator
- *
- * @param min
- * @param max
- * @param {string} error Error message
- * @returns {Function}
+ * Create range Integer validator
  */
-const validator = (min, max, error) => baseValidator.bind(null, false, min, max, error);
+const validator: IntegerValidation = (min, max, error) => baseValidator.bind(null, false, min, max, error);
 validator.notNull = (min, max, error) => baseValidator.bind(null, true, min, max, error);
 
 export default validator;

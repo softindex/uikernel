@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -61,7 +64,8 @@ describe('Check props', () => {
     const onSetInputValue = jest.fn();
     const inputDOMNode = renderedComponent.find('input').getDOMNode();
     Object.defineProperty(inputDOMNode, 'value', {
-      set: onSetInputValue
+      set: onSetInputValue,
+      get: jest.fn()
     });
 
     renderedComponent.setProps({value: 1});

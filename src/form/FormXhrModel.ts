@@ -7,55 +7,83 @@
  */
 
 import url from 'url';
-import defaultXhr from '../common/defaultXhr';
+import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
 import EventsModel from '../common/Events';
-import ValidationErrors from '../common/validation/ValidationErrors';
-import Validator from '../common/validation/Validator';
+import parseJson from '../common/parseJson';
+import {EventListener, IObservable} from '../common/types';
+import ValidationErrors from '../validation/ValidationErrors';
+import Validator from '../validation/Validator';
+import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import {IFormModel} from './types/IFormModel';
+import {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const MAX_URI_LENGTH = 2048;
 
-class FormXhrModel extends EventsModel {
-  constructor(settings) {
-    super();
+type FormXhrModelParams<TRecord extends {}> = {
+  api: string;
+  eventsModel?: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
+  multipartFormData?: boolean;
+  validateOnClient?: boolean;
+  validator?: Validator<TRecord>;
+  xhr?: DefaultXhr;
+};
 
-    if (!settings.api) {
-      throw new Error("Initialization problem: 'api' must be specified.");
-    }
+class FormXhrModel<TRecord extends {}>
+  implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
+{
+  private multipartFormDataEncoded: boolean;
+  private validator: Validator<TRecord>;
+  private validateOnClient: boolean;
+  private xhr: DefaultXhr;
+  private apiURL: string;
+  private eventsModel: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
 
-    this._multipartFormDataEncoded = settings.multipartFormData || false;
-    this._validator = settings.validator || new Validator();
-    this._validateOnClient = settings.validateOnClient || false;
-    this._xhr = settings.xhr || defaultXhr;
-    this._apiUrl = settings.api
+  constructor(settings: FormXhrModelParams<TRecord>) {
+    this.multipartFormDataEncoded = settings.multipartFormData || false;
+    this.validator = settings.validator || new Validator();
+    this.validateOnClient = settings.validateOnClient || false;
+    this.xhr = settings.xhr || defaultXhr;
+    this.eventsModel = settings.eventsModel || new EventsModel();
+    this.apiURL = settings.api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
-  async getData(fields) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.query.fields = JSON.stringify(fields);
-    delete parsedUrl.search;
+  getData(): Promise<Partial<TRecord>>;
+  getData<TField extends keyof TRecord & string>(
+    fields: TField[] | readonly TField[]
+  ): Promise<Partial<Pick<TRecord, TField>>>;
+  async getData<TField extends keyof TRecord & string>(
+    fields: TField[] | readonly TField[] = []
+  ): Promise<Partial<Pick<TRecord, TField>>> {
+    const parsedURL = url.parse(this.apiURL, true);
+    parsedURL.query.fields = JSON.stringify(fields);
+    parsedURL.search = null;
 
-    if (url.format(parsedUrl).length > MAX_URI_LENGTH) {
-      return await this._getDataPostRequest(fields);
+    if (url.format(parsedURL).length > MAX_URI_LENGTH) {
+      return await this.getDataPostRequest(fields);
     }
 
-    const response = await this._xhr({
+    return (await this.xhr({
       method: 'GET',
-      uri: url.format(parsedUrl)
-    });
-
-    return JSON.parse(response);
+      uri: url.format(parsedURL),
+      json: true
+    })) as JsonFormApiResult<TRecord>['getData'];
   }
 
-  async submit(record) {
+  async submit(record: Partial<TRecord>): Promise<Partial<TRecord>> {
     const formData = new FormData();
 
-    if (this._multipartFormDataEncoded) {
-      const ordinaryData = {};
-      for (const [prop, value] of Object.entries(record)) {
+    if (this.multipartFormDataEncoded) {
+      const ordinaryData: Partial<TRecord> = {};
+      for (const prop in record) {
+        if (!Object.prototype.hasOwnProperty.call(record, prop)) {
+          continue;
+        }
+
+        const value = record[prop];
         if (value instanceof File) {
-          formData.append(JSON.stringify(prop), value);
+          formData.append(prop, value);
         } else {
           ordinaryData[prop] = value;
         }
@@ -64,60 +92,59 @@ class FormXhrModel extends EventsModel {
       formData.append('rest', JSON.stringify(ordinaryData));
     }
 
-    let body = await this._xhr({
+    const rawBody = await this.xhr({
       method: 'POST',
-      ...(!this._multipartFormDataEncoded && {
+      ...(!this.multipartFormDataEncoded && {
         headers: {
           'Content-type': 'application/json'
         }
       }),
-      uri: this._apiUrl,
-      body: this._multipartFormDataEncoded ? formData : JSON.stringify(record)
+      uri: this.apiURL,
+      body: this.multipartFormDataEncoded ? formData : JSON.stringify(record)
     });
 
-    body = JSON.parse(body);
+    const {data, error} = parseJson(rawBody) as JsonFormApiResult<TRecord>['submit'];
 
-    if (body.error) {
-      throw ValidationErrors.createFromJSON(body.error);
+    if (error) {
+      throw ValidationErrors.createFromJSON(error);
     }
 
-    this.trigger('update', body.data);
-    return body.data;
+    this.eventsModel.trigger('update', data as Partial<TRecord>);
+    return data as Partial<TRecord>;
   }
 
   /**
    * Validation check
-   *
-   * @param {Object}      record
    */
-  async isValidRecord(record) {
-    if (this._validateOnClient) {
-      return this._validator.isValidRecord(record);
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+    if (this.validateOnClient) {
+      return this.validator.isValidRecord(record);
     }
 
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'validation');
+    const parsedURL = url.parse(this.apiURL, true);
+    parsedURL.pathname = url.resolve(parsedURL.pathname || '', 'validation');
 
-    let response;
+    let response: JsonFormApiResult<TRecord>['validate'];
     try {
-      response = await this._xhr({
+      response = (await this.xhr({
         method: 'POST',
-        uri: url.format(parsedUrl),
+        uri: url.format(parsedURL),
         body: record,
         json: true
-      });
-    } catch (err) {
-      if (err.statusCode === 413) {
+      })) as JsonFormApiResult<TRecord>['validate'];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      if (error.statusCode === 413) {
         // When request exceeds server limits and
         // client validators are able to find errors,
         // we need to return these errors{
-        const validationErrors = await this._validator.isValidRecord(record);
+        const validationErrors = await this.validator.isValidRecord(record);
         if (!validationErrors.isEmpty()) {
           return validationErrors;
         }
       }
 
-      throw err;
+      throw error;
     }
 
     return ValidationErrors.createFromJSON(response);
@@ -125,24 +152,43 @@ class FormXhrModel extends EventsModel {
 
   /**
    * Get all dependent fields, that are required for validation
-   *
-   * @param   {Array}  fields   Fields list
-   * @returns {Array}  Dependencies
    */
-  getValidationDependency(fields) {
-    return this._validator.getValidationDependency(fields);
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return this.validator.getValidationDependency(fields);
   }
 
-  async _getDataPostRequest(fields) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, 'data');
+  on<TEventName extends keyof FormModelListenerArgsByEventName<TRecord>>(
+    eventName: TEventName,
+    cb: EventListener<FormModelListenerArgsByEventName<TRecord>[TEventName]>
+  ): this {
+    this.eventsModel.on(eventName, cb);
+    return this;
+  }
 
-    return await this._xhr({
+  off<TEventName extends keyof FormModelListenerArgsByEventName<TRecord>>(
+    eventName: TEventName,
+    cb: EventListener<FormModelListenerArgsByEventName<TRecord>[TEventName]>
+  ): this {
+    this.eventsModel.off(eventName, cb);
+    return this;
+  }
+
+  removeAllListeners(eventName: keyof FormModelListenerArgsByEventName<TRecord>): void {
+    this.eventsModel.removeAllListeners(eventName);
+  }
+
+  private async getDataPostRequest<TField extends keyof TRecord & string>(
+    fields: TField[] | readonly TField[]
+  ): Promise<Partial<Pick<TRecord, TField>>> {
+    const parsedURL = url.parse(this.apiURL, true);
+    parsedURL.pathname = url.resolve(parsedURL.pathname || '', 'data');
+
+    return (await this.xhr({
       method: 'POST',
       json: true,
-      uri: url.format(parsedUrl),
+      uri: url.format(parsedURL),
       body: {fields}
-    });
+    })) as JsonFormApiResult<TRecord>['getData'];
   }
 }
 

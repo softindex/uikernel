@@ -7,68 +7,49 @@
  */
 
 import url from 'url';
-import defaultXhr from '../common/defaultXhr';
+import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
+import {IListModel, IListModelReadResult} from './types/IListModel';
 
-class ListXMLHttpRequestModel {
+class ListXhrModel<TKey> implements IListModel<TKey> {
   /**
    * Simple list client model which works via XMLHttpRequest
-   *
-   * @param {string}    apiURL  API address for list model interaction
-   * @param {Function}  [xhr]   XHR wrapper
-   * @constructor
    */
-  constructor(apiURL, xhr) {
-    this._apiURL = apiURL;
-    this._xhr = xhr || defaultXhr;
-    this._apiUrl = apiURL
+  constructor(private apiUrl: string, private xhr: DefaultXhr = defaultXhr) {
+    this.apiUrl = apiUrl
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
   }
 
   /**
    * Get model data
-   *
-   * @param {string}    search  List search query
    */
-  async read(search) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    delete parsedUrl.search;
+  async read(search?: string): Promise<IListModelReadResult<TKey>> {
+    const parsedURL = url.parse(this.apiUrl, true);
+    parsedURL.search = null;
     if (search) {
-      parsedUrl.query.v = search;
+      parsedURL.query.v = search;
     }
 
-    const body = await this._xhr({
+    return (await this.xhr({
       method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      uri: url.format(parsedUrl)
-    });
-
-    return JSON.parse(body);
+      json: true,
+      uri: url.format(parsedURL)
+    })) as IListModelReadResult<TKey>;
   }
 
   /**
-   * Get option name using ID
-   *
-   * @param {*}         id  Option ID
+   * Get option name using Id
    */
-  async getLabel(id) {
-    const parsedUrl = url.parse(this._apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname, `label/${JSON.stringify(id)}`);
+  async getLabel(id: TKey): Promise<string> {
+    const parsedURL = url.parse(this.apiUrl, true);
+    parsedURL.pathname = url.resolve(parsedURL.pathname || '', `label/${JSON.stringify(id)}`);
 
-    let body = await this._xhr({
+    return (await this.xhr({
       method: 'GET',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      uri: url.format(parsedUrl)
-    });
-
-    body = JSON.parse(body);
-
-    return body;
+      json: true,
+      uri: url.format(parsedURL)
+    })) as string;
   }
 }
 
-export default ListXMLHttpRequestModel;
+export default ListXhrModel;

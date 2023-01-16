@@ -6,25 +6,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-class ValidationErrors {
-  /**
-   * Field errors control manager
-   * @constructor
-   */
-  constructor() {
-    this._fields = new Map();
-  }
+export interface ValidationJSONError {
+  [extra: string]: unknown;
+  message: string;
+}
 
+export type ValidationErrorsToJsonResult<TField extends string> = Record<TField, ValidationJSONError[]>;
+
+class ValidationErrors<TField extends string> {
   /**
    * Convert JSON to ValidationErrors object
-   *
-   * @param   {{:string[]}}      jsonObject
-   * @return  {ValidationErrors}
-   * @static
    */
-  static createFromJSON(jsonObject) {
-    const validationErrors = new ValidationErrors();
-    for (const [key, value] of Object.entries(jsonObject)) {
+  static createFromJSON<TField extends string>(
+    jsonObject: Record<TField, (ValidationJSONError | string)[]>
+  ): ValidationErrors<TField> {
+    const validationErrors = new ValidationErrors<TField>();
+    for (const key in jsonObject) {
+      if (!Object.prototype.hasOwnProperty.call(jsonObject, key)) {
+        continue;
+      }
+
+      const value = jsonObject[key];
       value.forEach((errMessage) => validationErrors.add(key, errMessage));
     }
 
@@ -33,78 +35,59 @@ class ValidationErrors {
 
   /**
    * Create ValidationErrors object with one error
-   *
-   * @param {string}                  field
-   * @param {string|{error: string}}  error
-   * @return {ValidationErrors}
    */
-  static createWithError(field, error) {
-    const validationErrors = new ValidationErrors();
+  static createWithError<TField extends string>(
+    field: TField,
+    error: ValidationJSONError | string
+  ): ValidationErrors<TField> {
+    const validationErrors = new ValidationErrors<TField>();
     validationErrors.add(field, error);
     return validationErrors;
   }
 
-  static merge = function (...args) {
-    const jsonErrors = [{}];
-
-    for (const arg of args) {
-      jsonErrors.push(arg.toJSON());
-    }
-
+  static merge<TField1 extends string, TField2 extends string>(
+    validationErrors1: ValidationErrors<TField1>,
+    validationErrors2: ValidationErrors<TField2>
+  ): ValidationErrors<TField1 | TField2> {
     // TODO Need deep merge
-    return ValidationErrors.createFromJSON(Object.assign(...jsonErrors));
-  };
+    return ValidationErrors.createFromJSON({...validationErrors1.toJSON(), ...validationErrors2.toJSON()});
+  }
+
+  private fields = new Map<TField, ValidationJSONError[]>();
 
   /**
    * Add an error
-   *
-   * @param {string}                  field       Field name
-   * @param {string|{string message}} error       Error text
-   * @return {ValidationErrors}
    */
-  add(field, error) {
-    error = this._formErrorValue(error);
-    if (!this._fields.has(field)) {
-      this._fields.set(field, [error]);
-      return this;
+  add(field: TField, error: ValidationJSONError | string): this {
+    const transformedError = this.formErrorValue(error);
+    const fieldErrors = this.fields.get(field) || [];
+    if (!fieldErrors.includes(transformedError)) {
+      fieldErrors.push(transformedError);
     }
 
-    const fieldErrors = this._fields.get(field);
-    if (!fieldErrors.includes(error)) {
-      fieldErrors.push(error);
-    }
-
+    this.fields.set(field, fieldErrors);
     return this;
   }
 
   /**
    * Field has error flag
-   *
-   * @param   {string}      field     Field name
-   * @returns {boolean}
    */
-  hasError(field) {
-    return this._fields.has(field);
+  hasError(field: TField): boolean {
+    return this.fields.has(field);
   }
 
   /**
    * Get field errors
-   *
-   * @param   {string}      field     Field name
-   * @returns {Array}       Errors array or null
    */
-  getFieldErrors(field) {
-    return this._fields.get(field) || [];
+  getFieldErrors(field: TField): ValidationJSONError[] {
+    return this.fields.get(field) || [];
   }
 
   /**
    * Get field errors message
-   *
-   * @param   {string}      field     Field name
-   * @returns {Array}       Errors array or null
    */
-  getFieldErrorMessages(field) {
-    const fieldErrors = this._fields.get(field);
+  getFieldErrorMessages(field: TField): string[] {
+    const fieldErrors = this.fields.get(field);
     if (fieldErrors) {
       return fieldErrors.map((error) => error.message);
     }
@@ -114,40 +97,31 @@ class ValidationErrors {
 
   /**
    * Get field names array, that contain errors
-   *
-   * @returns {string[]}
    */
-  getFailedFields() {
-    return [...this._fields.keys()];
+  getFailedFields(): TField[] {
+    return [...this.fields.keys()];
   }
 
   /**
    * Errors absence check
-   *
-   * @returns {boolean} Errors presence
    */
-  isEmpty() {
-    return this._fields.size === 0;
+  isEmpty(): boolean {
+    return this.fields.size === 0;
   }
 
   /**
    * Clear specific field errors
-   *
-   * @param   {string}  field  Field name
-   * @returns {ValidationErrors}
    */
-  clearField(field) {
-    this._fields.delete(field);
+  clearField(field: TField): this {
+    this.fields.delete(field);
     return this;
   }
 
   /**
    * Clear errors list
-   *
-   * @return {ValidationErrors}
    */
-  clear() {
-    this._fields = new Map();
+  clear(): this {
+    this.fields = new Map();
     return this;
   }
 
@@ -156,9 +130,9 @@ class ValidationErrors {
    *
    * @return {{[string]: Array<string>}}
    */
-  toJSON() {
-    const json = {};
-    for (const [key, value] of this._fields) {
+  toJSON(): ValidationErrorsToJsonResult<TField> {
+    const json = {} as unknown as ValidationErrorsToJsonResult<TField>;
+    for (const [key, value] of this.fields) {
       json[key] = value;
     }
 
@@ -167,42 +141,23 @@ class ValidationErrors {
 
   /**
    * Clone object
-   *
-   * @return {ValidationErrors}
    */
-  clone() {
+  clone(): ValidationErrors<TField> {
     return ValidationErrors.createFromJSON(this.toJSON());
   }
 
-  /**
-   * Merge object
-   *
-   * @return {ValidationErrors}
-   */
-  merge(validationErrors) {
-    for (const [field, newErrors] of validationErrors.getErrors()) {
-      let errors = this._fields.get(field);
-      if (!errors) {
-        errors = [];
-        this._fields.set(field, errors);
-      }
-
-      errors.push(...newErrors);
-    }
-
-    return this;
+  merge<T extends string>(validationErrors: ValidationErrors<T>): ValidationErrors<T | TField> {
+    return ValidationErrors.merge(this, validationErrors);
   }
 
   /**
    * Get errors iterator
-   *
-   * @return {[string, string[]][]}
    */
-  getErrors() {
-    return this._fields;
+  getErrors(): Map<TField, ValidationJSONError[]> {
+    return this.fields;
   }
 
-  _formErrorValue(error) {
+  private formErrorValue(error: string | {message: string}): {message: string} {
     if (typeof error === 'string') {
       return {
         message: error

@@ -6,21 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import './common/setImmediate';
-import ArgumentsError from './common/ArgumentsError';
+import ArgumentsError from './common/error/ArgumentsError';
+import ThrottleError from './common/error/ThrottleError';
 import Events from './common/Events';
-import ThrottleError from './common/ThrottleError';
-import booleanValidationRule from './common/validation/rules/boolean';
-import dateValidationRule from './common/validation/rules/date';
-import enumValidationRule from './common/validation/rules/enum';
-import floatValidationRule from './common/validation/rules/float';
-import notEmptyValidationRule from './common/validation/rules/notEmpty';
-import notNullValidationRule from './common/validation/rules/notNull';
-import numberValidationRule from './common/validation/rules/number';
-import regExpValidationRule from './common/validation/rules/regExp';
-import setValidationRule from './common/validation/rules/set';
-import ValidationErrors from './common/validation/ValidationErrors';
-import Validator from './common/validation/Validator';
+import './common/setImmediate';
 import variables from './common/variables';
 import Checkbox from './editors/Checkbox';
 import DatePicker from './editors/DatePicker';
@@ -34,7 +23,8 @@ import connectForm from './form/connectForm';
 import FormModel from './form/FormModel';
 import FormService from './form/FormService';
 import FormXhrModel from './form/FormXhrModel';
-import FormMixin from './form/mixin';
+// eslint-disable-next-line import/namespace
+import * as FormMixin from './form/mixin';
 import useForm from './form/useForm';
 import Component from './grid/Component';
 import AbstractGridModel from './grid/models/AbstractGridModel';
@@ -44,8 +34,19 @@ import GridXhrModel from './grid/models/GridXhrModel';
 import PureGridComponent from './grid/PureGridComponent';
 import AbstractListModel from './list/AbstractListModel';
 import ListXhrModel from './list/ListXhrModel';
+import booleanValidationRule from './validation/rules/boolean';
+import dateValidationRule from './validation/rules/date';
+import enumValidationRule from './validation/rules/enum';
+import floatValidationRule from './validation/rules/float';
+import notEmptyValidationRule from './validation/rules/notEmpty';
+import notNullValidationRule from './validation/rules/notNull';
+import numberValidationRule from './validation/rules/number';
+import regExpValidationRule from './validation/rules/regExp';
+import setValidationRule from './validation/rules/set';
+import ValidationErrors from './validation/ValidationErrors';
+import Validator from './validation/Validator';
 
-// @ts-ignore
+// @ts-expect-error
 if (!global._babelPolyfill) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('@babel/polyfill/browser');

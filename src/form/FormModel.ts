@@ -6,38 +6,46 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {clone} from '../common/utils';
-import Validator from '../common/validation/Validator';
+import {IObservable} from '../common/types';
+import ValidationErrors from '../validation/ValidationErrors';
+import Validator from '../validation/Validator';
 import AbstractFormModel from './AbstractFormModel';
+import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import {IFormModel} from './types/IFormModel';
 
-class FormModel extends AbstractFormModel {
-  /**
-   * Simple form model
-   *
-   * @param {Object}    defaultValues Default form field values
-   * @param {Validator} validation    Validation
-   * @constructor
-   */
-  constructor(defaultValues, validation) {
+/**
+ * Simple form model
+ */
+class FormModel<TRecord extends {}>
+  extends AbstractFormModel<TRecord, FormModelListenerArgsByEventName<TRecord>>
+  implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
+{
+  static create<TRecord extends {}>(
+    defaultValues?: Partial<TRecord>,
+    validator?: Validator<TRecord>
+  ): FormModel<TRecord> {
+    return new FormModel(validator || new Validator(), defaultValues || {});
+  }
+
+  constructor(private validator: Validator<TRecord>, private data: Partial<TRecord>) {
     super();
-    this._validation = validation || new Validator();
-    this._data = defaultValues ? clone(defaultValues) : {};
   }
 
   /**
    * Get data
-   *
-   * @param {Array}    fields     Required fields
    */
-  async getData(fields) {
-    let record = {};
+  getData(): Promise<Partial<TRecord>>;
+  getData<TField extends keyof TRecord & string>(fields: TField[]): Promise<Partial<Pick<TRecord, TField>>>;
+  async getData<TField extends keyof TRecord & string>(
+    fields?: TField[]
+  ): Promise<Partial<Pick<TRecord, TField>>> {
+    if (!fields) {
+      return {...this.data};
+    }
 
-    if (fields) {
-      for (const field of fields) {
-        record[field] = this._data[field];
-      }
-    } else {
-      record = clone(this._data);
+    const record: Partial<TRecord> = {};
+    for (const field of fields) {
+      record[field] = this.data[field];
     }
 
     return record;
@@ -45,37 +53,30 @@ class FormModel extends AbstractFormModel {
 
   /**
    * Process form data
-   *
-   * @param {Object}      changes     Form data
    */
-  async submit(changes) {
+  async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
     const validErrors = await this.isValidRecord(changes);
     if (!validErrors.isEmpty()) {
       throw validErrors;
     }
 
-    Object.assign(this._data, changes);
+    this.data = {...this.data, ...changes};
     this.trigger('update', changes);
     return changes;
   }
 
   /**
    * Validation check
-   *
-   * @param {Object}      record
    */
-  async isValidRecord(record) {
-    return await this._validation.isValidRecord(record);
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+    return await this.validator.isValidRecord(record);
   }
 
   /**
    * Get all dependent fields, that are required for validation
-   *
-   * @param   {Array}  fields   Fields list
-   * @returns {Array}  Dependencies
    */
-  getValidationDependency(fields) {
-    return this._validation.getValidationDependency(fields);
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return this.validator.getValidationDependency(fields);
   }
 }
 

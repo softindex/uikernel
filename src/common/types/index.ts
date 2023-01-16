@@ -6,26 +6,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../validation/ValidationErrors';
+export type ArrayWithAtLeastOneElement<T> = [T, ...T[]];
 
-export type Records<K, R> = {
-  count?: number;
-  records: Array<[K, R]>;
+export type AllAsOptionalWithRequired<T extends {}, U extends string & keyof T> = {
+  [K in Exclude<string & keyof T, U>]?: T[K];
+} & {
+  [K in U]-?: T[K];
 };
 
-export type ReadSettings<F> = {
-  fields: Array<string>;
-  filters?: F;
-  limit?: number;
-  offset?: number;
-  sort?: Array<[string, 'asc' | 'desc' | 'default']>;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyFunction<TResult = any> = (...args: any[]) => TResult;
 
-export interface IServerGridModel<K, R, F> {
-  create: (record: R) => Promise<[K, R]>;
-  getRecord: (id: K, fields: Array<string>) => Promise<R>;
-  getValidationDependency: (fields: Array<string>) => Array<string>;
-  isValidRecord: (record: R, recordId: K | null) => Promise<ValidationErrors>;
-  read: (settings: ReadSettings<F>) => Promise<Records<K, R>>;
-  update: (records: Array<[K, R]>) => Promise<Array<[K, R | ValidationErrors]>>;
+export type EventListener<TParams extends unknown[]> = (...args: TParams) => void;
+
+export interface IObservable<TListenerArgsByEventName extends Record<string, unknown[]>> {
+  off: <TEventName extends string & keyof TListenerArgsByEventName>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ) => this;
+
+  on: <TEventName extends string & keyof TListenerArgsByEventName>(
+    eventName: TEventName,
+    cb: EventListener<TListenerArgsByEventName[TEventName]>
+  ) => this;
 }

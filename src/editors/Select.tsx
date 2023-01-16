@@ -6,27 +6,52 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import omit from 'lodash/omit';
 import React from 'react';
-import {findIndex, isEqual, omit} from '../common/utils';
+import {StrictOmit} from 'ts-essentials';
+import {isEqual} from '../common/utils';
 
-type Props = {
-  disabled: boolean; // shape: [[value, label, props], ...] or [label1, label2, ...]
-  //                           `props` will be passed to each corresponding <option />
-  model: {
-    read: (...args: any[]) => any;
-  };
-  options: any[];
-  value: any;
-  onChange: (...args: any[]) => any;
-  onLabelChange: (...args: any[]) => any;
+type AdvencedOptions<TValue> = [
+  Exclude<TValue, null>,
+  string,
+  StrictOmit<React.OptionHTMLAttributes<HTMLOptionElement>, 'value'>?
+][];
+
+type AvailevleOptions<TValue> = Exclude<TValue, string | null> extends never
+  ? AdvencedOptions<TValue> | string[]
+  : AdvencedOptions<TValue>;
+
+type State<TValue, TOptions extends AvailevleOptions<TValue>> = {
+  loading: boolean;
+  options: TOptions | [[null, ''], ...TOptions];
 };
 
-class SelectEditor extends React.Component {
-  static defaultProps = {
-    options: []
+type Props<TValue, TOptions extends AvailevleOptions<TValue>> = {
+  disabled: boolean;
+  model?: {
+    read: (search: string) => Promise<TOptions>;
   };
+  /**
+   * shape: [[value, label, props], ...] or [label1, label2, ...]
+   * `props` will be passed to each corresponding <option />
+   */
+  options: State<TValue, TOptions>['options'];
+  value: TValue | null;
+  onChange: (value: TValue | null) => void;
+  onLabelChange?: (value: string) => void;
+};
 
-  constructor(props: Props) {
+const DEFAULT_PROPS = {
+  options: []
+} as const;
+
+class SelectEditor<TValue, TOptions extends AvailevleOptions<TValue>> extends React.Component<
+  Props<TValue, TOptions>,
+  State<TValue, TOptions>
+> {
+  static defaultProps = DEFAULT_PROPS;
+
+  constructor(props: Props<TValue, TOptions>) {
     super(props);
     this.state = {
       options: props.options,
@@ -34,43 +59,44 @@ class SelectEditor extends React.Component {
     };
   }
 
-  componentDidMount() {
-    if (this.props.model) {
-      this.props.model
-        .read('')
-        .then((data) => {
-          data.unshift([null, '']);
-
-          this.setState({
-            options: data,
-            loading: false
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+  componentDidMount(): void {
+    if (!this.props.model) {
+      return;
     }
+
+    this.props.model
+      .read('')
+      .then((data) => {
+        this.setState({
+          options: [[null, ''], ...data],
+          loading: false
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
-  getOptions() {
+  getOptions(): State<TValue, TOptions>['options'] {
     return this.props.model ? this.state.options : this.props.options;
   }
 
-  handleChange(e) {
-    let option = this.getOptions()[e.target.value];
-    if (!(option instanceof Array)) {
-      option = [option, option];
-    }
+  handleChange: React.ChangeEventHandler<HTMLSelectElement> = ({target}) => {
+    const currentOption = this.getOptions()[Number(target.value)];
+    const [value, label] =
+      currentOption instanceof Array
+        ? currentOption
+        : ([currentOption, currentOption] as [TValue | null, string]);
 
-    this.props.onChange(option[0]);
+    this.props.onChange(value);
     if (this.props.onLabelChange) {
-      this.props.onLabelChange(option[1]);
+      this.props.onLabelChange(label);
     }
-  }
+  };
 
-  render() {
+  render(): JSX.Element {
     const options = this.getOptions();
-    const valueIndex = findIndex(options, (option) => {
+    const valueIndex = options.findIndex((option) => {
       return isEqual(option instanceof Array ? option[0] : option, this.props.value);
     });
 
@@ -78,7 +104,7 @@ class SelectEditor extends React.Component {
       <select
         {...omit(this.props, ['value', 'options'])}
         value={valueIndex}
-        onChange={this.handleChange.bind(this)}
+        onChange={this.handleChange}
         disabled={this.props.disabled || this.state.loading}
       >
         {options.map((item, index) => {

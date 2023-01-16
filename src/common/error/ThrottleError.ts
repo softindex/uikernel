@@ -6,23 +6,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {getStack} from './utils';
+import {getStack} from '../utils';
 
-function ThrottleError() {
-  Error.call(this);
+class ThrottleError extends Error {
+  constructor(parentStack?: string) {
+    super();
 
-  this.name = 'ThrottleError';
-  this.message = 'Too many function call';
-  this.stack = getStack();
+    this.name = 'ThrottleError';
+    this.message = 'Too many function call';
+
+    this.stack = 'Error: ' + this.message + '\n' + getStack(1);
+
+    if (parentStack) {
+      this.stack += '\n' + parentStack;
+    }
+  }
 }
-
-ThrottleError.prototype = Object.create(Error.prototype);
-ThrottleError.prototype.constructor = ThrottleError;
-
-ThrottleError.createWithParentStack = function (stack) {
-  const err = new ThrottleError();
-  err.stack += '\n' + stack;
-  return err;
-};
 
 export default ThrottleError;

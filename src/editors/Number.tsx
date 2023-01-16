@@ -1,3 +1,4 @@
+/* eslint-disable react/no-direct-mutation-state */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -7,20 +8,32 @@
  */
 
 import React from 'react';
-import {findDOMNode} from 'react-dom';
-import {isEqual, omit} from '../common/utils';
-import floatValidator from '../common/validation/rules/float';
+import {StrictOmit} from 'ts-essentials';
+import {assert, isEqual} from '../common/utils';
+import floatValidator from '../validation/rules/float';
 
-const isInvalidFloat = floatValidator(null, null, true);
+const isInvalidFloat = (value: unknown): boolean => Boolean(floatValidator(null, null)(value));
 
-type Props = {
+type Value = number | string | null;
+
+type Props = StrictOmit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'defaultValue' | 'onChange' | 'type' | 'value'
+> & {
   // String should be allowed, because when we start typing negative number,
   // there is appearing a warning in console after '-' symbol
-  value: number | string;
-  onChange: (...args: any[]) => any;
+  value: Value;
+  onChange: (value: Value) => void;
 };
 
-class NumberEditor extends React.Component {
+type State = {
+  value: Value;
+};
+
+// eslint-disable-next-line react/no-unsafe
+class NumberEditor extends React.Component<Props, State> {
+  private input: HTMLInputElement | null = null;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -28,39 +41,48 @@ class NumberEditor extends React.Component {
     };
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (!isEqual(this.state.value, nextProps.value)) {
-      findDOMNode(this.input).value = this.state.value = nextProps.value;
+      assert(this.input, '"input" unknown');
+      // @ts-expect-error readonly state
+      this.state.value = nextProps.value;
+      this.input.value = this.state.value?.toString() || '';
     }
   }
 
-  _onChangeHandler(e) {
-    const target = e.target;
+  render(): JSX.Element {
+    const {value, ...props} = this.props;
+
+    return (
+      <input
+        step="any"
+        {...props}
+        type="number"
+        ref={(input) => {
+          this.input = input;
+        }}
+        onChange={this.onChangeHandler}
+        defaultValue={value?.toString() || ''}
+      />
+    );
+  }
+
+  private onChangeHandler: React.ChangeEventHandler<HTMLInputElement> = ({target}) => {
     const valueAsNumber = parseFloat(target.value); // Edge doesn't support "target.valueAsNumber"
     if (target.value === '' && target.validity.valid) {
       // Invalid number set empty string and valid=false to event
+      // @ts-expect-error state readonly
       this.state.value = null;
     } else if (isInvalidFloat(valueAsNumber)) {
+      // @ts-expect-error state readonly
       this.state.value = '';
     } else {
+      // @ts-expect-error state readonly
       this.state.value = valueAsNumber;
     }
 
     this.props.onChange(this.state.value);
-  }
-
-  render() {
-    return (
-      <input
-        step="any"
-        {...omit(this.props, 'value')}
-        type="number"
-        ref={(input) => (this.input = input)}
-        onChange={this._onChangeHandler.bind(this)}
-        defaultValue={this.props.value}
-      />
-    );
-  }
+  };
 }
 
 export default NumberEditor;

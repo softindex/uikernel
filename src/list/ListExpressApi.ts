@@ -6,101 +6,77 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import express from 'express';
-import {asyncHandler} from '../common/utils';
+import {Request, RequestHandler, Response, Router} from 'express';
+import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
+import AbstractListModel from './AbstractListModel';
+
+type ListExpressApiMiddlewares = {
+  getLabel: RequestHandler[];
+  read: RequestHandler[];
+};
 
 /**
  * Form Express API for List model interaction
- *
- * @return {ListExpressApi}
- * @constructor
  */
-class ListExpressApi {
-  static create() {
+class ListExpressApi<TKey> {
+  static create<TKey>(): ListExpressApi<TKey> {
     return new ListExpressApi();
   }
 
-  constructor() {
-    this.middlewares = {
-      read: [
-        asyncHandler(async (req, res, next) => {
-          const model = this._getModel(req, res);
-          try {
-            const response = await model.read(req.query.v);
-            this._result(null, response, req, res, next);
-          } catch (err) {
-            this._result(err, null, req, res, next);
-          }
-        })
-      ],
-      getLabel: [
-        asyncHandler(async (req, res, next) => {
-          const id = JSON.parse(req.params.id);
-          const model = this._getModel(req, res);
-          try {
-            const response = await model.getLabel(id);
-            this._result(null, response, req, res, next);
-          } catch (err) {
-            this._result(err, null, req, res, next);
-          }
-        })
-      ]
-    };
-  }
+  private middlewares: ListExpressApiMiddlewares = {
+    read: [
+      asyncServerRouteHandler(async (req, res) => {
+        const model = this.getModel(req, res);
+        const data = await model.read(req.query.v?.toString());
+        this.sendResult(res, data);
+      })
+    ],
+    getLabel: [
+      asyncServerRouteHandler(async (req, res) => {
+        const id = JSON.parse(req.params.id);
+        const model = this.getModel(req, res);
+        const data = await model.getLabel(id);
+        this.sendResult(res, data);
+      })
+    ]
+  };
 
   /**
    * Specify List model
-   *
-   * @param   {Function|AbstractListModel}  model  List model
-   * @return {ListExpressApi}
    */
-  model(model) {
+  model(model: AbstractListModel<TKey> | ((req: Request, res: Response) => AbstractListModel<TKey>)): this {
     if (typeof model === 'function') {
-      this._getModel = model;
+      this.getModel = model;
     } else {
-      this._getModel = () => model;
+      this.getModel = () => model;
     }
 
     return this;
   }
 
-  getRouter() {
-    return new express.Router().get('/', this.middlewares.read).get('/label/:id', this.middlewares.getLabel);
+  getRouter(): Router {
+    return Router().get('/', this.middlewares.read).get('/label/:id', this.middlewares.getLabel);
   }
 
-  read(middlewares) {
-    if (!Array.isArray(middlewares)) {
-      middlewares = [middlewares];
-    }
-
+  read(middleware: RequestHandler | RequestHandler[]): this {
+    const middlewares = Array.isArray(middleware) ? middleware : [middleware];
     this.middlewares.read = middlewares.concat(this.middlewares.read);
     return this;
   }
 
-  getLabel(middlewares) {
-    if (!Array.isArray(middlewares)) {
-      middlewares = [middlewares];
-    }
-
+  getLabel(middleware: RequestHandler | RequestHandler[]): this {
+    const middlewares = Array.isArray(middleware) ? middleware : [middleware];
     this.middlewares.getLabel = middlewares.concat(this.middlewares.getLabel);
     return this;
   }
 
   // Default implementation
-  _getModel() {
+  private getModel(_req: Request, _res: Response): AbstractListModel<TKey> {
     throw new Error('Model is not defined.');
   }
 
-  _result(err, data, req, res, next) {
-    if (err) {
-      next(err);
-    } else {
-      if (typeof data === 'number') {
-        data = data.toString();
-      }
-
-      res.json(data);
-    }
+  private sendResult(res: Response, data: unknown): void {
+    res.json(typeof data === 'number' ? data.toString() : data);
   }
 }
 

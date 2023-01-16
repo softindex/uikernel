@@ -6,23 +6,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
 /**
  * Create NULL validator
- *
- * @param {string} [error = "Can not be empty"] Error message
- * @returns {Function}
  */
-export default (error) => {
-  error = error || 'Can not be empty';
+export default function noNull(error = 'Can not be empty'): (value: unknown) => string | undefined {
   return (value) => {
-    if (
-      !isDefined(value) ||
-      value === '' ||
-      (typeof value === 'number' && (isNaN(value) || !isFinite(value)))
-    ) {
+    if (isNil(value) || value === '' || (typeof value === 'number' && (isNaN(value) || !isFinite(value)))) {
       return error;
     }
+
+    return;
   };
-};
+}

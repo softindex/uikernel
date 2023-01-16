@@ -6,11 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, variants, error, values) {
-  error = error || 'Not in variants';
-  if (!isDefined(values) || !values.length) {
+function baseValidator(
+  notNull: boolean,
+  variants: unknown[],
+  error = 'Not in variants',
+  values: unknown[] | null | undefined
+): string | undefined {
+  if (isNil(values) || !values.length) {
     if (notNull) {
       return error;
     }
@@ -23,16 +27,22 @@ function baseValidator(notNull, variants, error, values) {
       return error;
     }
   }
+
+  return;
+}
+
+export interface SetValidation {
+  (variants: unknown[], error?: string): (values: unknown[] | null | undefined) => string | undefined;
+  notNull: (
+    variants: unknown[],
+    error?: string
+  ) => (values: unknown[] | null | undefined) => string | undefined;
 }
 
 /**
  * Create set validator
- *
- * @param variants
- * @param {string} error Error message
- * @returns {Function}
  */
-const validator = (variants, error) => baseValidator.bind(null, false, variants, error);
+const validator: SetValidation = (variants, error) => baseValidator.bind(null, false, variants, error);
 validator.notNull = (variants, error) => baseValidator.bind(null, true, variants, error);
 
 export default validator;

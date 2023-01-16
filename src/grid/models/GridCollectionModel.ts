@@ -6,47 +6,98 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {cloneDeep, isEqual, without, clone, forEach, find} from '../../common/utils';
-import Validator from '../../common/validation/Validator';
+import cloneDeep from 'lodash/cloneDeep';
+import without from 'lodash/without';
+import {AllAsOptionalWithRequired, IObservable} from '../../common/types';
+import {forEach, keys, isEqual, warn} from '../../common/utils';
+import ValidationErrors from '../../validation/ValidationErrors';
+import Validator from '../../validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
+import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
+import {
+  IGridModel,
+  IGridModelReadParams,
+  IGridModelReadResult,
+  IGridModelUpdateResult
+} from './types/IGridModel';
 
-class GridCollectionModel extends AbstractGridModel {
+type GridCollectionModelParams<TKey, TRecord extends {}, TFilters> = {
+  data: [TKey, Partial<TRecord>][];
+  requiredFields: (keyof TRecord & string)[];
+  validator: Validator<TRecord>;
+  filtersHandler: (data: [TKey, Partial<TRecord>][], filters: TFilters) => [TKey, Partial<TRecord>][];
+  generateId: (existsIds: TKey[]) => TKey;
+};
+
+class GridCollectionModel<TKey, TRecord extends {}, TFilters>
+  extends AbstractGridModel<TKey, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
+  implements
+    IGridModel<TKey, TRecord, TFilters>,
+    IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>
+{
+  /**
+   * @deprecated
+   */
+  static createWithNumberId<TRecord extends {}, TFilters>(): GridCollectionModel<number, TRecord, TFilters> {
+    warn('static method GridCollectionModel.createWithNumberId is deprecated.');
+
+    let initalId = 1;
+    const generateId: GridCollectionModelParams<number, TRecord, TFilters>['generateId'] = (existsIds) => {
+      const existsIdsSet = new Set(existsIds);
+      while (existsIdsSet.has(initalId)) {
+        initalId++;
+      }
+
+      return initalId;
+    };
+
+    return GridCollectionModel.create({generateId});
+  }
+
+  static create<TKey, TRecord extends {}, TFilters>({
+    generateId,
+    data,
+    filtersHandler,
+    requiredFields,
+    validator
+  }: AllAsOptionalWithRequired<
+    GridCollectionModelParams<TKey, TRecord, TFilters>,
+    'generateId'
+  >): GridCollectionModel<TKey, TRecord, TFilters> {
+    return new GridCollectionModel(
+      cloneDeep(data) || [],
+      requiredFields || [],
+      validator || new Validator(),
+      filtersHandler,
+      generateId
+    );
+  }
+
   /**
    * Specifies a grid model that will work with array data passed to it as a parameter.
-   *
-   * @param {Object}    [options]
-   * @param {Object[]}  [options.data]              Data array
-   * @param {Function}  [options.filtersHandler]
-   * @param {Validator} [options.validator]
-   * @param {string[]}  [options.requiredFields]
-   * @param {bool}      [options.validateOnCreate]
-   * @constructor
    */
-  constructor(options = {}) {
+  constructor(
+    private data: GridCollectionModelParams<TKey, TRecord, TFilters>['data'],
+    private requiredFields: GridCollectionModelParams<TKey, TRecord, TFilters>['requiredFields'],
+    private validator: GridCollectionModelParams<TKey, TRecord, TFilters>['validator'],
+    private filtersHandler: GridCollectionModelParams<TKey, TRecord, TFilters>['filtersHandler'] | undefined,
+    private generateId: GridCollectionModelParams<TKey, TRecord, TFilters>['generateId']
+  ) {
     super();
-
-    this._data = cloneDeep(options.data) || [];
-    this._id = 1;
-    this._filtersHandler = options.filtersHandler;
-    this._validator = options.validator || new Validator();
-    this._requiredFields = options.requiredFields || [];
   }
 
   /**
    * Set data array in model
-   *
-   * @param {Object[]} data
    */
-  setData(data) {
-    const currentData = this._data.reduce((result, [recordId, record]) => {
+  setData(data: [TKey, Partial<TRecord>][]): void {
+    const currentData = this.data.reduce((result: Record<string, Partial<TRecord>>, [recordId, record]) => {
       result[JSON.stringify(recordId)] = record;
       return result;
     }, {});
 
-    const createdRecordsIds = [];
-    const updatedRecords = [];
-
-    const recordIds = [];
+    const createdRecordsIds: TKey[] = [];
+    const updatedRecords: [TKey, Partial<TRecord>][] = [];
+    const recordIds: string[] = [];
 
     for (const [recordId, record] of data) {
       const id = JSON.stringify(recordId);
@@ -59,13 +110,15 @@ class GridCollectionModel extends AbstractGridModel {
       }
 
       if (!isEqual(record, currentData[id])) {
-        updatedRecords.push(record);
+        updatedRecords.push([recordId, record]);
       }
     }
 
-    const deletedRecordsIds = without(Object.keys(currentData), recordIds).map(JSON.parse);
+    const deletedRecordsIds = without(keys(currentData), ...recordIds).map(
+      (value) => JSON.parse(value) as TKey
+    );
 
-    this._data = cloneDeep(data);
+    this.data = cloneDeep(data);
 
     if (createdRecordsIds.length) {
       this.trigger('create', createdRecordsIds);
@@ -80,40 +133,39 @@ class GridCollectionModel extends AbstractGridModel {
     }
   }
 
-  getData() {
-    return this._data;
+  getData(): [TKey, Partial<TRecord>][] {
+    return this.data;
   }
 
   /**
    * Remove field by record id from data
-   *
-   * @param   {Number[]}  recordIds   record id for remove
-   * @returns {Number}    recordId    return id of deleted record
    */
-  async delete(recordIds) {
-    this._data = this._data.filter((record) => {
+  async delete(recordIds: TKey[]): Promise<void> {
+    this.data = this.data.filter((record) => {
       return !recordIds.find((recordId) => isEqual(recordId, record[0]));
     });
+
     this.trigger('delete', recordIds);
   }
 
-  /**
-   * Add a record to local collection
-   *
-   * @param {Object}      record  Record object
-   */
-  async create(record) {
-    let id = this._getID();
-    let clonedRecord = clone(record);
-    // Create record with definite id
-    if (Array.isArray(clonedRecord) && clonedRecord.length === 2) {
-      id = clonedRecord[0];
-      clonedRecord = clonedRecord[1];
+  async create(record: Partial<TRecord> | [TKey, Partial<TRecord>]): Promise<TKey> {
+    let recordId: TKey;
+    let clonedRecord: Partial<TRecord>;
+    if (Array.isArray(record)) {
+      if (record.length !== 2) {
+        throw new TypeError('expected record type [TKey, TRecord], but received unknown array');
+      }
+
+      recordId = record[0];
+      clonedRecord = {...record[1]};
+    } else {
+      recordId = this.createId();
+      clonedRecord = {...record};
     }
 
-    for (const field of this._requiredFields) {
+    for (const field of this.requiredFields) {
       if (!clonedRecord.hasOwnProperty(field)) {
-        clonedRecord[field] = null;
+        clonedRecord[field] = undefined;
       }
     }
 
@@ -122,52 +174,51 @@ class GridCollectionModel extends AbstractGridModel {
       throw validationErrors;
     }
 
-    return this._create(clonedRecord, id);
+    return this.createRecordAndEmit(clonedRecord, recordId);
   }
 
-  /**
-   * Get records list
-   *
-   * @param {Object}      settings                Request
-   * @param {string[]}    settings.fields         Fields
-   * @param {number}      [settings.limit]        Limit
-   * @param {number}      [settings.offset=0]     Offset
-   * @param {Object}      [settings.filters]      Filter values object
-   * @param {Array}       [settings.sort]         Sort parameters
-   * @param {Array}       [settings.ids]          Record IDs, we need to get for sure
-   */
-  read(settings) {
-    let data = cloneDeep(this._data);
-    const result = {};
+  read({
+    fields,
+    extra,
+    filters,
+    limit,
+    offset,
+    sort
+  }: IGridModelReadParams<TKey, TRecord, TFilters>): Promise<IGridModelReadResult<TKey, TRecord>> {
+    let data = cloneDeep(this.data);
+    const result: IGridModelReadResult<TKey, TRecord> = {
+      records: []
+    };
 
     // Get extra records
-    if (settings.extra && settings.extra.length > 0) {
-      result.extraRecords = data.filter((record) => {
-        for (const recordId of settings.extra) {
-          if (isEqual(recordId, record[0])) {
+    if (extra && extra.length > 0) {
+      result.extraRecords = data.filter(([recordId]) => {
+        for (const extraRecordId of extra) {
+          if (isEqual(extraRecordId, recordId)) {
             return true;
           }
         }
+
+        return false;
       });
     }
 
     // Delete unnecessary fields
-    if (settings.fields) {
-      forEach(result.extraRecords, (record) => {
-        forEach(record[1], (value, key) => {
-          if (settings.fields.indexOf(key) === -1) {
-            delete record[1][key];
+    if (fields && result.extraRecords) {
+      for (const [, record] of result.extraRecords) {
+        forEach(record, (_value, key) => {
+          if (fields.indexOf(key) === -1) {
+            delete record[key];
           }
         });
-      });
+      }
     }
 
     // Sorting
-    if (settings.sort && settings.sort.length > 0) {
-      const sortField = settings.sort[0][0];
-      const sortMode = settings.sort[0][1];
+    if (sort && sort.length > 0) {
+      const [sortField, sortMode] = sort[0];
 
-      data = data.sort((prev, next) => {
+      data.sort((prev, next) => {
         if (prev[1][sortField] < next[1][sortField]) {
           return sortMode === 'asc' ? -1 : 1;
         }
@@ -181,28 +232,28 @@ class GridCollectionModel extends AbstractGridModel {
     }
 
     // Apply filters
-    if (this._filtersHandler && settings.filters) {
-      data = cloneDeep(this._filtersHandler(data, settings.filters));
+    if (this.filtersHandler && filters) {
+      data = cloneDeep(this.filtersHandler(data, filters));
     }
 
     result.count = data.length;
 
     // Offset and limit
-    if (settings.offset || settings.limit) {
-      const start = settings.offset || 0;
-      const end = settings.offset + settings.limit || data.length;
+    if (offset || limit) {
+      const start = offset || 0;
+      const end = Number(offset) + Number(limit) || data.length;
       data = data.slice(start, end);
     }
 
     // Delete unnecessary fields
-    if (settings.fields) {
-      forEach(data, (record) => {
-        forEach(record[1], (value, key) => {
-          if (settings.fields.indexOf(key) === -1) {
-            delete record[1][key];
+    if (fields) {
+      for (const [, record] of data) {
+        forEach(record, (_value, key) => {
+          if (fields.indexOf(key) === -1) {
+            delete record[key];
           }
         });
-      });
+      }
     }
 
     result.records = data;
@@ -210,14 +261,8 @@ class GridCollectionModel extends AbstractGridModel {
     return Promise.resolve(result);
   }
 
-  /**
-   * Get the particular record
-   *
-   * @param {number|string}   id      Record ID
-   * @param {Array}           fields  Required fields
-   */
-  getRecord(id, fields) {
-    const record = cloneDeep(this._getRecordByID(id));
+  getRecord(id: TKey, fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
+    const record = cloneDeep(this.getRecordByID(id));
     if (!record) {
       return Promise.reject(new Error('Record not found.'));
     }
@@ -226,7 +271,7 @@ class GridCollectionModel extends AbstractGridModel {
 
     // Deleting unused fields
     if (fields) {
-      forEach(returnRecord, (value, key) => {
+      forEach(returnRecord, (_value, key) => {
         if (fields.indexOf(key) === -1) {
           delete returnRecord[key];
         }
@@ -236,21 +281,15 @@ class GridCollectionModel extends AbstractGridModel {
     return Promise.resolve(returnRecord);
   }
 
-  /**
-   * Apply record changes
-   *
-   * @param {Array}       changes     Changes array
-   * @abstract
-   */
-  async update(changes) {
+  async update(changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
     if (!changes.length) {
       return [];
     }
 
-    const appliedChanges = [];
+    const appliedChanges: [TKey, Partial<TRecord>][] = [];
 
     const result = await Promise.all(
-      changes.map(async ([recordId, changes]) => {
+      changes.map(async ([recordId, changes]): Promise<IGridModelUpdateResult<TKey, TRecord>[number]> => {
         const validErrors = await this.isValidRecord(changes);
 
         if (!validErrors.isEmpty()) {
@@ -262,63 +301,48 @@ class GridCollectionModel extends AbstractGridModel {
       })
     );
 
-    if (appliedChanges.length) {
-      // Apply changes
-      for (const [recordId, changes] of appliedChanges) {
-        this._data = this._data.map(([dataRecordId, dataRecord]) => {
-          if (!isEqual(dataRecordId, recordId)) {
-            return [dataRecordId, dataRecord];
+    // Apply changes
+    for (const [recordId, changes] of appliedChanges) {
+      this.data = this.data.map(([dataRecordId, dataRecord]) => {
+        if (!isEqual(dataRecordId, recordId)) {
+          return [dataRecordId, dataRecord];
+        }
+
+        return [
+          dataRecordId,
+          {
+            ...dataRecord,
+            ...changes
           }
+        ];
+      });
+    }
 
-          return [
-            dataRecordId,
-            {
-              ...dataRecord,
-              ...changes
-            }
-          ];
-        });
-      }
-
+    if (appliedChanges.length) {
       this.trigger('update', appliedChanges);
     }
 
     return result;
   }
 
-  /**
-   * Validation check
-   *
-   * @param {Object}      record
-   */
-  isValidRecord(record) {
-    return this._validator.isValidRecord(record);
+  isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+    return this.validator.isValidRecord(record);
   }
 
-  /**
-   * Get all dependent fields, that are required for validation
-   *
-   * @param   {Array}  fields   Fields list
-   * @returns {Array}  Dependencies
-   */
-  getValidationDependency(fields) {
-    return this._validator.getValidationDependency(fields);
+  getValidationDependency(fields: (keyof TRecord & string)[]): (keyof TRecord & string)[] {
+    return this.validator.getValidationDependency(fields);
   }
 
-  _getID() {
-    while (this._getRecordByID(this._id)) {
-      this._id++;
-    }
-
-    return this._id++;
+  private createId(): TKey {
+    return this.generateId(this.data.map(([id]) => id));
   }
 
-  _getRecordByID(id) {
-    return find(this._data, (record) => isEqual(record[0], id));
+  private getRecordByID(id: TKey): [TKey, Partial<TRecord>] | undefined {
+    return this.data.find((record) => isEqual(record[0], id));
   }
 
-  _create(record, id) {
-    this._data = [...this._data, [id, record]];
+  private createRecordAndEmit(record: Partial<TRecord>, id: TKey): TKey {
+    this.data = [...this.data, [id, record]];
     this.trigger('create', [id]);
     return id;
   }

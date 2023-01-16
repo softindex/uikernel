@@ -2,14 +2,14 @@
   "compilerOptions": {
     "target": "es2019",
     "module": "commonjs",
-    "jsx": "preserve",
-    "lib": ["dom", "es2018", "esnext"],
+    "jsx": "react",
+    "lib": ["dom", "dom.iterable", "es2018", "esnext"],
     "baseUrl": ".",
     "outDir": "./lib",
     "declaration": true,
     "moduleResolution": "Node",
     "strict": true,
-    "allowJs": false,
+    "allowJs": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
@@ -30,5 +30,5 @@
     "noImplicitReturns": true,
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/package.json"]
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx", "src/**/package.json"]
 }

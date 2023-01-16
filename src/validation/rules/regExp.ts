@@ -6,11 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {isDefined} from '../../utils';
+import isNil from 'lodash/isNil';
 
-function baseValidator(notNull, regExp, error, value) {
-  error = error || 'Invalid value';
-  if (!isDefined(value) || value === '') {
+function baseValidator(
+  notNull: boolean,
+  regExp: RegExp,
+  error = 'Invalid value',
+  value: unknown
+): string | undefined {
+  if (isNil(value) || value === '') {
     if (notNull) {
       return error;
     }
@@ -21,16 +25,19 @@ function baseValidator(notNull, regExp, error, value) {
   if (typeof value !== 'string' || !regExp.test(value)) {
     return error;
   }
+
+  return;
+}
+
+export interface RegExpValidation {
+  (regExp: RegExp, error?: string): (value: unknown) => string | undefined;
+  notNull: (regExp: RegExp, error?: string) => (value: unknown) => string | undefined;
 }
 
 /**
  * Create RegEx validator
- *
- * @param regExp
- * @param {string} error Error message
- * @returns {Function}
  */
-const validator = (regExp, error) => baseValidator.bind(null, false, regExp, error);
+const validator: RegExpValidation = (regExp, error) => baseValidator.bind(null, false, regExp, error);
 validator.notNull = (regExp, error) => baseValidator.bind(null, true, regExp, error);
 
 export default validator;

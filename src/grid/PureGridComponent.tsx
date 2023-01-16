@@ -1,3 +1,4 @@
+/* eslint-disable react/no-find-dom-node */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -7,91 +8,288 @@
  */
 
 import classNames from 'classnames';
+import escape from 'lodash/escape';
+import isNil from 'lodash/isNil';
+import last from 'lodash/last';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {toEncodedString, isEqual, last, isDefined, escape, parents, findIndex} from '../common/utils';
+import {StrictExtract} from 'ts-essentials';
+import EqualMap from '../common/EqualMap';
+import {ArrayWithAtLeastOneElement} from '../common/types';
+import {assert, keys, parents, toEncodedString, isEqual} from '../common/utils';
+import ValidationErrors from '../validation/ValidationErrors';
+import {GridColumnName, GridColumns, GridGetColumn} from './types/GridColumns';
+import {GridEditor, IGridRef, SortElementProps} from './types/IGridRef';
 
 const findDOMNode = ReactDOM.findDOMNode;
 const EXTRA_RECORD_CLASS_NAME = 'dgrid-others';
 const SELECTED_RECORD_CLASS_NAME = 'dgrid__row_selected';
 
-class PureGridComponent extends React.Component {
-  constructor(props) {
-    super();
-    this._colsWithEscapeErrors = props.colsWithEscapeErrors;
-    this._recordMap = null;
-  }
+type FormHeaderCol<TKey, TRecord extends {}, TColumnId extends string> = {
+  id: TColumnId | undefined;
+  className: string;
+  cols: number;
+  name: GridColumnName<TKey, TRecord>;
+  rows: number;
+};
 
-  componentDidUpdate(prevProps) {
-    this._initRecordsMap(prevProps);
+type FormHeader<TKey, TRecord extends {}, TColumnId extends string> = {
+  colGroup: JSX.Element[];
+  row: {
+    bottom: FormHeaderCol<TKey, TRecord, TColumnId>[];
+    top: FormHeaderCol<TKey, TRecord, TColumnId>[];
+  };
+};
+
+type Props<
+  TKey,
+  TRecord extends {},
+  TFilters,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TColumns extends Partial<GridColumns<TRecord, any, any, TKey, HTMLElement>>,
+  TMultipleSorting extends boolean
+> = {
+  changes: EqualMap<TKey, Partial<TRecord>>;
+  classNames: string[];
+  columns: TColumns;
+  count: number;
+  editor: GridEditor<TKey, string & keyof TColumns>;
+  errors: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  extraRecords: EqualMap<TKey, Partial<TRecord>>;
+  gridRef: IGridRef<TKey, TRecord, TFilters, TColumns, TMultipleSorting>;
+  height: number | undefined;
+  page: number;
+  pageSizeLabel: string;
+  records: EqualMap<TKey, Partial<TRecord>> | null;
+  showLoader: boolean;
+  sort:
+    | SortElementProps<string & keyof TColumns & keyof TRecord>
+    | SortElementProps<string & keyof TColumns & keyof TRecord>[]
+    | null
+    | undefined;
+  statuses: EqualMap<TKey, Set<string>>;
+  totals: Partial<TRecord>;
+  /**
+   * TODO need change type to Set<string & keyof TColumns>
+   */
+  viewColumns: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean} | undefined;
+  viewCount: number;
+  viewVariants: number[];
+  warnings: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  onCellClick: (
+    event: React.MouseEvent<HTMLTableElement, MouseEvent>,
+    recordId: TKey,
+    colId: string & keyof TColumns,
+    ref?: string
+  ) => void;
+  onChangeViewCount: (viewCount: number) => void;
+  onClickFirstPage: () => void;
+  onClickLastPage: () => void;
+  onClickNextPage: () => void;
+  onClickPrevPage: () => void;
+  onColumnClick: (column: string & keyof TColumns) => void;
+  onRefreshTable: () => void;
+};
+
+const DEFAULT_PROPS = {
+  viewCount: 10,
+  viewVariants: [10, 20, 30, 40, 50, 100, 200, 300, 500]
+} as const;
+
+class PureGridComponent<
+  TKey,
+  TRecord extends {},
+  TFilters,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TColumns extends Partial<GridColumns<TRecord, any, any, TKey, HTMLElement>>,
+  TMultipleSorting extends boolean
+> extends React.Component<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>> {
+  static defaultProps = DEFAULT_PROPS;
+
+  private recordMap: Map<string, TKey> | null = null;
+  private tBodyElement: HTMLTableSectionElement | null = null;
+  private columnsWithEscapeError = new Set<string & keyof TColumns>();
+
+  componentDidUpdate(prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>): void {
+    this.initRecordsMap(prevProps);
 
     if (
-      this._shouldRenderBody(prevProps, 'records') ||
-      this._shouldRenderBody(prevProps, 'extraRecords') ||
+      this.shouldRenderBody(prevProps, 'records') ||
+      this.shouldRenderBody(prevProps, 'extraRecords') ||
       this.props.viewColumns !== prevProps.viewColumns ||
       this.props.columns !== prevProps.columns
     ) {
-      this._renderBody();
+      this.renderBody();
       return;
     }
 
     // When page is changed - there is always re rendering of whole body
     if (prevProps.page === this.props.page) {
-      const rowsToRerenderId = this._getRowsToRerender(prevProps);
-      if (rowsToRerenderId.size) {
-        for (const recordId of rowsToRerenderId) {
-          this._renderRow(recordId, prevProps.editor);
-        }
+      const rowsToRerenderId = this.getRowsToRerender(prevProps);
+      for (const recordId of rowsToRerenderId) {
+        this.renderRow(recordId, prevProps.editor);
       }
     }
   }
 
+  render(): JSX.Element {
+    const {row, colGroup} = this.formHeader();
+    let {classNames} = this.props;
+    const {height, onColumnClick} = this.props;
+    classNames = classNames.concat('dgrid-not-scrollable');
+    if (height) {
+      return (
+        <div className={classNames.join(' ')}>
+          <div className="wrapper-dgrid-header">
+            <table cellSpacing="0" className="dgrid-header">
+              <colgroup>{colGroup}</colgroup>
+              <thead>
+                {[row.top, row.bottom].map((row, colKey) => {
+                  return (
+                    <tr key={colKey}>
+                      {row.map((col, rowKey) => {
+                        const header = this.getHeaderCellHTML(col.name);
+                        const props = {
+                          key: rowKey,
+                          className: col.className,
+                          onClick: col.id ? onColumnClick.bind(null, col.id) : undefined,
+                          colSpan: col.cols,
+                          rowSpan: col.rows
+                        };
+                        return typeof header === 'string' ? (
+                          <th
+                            {...props}
+                            dangerouslySetInnerHTML={{
+                              __html: header
+                            }}
+                          />
+                        ) : (
+                          <th {...props}>{header}</th>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </thead>
+            </table>
+          </div>
+          <div style={{maxHeight: height, height}} className="dgrid-body-wrapper dgrid-scrollable">
+            <div className="dgrid-body">
+              <div className={this.props.showLoader ? 'dgrid-loader' : ''} />
+              <table cellSpacing="0" onClick={this.handleBodyClick}>
+                <colgroup>{colGroup}</colgroup>
+                <tbody
+                  className="dgrid-body-table"
+                  ref={(tbody) => {
+                    this.tBodyElement = tbody;
+                  }}
+                />
+              </table>
+            </div>
+          </div>
+          <div className="wrapper-totals">{this.renderTotals(Boolean(height))}</div>
+          {this.renderPagination()}
+        </div>
+      );
+    }
+
+    // If not scrollable grid
+    return (
+      <div className={classNames.join(' ')}>
+        <div className={this.props.showLoader ? 'dgrid-loader' : ''} />
+        <table cellSpacing="0" className="dgrid-body-table" onClick={this.handleBodyClick}>
+          <colgroup>{colGroup}</colgroup>
+          <thead>
+            {[row.top, row.bottom].map((row, colKey) => {
+              return (
+                <tr key={colKey}>
+                  {row.map((col, rowKey) => {
+                    const header = this.getHeaderCellHTML(col.name);
+                    const props = {
+                      key: rowKey,
+                      className: col.className,
+                      onClick: col.id ? onColumnClick.bind(null, col.id) : undefined,
+                      colSpan: col.cols,
+                      rowSpan: col.rows
+                    };
+                    return typeof header === 'string' ? (
+                      <th
+                        {...props}
+                        dangerouslySetInnerHTML={{
+                          __html: header
+                        }}
+                      />
+                    ) : (
+                      <th {...props}>{header}</th>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </thead>
+          <tbody
+            className="dgrid-body-table"
+            ref={(tbody) => {
+              this.tBodyElement = tbody;
+            }}
+          />
+          {this.renderTotals(Boolean(height))}
+        </table>
+        {this.renderPagination()}
+      </div>
+    );
+  }
+
   /**
    * Create recordId map with encoded ids
-   *
-   * @param   {Object}  prevProps
-   * @private
    */
-  _initRecordsMap(prevProps) {
+  private initRecordsMap(
+    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+  ): void {
     if (this.props.records === prevProps.records && this.props.extraRecords === prevProps.extraRecords) {
       return;
     }
 
     if (this.props.records && this.props.extraRecords) {
-      const records = [...this.props.extraRecords.keys(), ...this.props.records.keys()];
-      this._recordMap = records.reduce((accum, recordId) => {
+      const ids = [...this.props.extraRecords.keys(), ...this.props.records.keys()];
+      this.recordMap = ids.reduce((accum, recordId) => {
         accum.set(toEncodedString(recordId), recordId);
         return accum;
-      }, new Map());
+      }, new Map<string, TKey>());
     }
   }
 
   /**
    * Should component render body
-   *
-   * @param   {Object}  prevProps
-   * @returns {Boolean}
-   * @private
    */
-  _shouldRenderBody(prevProps, records) {
-    if ((!prevProps[records] && this.props[records]) || (prevProps[records] && !this.props[records])) {
+  private shouldRenderBody(
+    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>,
+    propName: StrictExtract<
+      keyof Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+      'extraRecords' | 'records'
+    >
+  ): boolean {
+    const prevValue = prevProps[propName];
+    const currentValue = this.props[propName];
+
+    if ((!prevValue && currentValue) || (prevValue && !currentValue)) {
       return true;
     }
 
     // data was and exists now
-    if (this.props[records] && prevProps[records]) {
+    if (currentValue && prevValue) {
       // new and old records are the same
-      if (this.props[records] === prevProps[records]) {
+      if (currentValue === prevValue) {
         return false;
       }
 
       // new data has different length
-      if (this.props[records].size !== prevProps[records].size) {
+      if (currentValue.size !== prevValue.size) {
         return true;
       }
 
-      const prevKeys = [...prevProps[records].keys()];
-      const nextKeys = [...this.props[records].keys()];
+      const prevKeys = [...prevValue.keys()];
+      const nextKeys = [...currentValue.keys()];
       for (let i = 0; i < prevKeys.length; i++) {
         // prevKeys.length === nextKeys.length
         // if changed order
@@ -108,54 +306,57 @@ class PureGridComponent extends React.Component {
 
   /**
    * Get rows that need to be re rendered
-   *
-   * @param   {Object}  prevProps
-   * @returns {Map}
-   * @private
    */
-  _getRowsToRerender(prevProps) {
-    const rowsToReRender = new Set([]);
+  private getRowsToRerender(
+    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+  ): Set<TKey> {
+    const rowsToReRender = new Set<TKey>();
 
-    this._checkEditorForRender(rowsToReRender, prevProps);
-    this._checkRecordsForRender(rowsToReRender, prevProps, 'records');
-    this._checkRecordsForRender(rowsToReRender, prevProps, 'extraRecords');
-    this._checkPropForRerender(rowsToReRender, prevProps, 'statuses');
-    this._checkPropForRerender(rowsToReRender, prevProps, 'errors');
-    this._checkPropForRerender(rowsToReRender, prevProps, 'warnings');
-    this._checkPropForRerender(rowsToReRender, prevProps, 'changes');
+    this.checkEditorForRender(rowsToReRender, prevProps);
+    this.checkRecordsForRender(rowsToReRender, prevProps, 'records');
+    this.checkRecordsForRender(rowsToReRender, prevProps, 'extraRecords');
+    this.checkPropForRerender(rowsToReRender, prevProps, 'statuses');
+    this.checkPropForRerender(rowsToReRender, prevProps, 'errors');
+    this.checkPropForRerender(rowsToReRender, prevProps, 'warnings');
+    this.checkPropForRerender(rowsToReRender, prevProps, 'changes');
 
     return rowsToReRender;
   }
 
   /**
    * Check prop to rerender any records
-   *
-   * @private
    */
-  _checkPropForRerender(rowsToReRender, prevProps, propType) {
-    const prop = this.props[propType];
-    const prevProp = prevProps[propType];
+  private checkPropForRerender(
+    rowsToReRender: Set<TKey>,
+    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>,
+    propName: StrictExtract<
+      keyof Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+      'changes' | 'errors' | 'statuses' | 'warnings'
+    >
+  ): void {
+    const currentValue = this.props[propName];
+    const prevValue = prevProps[propName];
 
     if (this.props.records) {
-      if (prop === prevProp) {
+      if (currentValue === prevValue) {
         return;
       }
 
       // All unique record ids
       const allRecordIds = new Set([
-        ...[...prevProp.keys()].map(JSON.stringify),
-        ...[...prop.keys()].map(JSON.stringify)
+        ...[...prevValue.keys()].map((key) => JSON.stringify(key)),
+        ...[...currentValue.keys()].map((key) => JSON.stringify(key))
       ]);
       for (const jsonRecordId of allRecordIds) {
         const recordId = JSON.parse(jsonRecordId);
 
-        if ((!prop.has(recordId) || !prevProp.has(recordId)) && this._isRecordLoaded(recordId)) {
+        if ((!currentValue.has(recordId) || !prevValue.has(recordId)) && this.isRecordLoaded(recordId)) {
           rowsToReRender.add(recordId);
           continue;
         }
 
-        if (prop.has(recordId) && prevProp.has(recordId) && this._isRecordLoaded(recordId)) {
-          if (!isEqual(prop.get(recordId), prevProp.get(recordId))) {
+        if (currentValue.has(recordId) && prevValue.has(recordId) && this.isRecordLoaded(recordId)) {
+          if (!isEqual(currentValue.get(recordId), prevValue.get(recordId))) {
             rowsToReRender.add(recordId);
           }
         }
@@ -163,18 +364,17 @@ class PureGridComponent extends React.Component {
     }
   }
 
-  _isRecordLoaded(recordId) {
-    return this.props.records.has(recordId) || this.props.extraRecords.has(recordId);
+  private isRecordLoaded(recordId: TKey): boolean {
+    return this.props.records?.has(recordId) || this.props.extraRecords.has(recordId);
   }
 
   /**
    * Check editor prop for record re rendering
-   *
-   * @param   {Map}     rowsToReRender
-   * @param   {Object}  prevProps
-   * @private
    */
-  _checkEditorForRender(rowsToReRender, prevProps) {
+  private checkEditorForRender(
+    rowsToReRender: Set<TKey>,
+    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+  ): void {
     const {editor} = this.props;
     const prevEditor = prevProps.editor;
     // there are no editors
@@ -211,25 +411,30 @@ class PureGridComponent extends React.Component {
 
   /**
    * Check records to be re rendered
-   *
-   * @param   {Map}     rowsToReRender
-   * @param   {Object}  prevProps
-   * @private
    */
-  _checkRecordsForRender(rowsToReRender, prevProps, recordsType) {
-    const props = this.props;
+  private checkRecordsForRender(
+    rowsToReRender: Set<TKey>,
+    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>,
+    propName: StrictExtract<
+      keyof Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+      'extraRecords' | 'records'
+    >
+  ): void {
+    const prevValue = prevProps[propName];
+    const currentValue = this.props[propName];
+
     // if data to display is the same - do nothing
-    if (this.props[recordsType] === prevProps[recordsType]) {
+    if (currentValue === prevValue) {
       return;
     }
 
     // check for records differences only if data exists
-    if (props[recordsType] && prevProps[recordsType]) {
+    if (currentValue && prevValue) {
       // if previous records aren't the same as current
-      if (props[recordsType] !== prevProps[recordsType]) {
-        for (const [recordId, rowValue] of props[recordsType]) {
+      if (currentValue !== prevValue) {
+        for (const [recordId, rowValue] of currentValue) {
           // if record has different rowValue than it was before - row must be re rendered
-          if (prevProps[recordsType].get(recordId) !== rowValue) {
+          if (prevValue.get(recordId) !== rowValue) {
             rowsToReRender.add(recordId);
           }
         }
@@ -239,10 +444,8 @@ class PureGridComponent extends React.Component {
 
   /**
    * Redraw table content totally
-   *
-   * @private
    */
-  _renderBody = () => {
+  private renderBody = (): void => {
     if (!this.props.records) {
       return;
     }
@@ -255,69 +458,48 @@ class PureGridComponent extends React.Component {
         continue;
       }
 
-      htmlExtra += this._getRowHTML(recordId);
+      htmlExtra += this.getRowHTML(recordId);
     }
 
     for (const [recordId] of this.props.records) {
-      htmlBody += this._getRowHTML(recordId);
+      htmlBody += this.getRowHTML(recordId);
     }
 
-    this.tBody.innerHTML = htmlExtra + htmlBody;
+    assert(this.tBodyElement, '"tBodyElement" unknown');
+    this.tBodyElement.innerHTML = htmlExtra + htmlBody;
   };
 
   /**
    * Redraw row
-   *
-   * @param   {*}       recordId
-   * @param   {Object}  prevEditor
-   * @private
    */
-  _renderRow(recordId, prevEditor) {
-    const row = findDOMNode(this.tBody).querySelector(`tr[key="${toEncodedString(recordId)}"]`);
+  private renderRow(recordId: TKey, prevEditor: GridEditor<TKey, string & keyof TColumns>): void {
+    assert(this.tBodyElement, '"tBodyElement" unknown');
+
+    const row = this.tBodyElement.querySelector(`tr[key="${toEncodedString(recordId)}"]`);
+    assert(row, '"row" not found');
+
     const selected = this.isSelected(recordId);
-    row.className = this._getRowClassNames(recordId, selected);
+    row.className = this.getRowClassNames(recordId, selected);
 
-    for (const colId of Object.keys(this.props.columns)) {
-      if (this._isViewColumn(colId)) {
-        this._renderCell(recordId, colId, row, prevEditor);
-      }
+    const columnIds = keys(this.props.columns).filter((key) => this.isViewColumn(key));
+    for (let columnIndex = 0; columnIndex <= columnIds.length; columnIndex++) {
+      this.renderCell(recordId, columnIds[columnIndex], row.children[columnIndex], prevEditor);
     }
-  }
-
-  /**
-   * Get amount of extra records
-   *
-   * @returns {Number}
-   * @private
-   */
-  _extraRecordsOfThePage() {
-    let count = 0;
-    for (const [recordId] of this.props.extraRecords) {
-      if (this.props.records.has(recordId)) {
-        count++;
-      }
-    }
-
-    return count;
   }
 
   /**
    * Redraw cell
-   *
-   * @param {*}           recordId   Record ID
-   * @param {String}      colId      Column ID
-   * @param {HTMLElement} row        Row element
-   * @param {Object}      prevEditor Previous editor
-   * @private
    */
-  _renderCell(recordId, colId, row, prevEditor) {
+  private renderCell(
+    recordId: TKey,
+    columnId: string & keyof TColumns,
+    cellElement: Element,
+    prevEditor: GridEditor<TKey, string & keyof TColumns>
+  ): void {
     // if editor is on the current cell - only render editor
-    const columns = Object.keys(this.props.columns).filter((colId) => this._isViewColumn(colId));
     if (recordId === this.props.editor.recordId) {
-      if (colId === this.props.editor.column) {
-        const indexOfColumn = columns.indexOf(this.props.editor.column);
-        this._renderEditor(row.children[indexOfColumn]);
-        return;
+      if (columnId === this.props.editor.column) {
+        this.renderEditor(cellElement);
       }
 
       return;
@@ -325,33 +507,35 @@ class PureGridComponent extends React.Component {
 
     // if editor was on the grid - check and re render only that cell which had editor
     if (prevEditor.recordId) {
-      if (recordId === prevEditor.recordId && colId === prevEditor.column) {
-        const indexOfColumn = columns.indexOf(prevEditor.column);
-        this._unmountEditor(row.children[indexOfColumn]);
+      if (recordId === prevEditor.recordId && columnId === prevEditor.column) {
+        this.unmountEditor(cellElement);
       } else {
         return;
       }
     }
 
-    const cellIndex = columns.indexOf(colId);
-    const cell = row.children[cellIndex];
-    const record = this._getRecordWithChanges(recordId);
+    assert(this.props.records, '"records" unknown');
+    const initialRecord = this.props.records.get(recordId) || this.props.extraRecords.get(recordId);
+    assert(initialRecord, '"initialRecord" unknown');
+
+    const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
     const selected = this.isSelected(recordId);
-    const initialRecord = this.props.records.get(recordId) || this.props.extraRecords.get(recordId) || null;
-    const gridCellClass = classNames(this._getColumnClass(colId), {
+
+    const editorFieldName = this.getEditorFieldName(columnId);
+    const gridCellClass = classNames(this.getColumnClass(columnId), {
       'dgrid-cell': true,
-      'dgrid-changed': this._isChanged(recordId, this._getBindParam(colId)),
-      'dgrid-error': this._hasError(recordId, this._getBindParam(colId)),
-      'dgrid-warning': this._hasWarning(recordId, this._getBindParam(colId))
+      'dgrid-changed': this.isChanged(recordId, editorFieldName),
+      'dgrid-error': this.hasError(recordId, editorFieldName),
+      'dgrid-warning': this.hasWarning(recordId, editorFieldName)
     });
     const html = `
-      <td class="${gridCellClass}" key="${colId}">
-        ${this._getCellHTML(colId, record, selected, initialRecord)}
+      <td class="${gridCellClass}" key="${columnId}">
+        ${this.getCellHTML(columnId, recordWithChanges, selected, initialRecord)}
       </td>
     `;
 
     try {
-      cell.outerHTML = html;
+      cellElement.outerHTML = html;
     } catch (e) {
       // Sometimes it is possible a situation when rerendering of the cell is called in the middle of performing of an
       // event in that cell which may cause an error like "DOMException: The node to be removed is no longer a child
@@ -361,19 +545,20 @@ class PureGridComponent extends React.Component {
 
   /**
    * Redraw cell
-   *
-   * @param {HTMLElement} element HTML Element
-   * @private
    */
-  _unmountEditor(element) {
+  private unmountEditor(element: Element): void {
     ReactDOM.unmountComponentAtNode(element);
     element.classList.remove('dgrid-input-wrapper');
   }
 
-  _renderEditor = (parentElement) => {
-    let ref;
+  private renderEditor = (parentElement: Element): void => {
+    assert(this.props.editor.element, '"props.editor.element" unknown');
+
+    let ref: HTMLElement | null = null;
     const elementWithRef = React.cloneElement(this.props.editor.element, {
-      ref: (value) => (ref = value)
+      ref: (value: HTMLElement) => {
+        ref = value;
+      }
     });
     ReactDOM.render(elementWithRef, parentElement, () => {
       // Maybe component was unmounted and ref === undefined
@@ -385,29 +570,34 @@ class PureGridComponent extends React.Component {
       if (typeof ref.focus === 'function') {
         ref.focus();
       } else {
-        findDOMNode(ref).focus();
+        (findDOMNode(ref) as HTMLElement).focus();
       }
     });
   };
 
-  _getRowHTML(recordId) {
-    let colId;
-    const record = this._getRecordWithChanges(recordId);
+  private getRowHTML(recordId: TKey): string {
+    assert(this.props.records, '"records" unknown');
     const initialRecord = this.props.records.get(recordId) || this.props.extraRecords.get(recordId);
+    assert(initialRecord, '"initialRecord" unknown');
+
+    const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
     const selected = this.isSelected(recordId);
-    const gridRowClass = this._getRowClassNames(recordId, selected);
+    const gridRowClass = this.getRowClassNames(recordId, selected);
     let html = `<tr key=${toEncodedString(recordId)} class="${gridRowClass}">`;
-    for (colId of Object.keys(this.props.columns)) {
-      if (this._isViewColumn(colId)) {
-        const gridCellClass = classNames(this._getColumnClass(colId), {
+
+    for (const columnId of keys(this.props.columns)) {
+      const editorFieldName = this.getEditorFieldName(columnId);
+
+      if (this.isViewColumn(columnId)) {
+        const gridCellClass = classNames(this.getColumnClass(columnId), {
           'dgrid-cell': true,
-          'dgrid-changed': this._isChanged(recordId, this._getBindParam(colId)),
-          'dgrid-error': this._hasError(recordId, this._getBindParam(colId)),
-          'dgrid-warning': this._hasWarning(recordId, this._getBindParam(colId))
+          'dgrid-changed': this.isChanged(recordId, editorFieldName),
+          'dgrid-error': this.hasError(recordId, editorFieldName),
+          'dgrid-warning': this.hasWarning(recordId, editorFieldName)
         });
         html += `
-          <td class="${gridCellClass}" key="${colId}">
-            ${this._getCellHTML(colId, record, selected, initialRecord)}
+          <td class="${gridCellClass}" key="${columnId}">
+            ${this.getCellHTML(columnId, recordWithChanges, selected, initialRecord)}
           </td>`;
       }
     }
@@ -415,57 +605,56 @@ class PureGridComponent extends React.Component {
     return `${html}</tr>`;
   }
 
-  _getRowClassNames(recordId, selected) {
-    return classNames([...this._getRowStatusNames(recordId)].join(' '), {
+  private getRowClassNames(recordId: TKey, selected: boolean): string {
+    return classNames([...this.getRowStatusNames(recordId)].join(' '), {
       [EXTRA_RECORD_CLASS_NAME]: this.props.extraRecords.has(recordId),
       [SELECTED_RECORD_CLASS_NAME]: selected
     });
   }
 
-  // called in _getRowHTML
   /**
    * Get table cell HTML
-   *
-   * @param   {number}   columnId       Column ID
-   * @param   {Object}   record         Table record (initial record + changes)
-   * @param   {boolean}  selected       "Selected" row status
-   * @param   {Object}   initialRecord  Initial record
-   * @returns {string}   Table cell HTML
-   * @private
    */
-  _getCellHTML(columnId, record, selected, initialRecord) {
-    const render = last(this.props.columns[columnId].render);
+  private getCellHTML(
+    columnId: string & keyof TColumns,
+    recordWithChanges: Partial<TRecord>,
+    selected: boolean,
+    initialRecord: Partial<TRecord>
+  ): string {
+    const column = this.props.columns[columnId];
+    assert(column, `"${columnId}" column unavailable`);
+
+    const render = last(column.render) as GridGetColumn<TRecord>;
     const cellHtml = render(
-      this._escapeRecord(columnId, record),
+      this.escapeRecord(columnId, recordWithChanges),
       selected,
-      this._escapeRecord(columnId, initialRecord),
-      this.props.grid
+      this.escapeRecord(columnId, initialRecord),
+      this.props.gridRef
     );
-    return `${isDefined(cellHtml) ? cellHtml : ''}`;
+    return `${!isNil(cellHtml) ? cellHtml : ''}`;
   }
 
-  // called in _getCellHTML
-  _escapeRecord = (columnId, record) => {
-    let field;
-    let type;
-    let i;
-    const escapedRecord = {};
+  private escapeRecord = (columnId: string & keyof TColumns, record: Partial<TRecord>): Partial<TRecord> => {
     const column = this.props.columns[columnId];
-    const needEscaping = !column.hasOwnProperty('escape') || column.escape;
-    const fields = column.render.slice(0, -1);
+    assert(column, `"${columnId}" column unavailable`);
 
-    for (i = 0; i < fields.length; i++) {
-      field = fields[i];
-      type = typeof record[field];
+    const fields = column.render.slice(0, -1) as ArrayWithAtLeastOneElement<string & keyof TRecord>;
+    const needEscaping = !column.hasOwnProperty('escape') || column.escape;
+    const escapedRecord: Partial<TRecord> = {};
+
+    for (const field of fields) {
+      const rawValue = record[field];
 
       if (needEscaping) {
-        if (type === 'string') {
-          escapedRecord[field] = escape(record[field]);
+        const valueType = typeof rawValue;
+
+        if (valueType === 'string') {
+          escapedRecord[field] = escape(rawValue as string) as TRecord[string & keyof TRecord];
           continue;
         }
 
-        if (type === 'object' && record[field] && !this._colsWithEscapeErrors[columnId]) {
-          this._colsWithEscapeErrors[columnId] = true;
+        if (valueType === 'object' && record[field] && !this.columnsWithEscapeError.has(columnId)) {
+          this.columnsWithEscapeError.add(columnId);
           console.error(
             `UIKernel.Grid warning: ` +
               `You send record with fields of Object type in escaped column "${columnId}". ` +
@@ -481,127 +670,62 @@ class PureGridComponent extends React.Component {
     return escapedRecord;
   };
 
-  // called in _getRowHTML
   /**
    * Table row has warning flag
-   *
-   * @param   {string}        row     Row ID
-   * @param   {Array|string}  fields
-   * @returns {boolean}
-   * @private
    */
-  _hasWarning(row, fields) {
-    return this._checkFieldInValidation(row, fields, this.props.warnings);
+  private hasWarning(row: TKey, fields: string & keyof TRecord): boolean {
+    return this.checkFieldInValidation(row, fields, this.props.warnings);
   }
 
-  // called in _getRowHTML
   /**
    * Table row has error flag
    *
-   * @param   {string}        row     Row ID
-   * @param   {Array|string}  fields
-   * @returns {boolean}
-   * @private
    */
-  _hasError(recordId, fields) {
-    return this._checkFieldInValidation(recordId, fields, this.props.errors);
+  private hasError(recordId: TKey, fields: string & keyof TRecord): boolean {
+    return this.checkFieldInValidation(recordId, fields, this.props.errors);
   }
 
-  // called in _hasError
   /**
    * Table row has error in "validation" object
-   *
-   * @param   {any}        recordId
-   * @param   {Array|string}  fields
-   * @param   {Validation}    validation
-   * @returns {boolean}
-   * @private
    */
-  _checkFieldInValidation(recordId, fields, validation) {
-    let i;
+  private checkFieldInValidation(
+    recordId: TKey,
+    field: string & keyof TRecord,
+    validation: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>
+  ): boolean {
+    const recordValidation = validation.get(recordId);
 
-    if (!validation.has(recordId)) {
+    if (!recordValidation) {
       return false;
     }
 
-    if (!Array.isArray(fields)) {
-      fields = [fields];
-    }
-
-    for (i = 0; i < fields.length; i++) {
-      if (validation.get(recordId).hasError(fields[i])) {
-        return true;
-      }
-    }
-
-    return false;
+    return recordValidation.hasError(field);
   }
 
-  // called in _getRowHTML
   /**
    * Table row changed flag
-   *
-   * @param   {string}        recordId         Row ID
-   * @param   {Array|string}  [fields]
-   * @return  {boolean}
-   * @private
    */
-  _isChanged(recordId, fields) {
-    let i;
-    if (!this.props.changes.has(recordId)) {
+  private isChanged(recordId: TKey, field: string & keyof TRecord): boolean {
+    const recordChanges = this.props.changes.get(recordId);
+    if (!recordChanges) {
       return false;
     }
 
-    if (fields) {
-      if (!Array.isArray(fields)) {
-        fields = [fields];
-      }
-
-      for (i = 0; i < fields.length; i++) {
-        if (this.props.changes.get(recordId).hasOwnProperty(fields[i])) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    return true;
+    return recordChanges.hasOwnProperty(field);
   }
 
-  // called in _getRowHTML
-  /**
-   * Get record field title that changes column Editor
-   *
-   * @param       {string}        id  Column ID
-   * @returns     {Array|string}     Fields that change Editor
-   * @private
-   */
-  _getBindParam(id) {
-    return this.props.columns[id].editorField || id;
-  }
-
-  // called in _getRowHTML
   /**
    * Get all status names that are applied to the row
-   *
-   * @param   {string}    row    Row ID
-   * @return  {Array}  Status names array
-   * @private
    */
-  _getRowStatusNames(recordId) {
-    return this.props.statuses.get(recordId) || [];
+  private getRowStatusNames(recordId: TKey): Set<string> {
+    return this.props.statuses.get(recordId) || new Set();
   }
 
-  // called in _getRowHTML
   /**
    * Is selected row flag in accordance with
    * current select mode (whitelist/blacklist).
-   *
-   * @param   {number|string}     recordId    Record ID
-   * @returns {boolean}           Is selected row flag
    */
-  isSelected(recordId) {
+  private isSelected(recordId: TKey): boolean {
     const rowStatuses = this.props.statuses.get(recordId);
     if (rowStatuses) {
       return rowStatuses.has('selected');
@@ -610,167 +734,116 @@ class PureGridComponent extends React.Component {
     return false;
   }
 
-  // called in _getRowHTML
-  /**
-   * Get table record with changes
-   *
-   * @param {string} recordId Row ID
-   * @returns {Object} Required table data record
-   * @private
-   */
-  _getRecordWithChanges(recordId) {
-    if (this.props.records.has(recordId)) {
-      return {...this.props.records.get(recordId), ...this.props.changes.get(recordId)};
-    }
-
-    if (this.props.extraRecords.has(recordId)) {
-      return {...this.props.extraRecords.get(recordId), ...this.props.changes.get(recordId)};
-    }
-
-    return null;
-  }
-
   /**
    * Collect data for table header display
-   *
-   * @returns {Object} Formed data
-   * @private
    */
-  _formHeader() {
-    const rows = [
-      [
-        /* top */
-      ],
-      [
-        /* bottom */
-      ]
-    ];
-    const colGroup = [];
-    let lastParent = {name: ''};
+  private formHeader(): FormHeader<TKey, TRecord, string & keyof TColumns> {
+    const row: FormHeader<TKey, TRecord, string & keyof TColumns>['row'] = {
+      bottom: [],
+      top: []
+    };
+    const colGroup: JSX.Element[] = [];
+    let lastParent: Pick<FormHeaderCol<TKey, TRecord, string & keyof TColumns>, 'cols' | 'name'> | null =
+      null;
 
     for (const [columnId, column] of Object.entries(this.props.columns)) {
       // Skip column if it's invisible
-      if (!this._isViewColumn(columnId)) {
+      if (!this.isViewColumn(columnId)) {
         continue;
       }
 
-      colGroup.push(<col key={columnId} width={column.width} className={this._getColumnClass(columnId)} />);
+      assert(column, `"${columnId}" column unavailable`);
+      const colClassName = this.getColumnClass(columnId);
+      colGroup.push(<col key={columnId} width={column.width} className={colClassName} />);
 
-      const classNames = [this._getColumnClass(columnId)];
-      const addInfo = {
+      const formHeaderColInfo: FormHeaderCol<TKey, TRecord, string & keyof TColumns> = {
         id: columnId,
         name: column.name || '',
-        onClick: column.onClick,
-        onClickRefs: column.onClickRefs,
         cols: 1,
-        rows: 1
+        rows: 1,
+        className: colClassName ? colClassName : ''
       };
 
-      const sortParams = this._getSortParams(columnId);
+      const sortParams = this.getSortParams(columnId);
       if (sortParams) {
-        classNames.push(`dgrid-${sortParams.direction}`);
-        addInfo.field = sortParams.column;
-        addInfo.sort = sortParams.direction;
+        formHeaderColInfo.className += ` dgrid-${sortParams.direction}`;
       }
 
-      addInfo.className = classNames.join(' ');
-
-      if (column.parent) {
-        if (column.parent !== lastParent.name) {
-          lastParent =
-            rows[0][
-              rows[0].push({
-                name: this.props.columns[columnId].parent,
-                cols: 1,
-                rows: 1
-              }) - 1
-            ];
-        } else {
-          lastParent.cols++;
-        }
-
-        rows[1].push(addInfo);
-      } else {
-        lastParent = {name: ''};
-        addInfo.rows = 2;
-        rows[0].push(addInfo);
+      if (!column.parent) {
+        lastParent = null;
+        formHeaderColInfo.rows = 2;
+        row.bottom.push(formHeaderColInfo);
+        continue;
       }
+
+      row.bottom.push(formHeaderColInfo);
+
+      if (lastParent && column.parent === lastParent.name) {
+        lastParent.cols++;
+        continue;
+      }
+
+      lastParent = {name: column.parent, cols: 1};
+      row.top.push({
+        ...lastParent,
+        rows: 1,
+        id: undefined,
+        className: ''
+      });
     }
 
-    return {cols: rows, colGroup: colGroup};
+    return {row, colGroup};
   }
 
-  // called in _formHeader
   /**
    * Get current mode and column sort parameter
-   *
-   * @param   column                                  Column ID
-   * @returns {{field: {string}, sort: {string}}|{}}  Sort parameter and mode
-   * @private
    */
-  _getSortParams(column) {
-    const params = {column: column};
-    const sorts = this.props.sort;
-    let sortIndex;
+  private getSortParams(
+    columnId: string & keyof TColumns
+  ): SortElementProps<string & keyof TColumns & keyof TRecord> | null {
+    const {columns, sort} = this.props;
+    const column = columns[columnId];
+    assert(column, `"${columnId}" column unavailable`);
 
-    if (!this.props.columns[column].sortCycle) {
+    if (!column.sortCycle) {
       return null;
     }
 
-    if (!sorts) {
-      params.direction = 'default';
-      return params;
+    const sortableColumn = columnId as string & keyof TColumns & keyof TRecord;
+    const lastSort = last(Array.isArray(sort) ? sort : [sort]);
+    if (lastSort?.column === sortableColumn) {
+      return {column: sortableColumn, direction: lastSort.direction};
     }
 
-    if (this.props.multipleSorting) {
-      sortIndex = findIndex(sorts, (sort) => sort.column === params.column);
-
-      if (sortIndex < 0 || sortIndex < sorts.length - 1) {
-        params.direction = 'default';
-      } else {
-        params.direction = sorts[sortIndex].direction;
-      }
-
-      return params;
-    }
-
-    if (sorts.column === column) {
-      params.direction = sorts.direction;
-    } else {
-      params.direction = 'default';
-    }
-
-    return params;
+    return {column: sortableColumn, direction: 'default'};
   }
 
-  // called in _formHeader
-  _getColumnClass(id) {
-    return this.props.columns[id].className;
+  private getColumnClass(columnId: string & keyof TColumns): string | undefined {
+    return this.props.columns[columnId]?.className;
   }
 
-  // called in _formHeader
   /**
    * Column visibility flag
-   *
-   * @param   {string}    id  Column ID
-   * @returns {boolean}   Column visibility
-   * @private
    */
-  _isViewColumn(id) {
+  private isViewColumn(columnId: string & keyof TColumns): boolean {
+    if (!this.props.columns[columnId]) {
+      return false;
+    }
+
     if (!this.props.viewColumns) {
       return true;
     }
 
     if (Array.isArray(this.props.viewColumns)) {
-      return this.props.viewColumns.indexOf(id) > -1;
+      return this.props.viewColumns.indexOf(columnId) > -1;
     }
 
-    return this.props.viewColumns[id];
+    return Boolean(this.props.viewColumns[columnId]);
   }
 
-  // called in render method
-  _getHeaderCellHTML(columnName) {
-    const cellHtml = typeof columnName === 'function' ? columnName(this.props.grid) : columnName;
+  private getHeaderCellHTML(columnName: GridColumnName<TKey, TRecord>): React.ReactNode {
+    const cellHtml: React.ReactNode =
+      typeof columnName === 'function' ? columnName(this.props.gridRef) : columnName;
     if (cellHtml === undefined) {
       return '';
     }
@@ -781,32 +854,42 @@ class PureGridComponent extends React.Component {
   // called in render for scrollable
   /**
    * Table content click event handler
-   *
-   * @param {Event} event
    */
-  _handleBodyClick = (event) => {
-    const target = event.target;
-    const refParent = parents(target, '[ref]')[0];
+  private handleBodyClick: React.MouseEventHandler<HTMLTableElement> = (event): void => {
+    const target = event.target as HTMLTableElement;
+    const refParent = parents(target, '[ref]')[0] as Element | undefined;
 
-    let element;
+    let element: Element | undefined;
 
     if (target.classList.contains('dgrid-cell')) {
-      element = event.target;
+      element = target;
     } else {
       element = parents(target, 'td.dgrid-cell')[0];
     }
 
-    if (element && !(refParent && refParent.hasAttribute('disabled'))) {
-      const columnIndex = [...element.parentNode.children].indexOf(element);
-      const colId = Object.keys(this.props.columns).filter((colId) => this._isViewColumn(colId))[columnIndex];
-      const key = element.parentNode.getAttribute('key');
-      const recordId = this._recordMap.get(key);
-      this.props.onCellClick(event, recordId, colId, (refParent || event.target).getAttribute('ref'));
+    if (element && !refParent?.hasAttribute('disabled')) {
+      const parentNode = element.parentNode as Element;
+      const parentNodeChildren = parentNode.children as HTMLCollection;
+      const columnIndex = [...parentNodeChildren].indexOf(element);
+      const columnId = keys(this.props.columns).filter((colId) => this.isViewColumn(colId))[columnIndex];
+
+      const key = parentNode.getAttribute('key');
+      assert(this.recordMap, '"recordMap" unknown');
+      const recordId = this.recordMap.get(key as string);
+      assert(recordId, '"recordId" unknown');
+
+      const refValue = (refParent || target).getAttribute('ref') as string;
+      this.props.onCellClick(event, recordId, columnId, refValue);
     }
   };
 
-  _renderPagination() {
-    const viewCount = this.props.viewCount;
+  private renderPagination(): React.ReactNode {
+    const {viewCount, viewVariants, pageSizeLabel, page, count} = this.props;
+
+    if (!viewCount) {
+      return null;
+    }
+
     const {
       onChangeViewCount,
       onClickFirstPage,
@@ -815,114 +898,109 @@ class PureGridComponent extends React.Component {
       onClickLastPage,
       onRefreshTable
     } = this.props;
+
     return (
-      Boolean(viewCount) && (
-        <div className="dgrid-footer">
-          {Boolean(this.props.viewVariants) && (
-            <>
-              <div className="dgrid-pagination-page-size"> {this.props.pageSizeLabel}</div>
-              <div className="dgrid-pagination-view-variants">
-                <select
-                  className="dgrid-pagination-view-variants-select"
-                  value={viewCount}
-                  onChange={(e) => onChangeViewCount(Number(e.target.value))}
-                >
-                  {this.props.viewVariants.map(
-                    (option, key) => (
-                      <option key={key} value={option}>
-                        {option}
-                      </option>
-                    ),
-                    this
-                  )}
-                </select>
-              </div>
-            </>
-          )}
-          <button
-            aria-label="first page"
-            className="btn-first-page"
-            onClick={withPreventDefault(onClickFirstPage)}
-          >
-            &nbsp;
-          </button>
-          <button
-            aria-label="prev page"
-            className="btn-prev-page"
-            onClick={withPreventDefault(onClickPrevPage)}
-          >
-            &nbsp;
-          </button>
-          {Boolean(this.props.count) && (
-            <div>
-              {this.props.page * viewCount + 1}
-              {' - '}
-              {Math.min((this.props.page + 1) * viewCount, this.props.count)}
-              {' of '}
-              {this.props.count}
+      <div className="dgrid-footer">
+        {viewVariants.length && (
+          <>
+            <div className="dgrid-pagination-page-size"> {pageSizeLabel}</div>
+            <div className="dgrid-pagination-view-variants">
+              <select
+                className="dgrid-pagination-view-variants-select"
+                value={viewCount}
+                onChange={(e) => onChangeViewCount(Number(e.target.value))}
+              >
+                {viewVariants.map((option, key) => (
+                  <option key={key} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             </div>
-          )}
-          <button
-            aria-label="next page"
-            className="btn-next-page"
-            onClick={withPreventDefault(onClickNextPage)}
-          >
-            &nbsp;
-          </button>
-          <button
-            aria-label="last page"
-            className="btn-last-page"
-            onClick={withPreventDefault(onClickLastPage)}
-          >
-            &nbsp;
-          </button>
-          <button
-            aria-label="refresh page"
-            className="btn-refresh-page"
-            onClick={withPreventDefault(onRefreshTable)}
-          >
-            &nbsp;
-          </button>
-        </div>
-      )
+          </>
+        )}
+        <button
+          aria-label="first page"
+          className="btn-first-page"
+          onClick={withPreventDefault(onClickFirstPage)}
+        >
+          &nbsp;
+        </button>
+        <button
+          aria-label="prev page"
+          className="btn-prev-page"
+          onClick={withPreventDefault(onClickPrevPage)}
+        >
+          &nbsp;
+        </button>
+        {Boolean(count) && (
+          <div>
+            {page * viewCount + 1}
+            {' - '}
+            {Math.min((page + 1) * viewCount, count)}
+            {' of '}
+            {count}
+          </div>
+        )}
+        <button
+          aria-label="next page"
+          className="btn-next-page"
+          onClick={withPreventDefault(onClickNextPage)}
+        >
+          &nbsp;
+        </button>
+        <button
+          aria-label="last page"
+          className="btn-last-page"
+          onClick={withPreventDefault(onClickLastPage)}
+        >
+          &nbsp;
+        </button>
+        <button
+          aria-label="refresh page"
+          className="btn-refresh-page"
+          onClick={withPreventDefault(onRefreshTable)}
+        >
+          &nbsp;
+        </button>
+      </div>
     );
   }
 
-  _renderTotals(isScrollable) {
+  private renderTotals(scrollable: boolean): React.ReactNode {
     let totalsDisplayed = false;
-    let i;
-    let className;
     let totalsRowHTML = '';
-    const header = this._formHeader();
+    const header = this.formHeader();
 
     // If data for result line display exists, form it
-    if (this.props.totals) {
-      for (i of Object.keys(this.props.columns)) {
-        if (!this._isViewColumn(i)) {
-          continue;
-        }
-
-        className = this.props.columns[i].className;
-        if (className) {
-          totalsRowHTML += `<td class="${className}" key="${i}">`;
-        } else {
-          totalsRowHTML += `<td key="${i}">`;
-        }
-
-        if (this.props.totals.hasOwnProperty(i)) {
-          totalsRowHTML += this._getCellHTML(i, this.props.totals, false, this.props.totals);
-          totalsDisplayed = true;
-        }
-
-        totalsRowHTML += '</td>';
+    for (const columnId of keys(this.props.columns)) {
+      if (!this.isViewColumn(columnId)) {
+        continue;
       }
+
+      const column = this.props.columns[columnId];
+      assert(column, `"${columnId}" column unavailable`);
+
+      const className = column.className;
+      if (className) {
+        totalsRowHTML += `<td class="${className}" key="${columnId}">`;
+      } else {
+        totalsRowHTML += `<td key="${columnId}">`;
+      }
+
+      if (this.props.totals.hasOwnProperty(columnId)) {
+        totalsRowHTML += this.getCellHTML(columnId, this.props.totals, false, this.props.totals);
+        totalsDisplayed = true;
+      }
+
+      totalsRowHTML += '</td>';
     }
 
     if (!totalsDisplayed) {
       return null;
     }
 
-    if (isScrollable) {
+    if (scrollable) {
       return (
         <table cellSpacing="0" className="dgrid-totals">
           <colgroup>{header.colGroup}</colgroup>
@@ -938,144 +1016,16 @@ class PureGridComponent extends React.Component {
     );
   }
 
-  render() {
-    const {cols, colGroup} = this._formHeader();
-    let {classNames} = this.props;
-    const {height, onColumnClick} = this.props;
-    classNames = classNames.concat('dgrid-not-scrollable');
-    if (height) {
-      return (
-        <div className={classNames.join(' ')}>
-          <div className="wrapper-dgrid-header">
-            <table cellSpacing="0" className="dgrid-header">
-              <colgroup>{colGroup}</colgroup>
-              <thead>
-                {cols.map((row, colKey) => {
-                  return (
-                    <tr key={colKey}>
-                      {row.map((col, rowKey) => {
-                        const header = this._getHeaderCellHTML(col.name);
-                        const props = {
-                          key: rowKey,
-                          className: col.className,
-                          onClick: col.id ? onColumnClick.bind(null, col.id) : undefined,
-                          colSpan: col.cols,
-                          rowSpan: col.rows
-                        };
-                        return typeof header === 'string' ? (
-                          <th
-                            {...props}
-                            dangerouslySetInnerHTML={{
-                              __html: header
-                            }}
-                          />
-                        ) : (
-                          <th {...props}>{header}</th>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </thead>
-            </table>
-          </div>
-          <div
-            style={{maxHeight: this.props.height, height: this.props.height}}
-            className="dgrid-body-wrapper dgrid-scrollable"
-          >
-            <div className="dgrid-body">
-              <div
-                className={this.props.showLoader ? 'dgrid-loader' : ''}
-                ref={(loader) => (this.loader = loader)}
-              />
-              <table cellSpacing="0" ref={(body) => (this.body = body)} onClick={this._handleBodyClick}>
-                <colgroup>{colGroup}</colgroup>
-                <tbody className="dgrid-body-table" ref={(tbody) => (this.tBody = tbody)} />
-              </table>
-            </div>
-          </div>
-          <div className="wrapper-totals">{this._renderTotals(this.props.height)}</div>
-          {this._renderPagination()}
-        </div>
-      );
-    }
-
-    // If not scrollable grid
-    return (
-      <div className={classNames.join(' ')}>
-        <div
-          className={this.props.showLoader ? 'dgrid-loader' : ''}
-          ref={(loader) => (this.loader = loader)}
-        />
-        <table cellSpacing="0" className="dgrid-body-table" onClick={this._handleBodyClick}>
-          <colgroup>{colGroup}</colgroup>
-          <thead>
-            {cols.map((row, colKey) => {
-              return (
-                <tr key={colKey}>
-                  {row.map((col, rowKey) => {
-                    const header = this._getHeaderCellHTML(col.name);
-                    const props = {
-                      key: rowKey,
-                      className: col.className,
-                      onClick: col.id ? onColumnClick.bind(null, col.id) : undefined,
-                      colSpan: col.cols,
-                      rowSpan: col.rows
-                    };
-                    return typeof header === 'string' ? (
-                      <th
-                        {...props}
-                        dangerouslySetInnerHTML={{
-                          __html: header
-                        }}
-                      />
-                    ) : (
-                      <th {...props}>{header}</th>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </thead>
-          <tbody className="dgrid-body-table" ref={(tbody) => (this.tBody = tbody)} />
-          {this._renderTotals(height)}
-        </table>
-        {this._renderPagination()}
-      </div>
-    );
+  private getEditorFieldName(id: string & keyof TColumns): string & keyof TRecord {
+    return this.props.columns[id]?.editorField || (id as string & keyof TRecord);
   }
 }
 
-PureGridComponent.defaultProps = {
-  onChangeViewCount: () => {},
-  onClickFirstPage: () => {},
-  onClickPrevPage: () => {},
-  onClickNextPage: () => {},
-  onClickLastPage: () => {},
-  onRefreshTable: () => {},
-  onCellClick: () => {},
-  onColumnClick: () => {},
-  columns: {},
-  pageSizeLabel: 'Page Size',
-  viewCount: 10,
-  sort: [],
-  classNames: ['data-grid'],
-  showLoader: false,
-  totals: {},
-  viewVariants: [10, 20, 30, 40, 50, 100, 200, 300, 500],
-  count: 0,
-  page: 1,
-  records: new Map(),
-  extraRecords: new Map(),
-  statuses: new Map(),
-  changes: new Map(),
-  errors: new Map(),
-  warnings: new Map(),
-  editor: {},
-  grid: this
-};
-
-function withPreventDefault(handler) {
+function withPreventDefault<
+  TEvent extends {
+    preventDefault: Function;
+  }
+>(handler: (event: TEvent) => void): (event: TEvent) => void {
   return (event) => {
     event.preventDefault();
     handler(event);
