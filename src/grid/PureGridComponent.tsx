@@ -583,7 +583,7 @@ class PureGridComponent<
     const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
     const selected = this.isSelected(recordId);
     const gridRowClass = this.getRowClassNames(recordId, selected);
-    let html = `<tr key=${toEncodedString(recordId)} class="${gridRowClass}">`;
+    let html = `<tr key="${toEncodedString(recordId)}" class="${gridRowClass}">`;
 
     for (const columnId of keys(this.props.columns)) {
       const editorFieldName = this.getEditorFieldName(columnId);
