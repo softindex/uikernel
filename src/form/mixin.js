@@ -332,7 +332,9 @@ const FormMixin = {
             }
           };
 
-    this._validateForm().then(handler).catch(handler);
+    this._validateForm()
+      .then(() => handler(null))
+      .catch(handler);
   },
 
   /**
@@ -553,55 +555,62 @@ const FormMixin = {
     return !this.state?._formMixin;
   },
 
-  _validateForm: function (cb, stop) {
+  _validateForm: function () {
     if (this._isNotInitialized()) {
-      return stop();
+      return Promise.resolve();
     }
 
-    let completed = 0;
-    let completeError;
-    const onComplete = function (err) {
-      let field;
+    return new Promise((resolve, reject) => {
+      let completed = 0;
+      let completeError;
 
-      if (this._isUnmounted) {
-        if (err) {
-          console.error(err);
-        }
+      const onComplete = (err) => {
+        let field;
 
-        return;
-      }
+        if (this._isUnmounted) {
+          if (err) {
+            console.error(err);
+          }
 
-      if (err) {
-        completeError = err;
-      }
-
-      if (++completed < 2) {
-        // Wait two callbacks
-        return;
-      }
-
-      this.state._formMixin.validating = false;
-
-      while ((field = this.state._formMixin.pendingClearErrors.pop())) {
-        this.state._formMixin.warnings.clearField(field);
-        this.state._formMixin.errors.clearField(field);
-      }
-
-      this.setState(this.state, function () {
-        if (completeError) {
-          cb(completeError);
           return;
         }
 
-        const errorsWithPartialChecking = this.getValidationErrors();
-        cb(errorsWithPartialChecking.isEmpty() ? null : errorsWithPartialChecking);
-      });
-    }.bind(this);
+        if (err) {
+          completeError = err;
+        }
 
-    this.state._formMixin.validating = true;
+        if (++completed < 2) {
+          // Wait two callbacks
+          return;
+        }
 
-    this._runValidator(this.state._formMixin.model, this._getChanges, 'errors', onComplete);
-    this._runValidator(this.state._formMixin.warningsValidator, this._getData, 'warnings', onComplete);
+        this.state._formMixin.validating = false;
+
+        while ((field = this.state._formMixin.pendingClearErrors.pop())) {
+          this.state._formMixin.warnings.clearField(field);
+          this.state._formMixin.errors.clearField(field);
+        }
+
+        this.setState(this.state, function () {
+          if (completeError) {
+            reject(completeError);
+            return;
+          }
+
+          const errorsWithPartialChecking = this.getValidationErrors();
+          if (errorsWithPartialChecking.isEmpty()) {
+            resolve();
+            return;
+          }
+
+          reject(errorsWithPartialChecking);
+        });
+      };
+      this.state._formMixin.validating = true;
+
+      this._runValidator(this.state._formMixin.model, this._getChanges, 'errors', onComplete);
+      this._runValidator(this.state._formMixin.warningsValidator, this._getData, 'warnings', onComplete);
+    });
   },
 
   _runValidator: function (validator, getData, output, cb) {

@@ -11,10 +11,11 @@
 import omit from 'lodash/omit';
 import React from 'react';
 import {findDOMNode} from 'react-dom';
-import {AsyncOrSync} from 'ts-essentials';
+import {AsyncOrSync, StrictOmit} from 'ts-essentials';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import {parents, isEqual} from '../common/utils';
+import {IListModel, IListModelReadResult} from '../list/types/IListModel';
 import Portal from '../portal/Portal';
 
 const PRODUCT_ID = '__suggestBoxPopUp';
@@ -40,12 +41,7 @@ const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
 
-type Option<TValue> = {
-  id: TValue;
-  label: string[] | string;
-  metadata?: Record<string, unknown>;
-  type?: string;
-};
+type Option<TValue> = IListModelReadResult<TValue, Record<string, unknown>>[number];
 
 type ComputedPopupStyles = Partial<{
   bottom: number;
@@ -65,17 +61,17 @@ type State<TValue> = {
   selectedOptionKey: number | null;
 };
 
-type Props<TValue> = {
+type Props<TValue> = StrictOmit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange' | 'onClick' | 'onFocus' | 'onKeyDown' | 'type' | 'value'
+> & {
   closeMenuOnSelect: boolean;
   defaultLabel?: string[] | string;
   defaultOpenTop: boolean;
   disabled: boolean;
   label?: string[] | string;
   loadingElement: React.ReactNode;
-  model: {
-    getLabel: (id: Exclude<TValue, null>) => Promise<string[] | string>;
-    read: (search: string) => Promise<Option<Exclude<TValue, null>>[]>;
-  };
+  model: IListModel<Exclude<TValue, null>, Record<string, unknown>>;
   notFoundElement: React.ReactNode;
   value: TValue | null;
   withEmptyOption: boolean;
@@ -159,7 +155,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
   }
 
   focus(): void {
-    this.getInput().focus();
+    this.input?.focus();
   }
 
   render(): JSX.Element {
@@ -196,11 +192,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
 
             const optionType = option.type;
             if (optionType) {
-              optionClassNames.push(
-                (Object.prototype.hasOwnProperty.call(CLASSES.optionTypes, optionType) &&
-                  CLASSES.optionTypes[optionType as keyof typeof CLASSES.optionTypes]) ||
-                  optionType
-              );
+              optionClassNames.push(CLASSES.optionTypes[optionType] || optionType);
             }
 
             return (
@@ -246,7 +238,6 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
               'onChange',
               'onLabelChange',
               'onFocus',
-              'select',
               'notFoundElement',
               'loadingElement',
               'defaultLabel',
@@ -368,7 +359,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
         resolve
       );
     });
-    this.getInput().select();
+    this.input?.select();
 
     await this.updateList(searchPattern); // TODO Handle errors
 
@@ -397,7 +388,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       return;
     }
 
-    this.getInput().select();
+    this.input?.select();
     if (this.props.onFocus) {
       this.props.onFocus(event);
     }
@@ -405,7 +396,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
 
   private closeList(shouldBlur?: boolean): void {
     if (shouldBlur) {
-      this.getInput().blur();
+      this.input?.blur();
     }
 
     if (!this.state.isOpened || !this.mounted) {
@@ -443,7 +434,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       this.props.onMetadataChange(performedOption.metadata);
     }
 
-    this.getInput().select();
+    this.input?.select();
   }
 
   private async focusOption(key: number, shouldSetLabel?: boolean): Promise<void> {
@@ -578,7 +569,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     } else {
       // q where to test
       if (!parents(target, `.${CLASSES.searchBlock}`).length) {
-        if (!this.getInput().value) {
+        if (!this.input?.value) {
           this.selectOption(null);
         } else {
           this.setLabelTo(this.state.lastValidLabel);
@@ -667,7 +658,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
   }
 
   private getComputedPopupStyles(): ComputedPopupStyles | null {
-    const inputNode = this.getInput();
+    const inputNode = this.input as HTMLInputElement;
     const inputStyles = window.getComputedStyle(inputNode);
     const popupStyle: ComputedPopupStyles = {};
 
@@ -697,10 +688,6 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     popupStyle.left = offsetLeft;
 
     return popupStyle;
-  }
-
-  private getInput(): HTMLInputElement {
-    return findDOMNode(this.input) as HTMLInputElement;
   }
 }
 

@@ -80,7 +80,7 @@ type Props<
     event: React.MouseEvent<HTMLTableElement, MouseEvent>,
     recordId: TKey,
     colId: string & keyof TColumns,
-    ref?: string
+    ref: string | null
   ) => void;
   onChangeViewCount: (viewCount: number) => void;
   onClickFirstPage: () => void;
@@ -482,7 +482,7 @@ class PureGridComponent<
     row.className = this.getRowClassNames(recordId, selected);
 
     const columnIds = keys(this.props.columns).filter((key) => this.isViewColumn(key));
-    for (let columnIndex = 0; columnIndex <= columnIds.length; columnIndex++) {
+    for (let columnIndex = 0; columnIndex < columnIds.length; columnIndex++) {
       this.renderCell(recordId, columnIds[columnIndex], row.children[columnIndex], prevEditor);
     }
   }
@@ -743,8 +743,7 @@ class PureGridComponent<
       top: []
     };
     const colGroup: JSX.Element[] = [];
-    let lastParent: Pick<FormHeaderCol<TKey, TRecord, string & keyof TColumns>, 'cols' | 'name'> | null =
-      null;
+    let lastParent: FormHeaderCol<TKey, TRecord, string & keyof TColumns> | null = null;
 
     for (const [columnId, column] of Object.entries(this.props.columns)) {
       // Skip column if it's invisible
@@ -772,7 +771,7 @@ class PureGridComponent<
       if (!column.parent) {
         lastParent = null;
         formHeaderColInfo.rows = 2;
-        row.bottom.push(formHeaderColInfo);
+        row.top.push(formHeaderColInfo);
         continue;
       }
 
@@ -783,13 +782,14 @@ class PureGridComponent<
         continue;
       }
 
-      lastParent = {name: column.parent, cols: 1};
-      row.top.push({
-        ...lastParent,
+      lastParent = {
+        name: column.parent,
+        cols: 1,
         rows: 1,
         id: undefined,
         className: ''
-      });
+      };
+      row.top.push(lastParent);
     }
 
     return {row, colGroup};
@@ -875,10 +875,10 @@ class PureGridComponent<
 
       const key = parentNode.getAttribute('key');
       assert(this.recordMap, '"recordMap" unknown');
-      const recordId = this.recordMap.get(key as string);
-      assert(recordId, '"recordId" unknown');
+      assert(this.recordMap.has(key as string), '"recordId" unknown');
+      const recordId = this.recordMap.get(key as string) as TKey;
 
-      const refValue = (refParent || target).getAttribute('ref') as string;
+      const refValue = (refParent || target).getAttribute('ref');
       this.props.onCellClick(event, recordId, columnId, refValue);
     }
   };
@@ -901,7 +901,7 @@ class PureGridComponent<
 
     return (
       <div className="dgrid-footer">
-        {viewVariants.length && (
+        {Boolean(viewVariants.length) && (
           <>
             <div className="dgrid-pagination-page-size"> {pageSizeLabel}</div>
             <div className="dgrid-pagination-view-variants">

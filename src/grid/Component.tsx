@@ -82,7 +82,7 @@ type Props<
   statuses?: EqualMap<TKey, Set<string>>;
   viewColumns?: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean};
   viewCount?: number;
-  viewVariants?: number[];
+  viewVariants?: number[] | null;
   warningsValidator?: Validator<TRecord>;
   onChange?: (changes: EqualMap<TKey, Partial<TRecord>>) => void;
   onChangeViewCount?: (viewCount: number) => void;
@@ -304,13 +304,13 @@ class GridComponent<
   /**
    * Fetch server data
    */
-  async updateTable(): Promise<void> {
+  updateTable = async (): Promise<void> => {
     this.throttledUpdateTable().catch((error) => {
       if (!(error instanceof ThrottleError)) {
         throw error;
       }
     });
-  }
+  };
 
   /**
    * Get current records selection mode
@@ -706,7 +706,7 @@ class GridComponent<
     event: React.MouseEvent<HTMLElement>,
     recordId: TKey,
     colId: string & keyof TColumns,
-    ref?: string
+    ref?: string | null
   ): void => {
     // preventing of creating editor on same cell as it is
     if (recordId === this.state.editor.recordId && colId === this.state.editor.column) {
@@ -772,13 +772,15 @@ class GridComponent<
     };
 
     const element = editor.call(editorContext, record, this);
-    this.setState({
-      editor: {
-        element,
-        recordId,
-        column: colId
-      }
-    });
+    if (element) {
+      this.setState({
+        editor: {
+          element,
+          recordId,
+          column: colId
+        }
+      });
+    }
   };
 
   /**
@@ -1146,7 +1148,7 @@ class GridComponent<
         classNames={gridClassNames}
         showLoader={showLoader}
         totals={totals}
-        viewVariants={viewVariants}
+        viewVariants={viewVariants === null ? [] : viewVariants}
         count={count}
         page={page}
         viewColumns={viewColumns}
@@ -1703,6 +1705,7 @@ class GridComponent<
     const context = cloneDeep(editorContext);
     context.props.value = value;
     const element = columnConfig.editor.call(context, record, this);
+    assert(element, 'received unknown element on change editor');
     const recordChanges: Partial<TRecord> = {};
     recordChanges[this.getEditorFieldName(columnId)] = value;
     this.setRowChanges(recordId, recordChanges);

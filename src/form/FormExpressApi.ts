@@ -11,7 +11,7 @@ import multer from 'multer';
 import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
 import parseJson from '../common/parseJson';
 import ValidationErrors from '../validation/ValidationErrors';
-import AbstractFormModel from './AbstractFormModel';
+import {IFormModel} from './types/IFormModel';
 import {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
@@ -29,7 +29,7 @@ type FormExpressApiMiddlewares = {
 };
 
 class FormExpressApi<TRecord extends {}> {
-  static create<TRecord extends {}>(settings: FormExpressApiParams): FormExpressApi<TRecord> {
+  static create<TRecord extends {}>(settings: FormExpressApiParams = {}): FormExpressApi<TRecord> {
     return new FormExpressApi(settings);
   }
 
@@ -111,11 +111,7 @@ class FormExpressApi<TRecord extends {}> {
     );
   }
 
-  model(
-    model:
-      | AbstractFormModel<TRecord, Record<string, unknown[]>>
-      | ((req: Request, res: Response) => AbstractFormModel<TRecord, Record<string, unknown[]>>)
-  ): this {
+  model(model: IFormModel<TRecord> | ((req: Request, res: Response) => IFormModel<TRecord>)): this {
     if (typeof model === 'function') {
       this.getModel = model;
     } else {
@@ -157,7 +153,7 @@ class FormExpressApi<TRecord extends {}> {
   }
 
   // Default implementation
-  private getModel(_req: Request, _res: Response): AbstractFormModel<TRecord, Record<string, unknown[]>> {
+  private getModel(_req: Request, _res: Response): IFormModel<TRecord> {
     throw new Error('Model is not defined.');
   }
 

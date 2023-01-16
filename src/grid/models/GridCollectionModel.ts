@@ -8,6 +8,7 @@
 
 import cloneDeep from 'lodash/cloneDeep';
 import without from 'lodash/without';
+import {StrictOmit} from 'ts-essentials';
 import {AllAsOptionalWithRequired, IObservable} from '../../common/types';
 import {forEach, keys, isEqual, warn} from '../../common/utils';
 import ValidationErrors from '../../validation/ValidationErrors';
@@ -38,11 +39,9 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
   /**
    * @deprecated
    */
-  static createWithNumberId<TRecord extends {}, TFilters>(): GridCollectionModel<number, TRecord, TFilters> {
-    warn('static method GridCollectionModel.createWithNumberId is deprecated.');
-
+  static getNumberIdGeneration(): (existsIds: number[]) => number {
     let initalId = 1;
-    const generateId: GridCollectionModelParams<number, TRecord, TFilters>['generateId'] = (existsIds) => {
+    return (existsIds) => {
       const existsIdsSet = new Set(existsIds);
       while (existsIdsSet.has(initalId)) {
         initalId++;
@@ -50,8 +49,28 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
 
       return initalId;
     };
+  }
 
-    return GridCollectionModel.create({generateId});
+  /**
+   * @deprecated
+   */
+  static createWithNumberId<TRecord extends {}, TFilters>({
+    data,
+    filtersHandler,
+    requiredFields,
+    validator
+  }: Partial<
+    StrictOmit<GridCollectionModelParams<number, TRecord, TFilters>, 'generateId'>
+  >): GridCollectionModel<number, TRecord, TFilters> {
+    warn('static method GridCollectionModel.createWithNumberId is deprecated.');
+
+    return GridCollectionModel.create({
+      generateId: GridCollectionModel.getNumberIdGeneration(),
+      data,
+      filtersHandler,
+      requiredFields,
+      validator
+    });
   }
 
   static create<TKey, TRecord extends {}, TFilters>({

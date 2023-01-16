@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {EventListener} from '../../common/types';
+import {EventListener, IObservable} from '../../common/types';
 import ValidationErrors from '../../validation/ValidationErrors';
 import Validator from '../../validation/Validator';
-import AbstractFormModel from '../AbstractFormModel';
 import {FormModelListenerArgsByEventName} from './FormModelListenerArgsByEventName';
+import {IFormModel} from './IFormModel';
 
 export interface IFormServiceEmptyState<TRecord extends {}> {
   changes: {};
@@ -66,7 +66,7 @@ export interface IFormServiceParams<
   /**
    * @description Model of form
    */
-  model: AbstractFormModel<TRecord, TListenerArgsByEventName>;
+  model: IFormModel<TRecord> & IObservable<TListenerArgsByEventName>;
   /**
    * @description Activate partial gradual form validation - default `false`
    */

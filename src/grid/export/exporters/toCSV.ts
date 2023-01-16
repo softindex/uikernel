@@ -9,24 +9,24 @@
 import {promisify} from 'util';
 import {default as csv, default as stringify} from 'csv-stringify';
 
-export type CSVExportRunnerParams<TRecord extends {}> = {
-  columns: string[] | stringify.ColumnOption[];
-  records: Partial<TRecord>[];
-  totals: Partial<TRecord>;
+export type CSVExportRunnerParams<TColumn extends string> = {
+  columns: stringify.Options['columns'];
+  records: Partial<Record<TColumn, string>>[];
+  totals?: Partial<Record<TColumn, string>>;
 };
 
-type CSVExportRunnerResult = {
+export type CSVExportRunnerResult = {
   data: string;
   mime: 'text/csv';
 };
 
-export type CSVExportRunner = <TRecord extends {}>(
-  params: CSVExportRunnerParams<TRecord>
+export type CSVExportRunner = <TColumn extends string>(
+  params: CSVExportRunnerParams<TColumn>
 ) => Promise<CSVExportRunnerResult>;
 
 const toCSV: CSVExportRunner = async (data) => {
   const csvData = await promisify(
-    csv.bind(null, data.records.concat([data.totals]), {
+    csv.bind(null, data.totals ? data.records.concat([data.totals]) : data.records, {
       header: true,
       columns: data.columns
     })

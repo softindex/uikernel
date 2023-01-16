@@ -146,8 +146,15 @@ class ValidationErrors<TField extends string> {
     return ValidationErrors.createFromJSON(this.toJSON());
   }
 
-  merge<T extends string>(validationErrors: ValidationErrors<T>): ValidationErrors<T | TField> {
-    return ValidationErrors.merge(this, validationErrors);
+  merge<T extends TField>(validationErrors: ValidationErrors<T>): this {
+    for (const [field, newErrors] of validationErrors.getErrors()) {
+      const errors = this.fields.get(field) || [];
+      errors.push(...newErrors);
+
+      this.fields.set(field, errors);
+    }
+
+    return this;
   }
 
   /**

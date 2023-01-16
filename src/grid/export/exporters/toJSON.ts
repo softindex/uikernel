@@ -6,22 +6,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-type JsonExportRunnerParams<TRecord extends {}> = {
-  records: Partial<TRecord>[];
-  totals: Partial<TRecord>;
+type JsonExportRunnerParams<TColumn extends string> = {
+  records: Partial<Record<TColumn, string>>[];
+  totals?: Partial<Record<TColumn, string>>;
 };
 
-type JsonExportRunnerResult<TRecord extends {}> = {
+type JsonExportRunnerResult<TColumn extends string> = {
   data: {
-    records: Partial<TRecord>[];
-    totals: Partial<TRecord>;
+    records: Partial<Record<TColumn, string>>[];
+    totals?: Partial<Record<TColumn, string>>;
   };
   mime: 'application/json';
 };
 
-export type JsonExportRunner = <TRecord extends {}>(
-  params: JsonExportRunnerParams<TRecord>
-) => Promise<JsonExportRunnerResult<TRecord>>;
+export type JsonExportRunner = <TColumn extends string>(
+  params: JsonExportRunnerParams<TColumn>
+) => Promise<JsonExportRunnerResult<TColumn>>;
 
 const toJSON: JsonExportRunner = async (data) => {
   return {

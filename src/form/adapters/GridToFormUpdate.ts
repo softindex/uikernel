@@ -9,8 +9,8 @@
 import EventsModel from '../../common/EventsModel';
 import {IObservable, EventListener} from '../../common/types';
 import {isEqual} from '../../common/utils';
-import AbstractGridModel from '../../grid/models/AbstractGridModel';
 import {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
+import {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
 import {IFormModel} from '../types/IFormModel';
 
@@ -39,12 +39,8 @@ class GridToFormUpdate<
   }[] = [];
 
   constructor(
-    private gridModel: AbstractGridModel<
-      TKey,
-      TRecord,
-      TFilters,
-      RequiredGridModelListenerArgsByEventName<TKey, TRecord>
-    >,
+    private gridModel: IGridModel<TKey, TRecord, TFilters> &
+      IObservable<RequiredGridModelListenerArgsByEventName<TKey, TRecord>>,
     private id: TKey
   ) {}
 

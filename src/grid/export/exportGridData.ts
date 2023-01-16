@@ -9,16 +9,16 @@
 import ArgumentsError from '../../common/error/ArgumentsError';
 import {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
-import {IGridModelSortMode, IGridModel} from '../models/types/IGridModel';
+import {IGridModel, IGridModelSortMode} from '../models/types/IGridModel';
 import {GridColumnConfig, GridGetColumn} from '../types/GridColumns';
 
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 
-function formatColumns<TRecord extends {}, TColumn extends string>(
+function formatColumns<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
-  viewColumns: TColumn[]
-): FormatColumnsResult<TColumn> {
-  const formattedColumns: FormatColumnsResult<TColumn> = {} as unknown as FormatColumnsResult<TColumn>;
+  viewColumns: TViewColumn[]
+): FormatColumnsResult<TViewColumn> {
+  const formattedColumns = {} as unknown as FormatColumnsResult<TViewColumn>;
   let columnId;
   let i;
 
@@ -34,12 +34,12 @@ function formatColumns<TRecord extends {}, TColumn extends string>(
 
 type FormatRecordResult<TField extends string> = Record<TField, string>;
 
-function formatRecord<TRecord extends {}, TColumn extends string>(
+function formatRecord<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   record: Partial<TRecord>,
   columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
-  viewColumns: TColumn[]
-): FormatRecordResult<TColumn> {
-  const formattedRecord: FormatRecordResult<TColumn> = {} as unknown as FormatRecordResult<TColumn>;
+  viewColumns: TViewColumn[]
+): FormatRecordResult<TViewColumn> {
+  const formattedRecord = {} as unknown as FormatRecordResult<TViewColumn>;
 
   for (const viewColumn of viewColumns) {
     const column = columns[viewColumn];
@@ -60,13 +60,13 @@ type FormatDataResult<TColumn extends string> = {
   totals?: FormatRecordResult<TColumn>;
 };
 
-function formatData<TRecord extends {}, TColumn extends string>(
+function formatData<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   records: [unknown, Partial<TRecord>][],
   totals: Partial<TRecord> | undefined,
   columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
-  viewColumns: TColumn[]
-): FormatDataResult<TColumn> {
-  const formatted: FormatDataResult<TColumn> = {
+  viewColumns: TViewColumn[]
+): FormatDataResult<TViewColumn> {
+  const formatted: FormatDataResult<TViewColumn> = {
     columns: formatColumns(columns, viewColumns),
     records: records.map((record) => formatRecord(record[1], columns, viewColumns))
   };
@@ -77,9 +77,9 @@ function formatData<TRecord extends {}, TColumn extends string>(
   return formatted;
 }
 
-function getFields<TRecord extends {}, TColumn extends string>(
+function getFields<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
-  viewColumns: TColumn[]
+  viewColumns: TViewColumn[]
 ): (keyof TRecord & string)[] {
   const fields: Partial<Record<keyof TRecord & string, boolean>> = {};
   for (const columnId of viewColumns) {
@@ -93,9 +93,9 @@ function getFields<TRecord extends {}, TColumn extends string>(
   return keys(fields);
 }
 
-function assertValidViewColumns<TRecord extends {}, TColumn extends string>(
+function assertValidViewColumns<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
-  viewColumns?: TColumn[] | null
+  viewColumns?: TViewColumn[] | null
 ): void {
   if (!viewColumns?.length) {
     throw new ArgumentsError('"viewColumns" can`t be empty');
@@ -113,26 +113,30 @@ function assertValidViewColumns<TRecord extends {}, TColumn extends string>(
   }
 }
 
-type ExportRunner = AnyFunction<Promise<{data: unknown; mime: string}>>;
-
-type ExportGridDataSettings<TRecord extends {}> = {
+export type ExportGridDataParams<TRecord extends {}> = {
   limit?: number;
   offset?: number;
   sort?: {column: keyof TRecord & string; direction: IGridModelSortMode};
 };
 
-type ExportGridDataResult<TExportRunner extends ExportRunner> = TExportRunner extends AnyFunction<
+export type ExportGridDataResult<TExportRunner extends AnyFunction> = TExportRunner extends AnyFunction<
   Promise<infer RESULT>
 >
   ? RESULT
-  : ReturnType<ExportRunner>;
+  : ReturnType<TExportRunner>;
 
-async function exportGridData<TRecord extends {}, TColumn extends string, TExportRunner extends ExportRunner>(
+async function exportGridData<
+  TRecord extends {},
+  TColumn extends string,
+  TViewColumn extends TColumn,
+  // eslint-disable-next-line space-before-function-paren
+  TExportRunner extends (data: FormatDataResult<TViewColumn>) => Promise<{data: unknown; mime: string}>
+>(
   gridModel: IGridModel<unknown, TRecord, unknown>,
   columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
-  viewColumns: TColumn[],
+  viewColumns: TViewColumn[],
   exportRunner: TExportRunner,
-  settings: ExportGridDataSettings<TRecord>
+  settings: ExportGridDataParams<TRecord>
 ): Promise<ExportGridDataResult<TExportRunner>> {
   assertValidViewColumns(columns, viewColumns);
   const result = await gridModel.read({

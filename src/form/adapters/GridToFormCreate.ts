@@ -8,7 +8,7 @@
 
 import pick from 'lodash/pick';
 import {IObservable} from '../../common/types';
-import AbstractGridModel from '../../grid/models/AbstractGridModel';
+import {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
 import {IFormModel} from '../types/IFormModel';
 
@@ -18,7 +18,7 @@ import {IFormModel} from '../types/IFormModel';
  */
 class GridToFormCreate<TKey, TRecord extends {}, TFilters> implements IFormModel<TRecord>, IObservable<{}> {
   constructor(
-    private gridModel: AbstractGridModel<TKey, TRecord, TFilters, {}>,
+    private gridModel: IGridModel<TKey, TRecord, TFilters> & IObservable<{}>,
     private initialData: Partial<TRecord> = {}
   ) {}
 

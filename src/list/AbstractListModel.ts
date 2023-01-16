@@ -11,11 +11,11 @@ import {IListModel, IListModelReadResult} from './types/IListModel';
 /**
  * Abstract List model
  */
-abstract class AbstractListModel<TKey> implements IListModel<TKey> {
+abstract class AbstractListModel<TKey, TMetadata extends {}> implements IListModel<TKey, TMetadata> {
   /**
    * Get data
    */
-  read(_search?: string): Promise<IListModelReadResult<TKey>> {
+  read(_search?: string): Promise<IListModelReadResult<TKey, TMetadata>> {
     return Promise.resolve([]);
   }
 

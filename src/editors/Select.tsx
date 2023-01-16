@@ -26,7 +26,10 @@ type State<TValue, TOptions extends AvailevleOptions<TValue>> = {
   options: TOptions | [[null, ''], ...TOptions];
 };
 
-type Props<TValue, TOptions extends AvailevleOptions<TValue>> = {
+type Props<TValue, TOptions extends AvailevleOptions<TValue>> = StrictOmit<
+  React.SelectHTMLAttributes<HTMLSelectElement>,
+  'disabled' | 'onChange' | 'value'
+> & {
   disabled: boolean;
   model?: {
     read: (search: string) => Promise<TOptions>;

@@ -57,7 +57,7 @@ type GridEditorConfig<TRecord extends {}, TEditorField extends string & keyof TR
         record: Partial<TRecord>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         gridRef: IGridRef<any, TRecord, any, any, boolean>
-      ) => JSX.Element;
+      ) => JSX.Element | null;
     };
 
 type GridSortConfig<TSortPossible extends boolean> = TSortPossible extends true

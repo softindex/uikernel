@@ -10,7 +10,7 @@ import url from 'url';
 import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
 import {IListModel, IListModelReadResult} from './types/IListModel';
 
-class ListXhrModel<TKey> implements IListModel<TKey> {
+class ListXhrModel<TKey, TMetadata extends {}> implements IListModel<TKey, TMetadata> {
   /**
    * Simple list client model which works via XMLHttpRequest
    */
@@ -23,7 +23,7 @@ class ListXhrModel<TKey> implements IListModel<TKey> {
   /**
    * Get model data
    */
-  async read(search?: string): Promise<IListModelReadResult<TKey>> {
+  async read(search?: string): Promise<IListModelReadResult<TKey, TMetadata>> {
     const parsedURL = url.parse(this.apiUrl, true);
     parsedURL.search = null;
     if (search) {
@@ -34,7 +34,7 @@ class ListXhrModel<TKey> implements IListModel<TKey> {
       method: 'GET',
       json: true,
       uri: url.format(parsedURL)
-    })) as IListModelReadResult<TKey>;
+    })) as IListModelReadResult<TKey, TMetadata>;
   }
 
   /**

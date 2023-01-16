@@ -60,6 +60,8 @@ if (!variables.get('xhr')) {
   variables.set('xhr', defaultRequest);
 }
 
-const defaultXhr: DefaultXhr = (settings: DefaultXhrSettings) => variables.get('xhr')(settings);
+const defaultXhr: DefaultXhr = (settings: DefaultXhrSettings) =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variables.get('xhr')(settings) as Promise<any>;
 
 export default defaultXhr;

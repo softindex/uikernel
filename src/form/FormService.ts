@@ -9,12 +9,12 @@
 import ThrottleError from '../common/error/ThrottleError';
 import EventEmitter from '../common/EventsModel';
 import throttle from '../common/throttle';
-import {EventListener} from '../common/types';
+import {EventListener, IObservable} from '../common/types';
 import {getRecordChanges, keys, parseValueFromEvent, isEmpty, isEqual, warn} from '../common/utils';
 import ValidationErrors from '../validation/ValidationErrors';
 import Validator from '../validation/Validator';
-import AbstractFormModel from './AbstractFormModel';
 import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import {IFormModel} from './types/IFormModel';
 import IFormService, {
   IFormServiceEmptyState,
   IFormServiceParams,
@@ -27,7 +27,7 @@ type InitalizedState<TRecord extends {}> =
   | {
       data: Partial<TRecord>;
       initialized: true;
-      model: AbstractFormModel<TRecord, FormModelListenerArgsByEventName<TRecord>>;
+      model: IFormModel<TRecord> & IObservable<FormModelListenerArgsByEventName<TRecord>>;
       warningsValidator: Validator<TRecord>;
     }
   | {

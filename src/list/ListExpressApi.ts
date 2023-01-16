@@ -8,7 +8,7 @@
 
 import {Request, RequestHandler, Response, Router} from 'express';
 import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
-import AbstractListModel from './AbstractListModel';
+import {IListModel} from './types/IListModel';
 
 type ListExpressApiMiddlewares = {
   getLabel: RequestHandler[];
@@ -18,8 +18,8 @@ type ListExpressApiMiddlewares = {
 /**
  * Form Express API for List model interaction
  */
-class ListExpressApi<TKey> {
-  static create<TKey>(): ListExpressApi<TKey> {
+class ListExpressApi<TKey, TMetadata extends {}> {
+  static create<TKey, TMetadata extends {}>(): ListExpressApi<TKey, TMetadata> {
     return new ListExpressApi();
   }
 
@@ -44,7 +44,9 @@ class ListExpressApi<TKey> {
   /**
    * Specify List model
    */
-  model(model: AbstractListModel<TKey> | ((req: Request, res: Response) => AbstractListModel<TKey>)): this {
+  model(
+    model: IListModel<TKey, TMetadata> | ((req: Request, res: Response) => IListModel<TKey, TMetadata>)
+  ): this {
     if (typeof model === 'function') {
       this.getModel = model;
     } else {
@@ -71,7 +73,7 @@ class ListExpressApi<TKey> {
   }
 
   // Default implementation
-  private getModel(_req: Request, _res: Response): AbstractListModel<TKey> {
+  private getModel(_req: Request, _res: Response): IListModel<TKey, TMetadata> {
     throw new Error('Model is not defined.');
   }
 
