@@ -44,7 +44,7 @@ class NumberEditor extends React.Component<Props, State> {
   UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (!isEqual(this.state.value, nextProps.value)) {
       assert(this.input, '"input" unknown');
-      // @ts-expect-error readonly state
+      // @ts-expect-error: TS2540 Cannot assign to 'value' because it is a read-only property
       this.state.value = nextProps.value;
       this.input.value = this.state.value?.toString() || '';
     }
@@ -71,13 +71,13 @@ class NumberEditor extends React.Component<Props, State> {
     const valueAsNumber = parseFloat(target.value); // Edge doesn't support "target.valueAsNumber"
     if (target.value === '' && target.validity.valid) {
       // Invalid number set empty string and valid=false to event
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'value' because it is a read-only property
       this.state.value = null;
     } else if (isInvalidFloat(valueAsNumber)) {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'value' because it is a read-only property
       this.state.value = '';
     } else {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'value' because it is a read-only property
       this.state.value = valueAsNumber;
     }
 

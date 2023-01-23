@@ -5710,6 +5710,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-only-error@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "eslint-plugin-only-error@npm:1.0.2"
+  checksum: b901698efb1e4dde7e49e33177b4f45f5af4499b0d456251999f833b01b66e33e133129e4fdb30adeb41c2684b1868f485b5f571904efd9db075fe0fb1726c7f
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-prettier@npm:^4.0.0":
   version: 4.2.1
   resolution: "eslint-plugin-prettier@npm:4.2.1"
@@ -14288,6 +14295,7 @@ __metadata:
     eslint-config-prettier: ^8.5.0
     eslint-plugin-import: ^2.26.0
     eslint-plugin-jest: ^27.1.7
+    eslint-plugin-only-error: ^1.0.2
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-react: ^7.20.6
     eslint-plugin-react-hooks: ^4.1.0

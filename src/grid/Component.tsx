@@ -232,17 +232,17 @@ class GridComponent<
     }
 
     if (resetFlags.has(ResetFlag.SelectedColumns)) {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'selected' because it is a read-only property
       this.state.selected = [...nextProps.selected];
     }
 
     if (resetFlags.has(ResetFlag.Model) || resetFlags.has(ResetFlag.Sort)) {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
       this.state.page = this.getValidPage(0, this.state.viewCount, this.state.count);
     }
 
     if (resetFlags.has(ResetFlag.Model)) {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'data' because it is a read-only property
       this.state.data = null;
       if (this.props.model) {
         this.props.model.off('create', this.onRecordsCreated);
@@ -457,7 +457,7 @@ class GridComponent<
       return;
     }
 
-    // @ts-expect-error state readonly
+    // @ts-expect-error: TS2540 Cannot assign to 'partialErrorChecking' because it is a read-only property
     this.state.partialErrorChecking = false;
 
     const unhandledErrors = [];
@@ -626,7 +626,7 @@ class GridComponent<
    * Reset to initial table state
    */
   reset(): void {
-    // @ts-expect-error state readonly
+    // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
     this.state.page = this.getValidPage(0, this.state.viewCount, this.state.count);
     if (!this.isSortingPropsMode()) {
       assert(this.props.onSorting, 'prop "onSorting" is required, because "sort" exists in props');
@@ -644,7 +644,7 @@ class GridComponent<
       throw new Error('You can not use function "resetSorting" when set prop "sort"');
     }
 
-    // @ts-expect-error state readonly
+    // @ts-expect-error: TS2540 Cannot assign to 'sort' because it is a read-only property
     this.state.sort = this.getDefaultSort();
     this.updateTable();
   }
@@ -809,7 +809,7 @@ class GridComponent<
    * Move to other page
    */
   setPage(page: number): void {
-    // @ts-expect-error state readonly
+    // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
     this.state.page = this.getValidPage(page, this.state.viewCount, this.state.count);
     this.updateTable();
   }
@@ -845,9 +845,9 @@ class GridComponent<
       throw new Error('You can not use function "setViewCount" when set prop "viewCount"');
     }
 
-    // @ts-expect-error state readonly
+    // @ts-expect-error: TS2540 Cannot assign to 'viewCount' because it is a read-only property
     this.state.viewCount = viewCount;
-    // @ts-expect-error state readonly
+    // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
     this.state.page = this.getValidPage(this.state.page, viewCount, this.state.count);
     this.updateTable();
   }
@@ -1042,7 +1042,7 @@ class GridComponent<
     if (this.props.multipleSorting) {
       (this.state.sort as SortElementProps<string & keyof TColumns & keyof TRecord>[]).push(sort);
     } else {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'sort' because it is a read-only property
       this.state.sort = sort;
     }
 
@@ -1207,7 +1207,7 @@ class GridComponent<
     // request existing in a moment page
     const page = this.getValidPage(this.state.page, currentViewCount, loadedData.count);
     if (page !== this.state.page) {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
       this.state.page = page;
       this.updateTable();
       return;
@@ -1793,7 +1793,7 @@ class GridComponent<
     this.props.onSorting?.(nextSorting, sortableColumn, nextDirectionForColumn);
 
     if (!this.isSortingPropsMode()) {
-      // @ts-expect-error state readonly
+      // @ts-expect-error: TS2540 Cannot assign to 'sort' because it is a read-only property
       this.state.sort = nextSorting;
       this.setPage(0);
     }

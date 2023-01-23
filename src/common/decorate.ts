@@ -25,7 +25,7 @@ function Decorator<T extends {}>(this: {}, obj: T, decor: Partial<T>) {
 
 function decorate<T extends {}>(obj: T, decor: Partial<T>): T {
   Decorator.prototype = obj;
-  // @ts-expect-error new expression
+  // @ts-expect-error: TS7009 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type
   return new Decorator(obj, decor) as T;
 }
 

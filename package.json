@@ -19,8 +19,8 @@
     "test": "jest",
     "start-site": "sh ./scripts/start_local_site.sh",
     "ts": "tsc --preserveWatchOutput --noEmit",
-    "lint": "esw src --color --ext=.jsx,.js,.tsx,.ts --cache --fix",
-    "validate": "yarn lint && yarn ts && yarn test"
+    "lint": "esw src --color --ext=.jsx,.js,.tsx,.ts --cache",
+    "validate": "yarn lint --fix && yarn ts && yarn test"
   },
   "dependencies": {
     "classnames": "^2.2.6",
@@ -60,6 +60,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^27.1.7",
+    "eslint-plugin-only-error": "^1.0.2",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.20.6",
     "eslint-plugin-react-hooks": "^4.1.0",

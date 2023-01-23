@@ -46,7 +46,7 @@ import setValidationRule from './validation/rules/set';
 import ValidationErrors from './validation/ValidationErrors';
 import Validator from './validation/Validator';
 
-// @ts-expect-error
+// @ts-expect-error: TS7017 Element implicitly has an 'any' type because type 'typeof globalThis' has no index signature
 if (!global._babelPolyfill) {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('@babel/polyfill/browser');

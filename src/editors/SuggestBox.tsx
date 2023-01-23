@@ -325,7 +325,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
 
     const content: HTMLElement | null = document.querySelector(`${PRODUCT_ID} .__suggestBoxPopUp-content`);
     if (content) {
-      // @ts-expect-error
+      // @ts-expect-error: TS2540 Cannot assign to 'style' because it is a read-only property
       content.style = {
         bottom: 'auto',
         position: 'static'
@@ -451,7 +451,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
   }
 
   private focusOptionAndScrollIntoView(key: number): void {
-    // @ts-expect-error
+    // @ts-expect-error: TS2540 Cannot assign to 'selectedOptionKey' because it is a read-only property
     // eslint-disable-next-line react/no-direct-mutation-state
     this.state.selectedOptionKey = key;
     const focusedItems = document.querySelector(`.${CLASSES.optionFocused}`);
@@ -476,7 +476,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     }
 
     if (this.state.selectedOptionKey === null) {
-      // @ts-expect-error
+      // @ts-expect-error: TS2540 Cannot assign to 'selectedOptionKey' because it is a read-only property
       // eslint-disable-next-line react/no-direct-mutation-state
       this.state.selectedOptionKey = 0;
       return this.focusOption(this.state.selectedOptionKey, true);
@@ -498,7 +498,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
 
   private focusPrevOption(): AsyncOrSync<void> {
     if (this.state.selectedOptionKey === null) {
-      // @ts-expect-error
+      // @ts-expect-error: TS2540 Cannot assign to 'selectedOptionKey' because it is a read-only property
       // eslint-disable-next-line react/no-direct-mutation-state
       this.state.selectedOptionKey = 0;
       return this.focusOption(this.state.selectedOptionKey);

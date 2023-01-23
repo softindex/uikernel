@@ -24,7 +24,7 @@ function throttle<TResult = unknown, TArgs extends unknown[] = []>(
   return function (...args) {
     return (
       throttlePromise(func)
-        // @ts-expect-error
+        // @ts-expect-error: TS2683 'this' implicitly has type 'any' because it does not have a type annotation
         // eslint-disable-next-line @typescript-eslint/no-invalid-this
         .apply(this, args)
     );
@@ -53,13 +53,13 @@ function throttle<TResult = unknown, TArgs extends unknown[] = []>(
         worked = true;
 
         func
-          // @ts-expect-error
+          // @ts-expect-error: TS2683 'this' implicitly has type 'any' because it does not have a type annotation
           // eslint-disable-next-line @typescript-eslint/no-invalid-this
           .apply(this, args)
           .then((result) => {
             worked = false;
             if (nextResolve && nextArguments) {
-              // @ts-expect-error
+              // @ts-expect-error: TS2683 'this' implicitly has type 'any' because it does not have a type annotation
               // eslint-disable-next-line @typescript-eslint/no-invalid-this
               nextResolve(run.apply(this, nextArguments));
               nextResolve = undefined;
@@ -75,7 +75,7 @@ function throttle<TResult = unknown, TArgs extends unknown[] = []>(
           .catch((err) => {
             worked = false;
             if (nextResolve && nextArguments) {
-              // @ts-expect-error
+              // @ts-expect-error: TS2683 'this' implicitly has type 'any' because it does not have a type annotation
               // eslint-disable-next-line @typescript-eslint/no-invalid-this
               nextResolve(run.apply(this, nextArguments));
               nextResolve = undefined;
