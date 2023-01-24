@@ -12,77 +12,77 @@ describe('notNull validator', () => {
   const validator = notNullValidator('test');
 
   it('"1" should be valid', () => {
-    expect(validator('1')).toEqual(undefined);
+    expect(validator('1')).toBeUndefined();
   });
 
   it('"" should not be valid', () => {
-    expect(validator('')).not.toEqual(undefined);
+    expect(validator('')).toBeDefined();
   });
 
   it('\\r\\n\\t should be valid', () => {
-    expect(validator('\r\n\t')).toEqual(undefined);
+    expect(validator('\r\n\t')).toBeUndefined();
   });
 
   it('" " should be valid', () => {
-    expect(validator(' ')).toEqual(undefined);
+    expect(validator(' ')).toBeUndefined();
   });
 
   it('NaN should not be valid', () => {
-    expect(validator(NaN)).not.toEqual(undefined);
+    expect(validator(NaN)).toBeDefined();
   });
 
   it('null should not be valid', () => {
-    expect(validator(null)).not.toEqual(undefined);
+    expect(validator(null)).toBeDefined();
   });
 
   it('undefined should not be valid', () => {
-    expect(validator(undefined)).not.toEqual(undefined);
+    expect(validator(undefined)).toBeDefined();
   });
 
   it('0 should be valid', () => {
-    expect(validator(0)).toEqual(undefined);
+    expect(validator(0)).toBeUndefined();
   });
 
   it('1 should be valid', () => {
-    expect(validator(1)).toEqual(undefined);
+    expect(validator(1)).toBeUndefined();
   });
 
   it('-1 should be valid', () => {
-    expect(validator(-1)).toEqual(undefined);
+    expect(validator(-1)).toBeUndefined();
   });
 
   it('1.123 should be valid', () => {
-    expect(validator(1.123)).toEqual(undefined);
+    expect(validator(1.123)).toBeUndefined();
   });
 
   it('-1.123 should be valid', () => {
-    expect(validator(-1.123)).toEqual(undefined);
+    expect(validator(-1.123)).toBeUndefined();
   });
 
   it('{} should be valid', () => {
-    expect(validator({})).toEqual(undefined);
+    expect(validator({})).toBeUndefined();
   });
 
   it('[] should be valid', () => {
-    expect(validator([])).toEqual(undefined);
+    expect(validator([])).toBeUndefined();
   });
 
   it('Infinity should not be valid', () => {
-    expect(validator(Infinity)).not.toEqual(undefined);
+    expect(validator(Infinity)).toBeDefined();
   });
 
   it('"1a" should be valid', () => {
-    expect(validator('ab')).toEqual(undefined);
+    expect(validator('ab')).toBeUndefined();
   });
 
   it('"1ab" should be valid', () => {
-    expect(validator('abc')).toEqual(undefined);
+    expect(validator('abc')).toBeUndefined();
   });
 });
 
 describe('Error message is not defined', () => {
   const validator = notNullValidator();
   it('Should be return default message', () => {
-    expect(validator(NaN)).toEqual('Can not be empty');
+    expect(validator(NaN)).toBe('Can not be empty');
   });
 });

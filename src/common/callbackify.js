@@ -23,7 +23,6 @@ function callbackify(func, hideWarning = false) {
         functionsNames.push(funcName);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-invalid-this
       const result = func.apply(this, args);
       if (result?.then) {
         result
@@ -35,7 +34,6 @@ function callbackify(func, hideWarning = false) {
           });
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-invalid-this
       return func.apply(this, args);
     }
   };

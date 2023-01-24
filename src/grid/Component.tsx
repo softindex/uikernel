@@ -13,6 +13,7 @@
  */
 
 import cloneDeep from 'lodash/cloneDeep';
+import pickBy from 'lodash/pickBy';
 import union from 'lodash/union';
 import React from 'react';
 import EqualMap from '../common/EqualMap';
@@ -155,7 +156,7 @@ class GridComponent<
       page: this.props.page,
       viewCount: this.props.defaultViewCount,
       count: 0,
-      statuses: this.props.statuses || new EqualMap(),
+      statuses: this.props.statuses ?? new EqualMap(),
       sort: this.getDefaultSort(),
       data: null,
       extra: new EqualMap(),
@@ -183,10 +184,10 @@ class GridComponent<
     if (this.props.model) {
       this.props.model.on('create', this.onRecordsCreated);
       this.props.model.on('update', this.setData);
-      this.props.model.on('delete', this.updateTable);
+      this.props.model.on('delete', this.updateTableInBackground);
     }
 
-    this.updateTable();
+    this.updateTableInBackground();
   }
 
   componentWillUnmount(): void {
@@ -194,7 +195,7 @@ class GridComponent<
     if (this.props.model) {
       this.props.model.off('create', this.onRecordsCreated);
       this.props.model.off('update', this.setData);
-      this.props.model.off('delete', this.updateTable);
+      this.props.model.off('delete', this.updateTableInBackground);
     }
 
     if (this.props.onDestroy) {
@@ -264,12 +265,8 @@ class GridComponent<
     if (resetFlags.has(ResetFlag.Statuses)) {
       // statuses as required because RestFlag.Statuses exists only statuses passed via props
       // (statusesOnlyViaPropsEnabled = true)
-      nextStatuses = nextProps.statuses as State<
-        TKey,
-        TRecord,
-        string & keyof TColumns,
-        TMultipleSorting
-      >['statuses'];
+      assert(nextProps.statuses, `you can't clear "statuses" prop after it was set`);
+      nextStatuses = nextProps.statuses;
 
       if (!needUpdateTable) {
         assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
@@ -352,12 +349,12 @@ class GridComponent<
    * Get record changes object
    */
   getRecordChanges = (recordId: TKey): Partial<TRecord> => {
-    const recordChanges = this.state.changes.get(recordId) || {};
+    const recordChanges = this.state.changes.get(recordId) ?? {};
     return cloneDeep(recordChanges);
   };
 
   getRecordWarnings(recordId: TKey): ValidationErrors<string & keyof TRecord> {
-    return this.state.warnings.get(recordId) || new ValidationErrors();
+    return this.state.warnings.get(recordId) ?? new ValidationErrors();
   }
 
   /**
@@ -365,7 +362,7 @@ class GridComponent<
    * @deprecated - was marked as private, but not used in the component
    */
   getRecordErrors(recordId: TKey): ValidationErrors<string & keyof TRecord> {
-    return this.state.errors.get(recordId) || new ValidationErrors();
+    return this.state.errors.get(recordId) ?? new ValidationErrors();
   }
 
   /**
@@ -416,8 +413,8 @@ class GridComponent<
     const allChanges = cloneDeep(this.state.changes);
     const filteredRecordChanges = getRecordChanges(
       this.props.model.getValidationDependency.bind(this.props.model),
-      this.state.data.get(recordId) || this.state.extra.get(recordId) || {},
-      allChanges.get(recordId) || {},
+      this.state.data.get(recordId) ?? this.state.extra.get(recordId) ?? {},
+      allChanges.get(recordId) ?? {},
       recordChanges
     );
     allChanges.set(recordId, filteredRecordChanges);
@@ -432,9 +429,9 @@ class GridComponent<
 
     this.setState({changes: allChanges}, () => {
       if (this.props.autoSubmit) {
-        this.save();
+        this.save().catch(console.error);
       } else if (validate) {
-        this.validateRow(recordId);
+        this.validateRow(recordId).catch(console.error);
       } else if (this.props.onChange) {
         this.props.onChange(this.state.changes);
       }
@@ -480,14 +477,13 @@ class GridComponent<
         continue;
       }
 
-      const recordChanges = changes.get(recordId) || {};
-
+      let recordChanges: Partial<TRecord> = changes.get(recordId) ?? {};
       // Cancel changed data status of the parameters, that are changed
-      forEach(recordChanges, (value, field) => {
-        if (isEqual(value, recordChanges[field])) {
-          delete recordChanges[field];
-        }
-      });
+      recordChanges = pickBy<Partial<TRecord>>(
+        recordChanges,
+        (value: Partial<TRecord>[keyof TRecord], field: string): boolean =>
+          !isEqual(value, recordChanges[field as keyof TRecord])
+      );
 
       // Clear changed data row if it's empty
       if (isEmpty(recordChanges)) {
@@ -510,7 +506,7 @@ class GridComponent<
       }
     );
 
-    const errorHandler = this.props.onError || console.error.bind(console);
+    const errorHandler = this.props.onError ?? console.error.bind(console);
     unhandledErrors.forEach((error) => errorHandler(error));
   }
 
@@ -633,7 +629,7 @@ class GridComponent<
       this.props.onSorting(this.getDefaultSort());
     }
 
-    this.updateTable();
+    this.updateTableInBackground();
   }
 
   /**
@@ -646,7 +642,7 @@ class GridComponent<
 
     // @ts-expect-error: TS2540 Cannot assign to 'sort' because it is a read-only property
     this.state.sort = this.getDefaultSort();
-    this.updateTable();
+    this.updateTableInBackground();
   }
 
   /**
@@ -724,7 +720,7 @@ class GridComponent<
     if (ref) {
       assert(columnConfig.onClickRefs, '"onClickRefs" unknown');
 
-      columnConfig.onClickRefs[ref](event, recordId, record, this);
+      columnConfig.onClickRefs[ref]!(event, recordId, record, this);
     } else if (columnConfig.onClick) {
       columnConfig.onClick(event, recordId, record, this);
     }
@@ -752,7 +748,7 @@ class GridComponent<
         },
         onBlur: () => {
           // Remove Editor
-          this.onBlurEditor(recordId);
+          this.onBlurEditorInBackground(recordId);
         },
         onKeyUp: (event) => {
           if ([ENTER_KEY, ESCAPE_KEY].includes(event.keyCode)) {
@@ -763,7 +759,7 @@ class GridComponent<
                 this.setRowChanges(recordId, recordChanges);
               }
 
-              this.onBlurEditor(recordId);
+              this.onBlurEditorInBackground(recordId);
             });
           }
         },
@@ -811,7 +807,7 @@ class GridComponent<
   setPage(page: number): void {
     // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
     this.state.page = this.getValidPage(page, this.state.viewCount, this.state.count);
-    this.updateTable();
+    this.updateTableInBackground();
   }
 
   /**
@@ -849,7 +845,7 @@ class GridComponent<
     this.state.viewCount = viewCount;
     // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
     this.state.page = this.getValidPage(this.state.page, viewCount, this.state.count);
-    this.updateTable();
+    this.updateTableInBackground();
   }
 
   /**
@@ -862,7 +858,7 @@ class GridComponent<
 
   getViewCount(): number {
     if (this.isViewCountPropsMode()) {
-      return this.props.viewCount as number;
+      return this.props.viewCount!;
     }
 
     return this.state.viewCount;
@@ -894,7 +890,7 @@ class GridComponent<
       },
       () => {
         if (this.state.data && !this.state.data.has(recordId)) {
-          this.updateTable();
+          this.updateTableInBackground();
         }
       }
     );
@@ -930,7 +926,7 @@ class GridComponent<
       },
       () => {
         if (needTableUpdate) {
-          this.updateTable();
+          this.updateTableInBackground();
         }
       }
     );
@@ -1071,7 +1067,7 @@ class GridComponent<
    * Refresh table handler
    */
   handleRefreshTable = (): void => {
-    this.updateTable();
+    this.updateTableInBackground();
   };
 
   /**
@@ -1178,7 +1174,7 @@ class GridComponent<
       loadedData = await this.loadData({
         limit: viewCount,
         offset: this.state.page * viewCount,
-        sort: this.sortingToArray() || undefined,
+        sort: this.sortingToArray() ?? undefined,
         fields: this.getFieldsToRender(),
         extra: [...this.getAdditionalIds()]
       });
@@ -1209,13 +1205,13 @@ class GridComponent<
     if (page !== this.state.page) {
       // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
       this.state.page = page;
-      this.updateTable();
+      this.updateTableInBackground();
       return;
     }
 
-    const data = new EqualMap(loadedData.records || []);
+    const data = new EqualMap(loadedData.records);
     const extra = new EqualMap(
-      (loadedData.extraRecords || []).filter(([recordId]) => {
+      (loadedData.extraRecords ?? []).filter(([recordId]) => {
         return !data.has(recordId);
       })
     );
@@ -1225,7 +1221,7 @@ class GridComponent<
         data,
         extra,
         count: loadedData.count,
-        totals: loadedData.totals || {},
+        totals: loadedData.totals ?? {},
         errors: this.equalPick(this.state.errors, recordIds),
         changes: this.equalPick(this.state.changes, recordIds),
         showLoader: false
@@ -1238,7 +1234,11 @@ class GridComponent<
     );
   }
 
-  private onRecordsCreated = async (recordIdOrIds: TKey | TKey[]): Promise<void> => {
+  private updateTableInBackground = (): void => {
+    this.updateTable().catch(console.error);
+  };
+
+  private onRecordsCreated = (recordIdOrIds: TKey | TKey[]): void => {
     let recordIds: TKey[];
     if (!Array.isArray(recordIdOrIds)) {
       warn('Not array recordsIds in "create" event is deprecated');
@@ -1281,10 +1281,9 @@ class GridComponent<
     let data: IGridModelReadResult<TKey, TRecord>;
     try {
       data = await this.props.model.read(settings);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error && this.props.onError) {
-        this.props.onError(error);
+        this.props.onError(error as Error);
       }
 
       throw error;
@@ -1392,8 +1391,8 @@ class GridComponent<
           recordId,
           getRecordChanges(
             props.model.getValidationDependency.bind(props.model),
-            state.data.get(recordId) || state.extra.get(recordId) || {},
-            changes.get(recordId) || {},
+            state.data.get(recordId) ?? state.extra.get(recordId) ?? {},
+            changes.get(recordId) ?? {},
             data
           )
         );
@@ -1602,6 +1601,10 @@ class GridComponent<
     }
   }
 
+  private onBlurEditorInBackground(recordId: TKey): void {
+    this.onBlurEditor(recordId).catch(console.error);
+  }
+
   /**
    * Validate row
    */
@@ -1629,7 +1632,7 @@ class GridComponent<
       recordId,
       this.props.warningsValidator.isValidRecord.bind(this.props.warningsValidator),
       (recordId) => {
-        return this.getRecordWithChanges(recordId) || {};
+        return this.getRecordWithChanges(recordId) ?? {};
       },
       'warnings'
     );
@@ -1745,7 +1748,7 @@ class GridComponent<
    * Use column name for table sort
    */
   private handleColumnClick = (columnId: string & keyof TColumns): void => {
-    const {sortCycle} = this.props.columns[columnId] || {};
+    const {sortCycle} = this.props.columns[columnId] ?? {};
     if (!sortCycle) {
       return;
     }
@@ -1763,8 +1766,8 @@ class GridComponent<
       );
 
       nextDirectionForColumn =
-        nextMultipleSorting[nextMultipleSorting.length - 1].column === columnId
-          ? nextMultipleSorting[nextMultipleSorting.length - 1].direction
+        nextMultipleSorting[nextMultipleSorting.length - 1]!.column === columnId
+          ? nextMultipleSorting[nextMultipleSorting.length - 1]!.direction
           : 'default';
 
       nextSorting = nextMultipleSorting as SortRuleType<
@@ -1810,7 +1813,7 @@ class GridComponent<
 
       for (const [recordId] of this.state.data) {
         if (indexOf(this.state.selected, recordId) < 0) {
-          const recordStatuses = statuses.get(recordId) || new Set();
+          const recordStatuses = statuses.get(recordId) ?? new Set();
           recordStatuses.add('selected');
 
           statuses.set(recordId, recordStatuses);
@@ -1821,7 +1824,7 @@ class GridComponent<
     }
 
     for (const recordId of this.state.selected) {
-      const recordStatuses = statuses.get(recordId) || new Set();
+      const recordStatuses = statuses.get(recordId) ?? new Set();
       recordStatuses.add('selected');
 
       statuses.set(recordId, recordStatuses);
@@ -1831,7 +1834,10 @@ class GridComponent<
   }
 
   private getEditorFieldName(columnId: string & keyof TColumns): string & keyof TRecord {
-    return this.props.columns[columnId]?.editorField || (columnId as string & keyof TRecord);
+    return (
+      (this.props.columns[columnId]?.editorField as (string & keyof TRecord) | undefined) ??
+      (columnId as string & keyof TRecord)
+    );
   }
 }
 

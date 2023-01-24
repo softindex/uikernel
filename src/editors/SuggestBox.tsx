@@ -11,10 +11,10 @@
 import omit from 'lodash/omit';
 import React from 'react';
 import {findDOMNode} from 'react-dom';
-import {AsyncOrSync, StrictOmit} from 'ts-essentials';
+import {StrictOmit} from 'ts-essentials';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
-import {parents, isEqual} from '../common/utils';
+import {parents, isEqual, assert} from '../common/utils';
 import {IListModel, IListModelReadResult} from '../list/types/IListModel';
 import Portal from '../portal/Portal';
 
@@ -76,7 +76,7 @@ type Props<TValue> = StrictOmit<
   value: TValue | null;
   withEmptyOption: boolean;
   onChange: (value: TValue | null, option: Option<TValue | null>) => void;
-  onFocus?: (value: React.FocusEvent<HTMLInputElement, Element>) => void;
+  onFocus?: (value: React.FocusEvent<HTMLInputElement>) => void;
   onLabelChange?: (value: string[] | string) => void;
   onMetadataChange?: (value: Option<TValue | null>['metadata']) => void;
 };
@@ -109,14 +109,6 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       label: '',
       popupStyles: {}
     };
-    this.onInputFocus = this.onInputFocus.bind(this);
-    this.onInputKeyDown = this.onInputKeyDown.bind(this);
-    this.onInputValueChange = this.onInputValueChange.bind(this);
-    this.focusOption = this.focusOption.bind(this);
-    this.onDocumentMouseDown = this.onDocumentMouseDown.bind(this);
-    this.onDocumentMouseScroll = this.onDocumentMouseScroll.bind(this);
-    this.toggleList = this.toggleList.bind(this);
-    this.openList = this.openList.bind(this);
   }
 
   componentDidMount(): void {
@@ -199,7 +191,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
               <li
                 key={key}
                 data-key={key}
-                onMouseOver={(): Promise<void> => this.focusOption(key, false)}
+                onMouseOver={() => this.onMouseOverOption(key)}
                 className={optionClassNames.join(' ')}
               >
                 {Array.isArray(option.label) ? (
@@ -248,13 +240,15 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
               this.input = input;
             }}
             type="text"
-            onClick={(): Promise<void> => this.openList()}
+            onClick={() => {
+              this.openList().catch(console.error);
+            }}
             onFocus={this.onInputFocus}
             onKeyDown={this.onInputKeyDown}
             onChange={this.onInputValueChange}
             value={this.state.label}
           />
-          <div onClick={this.toggleList} className={CLASSES.selectBtn}>
+          <div onClick={this.toggleListInBackground} className={CLASSES.selectBtn}>
             <div className={arrowClasses.join(' ')} />
           </div>
         </div>
@@ -264,7 +258,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
   }
 
   private setLabelTo(label: string[] | string | null | undefined, markAsValid?: boolean): void {
-    const preparedLabel = label || '';
+    const preparedLabel = label ?? '';
 
     this.setState({
       label: preparedLabel,
@@ -307,7 +301,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     }
 
     if (this.state.isOpened && this.mounted) {
-      await this.setState({
+      this.setState({
         options:
           options.length && this.props.withEmptyOption
             ? [
@@ -335,11 +329,11 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     this.scrollListTo(undefined);
   }
 
-  private loadData(searchPattern?: string | null): Promise<Option<Exclude<TValue, null>>[]> {
-    return this.props.model.read(searchPattern || '');
-  }
+  private loadData = (searchPattern?: string | null): Promise<Option<Exclude<TValue, null>>[]> => {
+    return this.props.model.read(searchPattern ?? '');
+  };
 
-  private async openList(searchPattern?: string | null, focusFirstOption = false): Promise<void> {
+  private openList = async (searchPattern?: string | null, focusFirstOption = false): Promise<void> => {
     if (this.props.disabled || this.state.isOpened) {
       return;
     }
@@ -380,9 +374,9 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     if (selectedOptionKey !== -1) {
       this.focusOptionAndScrollIntoView(selectedOptionKey);
     }
-  }
+  };
 
-  private async onInputFocus(event: React.FocusEvent<HTMLInputElement, Element>): Promise<void> {
+  private onInputFocusAsync = async (event: React.FocusEvent<HTMLInputElement>): Promise<void> => {
     await this.openList();
     if (!this.state.isOpened || !this.mounted) {
       return;
@@ -392,7 +386,11 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     if (this.props.onFocus) {
       this.props.onFocus(event);
     }
-  }
+  };
+
+  private onInputFocus = (event: React.FocusEvent<HTMLInputElement>): void => {
+    this.onInputFocusAsync(event).catch(console.error);
+  };
 
   private closeList(shouldBlur?: boolean): void {
     if (shouldBlur) {
@@ -410,16 +408,16 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     });
   }
 
-  private async toggleList(): Promise<void> {
+  private toggleListInBackground = (): void => {
     if (this.state.isOpened) {
       this.closeList();
     } else {
-      await this.openList();
+      this.openList().catch(console.error);
     }
-  }
+  };
 
   private selectOption(option: Option<TValue | null> | null | undefined): void {
-    const performedOption: Option<TValue | null> = option || {
+    const performedOption: Option<TValue | null> = option ?? {
       id: null,
       label: '',
       metadata: {}
@@ -437,9 +435,11 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     this.input?.select();
   }
 
-  private async focusOption(key: number, shouldSetLabel?: boolean): Promise<void> {
+  private focusOption = async (key: number, shouldSetLabel?: boolean): Promise<void> => {
     if (shouldSetLabel) {
-      this.setLabelTo(this.state.options[key].label);
+      const option = this.state.options[key];
+      assert(option, `key "${key}" unavailable`);
+      this.setLabelTo(option.label);
     }
 
     if (this.state.isOpened) {
@@ -448,6 +448,10 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       await this.openList(null);
       this.focusOptionAndScrollIntoView(key);
     }
+  };
+
+  private onMouseOverOption(key: number): void {
+    this.focusOption(key, false).catch(console.error);
   }
 
   private focusOptionAndScrollIntoView(key: number): void {
@@ -470,7 +474,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     this.scrollListTo(domOption);
   }
 
-  private focusNextOption(): AsyncOrSync<void> {
+  private focusNextOption(): void {
     if (!this.state.options.length) {
       return;
     }
@@ -479,41 +483,55 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       // @ts-expect-error: TS2540 Cannot assign to 'selectedOptionKey' because it is a read-only property
       // eslint-disable-next-line react/no-direct-mutation-state
       this.state.selectedOptionKey = 0;
-      return this.focusOption(this.state.selectedOptionKey, true);
+      this.focusOption(this.state.selectedOptionKey, true).catch(console.error);
+      return;
     }
 
     let key;
     for (key = this.state.selectedOptionKey + 1; key < this.state.options.length; key++) {
-      if (this.state.options[key].id) {
-        return this.focusOption(key, true);
+      const option = this.state.options[key];
+      assert(option, `key "${key}" unavailable`);
+      if (option.id) {
+        this.focusOption(key, true).catch(console.error);
+        return;
       }
     }
 
     for (key = 0; key < this.state.selectedOptionKey + 1; key++) {
-      if (this.state.options[key].id) {
-        return this.focusOption(key, true);
+      const option = this.state.options[key];
+      assert(option, `key "${key}" unavailable`);
+      if (option.id) {
+        this.focusOption(key, true).catch(console.error);
+        return;
       }
     }
   }
 
-  private focusPrevOption(): AsyncOrSync<void> {
+  private focusPrevOption(): void {
     if (this.state.selectedOptionKey === null) {
       // @ts-expect-error: TS2540 Cannot assign to 'selectedOptionKey' because it is a read-only property
       // eslint-disable-next-line react/no-direct-mutation-state
       this.state.selectedOptionKey = 0;
-      return this.focusOption(this.state.selectedOptionKey);
+      this.focusOption(this.state.selectedOptionKey).catch(console.error);
+      return;
     }
 
     let key;
     for (key = this.state.selectedOptionKey - 1; key >= 0; key--) {
-      if (this.state.options[key].id) {
-        return this.focusOption(key, true);
+      const option = this.state.options[key];
+      assert(option, `key "${key}" unavailable`);
+      if (option.id) {
+        this.focusOption(key, true).catch(console.error);
+        return;
       }
     }
 
     for (key = this.state.options.length - 1; key > this.state.selectedOptionKey - 1; key--) {
-      if (this.state.options[key].id) {
-        return this.focusOption(key, true);
+      const option = this.state.options[key];
+      assert(option, `key "${key}" unavailable`);
+      if (option.id) {
+        this.focusOption(key, true).catch(console.error);
+        return;
       }
     }
   }
@@ -549,7 +567,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     return false;
   }
 
-  private onDocumentMouseDown(event: MouseEvent, isOwner: boolean): void {
+  private onDocumentMouseDown = (event: MouseEvent, isOwner: boolean): void => {
     if (event.button !== 0) {
       return;
     }
@@ -580,9 +598,9 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
         this.closeList(true);
       }
     }
-  }
+  };
 
-  private onDocumentMouseScroll(_event: Event, isOwner: boolean): void {
+  private onDocumentMouseScroll = (_event: Event, isOwner: boolean): void => {
     if (!isOwner && this.state.isOpened) {
       const popupStyles = this.getComputedPopupStyles();
       if (popupStyles) {
@@ -592,9 +610,9 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
         this.closeList(true);
       }
     }
-  }
+  };
 
-  private onInputKeyDown(event: React.KeyboardEvent<HTMLInputElement>): AsyncOrSync<void> {
+  private onInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
     if (this.props.disabled) {
       return;
     }
@@ -605,7 +623,8 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       case ARROW_DOWN_KEY:
         event.preventDefault();
         if (!this.state.isOpened) {
-          return this.openList('', true);
+          this.openList('', true).catch(console.error);
+          return;
         }
 
         this.focusNextOption();
@@ -613,7 +632,8 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       case ARROW_UP_KEY:
         event.preventDefault();
         if (!this.state.isOpened) {
-          return this.openList();
+          this.openList().catch(console.error);
+          return;
         }
 
         this.focusPrevOption();
@@ -645,20 +665,20 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
         this.closeList();
         break;
     }
-  }
+  };
 
-  private async onInputValueChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
+  private onInputValueChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const value = event.target.value;
     this.setLabelTo(value);
     if (this.state.isOpened) {
-      await this.updateList(value);
+      this.updateList(value).catch(console.error);
     } else {
-      await this.openList(value);
+      this.openList(value).catch(console.error);
     }
-  }
+  };
 
   private getComputedPopupStyles(): ComputedPopupStyles | null {
-    const inputNode = this.input as HTMLInputElement;
+    const inputNode = this.input!;
     const inputStyles = window.getComputedStyle(inputNode);
     const popupStyle: ComputedPopupStyles = {};
 

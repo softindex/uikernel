@@ -7,10 +7,11 @@
  */
 
 import cloneDeep from 'lodash/cloneDeep';
+import pick from 'lodash/pick';
 import without from 'lodash/without';
 import {StrictOmit} from 'ts-essentials';
 import {AllAsOptionalWithRequired, IObservable} from '../../common/types';
-import {forEach, keys, isEqual, warn} from '../../common/utils';
+import {keys, isEqual, warn} from '../../common/utils';
 import ValidationErrors from '../../validation/ValidationErrors';
 import Validator from '../../validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
@@ -84,9 +85,9 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
     'generateId'
   >): GridCollectionModel<TKey, TRecord, TFilters> {
     return new GridCollectionModel(
-      cloneDeep(data) || [],
-      requiredFields || [],
-      validator || new Validator(),
+      cloneDeep(data) ?? [],
+      requiredFields ?? [],
+      validator ?? new Validator(),
       filtersHandler,
       generateId
     );
@@ -109,10 +110,13 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
    * Set data array in model
    */
   setData(data: [TKey, Partial<TRecord>][]): void {
-    const currentData = this.data.reduce((result: Record<string, Partial<TRecord>>, [recordId, record]) => {
-      result[JSON.stringify(recordId)] = record;
-      return result;
-    }, {});
+    const currentData = this.data.reduce(
+      (result: Partial<Record<string, Partial<TRecord>>>, [recordId, record]) => {
+        result[JSON.stringify(recordId)] = record;
+        return result;
+      },
+      {}
+    );
 
     const createdRecordsIds: TKey[] = [];
     const updatedRecords: [TKey, Partial<TRecord>][] = [];
@@ -171,6 +175,8 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
     let recordId: TKey;
     let clonedRecord: Partial<TRecord>;
     if (Array.isArray(record)) {
+      // TODO deprecated implementation
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (record.length !== 2) {
         throw new TypeError('expected record type [TKey, TRecord], but received unknown array');
       }
@@ -190,6 +196,7 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
 
     const validationErrors = await this.isValidRecord(clonedRecord);
     if (!validationErrors.isEmpty()) {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw validationErrors;
     }
 
@@ -211,30 +218,21 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
 
     // Get extra records
     if (extra && extra.length > 0) {
-      result.extraRecords = data.filter(([recordId]) => {
+      result.extraRecords = data.reduce<[TKey, Partial<TRecord>][]>((acc, [recordId, record]) => {
         for (const extraRecordId of extra) {
           if (isEqual(extraRecordId, recordId)) {
-            return true;
+            // Delete unnecessary fields
+            acc.push([recordId, pick(record, fields) as Partial<TRecord>]);
+            return acc;
           }
         }
 
-        return false;
-      });
-    }
-
-    // Delete unnecessary fields
-    if (fields && result.extraRecords) {
-      for (const [, record] of result.extraRecords) {
-        forEach(record, (_value, key) => {
-          if (fields.indexOf(key) === -1) {
-            delete record[key];
-          }
-        });
-      }
+        return acc;
+      }, []);
     }
 
     // Sorting
-    if (sort && sort.length > 0) {
+    if (sort?.[0]) {
       const [sortField, sortMode] = sort[0];
 
       data.sort((prev, next) => {
@@ -259,21 +257,13 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
 
     // Offset and limit
     if (offset || limit) {
-      const start = offset || 0;
+      const start = offset ?? 0;
       const end = Number(offset) + Number(limit) || data.length;
       data = data.slice(start, end);
     }
 
     // Delete unnecessary fields
-    if (fields) {
-      for (const [, record] of data) {
-        forEach(record, (_value, key) => {
-          if (fields.indexOf(key) === -1) {
-            delete record[key];
-          }
-        });
-      }
-    }
+    data = data.map(([key, record]) => [key, pick(record, fields) as Partial<TRecord>]);
 
     result.records = data;
 
@@ -286,16 +276,8 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
       return Promise.reject(new Error('Record not found.'));
     }
 
-    const returnRecord = record[1];
-
     // Deleting unused fields
-    if (fields) {
-      forEach(returnRecord, (_value, key) => {
-        if (fields.indexOf(key) === -1) {
-          delete returnRecord[key];
-        }
-      });
-    }
+    const returnRecord = pick(record[1], fields) as Partial<TRecord>;
 
     return Promise.resolve(returnRecord);
   }

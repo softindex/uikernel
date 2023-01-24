@@ -41,7 +41,7 @@ function throttle<TResult = unknown, TArgs extends unknown[] = []>(
         if (worked) {
           if (nextResolve) {
             const error = new ThrottleError(parentStack);
-            error.message += `\ndata = ${args[0]}`;
+            error.message += `\ndata = ${String(args[0])}`;
             nextResolve(Promise.reject(error));
           }
 

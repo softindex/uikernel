@@ -25,7 +25,7 @@ export type EditorContext<TRecord extends {}, TField extends string & keyof TRec
 };
 
 export type OnColumnClick<TKey, TRecord extends {}, TElement extends HTMLElement> = (
-  event: React.MouseEvent<TElement, MouseEvent>,
+  event: React.MouseEvent<TElement>,
   recordId: TKey,
   record: Partial<TRecord>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

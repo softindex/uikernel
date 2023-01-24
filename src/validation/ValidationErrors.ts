@@ -60,7 +60,7 @@ class ValidationErrors<TField extends string> {
    */
   add(field: TField, error: ValidationJSONError | string): this {
     const transformedError = this.formErrorValue(error);
-    const fieldErrors = this.fields.get(field) || [];
+    const fieldErrors = this.fields.get(field) ?? [];
     if (!fieldErrors.includes(transformedError)) {
       fieldErrors.push(transformedError);
     }
@@ -80,7 +80,7 @@ class ValidationErrors<TField extends string> {
    * Get field errors
    */
   getFieldErrors(field: TField): ValidationJSONError[] {
-    return this.fields.get(field) || [];
+    return this.fields.get(field) ?? [];
   }
 
   /**
@@ -148,7 +148,7 @@ class ValidationErrors<TField extends string> {
 
   merge<T extends TField>(validationErrors: ValidationErrors<T>): this {
     for (const [field, newErrors] of validationErrors.getErrors()) {
-      const errors = this.fields.get(field) || [];
+      const errors = this.fields.get(field) ?? [];
       errors.push(...newErrors);
 
       this.fields.set(field, errors);

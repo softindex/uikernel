@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /*
  * Copyright (с) 2015-present, SoftIndex LLC.
  * All rights reserved.
@@ -10,9 +11,12 @@ import {Newable} from 'ts-essentials';
 import createMockedMethod from './createMockedMethod';
 
 function createMockInstance<TClass>(Schema: Newable<TClass>): jest.Mocked<TClass> {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   function Instance(): void {}
 
-  Instance.prototype = Object.create(Schema.prototype);
+  const schemaPrototype = Schema.prototype as object;
+
+  Instance.prototype = Object.create(schemaPrototype);
   const mockSource: Record<string | symbol, unknown> = {};
 
   return new Proxy(Reflect.construct(Instance, []), {
@@ -22,7 +26,7 @@ function createMockInstance<TClass>(Schema: Newable<TClass>): jest.Mocked<TClass
       }
 
       if (!(property in mockSource)) {
-        mockSource[property] = createMockedMethod(Schema.prototype.constructor.name, property.toString());
+        mockSource[property] = createMockedMethod(schemaPrototype.constructor.name, property.toString());
       }
 
       return mockSource[property];

@@ -8,9 +8,7 @@
 
 import ValidationErrors from '../../../validation/ValidationErrors';
 
-export type IGridModelCustomError = Error & {
-  [extra: string]: unknown;
-};
+export type IGridModelCustomError = Error & Record<string, unknown>;
 
 export type IGridModelSortMode = 'asc' | 'default' | 'desc';
 

@@ -23,7 +23,7 @@ function baseValidator(
   }
 
   for (const value of values) {
-    if (variants.indexOf(value) < 0) {
+    if (!variants.includes(value)) {
       return error;
     }
   }

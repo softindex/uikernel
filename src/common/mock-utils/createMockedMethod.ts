@@ -11,7 +11,7 @@ function createMockedMethod<TResult>(
   methodName: string
   // Parameters are any - overload resolution in conditional types is not supported yet
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): jest.Mock<TResult, any> {
+): jest.Mock<TResult> {
   return jest.fn(() => {
     throw new Error(`"${className}.${methodName}" not implemented yet`);
   });

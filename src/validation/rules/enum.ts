@@ -22,7 +22,7 @@ function baseValidator(
     return;
   }
 
-  if (variants.indexOf(value) < 0) {
+  if (!variants.includes(value)) {
     return error;
   }
 

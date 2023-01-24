@@ -50,7 +50,9 @@ class FormExpressApi<TRecord extends {}> {
     this.addMidelware(
       'getData',
       asyncServerRouteHandler(async (req, res) => {
-        const fields = req.query.fields ? JSON.parse(req.query.fields.toString()) : null;
+        const fields = req.query.fields
+          ? (parseJson(req.query.fields.toString()) as (keyof TRecord & string)[])
+          : undefined;
         const result = await this.getModel(req, res).getData(fields);
         this.sendResult<'getData'>(res, result);
       })
@@ -59,8 +61,8 @@ class FormExpressApi<TRecord extends {}> {
     this.addMidelware(
       'getDataPost',
       asyncServerRouteHandler(async (req, res) => {
-        const fields = req.body.fields || null;
-        const result = await this.getModel(req, res).getData(fields);
+        const {fields} = req.body as {fields: (keyof TRecord & string)[] | null | undefined};
+        const result = await this.getModel(req, res).getData(fields ?? undefined);
         this.sendResult<'getData'>(res, result);
       })
     );
@@ -69,16 +71,22 @@ class FormExpressApi<TRecord extends {}> {
       ...(multipartFormData ? [upload.any()] : []),
       asyncServerRouteHandler(async (req, res) => {
         const model = this.getModel(req, res);
-        let body = req.body;
+        let body: Partial<TRecord>;
 
         if (multipartFormData) {
-          body = parseJson(body.rest);
+          body = parseJson(req.body.rest) as Partial<TRecord>;
           const files = req.files as Express.Multer.File[];
 
           for (const {fieldname, buffer} of files) {
-            const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name') as string;
+            const parsedFieldName = parseJson(
+              decodeURI(fieldname),
+              'Invalid JSON in field name'
+            ) as keyof TRecord & string;
+            // @ts-expect-error: TS2322 Type 'Buffer' is not assignable to type 'TRecord[keyof TRecord & string]'
             body[parsedFieldName] = buffer;
           }
+        } else {
+          body = req.body;
         }
 
         let data: Partial<TRecord> | undefined;
@@ -96,7 +104,7 @@ class FormExpressApi<TRecord extends {}> {
         if (validationErrors) {
           this.sendResult<'submit'>(res, {data: null, error: validationErrors.toJSON()});
         } else {
-          this.sendResult<'submit'>(res, {data: data as Partial<TRecord>, error: null});
+          this.sendResult<'submit'>(res, {data: data!, error: null});
         }
       })
     ]);
@@ -105,7 +113,7 @@ class FormExpressApi<TRecord extends {}> {
       'validate',
       asyncServerRouteHandler(async (req, res) => {
         const model = this.getModel(req, res);
-        const validationErrors = await model.isValidRecord(req.body);
+        const validationErrors = await model.isValidRecord(req.body as Partial<TRecord>);
         this.sendResult<'validate'>(res, validationErrors.toJSON());
       })
     );

@@ -10,7 +10,7 @@ import ArgumentsError from './error/ArgumentsError';
 
 function parseJson(json: unknown, errorMessage = 'Incorrect JSON'): unknown {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     return JSON.parse(json as any);
   } catch (err) {
     throw new ArgumentsError(errorMessage);

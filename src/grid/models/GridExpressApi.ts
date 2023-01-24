@@ -97,28 +97,30 @@ class GridExpressApi<TKey, TRecord extends {}, TFilters> {
           const settings: IGridModelReadParams<TKey, TRecord, TFilters> = {
             fields: []
           };
-          if (req.body.limit) {
-            settings.limit = parseInt(req.body.limit, 10);
+          const body = req.body as Partial<IGridModelReadParams<TKey, TRecord, TFilters>>;
+
+          if (body.limit) {
+            settings.limit = parseInt(String(body.limit), 10);
           }
 
-          if (req.body.offset) {
-            settings.offset = parseInt(req.body.offset, 10);
+          if (body.offset) {
+            settings.offset = parseInt(String(body.offset), 10);
           }
 
-          if (req.body.sort) {
-            settings.sort = req.body.sort;
+          if (body.sort) {
+            settings.sort = body.sort;
           }
 
-          if (req.body.fields) {
-            settings.fields = req.body.fields;
+          if (body.fields) {
+            settings.fields = body.fields;
           }
 
-          if (req.body.extra) {
-            settings.extra = req.body.extra;
+          if (body.extra) {
+            settings.extra = body.extra;
           }
 
-          if (req.body.filters) {
-            settings.filters = req.body.filters;
+          if (body.filters) {
+            settings.filters = body.filters;
           }
 
           const model = this.getModel(req, res);
@@ -130,7 +132,8 @@ class GridExpressApi<TKey, TRecord extends {}, TFilters> {
       validate: [
         asyncServerRouteHandler(async (req, res) => {
           const model = this.getModel(req, res);
-          const errors = await model.isValidRecord(req.body.record, req.body.id);
+          const body = req.body as {id?: TKey; record: Partial<TRecord>};
+          const errors = await model.isValidRecord(body.record, body.id);
           this.sendResult<'validate'>(res, errors.toJSON());
         })
       ],
@@ -148,34 +151,35 @@ class GridExpressApi<TKey, TRecord extends {}, TFilters> {
         ...(multipartFormData ? [upload.any()] : []),
         asyncServerRouteHandler(async (req, res) => {
           const model = this.getModel(req, res);
-          let body = req.body;
+          let body: [TKey, Partial<TRecord>][];
 
           if (multipartFormData) {
-            const filesByRecordId: {[recordId: string]: {[fieldName: string]: Buffer}} = {};
+            const filesByRecordId: Record<string, Record<string, Buffer>> = {};
 
             for (const {fieldname, buffer} of req.files as Express.Multer.File[]) {
               const {recordId, field} = parseJson(
                 decodeURI(fieldname),
                 'Incorrect name for field containing file data'
               ) as {field: string; recordId: string};
-              if (!filesByRecordId[recordId]) {
-                filesByRecordId[recordId] = {};
-              }
 
-              filesByRecordId[recordId][field] = buffer;
+              const recordFiles = filesByRecordId[recordId] ?? {};
+              recordFiles[field] = buffer;
+              filesByRecordId[recordId] = recordFiles;
             }
 
-            body = (parseJson(body.rest, 'Incorrect "rest" json') as [string, Partial<TRecord>][]).map(
+            body = (parseJson(req.body.rest, 'Incorrect "rest" json') as [TKey, Partial<TRecord>][]).map(
               ([recordId, record]) => {
                 return [
                   recordId,
                   {
                     ...record,
-                    ...(filesByRecordId[recordId] as Partial<TRecord>)
+                    ...(filesByRecordId[recordId as string] as Partial<TRecord>)
                   }
                 ];
               }
             );
+          } else {
+            body = req.body;
           }
 
           if (!Array.isArray(body)) {
@@ -190,15 +194,21 @@ class GridExpressApi<TKey, TRecord extends {}, TFilters> {
         ...(multipartFormData ? [upload.any()] : []),
         asyncServerRouteHandler(async (req, res) => {
           const model = this.getModel(req, res);
-          let body = req.body;
+          let body: Partial<TRecord>;
 
           if (multipartFormData) {
-            body = parseJson(body.rest);
+            body = parseJson(req.body.rest) as Partial<TRecord>;
 
             for (const {fieldname, buffer} of req.files as Express.Multer.File[]) {
-              const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name') as string;
+              const parsedFieldName = parseJson(
+                decodeURI(fieldname),
+                'Invalid JSON in field name'
+              ) as keyof TRecord & string;
+              // @ts-expect-error: TS2322 Type 'Buffer' is not assignable to type 'TRecord[keyof TRecord & string]'
               body[parsedFieldName] = buffer;
             }
+          } else {
+            body = req.body;
           }
 
           let result: TKey | undefined;

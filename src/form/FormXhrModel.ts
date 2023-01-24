@@ -39,11 +39,11 @@ class FormXhrModel<TRecord extends {}>
   private eventsModel: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
 
   constructor(settings: FormXhrModelParams<TRecord>) {
-    this.multipartFormDataEncoded = settings.multipartFormData || false;
-    this.validator = settings.validator || new Validator();
-    this.validateOnClient = settings.validateOnClient || false;
-    this.xhr = settings.xhr || defaultXhr;
-    this.eventsModel = settings.eventsModel || new EventsModel();
+    this.multipartFormDataEncoded = settings.multipartFormData ?? false;
+    this.validator = settings.validator ?? new Validator();
+    this.validateOnClient = settings.validateOnClient ?? false;
+    this.xhr = settings.xhr ?? defaultXhr;
+    this.eventsModel = settings.eventsModel ?? new EventsModel();
     this.apiURL = settings.api
       .replace(/([^/])\?/, '$1/?') // Add "/" before "?"
       .replace(/^[^?]*[^/]$/, '$&/'); // Add "/" to the end
@@ -106,11 +106,12 @@ class FormXhrModel<TRecord extends {}>
     const {data, error} = parseJson(rawBody) as JsonFormApiResult<TRecord>['submit'];
 
     if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw ValidationErrors.createFromJSON(error);
     }
 
-    this.eventsModel.trigger('update', data as Partial<TRecord>);
-    return data as Partial<TRecord>;
+    this.eventsModel.trigger('update', data!);
+    return data!;
   }
 
   /**
@@ -122,7 +123,7 @@ class FormXhrModel<TRecord extends {}>
     }
 
     const parsedURL = url.parse(this.apiURL, true);
-    parsedURL.pathname = url.resolve(parsedURL.pathname || '', 'validation');
+    parsedURL.pathname = url.resolve(parsedURL.pathname ?? '', 'validation');
 
     let response: JsonFormApiResult<TRecord>['validate'];
     try {
@@ -181,7 +182,7 @@ class FormXhrModel<TRecord extends {}>
     fields: TField[] | readonly TField[]
   ): Promise<Partial<Pick<TRecord, TField>>> {
     const parsedURL = url.parse(this.apiURL, true);
-    parsedURL.pathname = url.resolve(parsedURL.pathname || '', 'data');
+    parsedURL.pathname = url.resolve(parsedURL.pathname ?? '', 'data');
 
     return (await this.xhr({
       method: 'POST',

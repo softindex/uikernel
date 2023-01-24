@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import assert from 'assert';
 import ArgumentsError from '../../common/error/ArgumentsError';
 import {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
@@ -15,18 +16,24 @@ import {GridColumnConfig, GridGetColumn} from '../types/GridColumns';
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 
 function formatColumns<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
-  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
 ): FormatColumnsResult<TViewColumn> {
   const formattedColumns = {} as unknown as FormatColumnsResult<TViewColumn>;
-  let columnId;
-  let i;
 
-  for (i = 0; i < viewColumns.length; i++) {
-    columnId = viewColumns[i];
-    formattedColumns[columnId] = `${columns[columnId].parent ? columns[columnId].parent + ' ' : ''}${
-      columns[columnId].name
-    }`;
+  for (const columnId of viewColumns) {
+    const column = columns[columnId];
+    if (!column) {
+      continue;
+    }
+
+    const {name, parent} = column;
+    assert(
+      typeof name !== 'function' && typeof parent !== 'function',
+      `column "${columnId}" unavailable for export from server`
+    );
+
+    formattedColumns[columnId] = `${parent ? `${parent} ` : ''}${name}`;
   }
 
   return formattedColumns;
@@ -36,13 +43,17 @@ type FormatRecordResult<TField extends string> = Record<TField, string>;
 
 function formatRecord<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   record: Partial<TRecord>,
-  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
 ): FormatRecordResult<TViewColumn> {
   const formattedRecord = {} as unknown as FormatRecordResult<TViewColumn>;
 
   for (const viewColumn of viewColumns) {
     const column = columns[viewColumn];
+    if (!column) {
+      continue;
+    }
+
     formattedRecord[viewColumn] = (column.render[column.render.length - 1] as GridGetColumn<TRecord>)(
       record,
       false,
@@ -63,7 +74,7 @@ type FormatDataResult<TColumn extends string> = {
 function formatData<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
   records: [unknown, Partial<TRecord>][],
   totals: Partial<TRecord> | undefined,
-  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
 ): FormatDataResult<TViewColumn> {
   const formatted: FormatDataResult<TViewColumn> = {
@@ -78,12 +89,17 @@ function formatData<TRecord extends {}, TColumn extends string, TViewColumn exte
 }
 
 function getFields<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
-  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
 ): (keyof TRecord & string)[] {
   const fields: Partial<Record<keyof TRecord & string, boolean>> = {};
   for (const columnId of viewColumns) {
-    const columnFields = columns[columnId].render.slice(0, -1) as (keyof TRecord & string)[];
+    const column = columns[columnId];
+    if (!column) {
+      continue;
+    }
+
+    const columnFields = column.render.slice(0, -1) as (keyof TRecord & string)[];
 
     for (const columnField of columnFields) {
       fields[columnField] = true;
@@ -94,7 +110,7 @@ function getFields<TRecord extends {}, TColumn extends string, TViewColumn exten
 }
 
 function assertValidViewColumns<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
-  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns?: TViewColumn[] | null
 ): void {
   if (!viewColumns?.length) {
@@ -133,7 +149,7 @@ async function exportGridData<
   TExportRunner extends (data: FormatDataResult<TViewColumn>) => Promise<{data: unknown; mime: string}>
 >(
   gridModel: IGridModel<unknown, TRecord, unknown>,
-  columns: Record<TColumn, GridColumnConfig<TRecord, never, boolean>>,
+  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[],
   exportRunner: TExportRunner,
   settings: ExportGridDataParams<TRecord>

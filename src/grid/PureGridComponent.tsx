@@ -46,7 +46,7 @@ type Props<
   TRecord extends {},
   TFilters,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TColumns extends Partial<GridColumns<TRecord, any, any, TKey, HTMLElement>>,
+  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
   TMultipleSorting extends boolean
 > = {
   changes: EqualMap<TKey, Partial<TRecord>>;
@@ -77,7 +77,7 @@ type Props<
   viewVariants: number[];
   warnings: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
   onCellClick: (
-    event: React.MouseEvent<HTMLTableElement, MouseEvent>,
+    event: React.MouseEvent<HTMLTableElement>,
     recordId: TKey,
     colId: string & keyof TColumns,
     ref: string | null
@@ -101,7 +101,7 @@ class PureGridComponent<
   TRecord extends {},
   TFilters,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TColumns extends Partial<GridColumns<TRecord, any, any, TKey, HTMLElement>>,
+  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
   TMultipleSorting extends boolean
 > extends React.Component<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>> {
   static defaultProps = DEFAULT_PROPS;
@@ -250,7 +250,7 @@ class PureGridComponent<
       return;
     }
 
-    if (this.props.records && this.props.extraRecords) {
+    if (this.props.records) {
       const ids = [...this.props.extraRecords.keys(), ...this.props.records.keys()];
       this.recordMap = ids.reduce((accum, recordId) => {
         accum.set(toEncodedString(recordId), recordId);
@@ -348,7 +348,7 @@ class PureGridComponent<
         ...[...currentValue.keys()].map((key) => JSON.stringify(key))
       ]);
       for (const jsonRecordId of allRecordIds) {
-        const recordId = JSON.parse(jsonRecordId);
+        const recordId = JSON.parse(jsonRecordId) as TKey;
 
         if ((!currentValue.has(recordId) || !prevValue.has(recordId)) && this.isRecordLoaded(recordId)) {
           rowsToReRender.add(recordId);
@@ -365,7 +365,7 @@ class PureGridComponent<
   }
 
   private isRecordLoaded(recordId: TKey): boolean {
-    return this.props.records?.has(recordId) || this.props.extraRecords.has(recordId);
+    return this.props.records?.has(recordId) ?? this.props.extraRecords.has(recordId);
   }
 
   /**
@@ -483,7 +483,9 @@ class PureGridComponent<
 
     const columnIds = keys(this.props.columns).filter((key) => this.isViewColumn(key));
     for (let columnIndex = 0; columnIndex < columnIds.length; columnIndex++) {
-      this.renderCell(recordId, columnIds[columnIndex], row.children[columnIndex], prevEditor);
+      const cellElement = row.children[columnIndex];
+      assert(cellElement, `cellElement not found by columnIndex "${columnIndex}"`);
+      this.renderCell(recordId, columnIds[columnIndex]!, cellElement, prevEditor);
     }
   }
 
@@ -515,7 +517,7 @@ class PureGridComponent<
     }
 
     assert(this.props.records, '"records" unknown');
-    const initialRecord = this.props.records.get(recordId) || this.props.extraRecords.get(recordId);
+    const initialRecord = this.props.records.get(recordId) ?? this.props.extraRecords.get(recordId);
     assert(initialRecord, '"initialRecord" unknown');
 
     const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
@@ -577,7 +579,7 @@ class PureGridComponent<
 
   private getRowHTML(recordId: TKey): string {
     assert(this.props.records, '"records" unknown');
-    const initialRecord = this.props.records.get(recordId) || this.props.extraRecords.get(recordId);
+    const initialRecord = this.props.records.get(recordId) ?? this.props.extraRecords.get(recordId);
     assert(initialRecord, '"initialRecord" unknown');
 
     const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
@@ -646,14 +648,12 @@ class PureGridComponent<
       const rawValue = record[field];
 
       if (needEscaping) {
-        const valueType = typeof rawValue;
-
-        if (valueType === 'string') {
-          escapedRecord[field] = escape(rawValue as string) as TRecord[string & keyof TRecord];
+        if (typeof rawValue === 'string') {
+          escapedRecord[field] = escape(rawValue) as TRecord[string & keyof TRecord];
           continue;
         }
 
-        if (valueType === 'object' && record[field] && !this.columnsWithEscapeError.has(columnId)) {
+        if (typeof rawValue === 'object' && rawValue && !this.columnsWithEscapeError.has(columnId)) {
           this.columnsWithEscapeError.add(columnId);
           console.error(
             `UIKernel.Grid warning: ` +
@@ -718,7 +718,7 @@ class PureGridComponent<
    * Get all status names that are applied to the row
    */
   private getRowStatusNames(recordId: TKey): Set<string> {
-    return this.props.statuses.get(recordId) || new Set();
+    return this.props.statuses.get(recordId) ?? new Set();
   }
 
   /**
@@ -835,7 +835,7 @@ class PureGridComponent<
     }
 
     if (Array.isArray(this.props.viewColumns)) {
-      return this.props.viewColumns.indexOf(columnId) > -1;
+      return this.props.viewColumns.includes(columnId);
     }
 
     return Boolean(this.props.viewColumns[columnId]);
@@ -857,7 +857,7 @@ class PureGridComponent<
    */
   private handleBodyClick: React.MouseEventHandler<HTMLTableElement> = (event): void => {
     const target = event.target as HTMLTableElement;
-    const refParent = parents(target, '[ref]')[0] as Element | undefined;
+    const refParent = parents(target, '[ref]')[0];
 
     let element: Element | undefined;
 
@@ -869,16 +869,18 @@ class PureGridComponent<
 
     if (element && !refParent?.hasAttribute('disabled')) {
       const parentNode = element.parentNode as Element;
-      const parentNodeChildren = parentNode.children as HTMLCollection;
+      const parentNodeChildren = parentNode.children;
       const columnIndex = [...parentNodeChildren].indexOf(element);
+      assert(columnIndex >= 0, `cellElement not found by columnIndex "${columnIndex}"`);
       const columnId = keys(this.props.columns).filter((colId) => this.isViewColumn(colId))[columnIndex];
+      assert(columnId, `column not found by columnIndex "${columnIndex}"`);
 
       const key = parentNode.getAttribute('key');
       assert(this.recordMap, '"recordMap" unknown');
-      assert(this.recordMap.has(key as string), '"recordId" unknown');
-      const recordId = this.recordMap.get(key as string) as TKey;
+      assert(this.recordMap.has(key!), '"recordId" unknown');
+      const recordId = this.recordMap.get(key!) as TKey;
 
-      const refValue = (refParent || target).getAttribute('ref');
+      const refValue = (refParent ?? target).getAttribute('ref');
       this.props.onCellClick(event, recordId, columnId, refValue);
     }
   };
@@ -1017,7 +1019,10 @@ class PureGridComponent<
   }
 
   private getEditorFieldName(id: string & keyof TColumns): string & keyof TRecord {
-    return this.props.columns[id]?.editorField || (id as string & keyof TRecord);
+    return (
+      (this.props.columns[id]?.editorField as (string & keyof TRecord) | undefined) ??
+      (id as string & keyof TRecord)
+    );
   }
 }
 

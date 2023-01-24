@@ -51,7 +51,7 @@ class EventsModel<TListenerArgsByEventName extends Record<string, unknown[]>>
   }
 
   listenerCount(event: keyof TListenerArgsByEventName & string): number {
-    return this.subscribers[event]?.length || 0;
+    return this.subscribers[event]?.length ?? 0;
   }
 
   removeAllListeners(event: keyof TListenerArgsByEventName & string): void {

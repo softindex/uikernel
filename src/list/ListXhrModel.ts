@@ -42,7 +42,7 @@ class ListXhrModel<TKey, TMetadata extends {}> implements IListModel<TKey, TMeta
    */
   async getLabel(id: TKey): Promise<string> {
     const parsedURL = url.parse(this.apiUrl, true);
-    parsedURL.pathname = url.resolve(parsedURL.pathname || '', `label/${JSON.stringify(id)}`);
+    parsedURL.pathname = url.resolve(parsedURL.pathname ?? '', `label/${JSON.stringify(id)}`);
 
     return (await this.xhr({
       method: 'GET',

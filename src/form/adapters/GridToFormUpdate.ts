@@ -8,7 +8,7 @@
 
 import EventsModel from '../../common/EventsModel';
 import {IObservable, EventListener} from '../../common/types';
-import {isEqual} from '../../common/utils';
+import {assert, isEqual} from '../../common/utils';
 import {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
 import {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
@@ -49,14 +49,16 @@ class GridToFormUpdate<
   async getData<TField extends keyof TRecord & string>(
     fields?: TField[]
   ): Promise<Partial<Pick<TRecord, TField>>> {
-    return await this.gridModel.getRecord(this.id, fields || []);
+    return await this.gridModel.getRecord(this.id, fields ?? []);
   }
 
   async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
     const record = {...changes};
 
-    const [[, result]] = await this.gridModel.update([[this.id, record]]);
+    const [[, result] = []] = await this.gridModel.update([[this.id, record]]);
+    assert(result, 'received unexpected result type from gridModel.update');
     if (result instanceof Error || result instanceof ValidationErrors) {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw result;
     }
 

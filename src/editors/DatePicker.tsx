@@ -35,7 +35,7 @@ class DatePickerEditor extends React.Component<Props> {
   static defaultProps = DEFAULT_PROPS;
 
   onChange = (date: Date | null): void => {
-    const formatedDate = date ? format(date, this.props.format || '') : date;
+    const formatedDate = date ? format(date, this.props.format ?? '') : date;
     this.props.onChange(formatedDate);
   };
 

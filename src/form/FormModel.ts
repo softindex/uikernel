@@ -24,7 +24,7 @@ class FormModel<TRecord extends {}>
     defaultValues?: Partial<TRecord>,
     validator?: Validator<TRecord>
   ): FormModel<TRecord> {
-    return new FormModel(validator || new Validator(), defaultValues || {});
+    return new FormModel(validator ?? new Validator(), defaultValues ?? {});
   }
 
   constructor(private validator: Validator<TRecord>, private data: Partial<TRecord>) {
@@ -57,6 +57,7 @@ class FormModel<TRecord extends {}>
   async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
     const validErrors = await this.isValidRecord(changes);
     if (!validErrors.isEmpty()) {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw validErrors;
     }
 

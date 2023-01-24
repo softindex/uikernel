@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
 import ArgumentsError from './error/ArgumentsError';
 
@@ -160,13 +161,10 @@ export function getRecordChanges<TRecord extends {}>(
   changes: Partial<TRecord>,
   newChanges: Partial<TRecord>
 ): Partial<TRecord> {
-  const result = {...changes, ...newChanges};
-
-  for (const fieldName of keys(result)) {
-    if (isEqual(data[fieldName], result[fieldName])) {
-      delete result[fieldName];
-    }
-  }
+  let result = {...changes, ...newChanges};
+  result = omitBy<Partial<TRecord>>(result, (value: Partial<TRecord>[keyof TRecord], fieldName) =>
+    isEqual(data[fieldName as keyof TRecord], value)
+  );
 
   return {...result, ...pick(data, getValidationDependency(keys(result)))};
 }
@@ -225,6 +223,6 @@ type Assert = (value: unknown, message?: string) => asserts value;
 
 export const assert: Assert = (value, message) => {
   if (!value) {
-    throw new ArgumentsError(`Wrong value: "${value}"\nMessage: ${message || 'Expect trusty value'}`);
+    throw new ArgumentsError(`Wrong value: "${String(value)}"\nMessage: ${message ?? 'Expect trusty value'}`);
   }
 };

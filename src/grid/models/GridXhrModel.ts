@@ -113,6 +113,7 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
     const {data, error} = parseJson(rawBody) as JsonGridApiResult<TKey, TRecord>['create'];
 
     if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw ValidationErrors.createFromJSON(error);
     }
 
@@ -146,7 +147,7 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
   async getRecord(id: TKey, fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname || '', JSON.stringify(id));
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname ?? '', JSON.stringify(id));
     parsedUrl.search = null;
 
     return (await this.xhr({
@@ -232,7 +233,7 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
     }
 
     const parsedUrl = url.parse(this.apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname || '', 'validation');
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname ?? '', 'validation');
 
     let response: JsonGridApiResult<TKey, TRecord>['validate'];
     try {
@@ -245,8 +246,8 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
         },
         json: true
       })) as JsonGridApiResult<TKey, TRecord>['validate'];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
+      // @ts-expect-error: TS18046 error 'error' is of type 'unknown'
       if (error.statusCode === 413) {
         // When request exceeds server limits and
         // client validators are able to find errors,
@@ -280,7 +281,7 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
   }: IGridModelReadParams<TKey, TRecord, TFilters>): url.UrlWithParsedQuery {
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.fields = JSON.stringify(fields);
-    parsedUrl.query.offset = String(offset || 0);
+    parsedUrl.query.offset = String(offset ?? 0);
     if (limit) {
       parsedUrl.query.limit = limit.toString();
     }
@@ -312,7 +313,7 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
   }: IGridModelReadParams<TKey, TRecord, TFilters>): Promise<IGridModelReadResult<TKey, TRecord>> {
     const requestBody: IGridModelReadParams<TKey, TRecord, TFilters> = {
       fields,
-      offset: offset || 0
+      offset: offset ?? 0
     };
     if (limit) {
       requestBody.limit = limit;
@@ -331,7 +332,7 @@ class GridXhrModel<TKey, TRecord extends {}, TFilters>
     }
 
     const parsedUrl = url.parse(this.apiUrl, true);
-    parsedUrl.pathname = url.resolve(parsedUrl.pathname || '', 'read');
+    parsedUrl.pathname = url.resolve(parsedUrl.pathname ?? '', 'read');
 
     return (await this.xhr({
       method: 'POST',

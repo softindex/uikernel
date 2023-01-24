@@ -75,7 +75,7 @@ class EqualMap<TKey, TValue> implements Map<TKey, TValue> {
     }
   }
 
-  *[Symbol.iterator](): Generator<[TKey, TValue], void, unknown> {
+  *[Symbol.iterator](): Generator<[TKey, TValue], void> {
     for (const [key, value] of this.map[Symbol.iterator]()) {
       const parsed = JSON.parse(key);
       yield [parsed, value];

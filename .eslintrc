@@ -145,19 +145,14 @@
     "object-curly-spacing": ["error", "never"],
     "no-else-return": ["error", {"allowElseIf": false}],
     "curly": "error",
-
-    // TODO resolve
-    "no-invalid-this": "off",
-    "jest/prefer-to-have-length": "off",
-    "jest/prefer-to-be": "off",
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "no-invalid-this": "off"
   },
   "overrides": [
     {
       "files": ["*.ts", "*.tsx"],
       "extends": [
         "alloy/typescript",
-        "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:@typescript-eslint/strict"
       ],
@@ -190,36 +185,21 @@
         ],
         "@typescript-eslint/explicit-function-return-type": ["error", {"allowExpressions": true}],
         "@typescript-eslint/sort-type-constituents": ["error", {"checkIntersections": false}],
-
+        "@typescript-eslint/unbound-method": ["error", {"ignoreStatic": true}],
+        "@typescript-eslint/no-base-to-string": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        // this rule is not included in strict mode because "no-unsafe-" rules are used instead
+        "@typescript-eslint/no-explicit-any": "error",
+        // https://github.com/typescript-eslint/typescript-eslint/issues/2421- closed, but not resolved
+        "@typescript-eslint/no-unnecessary-condition": "off",
         "no-unused-vars": "off",
         "no-undef": "off",
 
         // TODO resolve
-        "@typescript-eslint/ban-types": "off",
-        "@typescript-eslint/prefer-nullish-coalescing": "off",
-        "@typescript-eslint/require-await": "off",
-        "jest/prefer-to-be": "off",
-        "@typescript-eslint/unbound-method": "off",
-        "@typescript-eslint/no-unsafe-assignment": "off",
-        "@typescript-eslint/no-unsafe-argument": "off",
-        "@typescript-eslint/no-unnecessary-type-arguments": "off",
-        "@typescript-eslint/no-throw-literal": "off",
-        "@typescript-eslint/no-unsafe-member-access": "off",
-        "@typescript-eslint/no-unnecessary-condition": "off",
-        "@typescript-eslint/consistent-indexed-object-style": "off",
-        "@typescript-eslint/no-dynamic-delete": "off",
-        "@typescript-eslint/prefer-includes": "off",
-        "@typescript-eslint/no-empty-function": "off",
-        "@typescript-eslint/no-base-to-string": "off",
-        "@typescript-eslint/restrict-plus-operands": "off",
-        "@typescript-eslint/restrict-template-expressions": "off",
-        "@typescript-eslint/no-unsafe-return": "off",
-        "@typescript-eslint/non-nullable-type-assertion-style": "off",
-        "@typescript-eslint/no-unnecessary-type-assertion": "off",
-        "@typescript-eslint/no-misused-promises": "off",
-        "@typescript-eslint/no-floating-promises": "off",
-        "@typescript-eslint/no-unsafe-call": "off",
-        "@typescript-eslint/await-thenable": "off"
+        "@typescript-eslint/ban-types": "off"
       }
     }
   ]

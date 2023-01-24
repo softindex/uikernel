@@ -8,6 +8,7 @@
 
 import {Request, RequestHandler, Response, Router} from 'express';
 import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
+import parseJson from '../common/parseJson';
 import {IListModel} from './types/IListModel';
 
 type ListExpressApiMiddlewares = {
@@ -33,7 +34,7 @@ class ListExpressApi<TKey, TMetadata extends {}> {
     ],
     getLabel: [
       asyncServerRouteHandler(async (req, res) => {
-        const id = JSON.parse(req.params.id);
+        const id = parseJson(req.params.id) as TKey;
         const model = this.getModel(req, res);
         const data = await model.getLabel(id);
         this.sendResult(res, data);

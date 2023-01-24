@@ -7,6 +7,7 @@
  */
 
 import {ArrayWithAtLeastOneElement} from '../common/types';
+import {assert} from '../common/utils';
 import {IGridModelSortMode} from './models/types/IGridModel';
 
 type SortingRule<TColumn extends string> = {column: TColumn; direction: IGridModelSortMode};
@@ -30,7 +31,7 @@ export function getNextSingleSorting<TColumn extends string>(
       availableDirectionsForColumn[
         (availableDirectionsForColumn.indexOf(currentSorting.direction) + 1) %
           availableDirectionsForColumn.length
-      ]
+      ]!
   };
 }
 
@@ -52,6 +53,7 @@ export function getNextMultipleSorting<TColumn extends string>(
 
   let nextDirection: IGridModelSortMode;
   const currentSort = nextSorting[currentSortIndex];
+  assert(currentSort);
 
   // Determine the direction of sorting
   if (currentSortIndex < nextSorting.length - 1) {
@@ -62,7 +64,7 @@ export function getNextMultipleSorting<TColumn extends string>(
       availableDirectionsForColumn[
         (availableDirectionsForColumn.indexOf(currentSort.direction) + 1) %
           availableDirectionsForColumn.length
-      ];
+      ]!;
   }
 
   if (nextDirection === 'default') {

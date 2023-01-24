@@ -33,13 +33,12 @@ function connectForm<TRecord extends {}, TAvailableField extends string & keyof 
       WithoutConnectFormProps<TProps>,
       ReturnType<FormService<TRecord, TAvailableField>['getAll']>
     > {
-      private form = new FormService<TRecord, TAvailableField>(fields || []);
+      private form = new FormService<TRecord, TAvailableField>(fields ?? []);
 
       constructor(props: WithoutConnectFormProps<TProps>) {
         super(props);
 
         this.state = this.form.getAll();
-        this.onFormChange = this.onFormChange.bind(this);
       }
 
       async componentDidMount(): Promise<void> {
@@ -55,9 +54,9 @@ function connectForm<TRecord extends {}, TAvailableField extends string & keyof 
         this.form.removeChangeListener(this.onFormChange);
       }
 
-      onFormChange(newFormState: ReturnType<FormService<TRecord, TAvailableField>['getAll']>): void {
+      onFormChange = (newFormState: ReturnType<FormService<TRecord, TAvailableField>['getAll']>): void => {
         this.setState(newFormState);
-      }
+      };
 
       render(): JSX.Element {
         return <Component {...this.props} formData={this.state} formService={this.form} />;

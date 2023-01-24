@@ -32,20 +32,6 @@ async function createInitedInstance(initialData = {}) {
 }
 
 describe('Init form', () => {
-  it("Settings dosn't have model property", async () => {
-    const form = new FormService();
-
-    let receivedError;
-    try {
-      await form.init({});
-    } catch (error) {
-      receivedError = error;
-    }
-
-    expect(receivedError).toBeDefined();
-    expect(receivedError.message).toEqual('You must specify the model');
-  });
-
   it('Init', async () => {
     const form = new FormService();
     const initSettings = getInitSettings();
@@ -73,7 +59,7 @@ describe('Settings', () => {
 
     await form.validateForm();
 
-    expect(form.getAll().fields.age.errors.length).toBe(0);
+    expect(form.getAll().fields.age.errors).toHaveLength(0);
   });
 
   it('partialErrorChecking = false', async () => {
@@ -90,7 +76,7 @@ describe('Settings', () => {
 
     await form.validateForm();
 
-    expect(form.getAll().fields.age.errors.length).toBe(1);
+    expect(form.getAll().fields.age.errors).toHaveLength(1);
   });
 });
 
@@ -252,7 +238,7 @@ describe('clearValidation', () => {
     await instance.set({name: 'John'}, true);
     instance.clearValidation('name');
 
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set changes, validation, clear error
   });
 
@@ -274,7 +260,7 @@ describe('clearValidation', () => {
     instance.clearValidation('name');
 
     await validatePromise;
-    expect(instance.getAll().fields.age.errors.length).toBe(1);
+    expect(instance.getAll().fields.age.errors).toHaveLength(1);
   });
 });
 
@@ -349,7 +335,7 @@ describe('submit', () => {
     }
 
     expect(error).toEqual(validationError);
-    expect(instance.getAll().fields.name.errors.length).toBe(1);
+    expect(instance.getAll().fields.name.errors).toHaveLength(1);
     expect(stateHandler).toHaveBeenCalledTimes(2);
   });
 
@@ -380,7 +366,7 @@ describe('submit', () => {
     await instance.submit();
 
     expect(instance.getAll().fields.name.isChanged).toBeFalsy();
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
     expect(stateHandler).toHaveBeenCalledTimes(3); // Set values, submitting, submit result
   });
 
@@ -432,7 +418,7 @@ describe('clearFieldChanges', () => {
     await instance.set({name: 'Error'}, true);
     instance.clearFieldChanges('name');
 
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
   });
 
   it('Set state', async () => {
@@ -460,7 +446,7 @@ describe('clearChanges', () => {
     instance.clearChanges();
 
     expect(stateHandler).toHaveBeenCalledTimes(1);
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
     expect(instance.getAll().fields.name.isChanged).toBeFalsy();
   });
 });
@@ -479,7 +465,7 @@ describe('validateForm', () => {
 
     // Valid name
     await instance.set({name: 'John'}, true);
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
   });
 
   it('Simple validation error', async () => {
@@ -507,7 +493,7 @@ describe('validateForm', () => {
     }
 
     expect(error).toBe(globalError);
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
   });
 
   it('Set state', async () => {
@@ -550,7 +536,7 @@ describe('validateForm', () => {
     instance.set({name: 'Sophia'}); // Cancel previous validation
 
     await validationPromise;
-    expect(instance.getAll().fields.name.errors.length).toBe(0);
+    expect(instance.getAll().fields.name.errors).toHaveLength(0);
   });
 
   it('Validation dependencies', async () => {
@@ -581,7 +567,7 @@ describe('validateForm', () => {
 
     const {errors} = await instance.validateForm();
 
-    expect(errors).toEqual(null);
+    expect(errors).toBeNull();
   });
 });
 

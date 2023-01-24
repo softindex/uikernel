@@ -23,7 +23,7 @@ function defaultRequest(settings: DefaultXhrSettings): Promise<unknown> {
     const callStack = new Error().stack;
 
     xhr(settings, (exception?: Error, response?: XhrResponse, body?: unknown) => {
-      const statusCode = response?.statusCode || 0;
+      const statusCode = response?.statusCode ?? 0;
 
       // if server sends statusCode 1xx and 3xx - client got exception with statusCode 0
       if (statusCode >= 200 && statusCode < 300) {
@@ -61,7 +61,7 @@ if (!variables.get('xhr')) {
 }
 
 const defaultXhr: DefaultXhr = (settings: DefaultXhrSettings) =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
   variables.get('xhr')(settings) as Promise<any>;
 
 export default defaultXhr;

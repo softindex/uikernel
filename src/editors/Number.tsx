@@ -46,7 +46,7 @@ class NumberEditor extends React.Component<Props, State> {
       assert(this.input, '"input" unknown');
       // @ts-expect-error: TS2540 Cannot assign to 'value' because it is a read-only property
       this.state.value = nextProps.value;
-      this.input.value = this.state.value?.toString() || '';
+      this.input.value = this.state.value?.toString() ?? '';
     }
   }
 
@@ -62,7 +62,7 @@ class NumberEditor extends React.Component<Props, State> {
           this.input = input;
         }}
         onChange={this.onChangeHandler}
-        defaultValue={value?.toString() || ''}
+        defaultValue={value?.toString() ?? ''}
       />
     );
   }
