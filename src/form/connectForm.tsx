@@ -10,23 +10,29 @@ import React from 'react';
 import {ArrayWithAtLeastOneElement} from '../common/types';
 import FormService from './FormService';
 
-type ConnectFormProps<TRecord extends {}, TAvailableField extends string & keyof TRecord> = {
+type ConnectFormProps<
+  TRecord extends Record<string, unknown>,
+  TAvailableField extends string & keyof TRecord
+> = {
   formData: ReturnType<FormService<TRecord, TAvailableField>['getAll']>;
   formService: FormService<TRecord, TAvailableField>;
 };
 
-export type WithoutConnectFormProps<TProps extends {}> = Omit<TProps, keyof ConnectFormProps<{}, never>>;
+export type WithoutConnectFormProps<TProps extends Record<string, unknown>> = Omit<
+  TProps,
+  keyof ConnectFormProps<Record<string, unknown>, never>
+>;
 
 export type WithConnectFormProps<
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TAvailableField extends string & keyof TRecord,
-  TProps extends {}
+  TProps extends Record<string, unknown>
 > = ConnectFormProps<TRecord, TAvailableField> & WithoutConnectFormProps<TProps>;
 
-function connectForm<TRecord extends {}, TAvailableField extends string & keyof TRecord>(
+function connectForm<TRecord extends Record<string, unknown>, TAvailableField extends string & keyof TRecord>(
   fields: ArrayWithAtLeastOneElement<TAvailableField> | null = null
 ) {
-  return <TProps extends {}>(
+  return <TProps extends Record<string, unknown>>(
     Component: React.ComponentType<WithConnectFormProps<TRecord, TAvailableField, TProps>>
   ): React.ComponentType<WithoutConnectFormProps<TProps>> => {
     class ComponentWithFormService extends React.Component<

@@ -25,7 +25,7 @@ import {JsonGridApiResult} from './types/JsonGridApiResult';
 
 const MAX_URI_LENGTH = 2048;
 
-type GridXhrModelParams<TRecord extends {}> = {
+type GridXhrModelParams<TRecord extends Record<string, unknown>> = {
   /**
    * @description API address
    */
@@ -48,7 +48,7 @@ type GridXhrModelParams<TRecord extends {}> = {
 /**
  * Grid model, that works with API via XHR
  */
-class GridXhrModel<TKey, TRecord extends {}, TFilters>
+class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   extends AbstractGridModel<TKey, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
   implements
     IGridModel<TKey, TRecord, TFilters>,

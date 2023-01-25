@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export type IListModelReadResult<TKey, TMetadata extends {}> = {
+export type IListModelReadResult<TKey, TMetadata extends Record<string, unknown>> = {
   id: TKey;
   label: string[] | string;
   metadata?: TMetadata;
   type?: 'empty' | 'group' | 'header' | 'subitem';
 }[];
 
-export interface IListModel<TKey, TMetadata extends {}> {
+export interface IListModel<TKey, TMetadata extends Record<string, unknown>> {
   getLabel: (id: TKey) => Promise<string>;
   read: (search?: string) => Promise<IListModelReadResult<TKey, TMetadata>>;
 }

@@ -6,6 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export type FormModelListenerArgsByEventName<TRecord extends {}> = {
+export type FormModelListenerArgsByEventName<TRecord extends Record<string, unknown>> = {
   update: [Partial<TRecord>];
 };

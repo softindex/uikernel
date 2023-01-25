@@ -12,7 +12,7 @@ export type IGridModelCustomError = Error & Record<string, unknown>;
 
 export type IGridModelSortMode = 'asc' | 'default' | 'desc';
 
-export type IGridModelReadParams<TKey, TRecord extends {}, TFilters> = {
+export type IGridModelReadParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
   extra?: TKey[];
   fields: (keyof TRecord & string)[];
   filters?: TFilters;
@@ -26,7 +26,7 @@ export type IGridModelUpdateResult<TKey, TRecord> = [
   IGridModelCustomError | Partial<TRecord> | ValidationErrors<keyof TRecord & string>
 ][];
 
-export type IGridModelReadResult<TKey, TRecord extends {}> = {
+export type IGridModelReadResult<TKey, TRecord extends Record<string, unknown>> = {
   /**
    * Extra records
    */
@@ -43,7 +43,7 @@ export type IGridModelReadResult<TKey, TRecord extends {}> = {
   totals?: Partial<TRecord>;
 };
 
-export interface IGridModel<TKey, TRecord extends {}, TFilters> {
+export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilters> {
   /**
    * Add a record
    */

@@ -13,21 +13,22 @@
  */
 
 import cloneDeep from 'lodash/cloneDeep';
+import last from 'lodash/last';
 import pickBy from 'lodash/pickBy';
 import union from 'lodash/union';
 import React from 'react';
+import {assertNonNullish} from '../common/assert';
 import EqualMap from '../common/EqualMap';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import {EventListener, IObservable} from '../common/types';
 import {
-  assert,
   forEach,
   getRecordChanges,
   indexOf,
-  parseValueFromEvent,
   isEmpty,
   isEqual,
+  parseValueFromEvent,
   warn
 } from '../common/utils';
 import ValidationErrors from '../validation/ValidationErrors';
@@ -60,7 +61,7 @@ const ESCAPE_KEY = 27;
 
 type Props<
   TKey,
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TFilters,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
@@ -101,7 +102,12 @@ type Props<
   onToggleSelected?: (recordId: TKey) => void;
 };
 
-type State<TKey, TRecord extends {}, TColumnId extends string, TMultipleSorting extends boolean> = {
+type State<
+  TKey,
+  TRecord extends Record<string, unknown>,
+  TColumnId extends string,
+  TMultipleSorting extends boolean
+> = {
   changes: EqualMap<TKey, Partial<TRecord>>;
   count: number;
   data: EqualMap<TKey, Partial<TRecord>> | null;
@@ -130,7 +136,7 @@ const DEFAULT_PROPS = {
 
 class GridComponent<
     TKey,
-    TRecord extends {},
+    TRecord extends Record<string, unknown>,
     TFilters,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
@@ -265,11 +271,11 @@ class GridComponent<
     if (resetFlags.has(ResetFlag.Statuses)) {
       // statuses as required because RestFlag.Statuses exists only statuses passed via props
       // (statusesOnlyViaPropsEnabled = true)
-      assert(nextProps.statuses, `you can't clear "statuses" prop after it was set`);
+      assertNonNullish(nextProps.statuses, `you can't clear "statuses" prop after it was set`);
       nextStatuses = nextProps.statuses;
 
       if (!needUpdateTable) {
-        assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+        assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
         for (const recordId of nextStatuses.keys()) {
           if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
@@ -336,7 +342,7 @@ class GridComponent<
    * Get record data
    */
   getRecord(recordId: TKey): Partial<TRecord> | null {
-    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
     if (!this.state.data.has(recordId)) {
       throw new Error('Record with the ID is not contained in the table.');
@@ -407,8 +413,8 @@ class GridComponent<
    * This method marks changed fields and validates them
    */
   set(recordId: TKey, recordChanges: Partial<TRecord>, validate = false): void {
-    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
-    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assertNonNullish(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
 
     const allChanges = cloneDeep(this.state.changes);
     const filteredRecordChanges = getRecordChanges(
@@ -448,7 +454,7 @@ class GridComponent<
     // Cancel new record display
     this.removeRecordStatusAll('new');
 
-    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+    assertNonNullish(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
     const data = await this.props.model.update(this.dataMapToArray(changes));
     if (!this.mounted) {
       return;
@@ -602,7 +608,7 @@ class GridComponent<
       State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>,
       'changes' | 'errors' | 'extra' | 'partialErrorChecking' | 'warnings'
     > &
-      ({} | {statuses: State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>['statuses']}) = {
+      (object | {statuses: State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>['statuses']}) = {
       extra: new EqualMap(),
       changes: new EqualMap(),
       warnings: new EqualMap(),
@@ -625,7 +631,7 @@ class GridComponent<
     // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
     this.state.page = this.getValidPage(0, this.state.viewCount, this.state.count);
     if (!this.isSortingPropsMode()) {
-      assert(this.props.onSorting, 'prop "onSorting" is required, because "sort" exists in props');
+      assertNonNullish(this.props.onSorting, 'prop "onSorting" is required, because "sort" exists in props');
       this.props.onSorting(this.getDefaultSort());
     }
 
@@ -710,17 +716,19 @@ class GridComponent<
     }
 
     const columnConfig = this.props.columns[colId];
-    assert(columnConfig, `"${colId}" column unavailable`);
+    assertNonNullish<object | undefined>(columnConfig, `"${colId}" column unavailable`);
     const record = this.getRecordWithChanges(recordId);
-    assert(record, '"record" unknown');
+    assertNonNullish<object | null>(record, '"record" unknown');
     const editorFieldName = this.getEditorFieldName(colId);
     const value = record[editorFieldName];
 
     // Trigger click handler on the table configuration
     if (ref) {
-      assert(columnConfig.onClickRefs, '"onClickRefs" unknown');
+      assertNonNullish(columnConfig.onClickRefs, '"onClickRefs" unknown');
+      const onClickRef = columnConfig.onClickRefs[ref];
+      assertNonNullish(onClickRef, `onClickRefs.${ref} unknown`);
 
-      columnConfig.onClickRefs[ref]!(event, recordId, record, this);
+      onClickRef(event, recordId, record, this);
     } else if (columnConfig.onClick) {
       columnConfig.onClick(event, recordId, record, this);
     }
@@ -822,7 +830,7 @@ class GridComponent<
    */
   handleChangeViewCount = (viewCount: number): void => {
     if (this.isViewCountPropsMode()) {
-      assert(
+      assertNonNullish(
         this.props.onChangeViewCount,
         'prop "onChangeViewCount" is required, because "viewCount" exists in props'
       );
@@ -858,7 +866,8 @@ class GridComponent<
 
   getViewCount(): number {
     if (this.isViewCountPropsMode()) {
-      return this.props.viewCount!;
+      assertNonNullish(this.props.viewCount, '"viewCount" defined via props, because should be defined');
+      return this.props.viewCount;
     }
 
     return this.state.viewCount;
@@ -954,7 +963,7 @@ class GridComponent<
 
         const statuses = cloneDeep(state.statuses);
         const recordStatuses = statuses.get(recordId);
-        assert(recordStatuses, '"recordStatuses" unknown');
+        assertNonNullish(recordStatuses, '"recordStatuses" unknown');
 
         // Remove status if record has i
 
@@ -1363,14 +1372,16 @@ class GridComponent<
    * Get record with changes
    */
   private getRecordWithChanges = (recordId: TKey): Partial<TRecord> | null => {
-    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
-    if (this.state.data.has(recordId)) {
-      return {...this.state.data.get(recordId), ...this.state.changes.get(recordId)};
+    const recordFromData = this.state.data.get(recordId);
+    if (recordFromData) {
+      return {...recordFromData, ...this.state.changes.get(recordId)};
     }
 
-    if (this.state.extra.has(recordId)) {
-      return {...this.state.extra.get(recordId), ...this.state.changes.get(recordId)};
+    const recordFromExtra = this.state.extra.get(recordId);
+    if (recordFromExtra) {
+      return {...recordFromExtra, ...this.state.changes.get(recordId)};
     }
 
     return null;
@@ -1383,8 +1394,8 @@ class GridComponent<
   private setRowChanges(recordId: TKey, data: Partial<TRecord>): void {
     this.setState(
       (state, props) => {
-        assert(state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
-        assert(props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+        assertNonNullish(state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+        assertNonNullish(props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
 
         const changes = cloneDeep(state.changes);
         changes.set(
@@ -1500,7 +1511,7 @@ class GridComponent<
       return;
     }
 
-    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
     const nextData = new EqualMap(
       [...this.state.data].map(([dataRecordId, record]) => {
@@ -1525,7 +1536,7 @@ class GridComponent<
    * Is record loaded
    */
   private isRecordLoaded(recordId: TKey): boolean {
-    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
     return this.state.data.has(recordId);
   }
@@ -1534,7 +1545,7 @@ class GridComponent<
    * Get row ID
    */
   private getRowID(recordId: TKey): TKey {
-    assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
     if (!this.state.data.has(recordId) && !this.state.extra.has(recordId)) {
       throw new Error('Record with the ID is not contained in the table.');
@@ -1584,7 +1595,7 @@ class GridComponent<
       return;
     }
 
-    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+    assertNonNullish(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
 
     try {
       const errors = await this.checkValidatorErrors(
@@ -1609,7 +1620,7 @@ class GridComponent<
    * Validate row
    */
   private async validateRow(recordId: TKey): Promise<void> {
-    assert(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
+    assertNonNullish(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
 
     const errors = await this.checkValidatorErrors(
       recordId,
@@ -1700,15 +1711,15 @@ class GridComponent<
     const value = cloneDeep(parseValueFromEvent(eventOrValue)) as Partial<TRecord>[TField];
 
     const columnConfig = this.props.columns[columnId];
-    assert(columnConfig, `"${columnId}" column unavailable`);
+    assertNonNullish<object | undefined>(columnConfig, `"${columnId}" column unavailable`);
     const record = this.getRecordWithChanges(recordId);
-    assert(record, '"record" unknown');
-    assert(columnConfig.editor, '"columnConfig.editor" unknown');
+    assertNonNullish<object | null>(record, '"record" unknown');
+    assertNonNullish(columnConfig.editor, '"columnConfig.editor" unknown');
 
     const context = cloneDeep(editorContext);
     context.props.value = value;
     const element = columnConfig.editor.call(context, record, this);
-    assert(element, 'received unknown element on change editor');
+    assertNonNullish(element, 'received unknown element on change editor');
     const recordChanges: Partial<TRecord> = {};
     recordChanges[this.getEditorFieldName(columnId)] = value;
     this.setRowChanges(recordId, recordChanges);
@@ -1765,9 +1776,12 @@ class GridComponent<
         sortCycle
       );
 
+      const nextMultipleSortingLatestItem = last(nextMultipleSorting);
+      assertNonNullish(nextMultipleSortingLatestItem);
+
       nextDirectionForColumn =
-        nextMultipleSorting[nextMultipleSorting.length - 1]!.column === columnId
-          ? nextMultipleSorting[nextMultipleSorting.length - 1]!.direction
+        nextMultipleSortingLatestItem.column === columnId
+          ? nextMultipleSortingLatestItem.direction
           : 'default';
 
       nextSorting = nextMultipleSorting as SortRuleType<
@@ -1809,7 +1823,7 @@ class GridComponent<
     const statuses = cloneDeep(this.state.statuses);
 
     if (this.state.selectBlackListMode) {
-      assert(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+      assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
       for (const [recordId] of this.state.data) {
         if (indexOf(this.state.selected, recordId) < 0) {

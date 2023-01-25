@@ -23,7 +23,7 @@ import IFormService, {
   IFormServiceListenerArgsByEventName
 } from './types/IFormService';
 
-type InitalizedState<TRecord extends {}> =
+type InitalizedState<TRecord extends Record<string, unknown>> =
   | {
       data: Partial<TRecord>;
       initialized: true;
@@ -37,7 +37,7 @@ type InitalizedState<TRecord extends {}> =
       warningsValidator: null;
     };
 
-class FormService<TRecord extends {}, TAvailableField extends keyof TRecord & string>
+class FormService<TRecord extends Record<string, unknown>, TAvailableField extends keyof TRecord & string>
   implements IFormService<TRecord, TAvailableField>
 {
   validating = false;
@@ -108,7 +108,7 @@ class FormService<TRecord extends {}, TAvailableField extends keyof TRecord & st
     }
   }
 
-  getAll(): IFormServiceEmptyState<TRecord> | IFormServiceState<TRecord, TAvailableField> {
+  getAll(): IFormServiceEmptyState<TRecord, TAvailableField> | IFormServiceState<TRecord, TAvailableField> {
     if (!this.isLoaded()) {
       return this.getEmptyState();
     }
@@ -525,14 +525,18 @@ class FormService<TRecord extends {}, TAvailableField extends keyof TRecord & st
     return true;
   }
 
-  private getEmptyState(): IFormServiceEmptyState<TRecord> {
-    const data: IFormServiceEmptyState<TRecord>['data'] = {};
-    const changes: IFormServiceEmptyState<TRecord>['changes'] = {};
-    const errors: IFormServiceEmptyState<TRecord>['errors'] = new ValidationErrors();
-    const warnings: IFormServiceEmptyState<TRecord>['warnings'] = new ValidationErrors();
+  private getEmptyState(): IFormServiceEmptyState<TRecord, TAvailableField> {
+    const data: IFormServiceEmptyState<TRecord, TAvailableField>['data'] = {};
+    const changes: IFormServiceEmptyState<TRecord, TAvailableField>['changes'] = {};
+    const errors: IFormServiceEmptyState<TRecord, TAvailableField>['errors'] = new ValidationErrors();
+    const warnings: IFormServiceEmptyState<TRecord, TAvailableField>['warnings'] = new ValidationErrors();
+    const fields = this.getFields(data, changes, errors, warnings) as IFormServiceEmptyState<
+      TRecord,
+      TAvailableField
+    >['fields'];
 
     return {
-      fields: this.getFields(data, changes, errors, warnings),
+      fields,
       isLoaded: false,
       isSubmitting: false,
       originalData: {},

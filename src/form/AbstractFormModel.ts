@@ -12,7 +12,7 @@ import ValidationErrors from '../validation/ValidationErrors';
 import {IFormModel} from './types/IFormModel';
 
 abstract class AbstractFormModel<
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TListenerArgsByEventName extends Record<string, unknown[]>
 > implements IFormModel<TRecord>, IObservable<TListenerArgsByEventName>
 {

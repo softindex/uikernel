@@ -9,7 +9,7 @@
 
 import ValidationErrors from '../../validation/ValidationErrors';
 
-export interface IFormModel<TRecord extends {}> {
+export interface IFormModel<TRecord extends Record<string, unknown>> {
   /**
    * Get data
    */

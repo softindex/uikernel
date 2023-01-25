@@ -153,6 +153,7 @@
       "files": ["*.ts", "*.tsx"],
       "extends": [
         "alloy/typescript",
+        "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:@typescript-eslint/strict"
       ],
@@ -196,10 +197,7 @@
         // https://github.com/typescript-eslint/typescript-eslint/issues/2421- closed, but not resolved
         "@typescript-eslint/no-unnecessary-condition": "off",
         "no-unused-vars": "off",
-        "no-undef": "off",
-
-        // TODO resolve
-        "@typescript-eslint/ban-types": "off"
+        "no-undef": "off"
       }
     }
   ]

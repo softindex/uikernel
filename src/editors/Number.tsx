@@ -9,7 +9,8 @@
 
 import React from 'react';
 import {StrictOmit} from 'ts-essentials';
-import {assert, isEqual} from '../common/utils';
+import {assertNonNullish} from '../common/assert';
+import {isEqual} from '../common/utils';
 import floatValidator from '../validation/rules/float';
 
 const isInvalidFloat = (value: unknown): boolean => Boolean(floatValidator(null, null)(value));
@@ -43,7 +44,7 @@ class NumberEditor extends React.Component<Props, State> {
 
   UNSAFE_componentWillReceiveProps(nextProps: Props): void {
     if (!isEqual(this.state.value, nextProps.value)) {
-      assert(this.input, '"input" unknown');
+      assertNonNullish(this.input, 'input ref unavailable');
       // @ts-expect-error: TS2540 Cannot assign to 'value' because it is a read-only property
       this.state.value = nextProps.value;
       this.input.value = this.state.value?.toString() ?? '';

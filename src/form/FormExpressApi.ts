@@ -8,6 +8,7 @@
 
 import {Request, RequestHandler, Response, Router} from 'express';
 import multer from 'multer';
+import {assertNonNullish} from '../common/assert';
 import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
 import parseJson from '../common/parseJson';
 import ValidationErrors from '../validation/ValidationErrors';
@@ -28,8 +29,10 @@ type FormExpressApiMiddlewares = {
   validate: RequestHandler[];
 };
 
-class FormExpressApi<TRecord extends {}> {
-  static create<TRecord extends {}>(settings: FormExpressApiParams = {}): FormExpressApi<TRecord> {
+class FormExpressApi<TRecord extends Record<string, unknown>> {
+  static create<TRecord extends Record<string, unknown>>(
+    settings: FormExpressApiParams = {}
+  ): FormExpressApi<TRecord> {
     return new FormExpressApi(settings);
   }
 
@@ -104,7 +107,8 @@ class FormExpressApi<TRecord extends {}> {
         if (validationErrors) {
           this.sendResult<'submit'>(res, {data: null, error: validationErrors.toJSON()});
         } else {
-          this.sendResult<'submit'>(res, {data: data!, error: null});
+          assertNonNullish<object | undefined>(data, '"data" unknown');
+          this.sendResult<'submit'>(res, {data, error: null});
         }
       })
     ]);

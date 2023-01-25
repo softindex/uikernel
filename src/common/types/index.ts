@@ -8,7 +8,7 @@
 
 export type ArrayWithAtLeastOneElement<T> = [T, ...T[]];
 
-export type AllAsOptionalWithRequired<T extends {}, U extends string & keyof T> = {
+export type AllAsOptionalWithRequired<T extends Record<string, unknown>, U extends string & keyof T> = {
   [K in Exclude<string & keyof T, U>]?: T[K];
 } & {
   [K in U]-?: T[K];

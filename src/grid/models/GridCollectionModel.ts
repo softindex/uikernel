@@ -23,7 +23,7 @@ import {
   IGridModelUpdateResult
 } from './types/IGridModel';
 
-type GridCollectionModelParams<TKey, TRecord extends {}, TFilters> = {
+type GridCollectionModelParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
   data: [TKey, Partial<TRecord>][];
   requiredFields: (keyof TRecord & string)[];
   validator: Validator<TRecord>;
@@ -31,7 +31,7 @@ type GridCollectionModelParams<TKey, TRecord extends {}, TFilters> = {
   generateId: (existsIds: TKey[]) => TKey;
 };
 
-class GridCollectionModel<TKey, TRecord extends {}, TFilters>
+class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   extends AbstractGridModel<TKey, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
   implements
     IGridModel<TKey, TRecord, TFilters>,
@@ -55,7 +55,7 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
   /**
    * @deprecated
    */
-  static createWithNumberId<TRecord extends {}, TFilters>({
+  static createWithNumberId<TRecord extends Record<string, unknown>, TFilters>({
     data,
     filtersHandler,
     requiredFields,
@@ -74,7 +74,7 @@ class GridCollectionModel<TKey, TRecord extends {}, TFilters>
     });
   }
 
-  static create<TKey, TRecord extends {}, TFilters>({
+  static create<TKey, TRecord extends Record<string, unknown>, TFilters>({
     generateId,
     data,
     filtersHandler,

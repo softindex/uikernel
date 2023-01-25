@@ -34,8 +34,8 @@ type GridExpressApiMiddlewares = {
 /**
  * Form Express API for Grid model interaction
  */
-class GridExpressApi<TKey, TRecord extends {}, TFilters> {
-  static create<TKey, TRecord extends {}, TFilters>(
+class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
+  static create<TKey, TRecord extends Record<string, unknown>, TFilters>(
     multipartFormData = false,
     maxFileSize = DEFAULT_MAX_FILE_SIZE
   ): GridExpressApi<TKey, TRecord, TFilters> {

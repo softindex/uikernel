@@ -10,7 +10,7 @@ import url from 'url';
 import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
 import {IListModel, IListModelReadResult} from './types/IListModel';
 
-class ListXhrModel<TKey, TMetadata extends {}> implements IListModel<TKey, TMetadata> {
+class ListXhrModel<TKey, TMetadata extends Record<string, unknown>> implements IListModel<TKey, TMetadata> {
   /**
    * Simple list client model which works via XMLHttpRequest
    */

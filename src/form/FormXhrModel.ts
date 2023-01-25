@@ -7,6 +7,7 @@
  */
 
 import url from 'url';
+import {assertNonNullish} from '../common/assert';
 import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
 import EventsModel from '../common/EventsModel';
 import parseJson from '../common/parseJson';
@@ -19,7 +20,7 @@ import {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const MAX_URI_LENGTH = 2048;
 
-type FormXhrModelParams<TRecord extends {}> = {
+type FormXhrModelParams<TRecord extends Record<string, unknown>> = {
   api: string;
   eventsModel?: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
   multipartFormData?: boolean;
@@ -28,7 +29,7 @@ type FormXhrModelParams<TRecord extends {}> = {
   xhr?: DefaultXhr;
 };
 
-class FormXhrModel<TRecord extends {}>
+class FormXhrModel<TRecord extends Record<string, unknown>>
   implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
   private multipartFormDataEncoded: boolean;
@@ -110,8 +111,9 @@ class FormXhrModel<TRecord extends {}>
       throw ValidationErrors.createFromJSON(error);
     }
 
-    this.eventsModel.trigger('update', data!);
-    return data!;
+    assertNonNullish<object | null>(data, '"data" unknown');
+    this.eventsModel.trigger('update', data);
+    return data;
   }
 
   /**

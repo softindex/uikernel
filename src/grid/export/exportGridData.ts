@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import assert from 'assert';
+import assert from '../../common/assert';
 import ArgumentsError from '../../common/error/ArgumentsError';
 import {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
@@ -15,7 +15,11 @@ import {GridColumnConfig, GridGetColumn} from '../types/GridColumns';
 
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 
-function formatColumns<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
+function formatColumns<
+  TRecord extends Record<string, unknown>,
+  TColumn extends string,
+  TViewColumn extends TColumn
+>(
   columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
 ): FormatColumnsResult<TViewColumn> {
@@ -29,7 +33,7 @@ function formatColumns<TRecord extends {}, TColumn extends string, TViewColumn e
 
     const {name, parent} = column;
     assert(
-      typeof name !== 'function' && typeof parent !== 'function',
+      typeof name === 'string' && (!parent || typeof parent === 'string'),
       `column "${columnId}" unavailable for export from server`
     );
 
@@ -41,7 +45,11 @@ function formatColumns<TRecord extends {}, TColumn extends string, TViewColumn e
 
 type FormatRecordResult<TField extends string> = Record<TField, string>;
 
-function formatRecord<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
+function formatRecord<
+  TRecord extends Record<string, unknown>,
+  TColumn extends string,
+  TViewColumn extends TColumn
+>(
   record: Partial<TRecord>,
   columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
@@ -71,7 +79,11 @@ type FormatDataResult<TColumn extends string> = {
   totals?: FormatRecordResult<TColumn>;
 };
 
-function formatData<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
+function formatData<
+  TRecord extends Record<string, unknown>,
+  TColumn extends string,
+  TViewColumn extends TColumn
+>(
   records: [unknown, Partial<TRecord>][],
   totals: Partial<TRecord> | undefined,
   columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
@@ -88,7 +100,11 @@ function formatData<TRecord extends {}, TColumn extends string, TViewColumn exte
   return formatted;
 }
 
-function getFields<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
+function getFields<
+  TRecord extends Record<string, unknown>,
+  TColumn extends string,
+  TViewColumn extends TColumn
+>(
   columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns: TViewColumn[]
 ): (keyof TRecord & string)[] {
@@ -109,7 +125,11 @@ function getFields<TRecord extends {}, TColumn extends string, TViewColumn exten
   return keys(fields);
 }
 
-function assertValidViewColumns<TRecord extends {}, TColumn extends string, TViewColumn extends TColumn>(
+function assertValidViewColumns<
+  TRecord extends Record<string, unknown>,
+  TColumn extends string,
+  TViewColumn extends TColumn
+>(
   columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
   viewColumns?: TViewColumn[] | null
 ): void {
@@ -129,7 +149,7 @@ function assertValidViewColumns<TRecord extends {}, TColumn extends string, TVie
   }
 }
 
-export type ExportGridDataParams<TRecord extends {}> = {
+export type ExportGridDataParams<TRecord extends Record<string, unknown>> = {
   limit?: number;
   offset?: number;
   sort?: {column: keyof TRecord & string; direction: IGridModelSortMode};
@@ -142,7 +162,7 @@ export type ExportGridDataResult<TExportRunner extends AnyFunction> = TExportRun
   : ReturnType<TExportRunner>;
 
 async function exportGridData<
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TColumn extends string,
   TViewColumn extends TColumn,
   // eslint-disable-next-line space-before-function-paren

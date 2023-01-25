@@ -6,18 +6,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {assertNonNullish} from '../common/assert';
 import {ArrayWithAtLeastOneElement} from '../common/types';
-import {assert} from '../common/utils';
 import {IGridModelSortMode} from './models/types/IGridModel';
 
 type SortingRule<TColumn extends string> = {column: TColumn; direction: IGridModelSortMode};
 
 export function getNextSingleSorting<TColumn extends string>(
   column: TColumn,
-  currentSorting: SortingRule<TColumn> | null | undefined,
+  currentSortingRule: SortingRule<TColumn> | null | undefined,
   availableDirectionsForColumn: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>
 ): SortingRule<TColumn> {
-  if (!currentSorting || currentSorting.column !== column) {
+  if (!currentSortingRule || currentSortingRule.column !== column) {
     return {
       column,
       direction: availableDirectionsForColumn[0]
@@ -27,57 +27,60 @@ export function getNextSingleSorting<TColumn extends string>(
   return {
     column,
     // Select the next direction of sorting
-    direction:
-      availableDirectionsForColumn[
-        (availableDirectionsForColumn.indexOf(currentSorting.direction) + 1) %
-          availableDirectionsForColumn.length
-      ]!
+    direction: getNextDirection(availableDirectionsForColumn, currentSortingRule.direction)
   };
 }
 
 export function getNextMultipleSorting<TColumn extends string>(
   column: TColumn,
-  currentSorting: SortingRule<TColumn>[],
+  currentSortingRules: SortingRule<TColumn>[],
   availableDirectionsForColumn: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>
 ): SortingRule<TColumn>[] {
-  const nextSorting = [...currentSorting];
+  const nextSortingRules = [...currentSortingRules];
 
   // Find an element among the other sorts
-  const currentSortIndex = nextSorting.findIndex((sort) => sort.column === column);
+  const currentSortingRuleIndex = nextSortingRules.findIndex((sort) => sort.column === column);
 
-  if (currentSortIndex < 0) {
+  if (currentSortingRuleIndex < 0) {
     // Add new element
-    nextSorting.push({column, direction: availableDirectionsForColumn[0]});
-    return nextSorting;
+    nextSortingRules.push({column, direction: availableDirectionsForColumn[0]});
+    return nextSortingRules;
   }
 
   let nextDirection: IGridModelSortMode;
-  const currentSort = nextSorting[currentSortIndex];
-  assert(currentSort);
+  const currentSortingRule = nextSortingRules[currentSortingRuleIndex];
+  assertNonNullish(currentSortingRule);
 
   // Determine the direction of sorting
-  if (currentSortIndex < nextSorting.length - 1) {
+  if (currentSortingRuleIndex < nextSortingRules.length - 1) {
     nextDirection = availableDirectionsForColumn[0];
   } else {
     // If the item is the last one, select the next direction of sorting
-    nextDirection =
-      availableDirectionsForColumn[
-        (availableDirectionsForColumn.indexOf(currentSort.direction) + 1) %
-          availableDirectionsForColumn.length
-      ]!;
+    nextDirection = getNextDirection(availableDirectionsForColumn, currentSortingRule.direction);
   }
 
   if (nextDirection === 'default') {
     // Remove item from the sorts
-    nextSorting.splice(currentSortIndex, 1);
-  } else if (currentSortIndex === nextSorting.length - 1) {
+    nextSortingRules.splice(currentSortingRuleIndex, 1);
+  } else if (currentSortingRuleIndex === nextSortingRules.length - 1) {
     // Set new direction, if the last element
-    currentSort.direction = nextDirection;
+    currentSortingRule.direction = nextDirection;
   } else {
     // Move the item to the end, if it is already in sorts
-    nextSorting.splice(currentSortIndex, 1);
-    nextSorting.push({column, direction: nextDirection});
+    nextSortingRules.splice(currentSortingRuleIndex, 1);
+    nextSortingRules.push({column, direction: nextDirection});
   }
 
-  return nextSorting;
+  return nextSortingRules;
+}
+
+function getNextDirection(
+  directions: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>,
+  direction: IGridModelSortMode
+): IGridModelSortMode {
+  const nextDirectionIndex = (directions.indexOf(direction) + 1) % directions.length;
+  const nextDirection = directions[nextDirectionIndex];
+  assertNonNullish(nextDirection, 'nextDirection unavailable');
+
+  return nextDirection;
 }

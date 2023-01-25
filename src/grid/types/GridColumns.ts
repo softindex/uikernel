@@ -10,7 +10,7 @@ import {ArrayWithAtLeastOneElement} from '../../common/types';
 import {IGridModelSortMode} from '../models/types/IGridModel';
 import {IGridRef} from './IGridRef';
 
-export type EditorContext<TRecord extends {}, TField extends string & keyof TRecord> = {
+export type EditorContext<TRecord extends Record<string, unknown>, TField extends string & keyof TRecord> = {
   props: {
     value: TRecord[TField];
     onBlur: () => void;
@@ -24,7 +24,7 @@ export type EditorContext<TRecord extends {}, TField extends string & keyof TRec
   updateField: (field: TField, nextValue: TRecord[TField]) => void;
 };
 
-export type OnColumnClick<TKey, TRecord extends {}, TElement extends HTMLElement> = (
+export type OnColumnClick<TKey, TRecord extends Record<string, unknown>, TElement extends HTMLElement> = (
   event: React.MouseEvent<TElement>,
   recordId: TKey,
   record: Partial<TRecord>,
@@ -32,7 +32,7 @@ export type OnColumnClick<TKey, TRecord extends {}, TElement extends HTMLElement
   self: any
 ) => void;
 
-export type GridGetColumn<TRecord extends {}> = (
+export type GridGetColumn<TRecord extends Record<string, unknown>> = (
   recordWithChanges: Partial<TRecord>,
   selected: boolean,
   initialRecord: Partial<TRecord>,
@@ -40,12 +40,12 @@ export type GridGetColumn<TRecord extends {}> = (
   gridRef: IGridRef<any, TRecord, any, any, boolean> | undefined
 ) => string;
 
-export type GridColumnRender<TRecord extends {}> = readonly [
+export type GridColumnRender<TRecord extends Record<string, unknown>> = readonly [
   ...ArrayWithAtLeastOneElement<string & keyof TRecord>,
   GridGetColumn<TRecord>
 ];
 
-type GridEditorConfig<TRecord extends {}, TEditorField extends string & keyof TRecord> =
+type GridEditorConfig<TRecord extends Record<string, unknown>, TEditorField extends string & keyof TRecord> =
   | {
       editor?: undefined;
       editorField?: undefined;
@@ -68,13 +68,13 @@ type GridSortConfig<TSortPossible extends boolean> = TSortPossible extends true
       sortCycle?: undefined;
     };
 
-export type GridColumnName<TKey, TRecord extends {}> =
+export type GridColumnName<TKey, TRecord extends Record<string, unknown>> =
   | string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | ((gridRef: IGridRef<TKey, TRecord, any, any, boolean>) => React.ReactNode);
 
 export type GridColumnConfig<
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TEditorField extends string & keyof TRecord,
   TSortPossible extends boolean,
   TKey = never,
@@ -100,9 +100,11 @@ export type GridColumnConfig<
   );
 
 export type GridColumns<
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TColumnId extends string,
-  TColumnToEditorField extends {[K in TColumnId]?: string & keyof TRecord} = {},
+  TColumnToEditorField extends {[K in TColumnId]?: string & keyof TRecord} = {
+    [K in TColumnId]?: string & keyof TRecord;
+  },
   TKey = never,
   TElement extends HTMLElement = HTMLElement
 > = {

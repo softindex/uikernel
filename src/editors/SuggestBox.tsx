@@ -12,9 +12,10 @@ import omit from 'lodash/omit';
 import React from 'react';
 import {findDOMNode} from 'react-dom';
 import {StrictOmit} from 'ts-essentials';
+import {assertNonNullish} from '../common/assert';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
-import {parents, isEqual, assert} from '../common/utils';
+import {isEqual, parents} from '../common/utils';
 import {IListModel, IListModelReadResult} from '../list/types/IListModel';
 import Portal from '../portal/Portal';
 
@@ -438,7 +439,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
   private focusOption = async (key: number, shouldSetLabel?: boolean): Promise<void> => {
     if (shouldSetLabel) {
       const option = this.state.options[key];
-      assert(option, `key "${key}" unavailable`);
+      assertNonNullish(option, `key "${key}" unavailable`);
       this.setLabelTo(option.label);
     }
 
@@ -487,19 +488,18 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       return;
     }
 
-    let key;
-    for (key = this.state.selectedOptionKey + 1; key < this.state.options.length; key++) {
+    for (let key = this.state.selectedOptionKey + 1; key < this.state.options.length; key++) {
       const option = this.state.options[key];
-      assert(option, `key "${key}" unavailable`);
+      assertNonNullish(option, `key "${key}" unavailable`);
       if (option.id) {
         this.focusOption(key, true).catch(console.error);
         return;
       }
     }
 
-    for (key = 0; key < this.state.selectedOptionKey + 1; key++) {
+    for (let key = 0; key < this.state.selectedOptionKey + 1; key++) {
       const option = this.state.options[key];
-      assert(option, `key "${key}" unavailable`);
+      assertNonNullish(option, `key "${key}" unavailable`);
       if (option.id) {
         this.focusOption(key, true).catch(console.error);
         return;
@@ -516,19 +516,18 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       return;
     }
 
-    let key;
-    for (key = this.state.selectedOptionKey - 1; key >= 0; key--) {
+    for (let key = this.state.selectedOptionKey - 1; key >= 0; key--) {
       const option = this.state.options[key];
-      assert(option, `key "${key}" unavailable`);
+      assertNonNullish(option, `key "${key}" unavailable`);
       if (option.id) {
         this.focusOption(key, true).catch(console.error);
         return;
       }
     }
 
-    for (key = this.state.options.length - 1; key > this.state.selectedOptionKey - 1; key--) {
+    for (let key = this.state.options.length - 1; key > this.state.selectedOptionKey - 1; key--) {
       const option = this.state.options[key];
-      assert(option, `key "${key}" unavailable`);
+      assertNonNullish(option, `key "${key}" unavailable`);
       if (option.id) {
         this.focusOption(key, true).catch(console.error);
         return;
@@ -678,11 +677,11 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
   };
 
   private getComputedPopupStyles(): ComputedPopupStyles | null {
-    const inputNode = this.input!;
-    const inputStyles = window.getComputedStyle(inputNode);
+    assertNonNullish(this.input, `input ref unavailable`);
+    const inputStyles = window.getComputedStyle(this.input);
     const popupStyle: ComputedPopupStyles = {};
 
-    const inputOffset = inputNode.getBoundingClientRect();
+    const inputOffset = this.input.getBoundingClientRect();
     const inputWidth = inputStyles.width;
     const inputHeight = parseInt(inputStyles.height, 10);
 

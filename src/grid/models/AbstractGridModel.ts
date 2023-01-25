@@ -21,7 +21,7 @@ import {
  */
 abstract class AbstractGridModel<
   TKey,
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TFilters,
   TListenerArgsByEventName extends Record<string, unknown[]>
 > implements IGridModel<TKey, TRecord, TFilters>, IObservable<TListenerArgsByEventName>

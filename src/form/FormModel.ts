@@ -16,11 +16,11 @@ import {IFormModel} from './types/IFormModel';
 /**
  * Simple form model
  */
-class FormModel<TRecord extends {}>
+class FormModel<TRecord extends Record<string, unknown>>
   extends AbstractFormModel<TRecord, FormModelListenerArgsByEventName<TRecord>>
   implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
-  static create<TRecord extends {}>(
+  static create<TRecord extends Record<string, unknown>>(
     defaultValues?: Partial<TRecord>,
     validator?: Validator<TRecord>
   ): FormModel<TRecord> {

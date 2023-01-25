@@ -11,7 +11,9 @@ import {IListModel, IListModelReadResult} from './types/IListModel';
 /**
  * Abstract List model
  */
-abstract class AbstractListModel<TKey, TMetadata extends {}> implements IListModel<TKey, TMetadata> {
+abstract class AbstractListModel<TKey, TMetadata extends Record<string, unknown>>
+  implements IListModel<TKey, TMetadata>
+{
   /**
    * Get data
    */

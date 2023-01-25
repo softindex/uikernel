@@ -36,7 +36,7 @@ export type GridEditor<TKey, TColumnId extends string> =
 
 export interface IGridRef<
   TKey,
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TFilters,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,

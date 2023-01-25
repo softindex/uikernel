@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// use function, because for class property "prototype" readonly
+// use function, because for class property "prototype" readonly in bundled js
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-function Decorator<T extends {}>(this: {}, obj: T, decor: Partial<T>) {
+function Decorator<T extends Record<string, unknown>>(this: object, obj: T, decor: Partial<T>) {
   Object.assign(this, decor);
 
   for (const key in obj) {
@@ -23,7 +23,7 @@ function Decorator<T extends {}>(this: {}, obj: T, decor: Partial<T>) {
   }
 }
 
-function decorate<T extends {}>(obj: T, decor: Partial<T>): T {
+function decorate<T extends object>(obj: T, decor: Partial<T>): T {
   Decorator.prototype = obj;
   // @ts-expect-error: TS7009 'new' expression, whose target lacks a construct signature, implicitly has an 'any' type
   return new Decorator(obj, decor) as T;

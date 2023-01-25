@@ -10,7 +10,7 @@ import {XOR} from 'ts-essentials';
 import {ValidationErrorsToJsonResult, ValidationJSONError} from '../../../validation/ValidationErrors';
 import {IGridModelReadResult} from './IGridModel';
 
-export type JsonGridApiResult<TKey, TRecord extends {}> = {
+export type JsonGridApiResult<TKey, TRecord extends Record<string, unknown>> = {
   create: XOR<
     {data: TKey; error: null},
     {data: null; error: ValidationErrorsToJsonResult<keyof TRecord & string>}

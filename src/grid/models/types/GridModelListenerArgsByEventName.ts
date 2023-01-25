@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export type GridModelListenerArgsByEventName<TKey, TRecord extends {}> = {
+export type GridModelListenerArgsByEventName<TKey, TRecord extends Record<string, unknown>> = {
   create: [TKey[]];
   delete: [TKey[]];
   update: [[TKey, Partial<TRecord>][]];

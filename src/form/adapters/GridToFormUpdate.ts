@@ -6,15 +6,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import {assertNonNullish} from '../../common/assert';
 import EventsModel from '../../common/EventsModel';
-import {IObservable, EventListener} from '../../common/types';
-import {assert, isEqual} from '../../common/utils';
+import {EventListener, IObservable} from '../../common/types';
+import {isEqual} from '../../common/utils';
 import {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
 import {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
 import {IFormModel} from '../types/IFormModel';
 
-type RequiredGridModelListenerArgsByEventName<TKey, TRecord extends {}> = Pick<
+type RequiredGridModelListenerArgsByEventName<TKey, TRecord extends Record<string, unknown>> = Pick<
   GridModelListenerArgsByEventName<TKey, TRecord>,
   'update'
 >;
@@ -24,7 +25,7 @@ type RequiredGridModelListenerArgsByEventName<TKey, TRecord extends {}> = Pick<
  */
 class GridToFormUpdate<
   TKey,
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TListenerArgsByEventName extends {
     [x: string]: unknown[];
     update: [Partial<TRecord>];
@@ -56,7 +57,7 @@ class GridToFormUpdate<
     const record = {...changes};
 
     const [[, result] = []] = await this.gridModel.update([[this.id, record]]);
-    assert(result, 'received unexpected result type from gridModel.update');
+    assertNonNullish<object | undefined>(result, 'received unexpected result type from gridModel.update');
     if (result instanceof Error || result instanceof ValidationErrors) {
       // eslint-disable-next-line @typescript-eslint/no-throw-literal
       throw result;

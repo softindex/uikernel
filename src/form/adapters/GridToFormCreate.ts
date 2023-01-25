@@ -16,9 +16,11 @@ import {IFormModel} from '../types/IFormModel';
 /**
  * Adapter allows to use Grid model as a model for new form record creation
  */
-class GridToFormCreate<TKey, TRecord extends {}, TFilters> implements IFormModel<TRecord>, IObservable<{}> {
+class GridToFormCreate<TKey, TRecord extends Record<string, unknown>, TFilters>
+  implements IFormModel<TRecord>, IObservable<Record<string, unknown[]>>
+{
   constructor(
-    private gridModel: IGridModel<TKey, TRecord, TFilters> & IObservable<{}>,
+    private gridModel: IGridModel<TKey, TRecord, TFilters> & IObservable<Record<string, unknown[]>>,
     private initialData: Partial<TRecord> = {}
   ) {}
 

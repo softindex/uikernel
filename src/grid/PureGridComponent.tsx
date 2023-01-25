@@ -14,9 +14,10 @@ import last from 'lodash/last';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {StrictExtract} from 'ts-essentials';
+import assert, {assertNonNullish} from '../common/assert';
 import EqualMap from '../common/EqualMap';
 import {ArrayWithAtLeastOneElement} from '../common/types';
-import {assert, keys, parents, toEncodedString, isEqual} from '../common/utils';
+import {keys, parents, toEncodedString, isEqual} from '../common/utils';
 import ValidationErrors from '../validation/ValidationErrors';
 import {GridColumnName, GridColumns, GridGetColumn} from './types/GridColumns';
 import {GridEditor, IGridRef, SortElementProps} from './types/IGridRef';
@@ -25,7 +26,7 @@ const findDOMNode = ReactDOM.findDOMNode;
 const EXTRA_RECORD_CLASS_NAME = 'dgrid-others';
 const SELECTED_RECORD_CLASS_NAME = 'dgrid__row_selected';
 
-type FormHeaderCol<TKey, TRecord extends {}, TColumnId extends string> = {
+type FormHeaderCol<TKey, TRecord extends Record<string, unknown>, TColumnId extends string> = {
   id: TColumnId | undefined;
   className: string;
   cols: number;
@@ -33,7 +34,7 @@ type FormHeaderCol<TKey, TRecord extends {}, TColumnId extends string> = {
   rows: number;
 };
 
-type FormHeader<TKey, TRecord extends {}, TColumnId extends string> = {
+type FormHeader<TKey, TRecord extends Record<string, unknown>, TColumnId extends string> = {
   colGroup: JSX.Element[];
   row: {
     bottom: FormHeaderCol<TKey, TRecord, TColumnId>[];
@@ -43,7 +44,7 @@ type FormHeader<TKey, TRecord extends {}, TColumnId extends string> = {
 
 type Props<
   TKey,
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TFilters,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
@@ -98,7 +99,7 @@ const DEFAULT_PROPS = {
 
 class PureGridComponent<
   TKey,
-  TRecord extends {},
+  TRecord extends Record<string, unknown>,
   TFilters,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
@@ -465,7 +466,7 @@ class PureGridComponent<
       htmlBody += this.getRowHTML(recordId);
     }
 
-    assert(this.tBodyElement, '"tBodyElement" unknown');
+    assertNonNullish(this.tBodyElement, '"tBodyElement" unknown');
     this.tBodyElement.innerHTML = htmlExtra + htmlBody;
   };
 
@@ -473,10 +474,10 @@ class PureGridComponent<
    * Redraw row
    */
   private renderRow(recordId: TKey, prevEditor: GridEditor<TKey, string & keyof TColumns>): void {
-    assert(this.tBodyElement, '"tBodyElement" unknown');
+    assertNonNullish(this.tBodyElement, '"tBodyElement" unknown');
 
     const row = this.tBodyElement.querySelector(`tr[key="${toEncodedString(recordId)}"]`);
-    assert(row, '"row" not found');
+    assertNonNullish(row, '"row" not found');
 
     const selected = this.isSelected(recordId);
     row.className = this.getRowClassNames(recordId, selected);
@@ -485,7 +486,9 @@ class PureGridComponent<
     for (let columnIndex = 0; columnIndex < columnIds.length; columnIndex++) {
       const cellElement = row.children[columnIndex];
       assert(cellElement, `cellElement not found by columnIndex "${columnIndex}"`);
-      this.renderCell(recordId, columnIds[columnIndex]!, cellElement, prevEditor);
+      const columnId = columnIds[columnIndex];
+      assert(columnId);
+      this.renderCell(recordId, columnId, cellElement, prevEditor);
     }
   }
 
@@ -516,9 +519,9 @@ class PureGridComponent<
       }
     }
 
-    assert(this.props.records, '"records" unknown');
+    assertNonNullish(this.props.records, '"records" unknown');
     const initialRecord = this.props.records.get(recordId) ?? this.props.extraRecords.get(recordId);
-    assert(initialRecord, '"initialRecord" unknown');
+    assertNonNullish<object | undefined>(initialRecord, '"initialRecord" unknown');
 
     const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
     const selected = this.isSelected(recordId);
@@ -554,7 +557,7 @@ class PureGridComponent<
   }
 
   private renderEditor = (parentElement: Element): void => {
-    assert(this.props.editor.element, '"props.editor.element" unknown');
+    assertNonNullish(this.props.editor.element, '"props.editor.element" unknown');
 
     let ref: HTMLElement | null = null;
     const elementWithRef = React.cloneElement(this.props.editor.element, {
@@ -578,9 +581,9 @@ class PureGridComponent<
   };
 
   private getRowHTML(recordId: TKey): string {
-    assert(this.props.records, '"records" unknown');
+    assertNonNullish(this.props.records, '"records" unknown');
     const initialRecord = this.props.records.get(recordId) ?? this.props.extraRecords.get(recordId);
-    assert(initialRecord, '"initialRecord" unknown');
+    assertNonNullish<object | undefined>(initialRecord, '"initialRecord" unknown');
 
     const recordWithChanges = {...initialRecord, ...this.props.changes.get(recordId)};
     const selected = this.isSelected(recordId);
@@ -624,7 +627,7 @@ class PureGridComponent<
     initialRecord: Partial<TRecord>
   ): string {
     const column = this.props.columns[columnId];
-    assert(column, `"${columnId}" column unavailable`);
+    assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
 
     const render = last(column.render) as GridGetColumn<TRecord>;
     const cellHtml = render(
@@ -638,7 +641,7 @@ class PureGridComponent<
 
   private escapeRecord = (columnId: string & keyof TColumns, record: Partial<TRecord>): Partial<TRecord> => {
     const column = this.props.columns[columnId];
-    assert(column, `"${columnId}" column unavailable`);
+    assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
 
     const fields = column.render.slice(0, -1) as ArrayWithAtLeastOneElement<string & keyof TRecord>;
     const needEscaping = !column.hasOwnProperty('escape') || column.escape;
@@ -751,7 +754,7 @@ class PureGridComponent<
         continue;
       }
 
-      assert(column, `"${columnId}" column unavailable`);
+      assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
       const colClassName = this.getColumnClass(columnId);
       colGroup.push(<col key={columnId} width={column.width} className={colClassName} />);
 
@@ -803,7 +806,7 @@ class PureGridComponent<
   ): SortElementProps<string & keyof TColumns & keyof TRecord> | null {
     const {columns, sort} = this.props;
     const column = columns[columnId];
-    assert(column, `"${columnId}" column unavailable`);
+    assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
 
     if (!column.sortCycle) {
       return null;
@@ -876,9 +879,10 @@ class PureGridComponent<
       assert(columnId, `column not found by columnIndex "${columnIndex}"`);
 
       const key = parentNode.getAttribute('key');
-      assert(this.recordMap, '"recordMap" unknown');
-      assert(this.recordMap.has(key!), '"recordId" unknown');
-      const recordId = this.recordMap.get(key!) as TKey;
+      assertNonNullish(key, `unknown key attribute "${String(key)}"`);
+      assertNonNullish(this.recordMap, '"recordMap" unknown');
+      assert(this.recordMap.has(key), '"recordId" unknown');
+      const recordId = this.recordMap.get(key) as TKey;
 
       const refValue = (refParent ?? target).getAttribute('ref');
       this.props.onCellClick(event, recordId, columnId, refValue);
@@ -981,7 +985,7 @@ class PureGridComponent<
       }
 
       const column = this.props.columns[columnId];
-      assert(column, `"${columnId}" column unavailable`);
+      assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
 
       const className = column.className;
       if (className) {
@@ -1028,7 +1032,8 @@ class PureGridComponent<
 
 function withPreventDefault<
   TEvent extends {
-    preventDefault: Function;
+    // eslint-disable-next-line space-before-function-paren
+    preventDefault: () => void;
   }
 >(handler: (event: TEvent) => void): (event: TEvent) => void {
   return (event) => {

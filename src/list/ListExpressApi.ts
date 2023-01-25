@@ -19,8 +19,8 @@ type ListExpressApiMiddlewares = {
 /**
  * Form Express API for List model interaction
  */
-class ListExpressApi<TKey, TMetadata extends {}> {
-  static create<TKey, TMetadata extends {}>(): ListExpressApi<TKey, TMetadata> {
+class ListExpressApi<TKey, TMetadata extends Record<string, unknown>> {
+  static create<TKey, TMetadata extends Record<string, unknown>>(): ListExpressApi<TKey, TMetadata> {
     return new ListExpressApi();
   }
 

@@ -8,7 +8,6 @@
 
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
-import ArgumentsError from './error/ArgumentsError';
 
 /**
  * Check if two arrays intersection exists
@@ -72,7 +71,7 @@ export function parseValueFromEvent(eventOrValue: unknown): unknown {
   return eventOrValue;
 }
 
-export function forEach<T extends {}>(
+export function forEach<T extends Record<string, unknown>>(
   obj: T | null | undefined,
   func: <TProp extends string & keyof T>(value: T[TProp], prop: TProp) => void
 ): void {
@@ -155,7 +154,7 @@ export function isEmpty(value: unknown): boolean {
   return false;
 }
 
-export function getRecordChanges<TRecord extends {}>(
+export function getRecordChanges<TRecord extends Record<string, unknown>>(
   getValidationDependency: (fields: (string & keyof TRecord)[]) => (string & keyof TRecord)[],
   data: Partial<TRecord>,
   changes: Partial<TRecord>,
@@ -215,14 +214,6 @@ export function parents(element: Element, selector: string): Element[] {
   return result;
 }
 
-export function keys<T extends {}>(obj: T): (string & keyof T)[] {
+export function keys<T extends Record<string, unknown>>(obj: T): (string & keyof T)[] {
   return Object.keys(obj) as (string & keyof T)[];
 }
-
-type Assert = (value: unknown, message?: string) => asserts value;
-
-export const assert: Assert = (value, message) => {
-  if (!value) {
-    throw new ArgumentsError(`Wrong value: "${String(value)}"\nMessage: ${message ?? 'Expect trusty value'}`);
-  }
-};

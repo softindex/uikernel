@@ -15,12 +15,12 @@ import ValidationErrors from './ValidationErrors';
 type ValidationFunction<TValue, TAsync extends 'async' | 'sync'> = (
   value: TValue | undefined
 ) => TAsync extends 'sync' ? string | undefined : Promise<string | undefined>;
-type GroupValidationFunction<TRecord extends {}, TAsync extends 'async' | 'sync'> = (
+type GroupValidationFunction<TRecord extends Record<string, unknown>, TAsync extends 'async' | 'sync'> = (
   record: Partial<TRecord>,
   errors: ValidationErrors<keyof TRecord & string>
 ) => TAsync extends 'sync' ? undefined : Promise<undefined>;
 
-type ValidatorSettings<TRecord extends {}> = {
+type ValidatorSettings<TRecord extends Record<string, unknown>> = {
   asyncDependenies: ArrayWithAtLeastOneElement<keyof TRecord & string>[];
   asyncGroupValidators: {
     fields: ArrayWithAtLeastOneElement<keyof TRecord & string>;
@@ -38,8 +38,8 @@ type ValidatorSettings<TRecord extends {}> = {
   };
 };
 
-class Validator<TRecord extends {}> {
-  static create<TRecord extends {}>(): Validator<TRecord> {
+class Validator<TRecord extends Record<string, unknown>> {
+  static create<TRecord extends Record<string, unknown>>(): Validator<TRecord> {
     return new Validator();
   }
 
