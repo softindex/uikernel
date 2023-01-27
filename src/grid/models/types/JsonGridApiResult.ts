@@ -8,7 +8,7 @@
 
 import {XOR} from 'ts-essentials';
 import {ValidationErrorsToJsonResult, ValidationJSONError} from '../../../validation/ValidationErrors';
-import {IGridModelReadResult} from './IGridModel';
+import {GridModelReadResult} from './IGridModel';
 
 export type JsonGridApiResult<
   TKey,
@@ -20,7 +20,7 @@ export type JsonGridApiResult<
     {data: null; error: ValidationErrorsToJsonResult<keyof TRecord & string>}
   >;
   getRecord: Pick<TRecord, TField>;
-  read: IGridModelReadResult<TKey, TRecord, TField>;
+  read: GridModelReadResult<TKey, TRecord, TField>;
   update: {
     changes: [TKey, Partial<TRecord>][];
     errors: [TKey, ValidationJSONError][];

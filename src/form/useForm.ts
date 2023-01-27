@@ -8,7 +8,7 @@
 
 import {useEffect, useMemo, useState} from 'react';
 import FormService from './FormService';
-import {IFormServiceEmptyState, IFormServiceParams, IFormServiceState} from './types/IFormService';
+import {FormServiceEmptyState, FormServiceParams, FormServiceState} from './types/IFormService';
 
 type ModelListenerArgsByEventName<TRecord extends Record<string, unknown>> = {update: [Partial<TRecord>]};
 
@@ -16,12 +16,12 @@ export type UseFormResult<
   TRecord extends Record<string, unknown>,
   TAvailableField extends keyof TRecord & string
 > = [
-  IFormServiceEmptyState<TRecord, TAvailableField> | IFormServiceState<TRecord, TAvailableField>,
+  FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField>,
   FormService<TRecord, TAvailableField>
 ];
 
 function useForm<TRecord extends Record<string, unknown>, TAvailableField extends keyof TRecord & string>(
-  settings: IFormServiceParams<TRecord, TAvailableField, ModelListenerArgsByEventName<TRecord>>,
+  settings: FormServiceParams<TRecord, TAvailableField, ModelListenerArgsByEventName<TRecord>>,
   onError: (error: Error) => void = console.error
 ): UseFormResult<TRecord, TAvailableField> {
   const formService = useMemo(() => new FormService<TRecord, TAvailableField>([]), []);

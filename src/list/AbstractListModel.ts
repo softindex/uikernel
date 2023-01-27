@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {IListModel, IListModelReadResult} from './types/IListModel';
+import {IListModel, ListModelReadResult} from './types/IListModel';
 
 /**
  * Abstract List model
@@ -17,7 +17,7 @@ abstract class AbstractListModel<TKey, TMetadata extends Record<string, unknown>
   /**
    * Get data
    */
-  read(_search?: string): Promise<IListModelReadResult<TKey, TMetadata>> {
+  read(_search?: string): Promise<ListModelReadResult<TKey, TMetadata>> {
     return Promise.resolve([]);
   }
 

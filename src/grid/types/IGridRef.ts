@@ -10,12 +10,12 @@ import React from 'react';
 import {IObservable} from '../../common/types';
 import ValidationErrors from '../../validation/ValidationErrors';
 import {GridModelListenerArgsByEventName} from '../models/types/GridModelListenerArgsByEventName';
-import {IGridModel, IGridModelSortMode} from '../models/types/IGridModel';
+import {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
 import {GridColumns} from './GridColumns';
 
 export type SortElementProps<TColumnId extends string> = {
   column: TColumnId;
-  direction: IGridModelSortMode;
+  direction: GridModelSortMode;
 };
 
 export type SortRuleType<TMultipleSorting extends boolean, TColumnId extends string> =
@@ -248,7 +248,7 @@ export interface IGridRef<
   /**
    * Sort by column
    */
-  sort: (column: string & keyof TColumns & keyof TRecord, direction: IGridModelSortMode) => void;
+  sort: (column: string & keyof TColumns & keyof TRecord, direction: GridModelSortMode) => void;
 
   /**
    * Switch records selection mode

@@ -12,12 +12,7 @@ import multer from 'multer';
 import asyncServerRouteHandler from '../../common/asyncServerRouteHandler';
 import parseJson from '../../common/parseJson';
 import ValidationErrors from '../../validation/ValidationErrors';
-import {
-  IGridModelReadParams,
-  IGridModel,
-  IGridModelSortMode,
-  IGridModelUpdateResult
-} from './types/IGridModel';
+import {GridModelReadParams, IGridModel, GridModelSortMode, GridModelUpdateResult} from './types/IGridModel';
 import {JsonGridApiResult} from './types/JsonGridApiResult';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
@@ -54,7 +49,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
     this.middlewares = {
       readGet: [
         asyncServerRouteHandler(async (req, res) => {
-          const settings: IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
+          const settings: GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
             fields: []
           };
 
@@ -69,7 +64,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
           if (req.query.sort) {
             settings.sort = parseJson(req.query.sort, 'Invalid JSON in "sort"') as [
               keyof TRecord & string,
-              IGridModelSortMode
+              GridModelSortMode
             ][];
           }
 
@@ -94,11 +89,11 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
       ],
       readPost: [
         asyncServerRouteHandler(async (req, res) => {
-          const settings: IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
+          const settings: GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
             fields: []
           };
           const body = req.body as Partial<
-            IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>
+            GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>
           >;
 
           if (body.limit) {
@@ -299,7 +294,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
   }
 
   private transformUpdateResult(
-    data: IGridModelUpdateResult<TKey, TRecord>
+    data: GridModelUpdateResult<TKey, TRecord>
   ): JsonGridApiResult<TKey, TRecord>['update'] {
     const result: JsonGridApiResult<TKey, TRecord>['update'] = {
       changes: [],

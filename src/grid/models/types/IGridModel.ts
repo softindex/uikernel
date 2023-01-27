@@ -8,11 +8,11 @@
 
 import ValidationErrors from '../../../validation/ValidationErrors';
 
-export type IGridModelCustomError = Error & Record<string, unknown>;
+export type GridModelCustomError = Error & Record<string, unknown>;
 
-export type IGridModelSortMode = 'asc' | 'default' | 'desc';
+export type GridModelSortMode = 'asc' | 'default' | 'desc';
 
-export type IGridModelReadParams<
+export type GridModelReadParams<
   TKey,
   TRecord extends Record<string, unknown>,
   TField extends keyof TRecord & string,
@@ -23,15 +23,15 @@ export type IGridModelReadParams<
   filters?: TFilters;
   limit?: number;
   offset?: number;
-  sort?: [keyof TRecord & string, IGridModelSortMode][];
+  sort?: [keyof TRecord & string, GridModelSortMode][];
 };
 
-export type IGridModelUpdateResult<TKey, TRecord> = [
+export type GridModelUpdateResult<TKey, TRecord> = [
   TKey,
-  IGridModelCustomError | Partial<TRecord> | ValidationErrors<keyof TRecord & string>
+  GridModelCustomError | Partial<TRecord> | ValidationErrors<keyof TRecord & string>
 ][];
 
-export type IGridModelReadResult<
+export type GridModelReadResult<
   TKey,
   TRecord extends Record<string, unknown>,
   TField extends string & keyof TRecord
@@ -83,11 +83,11 @@ export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilt
    * Get records list
    */
   read: <TField extends string & keyof TRecord>(
-    params: IGridModelReadParams<TKey, TRecord, TField, TFilters>
-  ) => Promise<IGridModelReadResult<TKey, TRecord, TField>>;
+    params: GridModelReadParams<TKey, TRecord, TField, TFilters>
+  ) => Promise<GridModelReadResult<TKey, TRecord, TField>>;
 
   /**
    * Apply record changes
    */
-  update: (changes: [TKey, Partial<TRecord>][]) => Promise<IGridModelUpdateResult<TKey, TRecord>>;
+  update: (changes: [TKey, Partial<TRecord>][]) => Promise<GridModelUpdateResult<TKey, TRecord>>;
 }

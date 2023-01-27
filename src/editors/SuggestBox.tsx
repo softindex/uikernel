@@ -16,7 +16,7 @@ import {assertNonNullish} from '../common/assert';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import {isEqual, parents} from '../common/utils';
-import {IListModel, IListModelReadResult} from '../list/types/IListModel';
+import {IListModel, ListModelReadResult} from '../list/types/IListModel';
 import Portal from '../portal/Portal';
 
 const PRODUCT_ID = '__suggestBoxPopUp';
@@ -42,7 +42,7 @@ const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
 
-type Option<TValue> = IListModelReadResult<TValue, Record<string, unknown>>[number];
+type Option<TValue> = ListModelReadResult<TValue, Record<string, unknown>>[number];
 
 type ComputedPopupStyles = Partial<{
   bottom: number;

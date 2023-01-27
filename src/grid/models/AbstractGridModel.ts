@@ -10,10 +10,10 @@ import EventsModel from '../../common/EventsModel';
 import {EventListener, IObservable} from '../../common/types';
 import ValidationErrors from '../../validation/ValidationErrors';
 import {
-  IGridModelReadParams,
+  GridModelReadParams,
   IGridModel,
-  IGridModelReadResult,
-  IGridModelUpdateResult
+  GridModelReadResult,
+  GridModelUpdateResult
 } from './types/IGridModel';
 
 /**
@@ -33,8 +33,8 @@ abstract class AbstractGridModel<
   }
 
   async read<TField extends keyof TRecord & string>(
-    _params: IGridModelReadParams<TKey, TRecord, TField, TFilters>
-  ): Promise<IGridModelReadResult<TKey, TRecord, TField>> {
+    _params: GridModelReadParams<TKey, TRecord, TField, TFilters>
+  ): Promise<GridModelReadResult<TKey, TRecord, TField>> {
     return {
       records: []
     };
@@ -47,7 +47,7 @@ abstract class AbstractGridModel<
     throw new Error('method getRecord not implemented yet');
   }
 
-  async update(_changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
+  async update(_changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord>> {
     return [];
   }
 

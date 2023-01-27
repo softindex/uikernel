@@ -7,7 +7,7 @@
  */
 
 import {ArrayWithAtLeastOneElement} from '../../common/types';
-import {IGridModelSortMode} from '../models/types/IGridModel';
+import {GridModelSortMode} from '../models/types/IGridModel';
 import {IGridRef} from './IGridRef';
 
 export type EditorContext<TRecord extends Record<string, unknown>, TField extends string & keyof TRecord> = {
@@ -80,7 +80,7 @@ export type GridColumnConfig<
   name: GridColumnName<TKey, TRecord>;
   parent?: GridColumnName<TKey, TRecord>;
   render: GridColumnRender<TRecord>;
-  sortCycle?: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>;
+  sortCycle?: Readonly<ArrayWithAtLeastOneElement<GridModelSortMode>>;
   width?: number | string;
 } & GridEditorConfig<TColumnId, TRecord, TEditorField> &
   (

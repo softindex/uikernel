@@ -36,9 +36,9 @@ import Validator from '../validation/Validator';
 import {GridModelListenerArgsByEventName} from './models/types/GridModelListenerArgsByEventName';
 import {
   IGridModel,
-  IGridModelReadParams,
-  IGridModelReadResult,
-  IGridModelSortMode
+  GridModelReadParams,
+  GridModelReadResult,
+  GridModelSortMode
 } from './models/types/IGridModel';
 import PureGridComponent from './PureGridComponent';
 import {EditorContext, GridColumns} from './types/GridColumns';
@@ -91,12 +91,12 @@ type Props<
   onDestroy?: () => void;
   onError?: (error: Error) => void;
   onInit?: () => void;
-  onPageLoad?: (data: IGridModelReadResult<TKey, TRecord, string & keyof TRecord>) => void;
+  onPageLoad?: (data: GridModelReadResult<TKey, TRecord, string & keyof TRecord>) => void;
   onSelectedChange?: (selected: TKey[], selectedCount: number) => void;
   onSorting?: <TColumnId extends string & keyof TColumns & keyof TRecord>(
     newSorts: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>,
     column?: TColumnId,
-    direction?: IGridModelSortMode
+    direction?: GridModelSortMode
   ) => void;
   onToggleSelectAll?: () => void;
   onToggleSelected?: (recordId: TKey) => void;
@@ -1024,7 +1024,7 @@ class GridComponent<
   /**
    * Sort by column
    */
-  sort(column: string & keyof TColumns & keyof TRecord, direction: IGridModelSortMode): void {
+  sort(column: string & keyof TColumns & keyof TRecord, direction: GridModelSortMode): void {
     if (this.isSortingPropsMode()) {
       throw new Error('You can not use function "sort" when set prop "sort"');
     }
@@ -1168,7 +1168,7 @@ class GridComponent<
 
     const viewCount = this.getViewCount();
 
-    let loadedData: IGridModelReadResult<TKey, TRecord, keyof TRecord & string>;
+    let loadedData: GridModelReadResult<TKey, TRecord, keyof TRecord & string>;
     try {
       loadedData = await this.loadData({
         limit: viewCount,
@@ -1271,13 +1271,13 @@ class GridComponent<
    * Load model data
    */
   private async loadData<TField extends string & keyof TRecord>(
-    settings: IGridModelReadParams<TKey, TRecord, TField, TFilters>
-  ): Promise<IGridModelReadResult<TKey, TRecord, TField>> {
+    settings: GridModelReadParams<TKey, TRecord, TField, TFilters>
+  ): Promise<GridModelReadResult<TKey, TRecord, TField>> {
     if (!this.props.model) {
       throw new TypeError('"model" in props is required');
     }
 
-    let data: IGridModelReadResult<TKey, TRecord, TField>;
+    let data: GridModelReadResult<TKey, TRecord, TField>;
     try {
       data = await this.props.model.read(settings);
     } catch (error: unknown) {
@@ -1324,10 +1324,10 @@ class GridComponent<
   /**
    * Convert sorting to array
    */
-  private sortingToArray(): [string & keyof TColumns & keyof TRecord, IGridModelSortMode][] | null {
+  private sortingToArray(): [string & keyof TColumns & keyof TRecord, GridModelSortMode][] | null {
     function toArray<TColumnId extends string & keyof TColumns & keyof TRecord>(
       sort: SortElementProps<TColumnId>
-    ): [TColumnId, IGridModelSortMode] {
+    ): [TColumnId, GridModelSortMode] {
       return [sort.column, sort.direction];
     }
 
@@ -1744,7 +1744,7 @@ class GridComponent<
     const sortableColumn = columnId as string & keyof TColumns & keyof TRecord;
 
     let nextSorting: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>;
-    let nextDirectionForColumn: IGridModelSortMode;
+    let nextDirectionForColumn: GridModelSortMode;
 
     if (this.props.multipleSorting) {
       const nextMultipleSorting = getNextMultipleSorting(

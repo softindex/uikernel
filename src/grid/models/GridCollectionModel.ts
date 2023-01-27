@@ -18,9 +18,9 @@ import AbstractGridModel from './AbstractGridModel';
 import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
 import {
   IGridModel,
-  IGridModelReadParams,
-  IGridModelReadResult,
-  IGridModelUpdateResult
+  GridModelReadParams,
+  GridModelReadResult,
+  GridModelUpdateResult
 } from './types/IGridModel';
 
 type GridCollectionModelParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
@@ -208,11 +208,11 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     limit,
     offset,
     sort
-  }: IGridModelReadParams<TKey, TRecord, TField, TFilters>): Promise<
-    IGridModelReadResult<TKey, TRecord, TField>
+  }: GridModelReadParams<TKey, TRecord, TField, TFilters>): Promise<
+    GridModelReadResult<TKey, TRecord, TField>
   > {
     let data = cloneDeep(this.data);
-    const result: IGridModelReadResult<TKey, TRecord, TField> = {
+    const result: GridModelReadResult<TKey, TRecord, TField> = {
       records: []
     };
 
@@ -283,7 +283,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     return returnRecord;
   }
 
-  async update(changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
+  async update(changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord>> {
     if (!changes.length) {
       return [];
     }
@@ -291,7 +291,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     const appliedChanges: [TKey, Partial<TRecord>][] = [];
 
     const result = await Promise.all(
-      changes.map(async ([recordId, changes]): Promise<IGridModelUpdateResult<TKey, TRecord>[number]> => {
+      changes.map(async ([recordId, changes]): Promise<GridModelUpdateResult<TKey, TRecord>[number]> => {
         const validErrors = await this.isValidRecord(changes);
 
         if (!validErrors.isEmpty()) {

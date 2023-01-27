@@ -8,14 +8,14 @@
 
 import {assertNonNullish} from '../common/assert';
 import {ArrayWithAtLeastOneElement} from '../common/types';
-import {IGridModelSortMode} from './models/types/IGridModel';
+import {GridModelSortMode} from './models/types/IGridModel';
 
-type SortingRule<TColumn extends string> = {column: TColumn; direction: IGridModelSortMode};
+type SortingRule<TColumn extends string> = {column: TColumn; direction: GridModelSortMode};
 
 export function getNextSingleSorting<TColumn extends string>(
   column: TColumn,
   currentSortingRule: SortingRule<TColumn> | null | undefined,
-  availableDirectionsForColumn: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>
+  availableDirectionsForColumn: Readonly<ArrayWithAtLeastOneElement<GridModelSortMode>>
 ): SortingRule<TColumn> {
   if (!currentSortingRule || currentSortingRule.column !== column) {
     return {
@@ -34,7 +34,7 @@ export function getNextSingleSorting<TColumn extends string>(
 export function getNextMultipleSorting<TColumn extends string>(
   column: TColumn,
   currentSortingRules: SortingRule<TColumn>[],
-  availableDirectionsForColumn: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>
+  availableDirectionsForColumn: Readonly<ArrayWithAtLeastOneElement<GridModelSortMode>>
 ): SortingRule<TColumn>[] {
   const nextSortingRules = [...currentSortingRules];
 
@@ -47,7 +47,7 @@ export function getNextMultipleSorting<TColumn extends string>(
     return nextSortingRules;
   }
 
-  let nextDirection: IGridModelSortMode;
+  let nextDirection: GridModelSortMode;
   const currentSortingRule = nextSortingRules[currentSortingRuleIndex];
   assertNonNullish(currentSortingRule);
 
@@ -75,9 +75,9 @@ export function getNextMultipleSorting<TColumn extends string>(
 }
 
 function getNextDirection(
-  directions: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>,
-  direction: IGridModelSortMode
-): IGridModelSortMode {
+  directions: Readonly<ArrayWithAtLeastOneElement<GridModelSortMode>>,
+  direction: GridModelSortMode
+): GridModelSortMode {
   const nextDirectionIndex = (directions.indexOf(direction) + 1) % directions.length;
   const nextDirection = directions[nextDirectionIndex];
   assertNonNullish(nextDirection, 'nextDirection unavailable');

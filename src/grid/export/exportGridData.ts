@@ -10,7 +10,7 @@ import assert from '../../common/assert';
 import ArgumentsError from '../../common/error/ArgumentsError';
 import {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
-import {IGridModel, IGridModelSortMode} from '../models/types/IGridModel';
+import {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
 import {GridColumns, GridGetColumn} from '../types/GridColumns';
 
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
@@ -146,7 +146,7 @@ function assertValidViewColumns<
 export type ExportGridDataParams<TRecord extends Record<string, unknown>> = {
   limit?: number;
   offset?: number;
-  sort?: {column: keyof TRecord & string; direction: IGridModelSortMode};
+  sort?: {column: keyof TRecord & string; direction: GridModelSortMode};
 };
 
 export type ExportGridDataResult<TExportRunner extends AnyFunction> = TExportRunner extends AnyFunction<

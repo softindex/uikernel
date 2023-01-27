@@ -16,10 +16,10 @@ import Validator from '../../validation/Validator';
 import AbstractGridModel from './AbstractGridModel';
 import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
 import {
-  IGridModelReadParams,
+  GridModelReadParams,
   IGridModel,
-  IGridModelReadResult,
-  IGridModelUpdateResult
+  GridModelReadResult,
+  GridModelUpdateResult
 } from './types/IGridModel';
 import {JsonGridApiResult} from './types/JsonGridApiResult';
 
@@ -126,8 +126,8 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
    * Get records list
    */
   async read<TField extends keyof TRecord & string>(
-    settings: IGridModelReadParams<TKey, TRecord, TField, TFilters>
-  ): Promise<IGridModelReadResult<TKey, TRecord, TField>> {
+    settings: GridModelReadParams<TKey, TRecord, TField, TFilters>
+  ): Promise<GridModelReadResult<TKey, TRecord, TField>> {
     const queryUrl = this.getQueryUrl(settings);
 
     if (url.format(queryUrl).length > MAX_URI_LENGTH) {
@@ -163,7 +163,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   /**
    * Apply record changes
    */
-  async update(changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
+  async update(changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord>> {
     const formDataChanges = new FormData();
 
     if (this.multipartFormDataEncoded) {
@@ -205,7 +205,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     });
 
     const parsedBody = parseJson(rawBody) as JsonGridApiResult<TKey, TRecord>['update'];
-    const result: IGridModelUpdateResult<TKey, TRecord> = [];
+    const result: GridModelUpdateResult<TKey, TRecord> = [];
 
     if (parsedBody.changes.length) {
       this.trigger('update', parsedBody.changes);
@@ -281,7 +281,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     limit,
     offset,
     sort
-  }: IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>): url.UrlWithParsedQuery {
+  }: GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>): url.UrlWithParsedQuery {
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.fields = JSON.stringify(fields);
     parsedUrl.query.offset = String(offset ?? 0);
@@ -313,10 +313,10 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     limit,
     offset,
     sort
-  }: IGridModelReadParams<TKey, TRecord, TField, TFilters>): Promise<
-    IGridModelReadResult<TKey, TRecord, TField>
+  }: GridModelReadParams<TKey, TRecord, TField, TFilters>): Promise<
+    GridModelReadResult<TKey, TRecord, TField>
   > {
-    const requestBody: IGridModelReadParams<TKey, TRecord, TField, TFilters> = {
+    const requestBody: GridModelReadParams<TKey, TRecord, TField, TFilters> = {
       fields,
       offset: offset ?? 0
     };

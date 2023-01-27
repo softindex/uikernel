@@ -16,11 +16,11 @@ import Validator from '../validation/Validator';
 import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
 import {IFormModel} from './types/IFormModel';
 import IFormService, {
-  IFormServiceEmptyState,
-  IFormServiceParams,
-  IFormServiceState,
-  IFormServiceStateFields,
-  IFormServiceListenerArgsByEventName
+  FormServiceEmptyState,
+  FormServiceParams,
+  FormServiceState,
+  FormServiceStateFields,
+  FormServiceListenerArgsByEventName
 } from './types/IFormService';
 
 type InitalizedState<TRecord extends Record<string, unknown>> =
@@ -42,7 +42,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
 {
   validating = false;
   submitting = false;
-  private eventEmitter = new EventEmitter<IFormServiceListenerArgsByEventName<TRecord, TAvailableField>>();
+  private eventEmitter = new EventEmitter<FormServiceListenerArgsByEventName<TRecord, TAvailableField>>();
 
   private errors = new ValidationErrors<keyof TRecord & string>();
   private warnings = new ValidationErrors<keyof TRecord & string>();
@@ -77,7 +77,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     warningsValidator = new Validator(),
     partialErrorChecking = false,
     submitAll = false
-  }: IFormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>): Promise<void> {
+  }: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>): Promise<void> {
     this.changes = changes;
     this.hiddenValidationFields = [];
     this.partialErrorCheckingDefault = this.partialErrorChecking = partialErrorChecking;
@@ -108,7 +108,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     }
   }
 
-  getAll(): IFormServiceEmptyState<TRecord, TAvailableField> | IFormServiceState<TRecord, TAvailableField> {
+  getAll(): FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField> {
     if (!this.isLoaded()) {
       return this.getEmptyState();
     }
@@ -146,7 +146,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
   };
 
   addChangeListener(
-    func: EventListener<IFormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
+    func: EventListener<FormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
   ): void {
     this.eventEmitter.on('update', func);
   }
@@ -398,12 +398,12 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     changes: Partial<TRecord>,
     errors: ValidationErrors<keyof TRecord & string>,
     warnings: ValidationErrors<keyof TRecord & string>
-  ): IFormServiceStateFields<TRecord, TAvailableField> {
+  ): FormServiceStateFields<TRecord, TAvailableField> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const proxy: any = new Proxy(
       {},
       {
-        get(_target, fieldName: TField): IFormServiceStateFields<TRecord, TAvailableField>[TField] {
+        get(_target, fieldName: TField): FormServiceStateFields<TRecord, TAvailableField>[TField] {
           return {
             value: data[fieldName],
             isChanged: changes.hasOwnProperty(fieldName),
@@ -420,7 +420,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
       proxy[field] = proxy[field];
     }
 
-    return proxy as IFormServiceStateFields<TRecord, TAvailableField>;
+    return proxy as FormServiceStateFields<TRecord, TAvailableField>;
   }
 
   /**
@@ -525,12 +525,12 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     return true;
   }
 
-  private getEmptyState(): IFormServiceEmptyState<TRecord, TAvailableField> {
-    const data: IFormServiceEmptyState<TRecord, TAvailableField>['data'] = {};
-    const changes: IFormServiceEmptyState<TRecord, TAvailableField>['changes'] = {};
-    const errors: IFormServiceEmptyState<TRecord, TAvailableField>['errors'] = new ValidationErrors();
-    const warnings: IFormServiceEmptyState<TRecord, TAvailableField>['warnings'] = new ValidationErrors();
-    const fields = this.getFields(data, changes, errors, warnings) as IFormServiceEmptyState<
+  private getEmptyState(): FormServiceEmptyState<TRecord, TAvailableField> {
+    const data: FormServiceEmptyState<TRecord, TAvailableField>['data'] = {};
+    const changes: FormServiceEmptyState<TRecord, TAvailableField>['changes'] = {};
+    const errors: FormServiceEmptyState<TRecord, TAvailableField>['errors'] = new ValidationErrors();
+    const warnings: FormServiceEmptyState<TRecord, TAvailableField>['warnings'] = new ValidationErrors();
+    const fields = this.getFields(data, changes, errors, warnings) as FormServiceEmptyState<
       TRecord,
       TAvailableField
     >['fields'];

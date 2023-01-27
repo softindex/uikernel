@@ -16,21 +16,21 @@ type ToEmptyRecord<TRecord extends Record<string, unknown>> = {
   [K in keyof TRecord]?: undefined;
 };
 
-export interface IFormServiceEmptyState<
+export type FormServiceEmptyState<
   TRecord extends Record<string, unknown>,
   TAvailableField extends keyof TRecord & string
-> {
+> = {
   changes: ToEmptyRecord<TRecord>;
   data: ToEmptyRecord<TRecord>;
   errors: ValidationErrors<keyof TRecord & string>;
-  fields: IFormServiceStateFields<ToEmptyRecord<TRecord>, TAvailableField>;
+  fields: FormServiceStateFields<ToEmptyRecord<TRecord>, TAvailableField>;
   isLoaded: false;
   isSubmitting: false;
   originalData: ToEmptyRecord<TRecord>;
   warnings: ValidationErrors<keyof TRecord & string>;
-}
+};
 
-export type IFormServiceStateFields<
+export type FormServiceStateFields<
   TRecord extends Record<string, unknown>,
   TAvailableField extends keyof TRecord & string
 > = Readonly<{
@@ -42,25 +42,25 @@ export type IFormServiceStateFields<
   }>;
 }>;
 
-export interface IFormServiceState<
+export type FormServiceState<
   TRecord extends Record<string, unknown>,
   TAvailableField extends keyof TRecord & string
-> {
+> = {
   changes: Partial<TRecord>;
   data: Partial<TRecord>;
   errors: ValidationErrors<keyof TRecord & string>;
-  fields: IFormServiceStateFields<TRecord, TAvailableField>;
+  fields: FormServiceStateFields<TRecord, TAvailableField>;
   isLoaded: true;
   isSubmitting: boolean;
   originalData: Partial<TRecord>;
   warnings: ValidationErrors<keyof TRecord & string>;
-}
+};
 
-export interface IFormServiceParams<
+export type FormServiceParams<
   TRecord extends Record<string, unknown>,
   TAvailableField extends keyof TRecord & string,
   TListenerArgsByEventName extends Record<string, unknown[]>
-> {
+> = {
   /**
    * @description Preset changes
    */
@@ -89,13 +89,13 @@ export interface IFormServiceParams<
    * @description Warnings validator for fields
    */
   warningsValidator?: Validator<TRecord>;
-}
+};
 
-export type IFormServiceListenerArgsByEventName<
+export type FormServiceListenerArgsByEventName<
   TRecord extends Record<string, unknown>,
   TAvailableField extends keyof TRecord & string
 > = {
-  update: [IFormServiceEmptyState<TRecord, TAvailableField> | IFormServiceState<TRecord, TAvailableField>];
+  update: [FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField>];
 };
 
 interface IFormService<
@@ -106,7 +106,7 @@ interface IFormService<
   validating: boolean;
 
   addChangeListener: (
-    func: EventListener<IFormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
+    func: EventListener<FormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
   ) => void;
 
   clearChanges: () => void;
@@ -120,9 +120,7 @@ interface IFormService<
 
   clearValidation: (fields: (keyof TRecord & string)[] | (keyof TRecord & string)) => void;
 
-  getAll: () =>
-    | IFormServiceEmptyState<TRecord, TAvailableField>
-    | IFormServiceState<TRecord, TAvailableField>;
+  getAll: () => FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField>;
 
   getPartialErrorChecking: () => boolean;
 
@@ -137,11 +135,7 @@ interface IFormService<
     warningsValidator = new Validator(),
     partialErrorChecking = false,
     submitAll = false
-  }: IFormServiceParams<
-    TRecord,
-    TAvailableField,
-    FormModelListenerArgsByEventName<TRecord>
-  >) => Promise<void>;
+  }: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>) => Promise<void>;
 
   removeAllListeners: () => void;
 
