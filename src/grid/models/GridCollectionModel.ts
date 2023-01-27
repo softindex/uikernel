@@ -24,10 +24,10 @@ import {
 } from './types/IGridModel';
 
 type GridCollectionModelParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
-  data: [TKey, Partial<TRecord>][];
+  data: [TKey, TRecord][];
   requiredFields: (keyof TRecord & string)[];
   validator: Validator<TRecord>;
-  filtersHandler: (data: [TKey, Partial<TRecord>][], filters: TFilters) => [TKey, Partial<TRecord>][];
+  filtersHandler: (data: [TKey, TRecord][], filters: TFilters) => [TKey, TRecord][];
   generateId: (existsIds: TKey[]) => TKey;
 };
 
@@ -109,17 +109,14 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
   /**
    * Set data array in model
    */
-  setData(data: [TKey, Partial<TRecord>][]): void {
-    const currentData = this.data.reduce(
-      (result: Partial<Record<string, Partial<TRecord>>>, [recordId, record]) => {
-        result[JSON.stringify(recordId)] = record;
-        return result;
-      },
-      {}
-    );
+  setData(data: [TKey, TRecord][]): void {
+    const currentData = this.data.reduce((result: Partial<Record<string, TRecord>>, [recordId, record]) => {
+      result[JSON.stringify(recordId)] = record;
+      return result;
+    }, {});
 
     const createdRecordsIds: TKey[] = [];
-    const updatedRecords: [TKey, Partial<TRecord>][] = [];
+    const updatedRecords: [TKey, TRecord][] = [];
     const recordIds: string[] = [];
 
     for (const [recordId, record] of data) {
@@ -156,7 +153,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     }
   }
 
-  getData(): [TKey, Partial<TRecord>][] {
+  getData(): [TKey, TRecord][] {
     return this.data;
   }
 
@@ -171,7 +168,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     this.trigger('delete', recordIds);
   }
 
-  async create(record: Partial<TRecord> | [TKey, Partial<TRecord>]): Promise<TKey> {
+  async create(record: Partial<TRecord> | [TKey, TRecord]): Promise<TKey> {
     let recordId: TKey;
     let clonedRecord: Partial<TRecord>;
     if (Array.isArray(record)) {
@@ -200,29 +197,32 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
       throw validationErrors;
     }
 
-    return this.createRecordAndEmit(clonedRecord, recordId);
+    // TODO unsafe as TRecord
+    return this.createRecordAndEmit(clonedRecord as TRecord, recordId);
   }
 
-  read({
+  read<TField extends keyof TRecord & string>({
     fields,
     extra,
     filters,
     limit,
     offset,
     sort
-  }: IGridModelReadParams<TKey, TRecord, TFilters>): Promise<IGridModelReadResult<TKey, TRecord>> {
+  }: IGridModelReadParams<TKey, TRecord, TField, TFilters>): Promise<
+    IGridModelReadResult<TKey, TRecord, TField>
+  > {
     let data = cloneDeep(this.data);
-    const result: IGridModelReadResult<TKey, TRecord> = {
+    const result: IGridModelReadResult<TKey, TRecord, TField> = {
       records: []
     };
 
     // Get extra records
     if (extra && extra.length > 0) {
-      result.extraRecords = data.reduce<[TKey, Partial<TRecord>][]>((acc, [recordId, record]) => {
+      result.extraRecords = data.reduce<[TKey, Pick<TRecord, TField>][]>((acc, [recordId, record]) => {
         for (const extraRecordId of extra) {
           if (isEqual(extraRecordId, recordId)) {
             // Delete unnecessary fields
-            acc.push([recordId, pick(record, fields) as Partial<TRecord>]);
+            acc.push([recordId, pick(record, fields)]);
             return acc;
           }
         }
@@ -263,23 +263,24 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     }
 
     // Delete unnecessary fields
-    data = data.map(([key, record]) => [key, pick(record, fields) as Partial<TRecord>]);
-
-    result.records = data;
+    result.records = data.map(([key, record]) => [key, pick(record, fields)]);
 
     return Promise.resolve(result);
   }
 
-  getRecord(id: TKey, fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
+  async getRecord<TField extends keyof TRecord & string>(
+    id: TKey,
+    fields: TField[]
+  ): Promise<Pick<TRecord, TField>> {
     const record = cloneDeep(this.getRecordByID(id));
     if (!record) {
-      return Promise.reject(new Error('Record not found.'));
+      throw new Error('Record not found.');
     }
 
     // Deleting unused fields
-    const returnRecord = pick(record[1], fields) as Partial<TRecord>;
+    const returnRecord = pick(record[1], fields);
 
-    return Promise.resolve(returnRecord);
+    return returnRecord;
   }
 
   async update(changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {
@@ -338,11 +339,11 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     return this.generateId(this.data.map(([id]) => id));
   }
 
-  private getRecordByID(id: TKey): [TKey, Partial<TRecord>] | undefined {
+  private getRecordByID(id: TKey): [TKey, TRecord] | undefined {
     return this.data.find((record) => isEqual(record[0], id));
   }
 
-  private createRecordAndEmit(record: Partial<TRecord>, id: TKey): TKey {
+  private createRecordAndEmit(record: TRecord, id: TKey): TKey {
     this.data = [...this.data, [id, record]];
     this.trigger('create', [id]);
     return id;

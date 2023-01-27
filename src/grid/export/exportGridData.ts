@@ -11,7 +11,7 @@ import ArgumentsError from '../../common/error/ArgumentsError';
 import {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
 import {IGridModel, IGridModelSortMode} from '../models/types/IGridModel';
-import {GridColumnConfig, GridGetColumn} from '../types/GridColumns';
+import {GridColumns, GridGetColumn} from '../types/GridColumns';
 
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 
@@ -20,7 +20,7 @@ function formatColumns<
   TColumn extends string,
   TViewColumn extends TColumn
 >(
-  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
+  columns: Partial<GridColumns<TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatColumnsResult<TViewColumn> {
   const formattedColumns = {} as unknown as FormatColumnsResult<TViewColumn>;
@@ -50,11 +50,11 @@ function formatRecord<
   TColumn extends string,
   TViewColumn extends TColumn
 >(
-  record: Partial<TRecord>,
-  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
+  record: TRecord,
+  columns: Partial<GridColumns<TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatRecordResult<TViewColumn> {
-  const formattedRecord = {} as unknown as FormatRecordResult<TViewColumn>;
+  const formattedRecord: Partial<FormatRecordResult<TViewColumn>> = {};
 
   for (const viewColumn of viewColumns) {
     const column = columns[viewColumn];
@@ -70,7 +70,7 @@ function formatRecord<
     );
   }
 
-  return formattedRecord;
+  return formattedRecord as FormatRecordResult<TViewColumn>;
 }
 
 type FormatDataResult<TColumn extends string> = {
@@ -84,9 +84,9 @@ function formatData<
   TColumn extends string,
   TViewColumn extends TColumn
 >(
-  records: [unknown, Partial<TRecord>][],
-  totals: Partial<TRecord> | undefined,
-  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
+  records: [unknown, TRecord][],
+  totals: TRecord | undefined,
+  columns: Partial<GridColumns<TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatDataResult<TViewColumn> {
   const formatted: FormatDataResult<TViewColumn> = {
@@ -104,10 +104,7 @@ function getFields<
   TRecord extends Record<string, unknown>,
   TColumn extends string,
   TViewColumn extends TColumn
->(
-  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
-  viewColumns: TViewColumn[]
-): (keyof TRecord & string)[] {
+>(columns: Partial<GridColumns<TRecord, TColumn>>, viewColumns: TViewColumn[]): (keyof TRecord & string)[] {
   const fields: Partial<Record<keyof TRecord & string, boolean>> = {};
   for (const columnId of viewColumns) {
     const column = columns[columnId];
@@ -115,7 +112,7 @@ function getFields<
       continue;
     }
 
-    const columnFields = column.render.slice(0, -1) as (keyof TRecord & string)[];
+    const columnFields = column.render.slice(0, column.render.length - 1) as (keyof TRecord & string)[];
 
     for (const columnField of columnFields) {
       fields[columnField] = true;
@@ -129,10 +126,7 @@ function assertValidViewColumns<
   TRecord extends Record<string, unknown>,
   TColumn extends string,
   TViewColumn extends TColumn
->(
-  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
-  viewColumns?: TViewColumn[] | null
-): void {
+>(columns: Partial<GridColumns<TRecord, TColumn>>, viewColumns?: TViewColumn[] | null): void {
   if (!viewColumns?.length) {
     throw new ArgumentsError('"viewColumns" can`t be empty');
   }
@@ -169,7 +163,7 @@ async function exportGridData<
   TExportRunner extends (data: FormatDataResult<TViewColumn>) => Promise<{data: unknown; mime: string}>
 >(
   gridModel: IGridModel<unknown, TRecord, unknown>,
-  columns: Partial<Record<TColumn, GridColumnConfig<TRecord, never, boolean>>>,
+  columns: Partial<GridColumns<TRecord, TColumn>>,
   viewColumns: TViewColumn[],
   exportRunner: TExportRunner,
   settings: ExportGridDataParams<TRecord>
@@ -182,7 +176,9 @@ async function exportGridData<
     offset: settings.offset
   });
 
-  const data = formatData(result.records, result.totals, columns, viewColumns);
+  // TODO totals as TRecord is unsafe
+  const totals = result.totals as TRecord | undefined;
+  const data = formatData(result.records as [unknown, TRecord][], totals, columns, viewColumns);
 
   return (await exportRunner(data)) as ExportGridDataResult<TExportRunner>;
 }

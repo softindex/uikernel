@@ -8,6 +8,7 @@
 
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
+import EqualMap from './EqualMap';
 
 /**
  * Check if two arrays intersection exists
@@ -152,6 +153,21 @@ export function isEmpty(value: unknown): boolean {
   }
 
   return false;
+}
+
+/**
+ * This method converts data object to the array with keys presented as record ID hash
+ */
+export function equalMapToArray<TKey, TValue extends Record<string, unknown>>(
+  map: EqualMap<TKey, TValue>
+): [TKey, TValue][] {
+  const result: [TKey, TValue][] = [];
+
+  for (const [recordId, value] of map) {
+    result.push([recordId, {...value}]);
+  }
+
+  return result;
 }
 
 export function getRecordChanges<TRecord extends Record<string, unknown>>(

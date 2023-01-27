@@ -32,16 +32,19 @@ abstract class AbstractGridModel<
     throw Error('method "create" not implemented yet');
   }
 
-  async read(
-    _params: IGridModelReadParams<TKey, TRecord, TFilters>
-  ): Promise<IGridModelReadResult<TKey, TRecord>> {
+  async read<TField extends keyof TRecord & string>(
+    _params: IGridModelReadParams<TKey, TRecord, TField, TFilters>
+  ): Promise<IGridModelReadResult<TKey, TRecord, TField>> {
     return {
       records: []
     };
   }
 
-  async getRecord(_id: TKey, _fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
-    return {};
+  async getRecord<TField extends keyof TRecord & string>(
+    _id: TKey,
+    _fields: TField[]
+  ): Promise<Pick<TRecord, TField>> {
+    throw new Error('method getRecord not implemented yet');
   }
 
   async update(_changes: [TKey, Partial<TRecord>][]): Promise<IGridModelUpdateResult<TKey, TRecord>> {

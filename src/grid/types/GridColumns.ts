@@ -27,13 +27,13 @@ export type EditorContext<TRecord extends Record<string, unknown>, TField extend
 export type OnColumnClick<TKey, TRecord extends Record<string, unknown>, TElement extends HTMLElement> = (
   event: React.MouseEvent<TElement>,
   recordId: TKey,
-  record: Partial<TRecord>,
+  record: TRecord,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   self: any
 ) => void;
 
 export type GridGetColumn<TRecord extends Record<string, unknown>> = (
-  recordWithChanges: Partial<TRecord>,
+  recordWithChanges: TRecord,
   selected: boolean,
   initialRecord: Partial<TRecord>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,32 +41,27 @@ export type GridGetColumn<TRecord extends Record<string, unknown>> = (
 ) => string;
 
 export type GridColumnRender<TRecord extends Record<string, unknown>> = readonly [
-  ...ArrayWithAtLeastOneElement<string & keyof TRecord>,
+  ...(ArrayWithAtLeastOneElement<string & keyof TRecord> | []),
   GridGetColumn<TRecord>
 ];
 
-type GridEditorConfig<TRecord extends Record<string, unknown>, TEditorField extends string & keyof TRecord> =
+type GridEditorConfig<
+  TColumnId extends string,
+  TRecord extends Record<string, unknown>,
+  TEditorField extends string & keyof TRecord
+> =
   | {
       editor?: undefined;
       editorField?: undefined;
     }
-  | {
-      editorField: TEditorField;
+  | ({
       editor: (
-        this: EditorContext<Partial<TRecord>, TEditorField>,
-        record: Partial<TRecord>,
+        this: EditorContext<TRecord, TEditorField>,
+        record: TRecord,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         gridRef: IGridRef<any, TRecord, any, any, boolean>
       ) => JSX.Element | null;
-    };
-
-type GridSortConfig<TSortPossible extends boolean> = TSortPossible extends true
-  ? {
-      sortCycle?: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>;
-    }
-  : {
-      sortCycle?: undefined;
-    };
+    } & (TColumnId extends TEditorField ? {editorField?: TEditorField} : {editorField: TEditorField}));
 
 export type GridColumnName<TKey, TRecord extends Record<string, unknown>> =
   | string
@@ -74,9 +69,9 @@ export type GridColumnName<TKey, TRecord extends Record<string, unknown>> =
   | ((gridRef: IGridRef<TKey, TRecord, any, any, boolean>) => React.ReactNode);
 
 export type GridColumnConfig<
+  TColumnId extends string,
   TRecord extends Record<string, unknown>,
   TEditorField extends string & keyof TRecord,
-  TSortPossible extends boolean,
   TKey = never,
   TElement extends HTMLElement = HTMLElement
 > = {
@@ -85,9 +80,9 @@ export type GridColumnConfig<
   name: GridColumnName<TKey, TRecord>;
   parent?: GridColumnName<TKey, TRecord>;
   render: GridColumnRender<TRecord>;
+  sortCycle?: Readonly<ArrayWithAtLeastOneElement<IGridModelSortMode>>;
   width?: number | string;
-} & GridSortConfig<TSortPossible> &
-  GridEditorConfig<TRecord, TEditorField> &
+} & GridEditorConfig<TColumnId, TRecord, TEditorField> &
   (
     | {
         onClick?: OnColumnClick<TKey, TRecord, TElement>;
@@ -109,9 +104,13 @@ export type GridColumns<
   TElement extends HTMLElement = HTMLElement
 > = {
   [K in TColumnId]: GridColumnConfig<
+    K,
     TRecord,
-    TColumnToEditorField[K] extends string & keyof TRecord ? TColumnToEditorField[K] : never,
-    K extends string & keyof TRecord ? true : false,
+    TColumnToEditorField[K] extends string & keyof TRecord
+      ? TColumnToEditorField[K]
+      : K extends string & keyof TRecord
+      ? K
+      : never,
     TKey,
     TElement
   >;

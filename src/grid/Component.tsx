@@ -14,7 +14,6 @@
 
 import cloneDeep from 'lodash/cloneDeep';
 import last from 'lodash/last';
-import pickBy from 'lodash/pickBy';
 import union from 'lodash/union';
 import React from 'react';
 import {assertNonNullish} from '../common/assert';
@@ -23,6 +22,7 @@ import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import {EventListener, IObservable} from '../common/types';
 import {
+  equalMapToArray,
   forEach,
   getRecordChanges,
   indexOf,
@@ -91,7 +91,7 @@ type Props<
   onDestroy?: () => void;
   onError?: (error: Error) => void;
   onInit?: () => void;
-  onPageLoad?: (data: IGridModelReadResult<TKey, TRecord>) => void;
+  onPageLoad?: (data: IGridModelReadResult<TKey, TRecord, string & keyof TRecord>) => void;
   onSelectedChange?: (selected: TKey[], selectedCount: number) => void;
   onSorting?: <TColumnId extends string & keyof TColumns & keyof TRecord>(
     newSorts: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>,
@@ -110,10 +110,10 @@ type State<
 > = {
   changes: EqualMap<TKey, Partial<TRecord>>;
   count: number;
-  data: EqualMap<TKey, Partial<TRecord>> | null;
+  data: EqualMap<TKey, TRecord> | null;
   editor: GridEditor<TKey, TColumnId>;
   errors: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
-  extra: EqualMap<TKey, Partial<TRecord>>;
+  extra: EqualMap<TKey, TRecord>;
   page: number;
   partialErrorChecking: boolean;
   selectBlackListMode: boolean;
@@ -449,17 +449,18 @@ class GridComponent<
    */
   async save(): Promise<void> {
     const errors = cloneDeep(this.state.errors);
-    const changes = cloneDeep(this.state.changes);
+    const prevChanges = cloneDeep(this.state.changes);
 
     // Cancel new record display
     this.removeRecordStatusAll('new');
 
     assertNonNullish(this.props.model, ERROR_MESSAGE_MODEL_UNAVAILABLE);
-    const data = await this.props.model.update(this.dataMapToArray(changes));
+    const data = await this.props.model.update(equalMapToArray(prevChanges));
     if (!this.mounted) {
       return;
     }
 
+    const nextChanges = cloneDeep(this.state.changes);
     // @ts-expect-error: TS2540 Cannot assign to 'partialErrorChecking' because it is a read-only property
     this.state.partialErrorChecking = false;
 
@@ -468,7 +469,7 @@ class GridComponent<
       const recordId = this.getRowID(record[0]);
 
       // Skip records that are user changed while data processing
-      if (!isEqual(changes.get(recordId), changes.get(recordId))) {
+      if (!isEqual(prevChanges.get(recordId), nextChanges.get(recordId))) {
         continue;
       }
 
@@ -483,31 +484,20 @@ class GridComponent<
         continue;
       }
 
-      let recordChanges: Partial<TRecord> = changes.get(recordId) ?? {};
-      // Cancel changed data status of the parameters, that are changed
-      recordChanges = pickBy<Partial<TRecord>>(
-        recordChanges,
-        (value: Partial<TRecord>[keyof TRecord], field: string): boolean =>
-          !isEqual(value, recordChanges[field as keyof TRecord])
-      );
-
-      // Clear changed data row if it's empty
-      if (isEmpty(recordChanges)) {
-        changes.delete(recordId);
-        if (this.state.extra.has(recordId)) {
-          this.removeExtraRecord(recordId);
-        }
+      nextChanges.delete(recordId);
+      if (this.state.extra.has(recordId)) {
+        this.removeExtraRecord(recordId);
       }
     }
 
     this.setState(
       {
         errors,
-        changes
+        changes: nextChanges
       },
       () => {
         if (this.props.onChange) {
-          this.props.onChange(changes);
+          this.props.onChange(nextChanges);
         }
       }
     );
@@ -738,7 +728,7 @@ class GridComponent<
       return;
     }
 
-    const editorContext: EditorContext<Partial<TRecord>, typeof editorFieldName> = {
+    const editorContext: EditorContext<TRecord, typeof editorFieldName> = {
       updateField: (field, nextValue) => {
         const recordChanges: Partial<TRecord> = {};
         recordChanges[field] = nextValue;
@@ -1178,7 +1168,7 @@ class GridComponent<
 
     const viewCount = this.getViewCount();
 
-    let loadedData: IGridModelReadResult<TKey, TRecord>;
+    let loadedData: IGridModelReadResult<TKey, TRecord, keyof TRecord & string>;
     try {
       loadedData = await this.loadData({
         limit: viewCount,
@@ -1218,19 +1208,19 @@ class GridComponent<
       return;
     }
 
-    const data = new EqualMap(loadedData.records);
+    const data = new EqualMap(loadedData.records) as EqualMap<TKey, TRecord>;
     const extra = new EqualMap(
       (loadedData.extraRecords ?? []).filter(([recordId]) => {
         return !data.has(recordId);
       })
-    );
+    ) as EqualMap<TKey, TRecord>;
     const recordIds = [...data.keys(), ...extra.keys()];
     this.setState(
       {
         data,
         extra,
         count: loadedData.count,
-        totals: loadedData.totals ?? {},
+        totals: (loadedData.totals as Partial<TRecord>) ?? {},
         errors: this.equalPick(this.state.errors, recordIds),
         changes: this.equalPick(this.state.changes, recordIds),
         showLoader: false
@@ -1280,14 +1270,14 @@ class GridComponent<
   /**
    * Load model data
    */
-  private async loadData(
-    settings: IGridModelReadParams<TKey, TRecord, TFilters>
-  ): Promise<IGridModelReadResult<TKey, TRecord>> {
+  private async loadData<TField extends string & keyof TRecord>(
+    settings: IGridModelReadParams<TKey, TRecord, TField, TFilters>
+  ): Promise<IGridModelReadResult<TKey, TRecord, TField>> {
     if (!this.props.model) {
       throw new TypeError('"model" in props is required');
     }
 
-    let data: IGridModelReadResult<TKey, TRecord>;
+    let data: IGridModelReadResult<TKey, TRecord, TField>;
     try {
       data = await this.props.model.read(settings);
     } catch (error: unknown) {
@@ -1371,7 +1361,7 @@ class GridComponent<
   /**
    * Get record with changes
    */
-  private getRecordWithChanges = (recordId: TKey): Partial<TRecord> | null => {
+  private getRecordWithChanges = (recordId: TKey): TRecord | null => {
     assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
     const recordFromData = this.state.data.get(recordId);
@@ -1572,19 +1562,6 @@ class GridComponent<
     return this.props.hasOwnProperty('sort');
   }
 
-  /**
-   * This method converts data object to the array with keys presented as record ID hash
-   */
-  private dataMapToArray(map: EqualMap<TKey, Partial<TRecord>>): [TKey, Partial<TRecord>][] {
-    const result: [TKey, Partial<TRecord>][] = [];
-
-    for (const [recordId, value] of map) {
-      result.push([recordId, {...value}]);
-    }
-
-    return result;
-  }
-
   private async onBlurEditor(recordId: TKey): Promise<void> {
     this.setState({editor: {}});
 
@@ -1698,17 +1675,17 @@ class GridComponent<
     recordId: TKey,
     columnId: string & keyof TColumns,
     eventOrValue:
-      | Partial<TRecord>[TField]
       | React.SyntheticEvent<
           Element & {
             target: {
-              value: Partial<TRecord>[TField];
+              value: TRecord[TField];
             };
           }
-        >,
-    editorContext: EditorContext<Partial<TRecord>, TField>
+        >
+      | TRecord[TField],
+    editorContext: EditorContext<TRecord, TField>
   ): void {
-    const value = cloneDeep(parseValueFromEvent(eventOrValue)) as Partial<TRecord>[TField];
+    const value = cloneDeep(parseValueFromEvent(eventOrValue)) as TRecord[TField];
 
     const columnConfig = this.props.columns[columnId];
     assertNonNullish<object | undefined>(columnConfig, `"${columnId}" column unavailable`);

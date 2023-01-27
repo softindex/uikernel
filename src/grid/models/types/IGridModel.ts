@@ -12,9 +12,14 @@ export type IGridModelCustomError = Error & Record<string, unknown>;
 
 export type IGridModelSortMode = 'asc' | 'default' | 'desc';
 
-export type IGridModelReadParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
+export type IGridModelReadParams<
+  TKey,
+  TRecord extends Record<string, unknown>,
+  TField extends keyof TRecord & string,
+  TFilters
+> = {
   extra?: TKey[];
-  fields: (keyof TRecord & string)[];
+  fields: TField[];
   filters?: TFilters;
   limit?: number;
   offset?: number;
@@ -26,7 +31,11 @@ export type IGridModelUpdateResult<TKey, TRecord> = [
   IGridModelCustomError | Partial<TRecord> | ValidationErrors<keyof TRecord & string>
 ][];
 
-export type IGridModelReadResult<TKey, TRecord extends Record<string, unknown>> = {
+export type IGridModelReadResult<
+  TKey,
+  TRecord extends Record<string, unknown>,
+  TField extends string & keyof TRecord
+> = {
   /**
    * Extra records
    */
@@ -35,12 +44,12 @@ export type IGridModelReadResult<TKey, TRecord extends Record<string, unknown>> 
   /**
    * In all records count
    */
-  extraRecords?: [TKey, Partial<TRecord>][];
+  extraRecords?: [TKey, Pick<TRecord, TField>][];
   /**
    * Primary records
    */
-  records: [TKey, Partial<TRecord>][];
-  totals?: Partial<TRecord>;
+  records: [TKey, Pick<TRecord, TField>][];
+  totals?: Partial<Pick<TRecord, TField>>;
 };
 
 export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilters> {
@@ -52,7 +61,10 @@ export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilt
   /**
    * Get the particular record
    */
-  getRecord: (id: TKey, fields: (keyof TRecord & string)[]) => Promise<Partial<TRecord>>;
+  getRecord: <TField extends keyof TRecord & string>(
+    id: TKey,
+    fields: TField[]
+  ) => Promise<Pick<TRecord, TField>>;
 
   /**
    * Get all dependent fields, that are required for validation
@@ -70,9 +82,9 @@ export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilt
   /**
    * Get records list
    */
-  read: (
-    params: IGridModelReadParams<TKey, TRecord, TFilters>
-  ) => Promise<IGridModelReadResult<TKey, TRecord>>;
+  read: <TField extends string & keyof TRecord>(
+    params: IGridModelReadParams<TKey, TRecord, TField, TFilters>
+  ) => Promise<IGridModelReadResult<TKey, TRecord, TField>>;
 
   /**
    * Apply record changes

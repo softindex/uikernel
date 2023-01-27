@@ -16,7 +16,6 @@ import ReactDOM from 'react-dom';
 import {StrictExtract} from 'ts-essentials';
 import assert, {assertNonNullish} from '../common/assert';
 import EqualMap from '../common/EqualMap';
-import {ArrayWithAtLeastOneElement} from '../common/types';
 import {keys, parents, toEncodedString, isEqual} from '../common/utils';
 import ValidationErrors from '../validation/ValidationErrors';
 import {GridColumnName, GridColumns, GridGetColumn} from './types/GridColumns';
@@ -56,12 +55,12 @@ type Props<
   count: number;
   editor: GridEditor<TKey, string & keyof TColumns>;
   errors: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
-  extraRecords: EqualMap<TKey, Partial<TRecord>>;
+  extraRecords: EqualMap<TKey, TRecord>;
   gridRef: IGridRef<TKey, TRecord, TFilters, TColumns, TMultipleSorting>;
   height: number | undefined;
   page: number;
   pageSizeLabel: string;
-  records: EqualMap<TKey, Partial<TRecord>> | null;
+  records: EqualMap<TKey, TRecord> | null;
   showLoader: boolean;
   sort:
     | SortElementProps<string & keyof TColumns & keyof TRecord>
@@ -622,7 +621,7 @@ class PureGridComponent<
    */
   private getCellHTML(
     columnId: string & keyof TColumns,
-    recordWithChanges: Partial<TRecord>,
+    recordWithChanges: TRecord,
     selected: boolean,
     initialRecord: Partial<TRecord>
   ): string {
@@ -639,11 +638,14 @@ class PureGridComponent<
     return `${!isNil(cellHtml) ? cellHtml : ''}`;
   }
 
-  private escapeRecord = (columnId: string & keyof TColumns, record: Partial<TRecord>): Partial<TRecord> => {
+  private escapeRecord = <TRawRecord extends Partial<TRecord>>(
+    columnId: string & keyof TColumns,
+    record: TRawRecord
+  ): TRawRecord => {
     const column = this.props.columns[columnId];
     assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
 
-    const fields = column.render.slice(0, -1) as ArrayWithAtLeastOneElement<string & keyof TRecord>;
+    const fields = column.render.slice(0, column.render.length - 1) as (string & keyof TRecord)[];
     const needEscaping = !column.hasOwnProperty('escape') || column.escape;
     const escapedRecord: Partial<TRecord> = {};
 
@@ -670,7 +672,7 @@ class PureGridComponent<
       escapedRecord[field] = record[field];
     }
 
-    return escapedRecord;
+    return escapedRecord as TRawRecord;
   };
 
   /**
@@ -995,7 +997,8 @@ class PureGridComponent<
       }
 
       if (this.props.totals.hasOwnProperty(columnId)) {
-        totalsRowHTML += this.getCellHTML(columnId, this.props.totals, false, this.props.totals);
+        // TODO totals as TRecord is unsafe
+        totalsRowHTML += this.getCellHTML(columnId, this.props.totals as TRecord, false, this.props.totals);
         totalsDisplayed = true;
       }
 

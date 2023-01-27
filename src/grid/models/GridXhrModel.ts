@@ -125,9 +125,9 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   /**
    * Get records list
    */
-  async read(
-    settings: IGridModelReadParams<TKey, TRecord, TFilters>
-  ): Promise<IGridModelReadResult<TKey, TRecord>> {
+  async read<TField extends keyof TRecord & string>(
+    settings: IGridModelReadParams<TKey, TRecord, TField, TFilters>
+  ): Promise<IGridModelReadResult<TKey, TRecord, TField>> {
     const queryUrl = this.getQueryUrl(settings);
 
     if (url.format(queryUrl).length > MAX_URI_LENGTH) {
@@ -144,7 +144,10 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   /**
    * Get the particular record
    */
-  async getRecord(id: TKey, fields: (keyof TRecord & string)[]): Promise<Partial<TRecord>> {
+  async getRecord<TField extends keyof TRecord & string>(
+    id: TKey,
+    fields: TField[]
+  ): Promise<Pick<TRecord, TField>> {
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
     parsedUrl.pathname = url.resolve(parsedUrl.pathname ?? '', JSON.stringify(id));
@@ -154,7 +157,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
       method: 'GET',
       uri: url.format(parsedUrl),
       json: true
-    })) as JsonGridApiResult<TKey, TRecord>['getRecord'];
+    })) as JsonGridApiResult<TKey, TRecord, TField>['getRecord'];
   }
 
   /**
@@ -278,7 +281,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     limit,
     offset,
     sort
-  }: IGridModelReadParams<TKey, TRecord, TFilters>): url.UrlWithParsedQuery {
+  }: IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>): url.UrlWithParsedQuery {
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.fields = JSON.stringify(fields);
     parsedUrl.query.offset = String(offset ?? 0);
@@ -303,15 +306,17 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     return parsedUrl;
   }
 
-  private async readPostRequest({
+  private async readPostRequest<TField extends keyof TRecord & string>({
     fields,
     extra,
     filters,
     limit,
     offset,
     sort
-  }: IGridModelReadParams<TKey, TRecord, TFilters>): Promise<IGridModelReadResult<TKey, TRecord>> {
-    const requestBody: IGridModelReadParams<TKey, TRecord, TFilters> = {
+  }: IGridModelReadParams<TKey, TRecord, TField, TFilters>): Promise<
+    IGridModelReadResult<TKey, TRecord, TField>
+  > {
+    const requestBody: IGridModelReadParams<TKey, TRecord, TField, TFilters> = {
       fields,
       offset: offset ?? 0
     };

@@ -54,7 +54,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
     this.middlewares = {
       readGet: [
         asyncServerRouteHandler(async (req, res) => {
-          const settings: IGridModelReadParams<TKey, TRecord, TFilters> = {
+          const settings: IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
             fields: []
           };
 
@@ -94,10 +94,12 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
       ],
       readPost: [
         asyncServerRouteHandler(async (req, res) => {
-          const settings: IGridModelReadParams<TKey, TRecord, TFilters> = {
+          const settings: IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
             fields: []
           };
-          const body = req.body as Partial<IGridModelReadParams<TKey, TRecord, TFilters>>;
+          const body = req.body as Partial<
+            IGridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>
+          >;
 
           if (body.limit) {
             settings.limit = parseInt(String(body.limit), 10);
