@@ -539,6 +539,16 @@ class GridComponent extends React.Component {
   }
 
   /**
+   * Get grid changes
+   *
+   * @return {Array|null}
+   */
+  getChanges() {
+    const result = this._dataMapToArray(this.state.changes);
+    return result.length ? result : null;
+  }
+
+  /**
    * Get table model
    *
    * @returns {AbstractGridModel}

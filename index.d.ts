@@ -24,6 +24,7 @@ declare module 'uikernel' {
     clone: () => ValidationErrors<TField>;
     merge<T extends string>(validationErrors: ValidationErrors<T>): ValidationErrors<TField | T>;
     getErrors: () => Map<TField, ValidationJSONError[]>;
+    getChanges: () => Map<TField, TRecord>;
   }
 
   export class Validator<TRecord> {

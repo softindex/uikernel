@@ -109,6 +109,7 @@ which helps to create data driven spreadsheets with capabilities of:
 - [getRecordChanges](/docs/grid-component.html#getrecordchanges)
 - [getRecordErrors](/docs/grid-component.html#getrecorderrors)
 - [getErrors](/docs/grid-component.html#geterrors)
+- [getChanges](/docs/grid-component.html#getchanges)
 - [getModel](/docs/grid-component.html#getmodel)
 - [async save](/docs/grid-component.html#async-save)
 - [clearRecordChanges](/docs/grid-component.html#clearrecordchanges)
@@ -229,6 +230,19 @@ Get validation errors of all grid records.
 
 **Returns**: `null` if there is no errors else *Array* of record entries in format:
 [['recId1', validationErrorsInstance1], ..., ['recIdN', validationErrorsInstanceN]].
+
+---
+
+### getChanges
+
+{% highlight javascript %}
+  const changes = grid.getChanges();
+{% endhighlight %}
+
+Get changes of all grid records.
+
+**Returns**: `null` if there is no changes else *Array* of record entries in format:
+[['recId1', record], ..., ['recIdN', recordN]].
 
 ---
 
