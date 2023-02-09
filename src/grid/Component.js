@@ -919,7 +919,7 @@ class GridComponent extends React.Component {
    */
   _isRecordLoaded(recordId) {
     if (!this.state.data) {
-      return false
+      return false;
     }
 
     return this.state.data.has(recordId);
