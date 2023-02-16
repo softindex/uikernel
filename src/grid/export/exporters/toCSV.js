@@ -10,7 +10,13 @@ import toPromise from '../../../common/toPromise';
 import csv from 'csv-stringify';
 
 async function toCSV(data) {
-  const csvData = await toPromise(csv, true)(data.records.concat([data.totals]), {
+  const allRecords = data.records;
+
+  if (data.totals) {
+    allRecords.concat([data.totals]);
+  }
+
+  const csvData = await toPromise(csv, true)(allRecords, {
     header: true,
     columns: data.columns
   });
