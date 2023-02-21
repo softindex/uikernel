@@ -50,7 +50,7 @@ const MainComponent = React.createClass({
           <UIKernel.Grid
             ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
-            cols={columns} // columns configuration
+            columns={columns} // columns configuration
             viewCount={10} // 10 records limit to display by default
             warningsValidator = {ValidationWarn}
           />

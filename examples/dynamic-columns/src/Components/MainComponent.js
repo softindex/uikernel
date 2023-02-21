@@ -42,7 +42,7 @@ class MainComponent extends React.Component {
           }
         />
         <UIKernel.Grid
-          cols={columns}
+          columns={columns}
           model={this.state.model}
           viewColumns={this.state.cols}
           viewCount={20}
