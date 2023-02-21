@@ -6,50 +6,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import columns from '../columns';
 import model from '../model';
 import UIKernel from 'uikernel';
 import Form from './Form';
 
-class MainComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      model: model,
-      cols: {
-        // display name, surname, phone by default
-        name: true,
-        surname: true,
-        phone: true,
-        // hide age, gender
-        age: false,
-        gender: false
-      }
-    };
+function MainComponent() {
+  const [cols, setCols] = useState({
+    name: true,
+    surname: true,
+    phone: true,
+    age: false,
+    gender: false
+  });
 
-  }
-
-  render() {
-    return (
-      <div>
-        <Form
-          cols={ this.state.cols}
-          onChange ={
-            (cols) => {
-              this.setState({cols})
-            }
-          }
-        />
-        <UIKernel.Grid
-          columns={columns}
-          model={this.state.model}
-          viewColumns={this.state.cols}
-          viewCount={20}
-        />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Form
+        cols={cols}
+        onChange={cols => setCols(cols)}
+      />
+      <UIKernel.Grid
+        columns={columns}
+        model={model}
+        viewColumns={cols}
+        viewCount={20}
+      />
+    </div>
+  );
 }
 
-export default MainComponent
+export default MainComponent;
