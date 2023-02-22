@@ -8303,14 +8303,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.11":
-  version: 4.17.11
-  resolution: "lodash@npm:4.17.11"
-  checksum: 0611590f43371f1dc93f8ad6d73feab7e301417ff7bbd4f7af4421def41d7b3210230539ae952884a0c7b944ba3266dd2723c02b79f36a7906e8d9e2e280a498
-  languageName: node
-  linkType: hard
-
-"lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -10384,7 +10377,7 @@ __metadata:
   resolution: "react-app@workspace:."
   dependencies:
     bootstrap: ^5.2.2
-    lodash: 4.17.11
+    lodash: 4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
     react-scripts: 5.0.1
@@ -12112,7 +12105,7 @@ __metadata:
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
   version: 1.0.1-dev11.9
-  resolution: "uikernel@file:../../#../../::hash=c01aa1&locator=react-app%40workspace%3A."
+  resolution: "uikernel@file:../../#../../::hash=648297&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     "@babel/runtime": ^7.1.2
@@ -12128,7 +12121,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: f74104a7e10333d0cdeeb2b92f23a4befdf17fa3886024f30e2c6ba4f4ff286af644857f3be42d4265e627fed685a845c1baeb803fbbbb43b666b56d46d3bff3
+  checksum: 6438752d7a1c2824d393d85a613df9cb1989cda153d5a32303354d2e38277b5762d3a2ae75630511a54f9267eb24d4e5c7731a82b3afbb8f00574f116febd15a
   languageName: node
   linkType: hard
 
