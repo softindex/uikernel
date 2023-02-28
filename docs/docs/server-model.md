@@ -15,7 +15,7 @@ First, let's define `read`.
 {% highlight javascript %}
 const squel = require('squel');
 const MySQLWrapper = require('../../common/mysql');
-const validator = require('./validation');
+const validator = require('./validator');
 
 const FIELDS = ['name', 'surname', 'phone', 'age', 'gender'];
 

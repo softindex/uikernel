@@ -60,7 +60,7 @@ var model = (function ( ) {
         return true;
       });
     },
-    validation: Validation
+    validation: validator
   });
 
 })();

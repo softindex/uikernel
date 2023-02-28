@@ -20,7 +20,7 @@ Our app will have the following structure:
             |--userGrid
                 model.js
                 router.js
-                validation.js
+                validator.js
         api.js
 package.json
 server.js

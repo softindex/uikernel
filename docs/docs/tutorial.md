@@ -37,7 +37,8 @@ Change structure in the react-app folder to the next structure:
 |-- src
     |-- Components
         MainComponent.js
-        FormComponent.js
+        CreateForm.js
+        FiltersForm.js
     index.js
     columns.js
     model.js

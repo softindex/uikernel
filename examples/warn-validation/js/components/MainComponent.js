@@ -52,7 +52,7 @@ const MainComponent = React.createClass({
             model={this.state.model} // Grid model
             columns={columns} // columns configuration
             viewCount={10} // 10 records limit to display by default
-            warningsValidator = {ValidationWarn}
+            warningsValidator = {validatorWarn}
           />
           <div className="panel-footer">
             <a href="#" className="btn btn-default" onClick={this.onClear}>
