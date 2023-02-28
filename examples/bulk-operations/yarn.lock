@@ -3842,13 +3842,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap@npm:4.3.1":
-  version: 4.3.1
-  resolution: "bootstrap@npm:4.3.1"
+"bootstrap@npm:4.2.1":
+  version: 4.2.1
+  resolution: "bootstrap@npm:4.2.1"
   peerDependencies:
     jquery: 1.9.1 - 3
-    popper.js: ^1.14.7
-  checksum: c78694db1d80b1ed91abc67a49edf2f48618bb52380432a7de60c40d203a3aa4a5bb65f4c68b732cb75ef8ca915c0e6bb3fe0009b830b2fc455a74b2b6a61d8d
+    popper.js: ^1.14.6
+  checksum: cbea5bc720d48606c9246940ac1360030c5414db77cb2155015f805c287064324eb95dbee7809eaeca13e63cfcc1fcaf026250fff4d692a499afac69f73d2367
   languageName: node
   linkType: hard
 
@@ -8312,6 +8312,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash@npm:4.17.11":
+  version: 4.17.11
+  resolution: "lodash@npm:4.17.11"
+  checksum: 0611590f43371f1dc93f8ad6d73feab7e301417ff7bbd4f7af4421def41d7b3210230539ae952884a0c7b944ba3266dd2723c02b79f36a7906e8d9e2e280a498
+  languageName: node
+  linkType: hard
+
 "lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
@@ -10385,7 +10392,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-app@workspace:."
   dependencies:
-    bootstrap: 4.3.1
+    bootstrap: 4.2.1
+    lodash: 4.17.11
     react: ^18.2.0
     react-dom: ^18.2.0
     react-scripts: 5.0.1
@@ -12113,7 +12121,7 @@ __metadata:
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
   version: 1.0.1-dev11.9
-  resolution: "uikernel@file:../../#../../::hash=95ca00&locator=react-app%40workspace%3A."
+  resolution: "uikernel@file:../../#../../::hash=5fd3fc&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     "@babel/runtime": ^7.1.2
@@ -12129,7 +12137,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 043b38dd18ffc2cfd9193470a3a2db22813a5b0e5fd86808033faf5686d8fcc8dce0bfbde8e146c9fc151183cb91e40800e44d1c1a9e13244088d0ab8eac3735
+  checksum: 2d56cf92a1986df0491e8f9ea8d94fa469fed67264d55d6585d8e6a8feffaae7e4fa76154bb4e801d6cfa1ac1fb01b8602389002639bcf86332214383a69db3f
   languageName: node
   linkType: hard
 
