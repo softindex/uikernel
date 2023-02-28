@@ -191,8 +191,8 @@ Get errors entries of this ValidationErrors instance.
 
 **Example**:
 {% highlight javascript %}
-  for(let [field, error] of validationErrors.getErrors())
-    console.log(field, ": ", error);
+  for(let [field, errors] of validationErrors.getErrors())
+    console.log(field, ": ", errors);
 {% endhighlight %}
 
 ---
