@@ -75,10 +75,16 @@ Get record by ID.
 ### async update
 
 {% highlight javascript %}
-  async Array update(Object[][] changes)
+  async Array update(Object[] | [][Any] changes)
 {% endhighlight %}
 
 Applies record changes.
+
+**Parameters**:
+
+| Type                                                                 | Name    | Description                                 |
+|----------------------------------------------------------------------|---------|---------------------------------------------|
+| <span style="white-space:nowrap;"> Object [ ] \| [ ] \[Any\] </span> | changes | *Required*. Array of changed records data.  |
 
 **Returns**:
 
