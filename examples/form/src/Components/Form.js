@@ -64,8 +64,8 @@ class Form extends React.Component {
                   value={this.props.state.fields.name.value}
                 />
               </div>
-              <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.fields.name.errors}</div>
+              <div className="col-sm-4">
+                <div className="validation-error">{this.props.state.fields.name.errors[0]?.message}</div>
               </div>
             </div>
             <div className={'form-group' + (this.props.state.fields.age.errors ? ' error' : '')}>
@@ -79,8 +79,8 @@ class Form extends React.Component {
                   value={this.props.state.fields.age.value}
                 />
               </div>
-              <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.fields.age.errors}</div>
+              <div className="col-sm-4">
+                <div className="validation-error">{this.props.state.fields.age.errors[0]?.message}</div>
               </div>
             </div>
           </form>
