@@ -1854,9 +1854,11 @@ class GridComponent extends React.Component {
     } = this.state;
 
     const {
-      viewVariants,
+      viewVariants: propsViewVariants,
       viewColumns
     } = this.props;
+
+    const viewVariants = this._isViewCountPropsMode() ? [viewCount] : propsViewVariants;
 
     if (this.props.className) {
       gridClassNames.push(this.props.className);
