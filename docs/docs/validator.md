@@ -54,6 +54,8 @@ Add synchronous field validation.
 |----------|-------------|-------------------------------------|
 | Any      | value       | The value of the field to validate  |
 
+**Returns**: this
+
 ---
 
 ### fields
@@ -77,6 +79,8 @@ Specify a rule for synchronous validation of a group of fields.
 |-------------------|----------|-------------------------------------|
 | Object            | record   | Object with values of all fields. The object has the following structure: {field1: field1Value, field2: field2Value, ...} |
 | ValidationErrors  | errors   | Object with errors of all fields. If any of the fields is invalid, the `rule` function should add the corresponding error to this errors object. |
+
+**Returns**: this
 
 ---
 
@@ -127,6 +131,8 @@ Specify server validation dependencies in a client validator.
     );
 {% endhighlight %}
 
+**Returns**: this
+
 ---
 
 ### asyncField
@@ -143,6 +149,8 @@ Add an asynchronous validation rule to a field.
 |------------------|------------|----------------------------------------------------------------------------------|
 | String           | fieldName  | *Required*.  |
 | async Function   | rule       | *Required*. Async function to validate the field. If the field is invalid, the function should resolve with a string value of the error text. Else(if the field is valid) the function should resolve with an empty value(null or undefined). |
+
+**Returns**: this
 
 ---
 
@@ -167,6 +175,8 @@ Specify a rule for asynchronous validation of a group of fields.
 |-------------------|----------|-------------------------------------|
 | Object            | record   | Object with values of all fields. The object has the following structure: {field1: field1Value, field2: field2Value, ...} |
 | ValidationErrors  | errors   | Object with errors of all fields. If any of the fields is invalid, the `rule` function should add the corresponding error to this errors object. |
+
+**Returns**: this
 
 ---
 
