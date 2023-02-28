@@ -84,7 +84,7 @@ and `main.css` look like this:
 }
 
 .btn-success {
-    margin: 0 15px 15px 0;
+    margin: 0 15px 0 0;
 }
 .action{
     margin-top: 15px;

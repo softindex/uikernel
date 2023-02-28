@@ -75,7 +75,7 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.name.value}
               />
-              {this.state.fields.name.errors.length &&
+              {Boolean(this.state.fields.name.errors.length) &&
               <small className="control-label">{this.state.fields.name.errors[0]?.message}</small>}
             </div>
           </div>
@@ -93,7 +93,7 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.surname.value}
               />
-              {this.state.fields.surname.errors.length &&
+              {Boolean(this.state.fields.surname.errors.length) &&
               <small className="control-label">{this.state.fields.surname.errors[0]?.message}</small>}
             </div>
           </div>
@@ -111,7 +111,7 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.phone.value}
               />
-              {this.state.fields.phone.errors.length &&
+              {Boolean(this.state.fields.phone.errors.length) &&
               <small className="control-label">{this.state.fields.phone.errors[0]?.message}</small>}
             </div>
           </div>
@@ -128,7 +128,7 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.age.value}
               />
-              {this.state.fields.age.errors.length &&
+              {Boolean(this.state.fields.age.errors.length) &&
               <small className="control-label">{this.state.fields.age.errors[0]?.message}</small>}
             </div>
           </div>

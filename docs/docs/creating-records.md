@@ -124,7 +124,7 @@ render() {
     <div>
       <form className="form-horizontal edit-form" onSubmit={this.handleSubmit}>
         <div className={"form-group" + (this.state.fields.name.isChanged ? ' changed' : '') +
-        (this.state.fields.name.errors ? ' error' : '')}>
+        (this.state.fields.name.errors.length ? ' error' : '')}>
           <label className="col-sm-3 control-label">First Name</label>
           <div className="col-sm-9">
             <input
@@ -136,13 +136,13 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.name.value}
             />
-            {this.state.fields.name.errors &&
-            <small className="control-label">{this.state.fields.name.errors[0]}</small>}
+            {Boolean(this.state.fields.name.errors.length) &&
+            <small className="control-label">{this.state.fields.name.errors[0]?.message}</small>}
           </div>
         </div>
         <div
           className={"form-group" + (this.state.fields.surname.isChanged ? ' changed' : '') +
-          (this.state.fields.surname.errors ? ' error' : '')}>
+          (this.state.fields.surname.errors.length ? ' error' : '')}>
           <label className="col-sm-3 control-label">Last Name</label>
           <div className="col-sm-9">
             <input
@@ -154,13 +154,13 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.surname.value}
             />
-            {this.state.fields.surname.errors &&
-            <small className="control-label">{this.state.fields.surname.errors[0]}</small>}
+            {Boolean(this.state.fields.name.errors.length) &&
+            <small className="control-label">{this.state.fields.surname.errors[0]?.message}</small>}
           </div>
         </div>
         <div
           className={"form-group" + (this.state.fields.phone.isChanged ? ' changed' : '') +
-          (this.state.fields.phone.errors ? ' error' : '')}>
+          (this.state.fields.phone.errors.length ? ' error' : '')}>
           <label className="col-sm-3 control-label">Phone</label>
           <div className="col-sm-9">
             <input
@@ -172,13 +172,13 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.phone.value}
             />
-            {this.state.fields.phone.errors &&
-            <small className="control-label">{this.state.fields.phone.errors[0]}</small>}
+            {Boolean(this.state.fields.name.errors.length) &&
+            <small className="control-label">{this.state.fields.phone.errors[0]?.message}</small>}
           </div>
         </div>
         <div
           className={"form-group" + (this.state.fields.age.isChanged ? ' changed' : '') +
-          (this.state.fields.age.errors ? ' error' : '')}>
+          (this.state.fields.age.errors.length ? ' error' : '')}>
           <label className="col-sm-3 control-label">Age</label>
           <div className="col-sm-9">
             <UIKernel.Editors.Number
@@ -189,8 +189,8 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.age.value}
             />
-            {this.state.fields.age.errors &&
-            <small className="control-label">{this.state.fields.age.errors[0]}</small>}
+            {Boolean(this.state.fields.name.errors.length) &&
+            <small className="control-label">{this.state.fields.age.errors[0]?.message}</small>}
           </div>
         </div>
         <div
@@ -245,6 +245,19 @@ The ternary operator allows us to specify two different classes, one if a functi
 `this.state.fields['<field-name>'].errors === null` if there is no errors in the form field '\<field-name\>'.
 
 `this.state.fields['<field-name>'].isChanged` indicates if the form field '\<field-name\>' has been changed.
+
+---
+
+Now let’s open the main.css file and add there the following code:
+
+{% highlight javascript %}
+.form-group.changed input{
+    background-color: #ffff38;
+}
+.form-group.error input{
+    background-color: #ff8689;
+}
+{% endhighlight %}
 
 ---
 
