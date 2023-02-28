@@ -67,7 +67,8 @@ const model = (function () {
 })();
 
 model.delete = function (id) {
-  this.data = this.data.filter((record) => record[0] !== id) ;
+  const filteredData = this.getData().filter((record) => record[0] !== id);
+  this.setData(filteredData);
   return Promise.resolve(id);
 };
 
