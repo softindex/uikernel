@@ -135,6 +135,7 @@ class GridCollectionModel extends AbstractGridModel {
    * @param {Object}      [settings.filters]      Filter values object
    * @param {Array}       [settings.sort]         Sort parameters
    * @param {Array}       [settings.ids]          Record IDs, we need to get for sure
+   * @param {Array}       [settings.extra]        Record IDs, that are needed to be fetched additionally(despite filtering criteria)
    */
   read(settings) {
     let data = cloneDeep(this._data);
