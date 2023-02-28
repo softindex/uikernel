@@ -218,7 +218,7 @@ Dependent fields come up when you use group validation methods: `fields()`, `asy
   const validationResult = await validator.isValidRecord(record);
 {% endhighlight %}
 
-Checks validity of the given `record`. Returns ValidationErrors instance.
+Checks validity of the given `record`.
 
 **Parameters**:
 
