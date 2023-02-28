@@ -32,7 +32,7 @@
 .highlight .ni { color: #999999; font-weight: bold } /* Name.Entity */
 .highlight .ne { color: #CC0000; font-weight: bold } /* Name.Exception */
 .highlight .nf { color: #CC00FF } /* Name.Function */
-.highlight .nl { color: #9999FF } /* Name.Label */
+/* .highlight .nl { color: #9999FF } /* Name.Label */
 .highlight .nn { color: #00CCFF; font-weight: bold } /* Name.Namespace */
 .highlight .nt { color: #0710A1 } /* Name.Tag */
 .highlight .nv { color: #003333 } /* Name.Variable */

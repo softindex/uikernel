@@ -37,7 +37,7 @@ Columns list is specified as an object with column string IDs as keys and column
 {% highlight javascript %}
 {
   {string}: {                       // Column ID
-    name: <string>,                 // Column's <th> tag content
+    name: {string},                 // Column's <th> tag content
     parent: {string},               // Group name that the column belongs to
 
     width: {string},                // Column width. E.g.: '70px'
