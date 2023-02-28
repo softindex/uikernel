@@ -52,7 +52,7 @@ and save it in the local data structure of the model.
 
 
 **Return** Fields(Array of string values) that need to be sent additionally to validate fields specified in passed parameters.
-This method is required for creating group validators\(read details [here](/validator.html)\).
+This method is required for creating group validators\(read details [here](/docs/validator.html)\).
 
 
 ----
