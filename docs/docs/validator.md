@@ -245,8 +245,8 @@ UIKernel.Validators.boolean(string errorMessage)
 UIKernel.Validators.boolean.notNull(string errorMessage)
 
 // Check if date matches min-to-max range
-UIKernel.Validators.date(Date min, Date max, string errorMessage)
-UIKernel.Validators.date.notNull(Date min, Date max, string errorMessage)
+UIKernel.Validators.date(Date | null min, Date | null max, string errorMessage)
+UIKernel.Validators.date.notNull(Date | null min, Date | null max, string errorMessage)
 
 // Check if variants contain the value
 UIKernel.Validators.enum(Array variants, string errorMessage)
