@@ -13,7 +13,7 @@ function FormFields({formService, formState}) {
   return (
     <div className="form-horizontal">
       <div className={"form-group" + (formState.fields.name.isChanged ? ' bg-warning' : '') +
-      (formState.fields.name.errors ? ' bg-danger' : '')}>
+      (formState.fields.name.errors.length ? ' bg-danger' : '')}>
         <label className="col-sm-3 control-label">First Name</label>
         <div className="col-sm-9">
           <input
@@ -27,7 +27,7 @@ function FormFields({formService, formState}) {
         </div>
       </div>
       <div className={"form-group" + (formState.fields.surname.isChanged ? ' bg-warning' : '') +
-      (formState.fields.surname.errors ? ' bg-danger' : '')}>
+      (formState.fields.surname.errors.length ? ' bg-danger' : '')}>
         <label className="col-sm-3 control-label">Last Name</label>
         <div className="col-sm-9">
           <input
@@ -41,7 +41,7 @@ function FormFields({formService, formState}) {
         </div>
       </div>
       <div className={"form-group" + (formState.fields.phone.isChanged ? ' bg-warning' : '') +
-      (formState.fields.phone.errors ? ' bg-danger' : '')}>
+      (formState.fields.phone.errors.length ? ' bg-danger' : '')}>
         <label className="col-sm-3 control-label">Phone</label>
         <div className="col-sm-9">
           <input
@@ -55,7 +55,7 @@ function FormFields({formService, formState}) {
         </div>
       </div>
       <div className={"form-group" + (formState.fields.age.isChanged ? ' bg-warning' : '') +
-      (formState.fields.age.errors ? ' bg-danger' : '')}>
+      (formState.fields.age.errors.length ? ' bg-danger' : '')}>
         <label className="col-sm-3 control-label">Age</label>
         <div className="col-sm-9">
           <input
@@ -69,7 +69,7 @@ function FormFields({formService, formState}) {
         </div>
       </div>
       <div className={"form-group" + (formState.fields.gender.isChanged ? ' bg-warning' : '') +
-      (formState.fields.gender.errors ? ' bg-danger' : '')}>
+      (formState.fields.gender.errors.length ? ' bg-danger' : '')}>
         <label className="col-sm-3 control-label">Gender</label>
         <div className="col-sm-9">
           <UIKernel.Editors.Select

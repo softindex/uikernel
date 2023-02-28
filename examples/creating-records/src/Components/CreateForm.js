@@ -63,7 +63,7 @@ class CreateForm extends React.Component {
       <div>
         <form className="form-horizontal edit-form" onSubmit={this.handleSubmit}>
           <div className={"form-group" + (this.state.fields.name.isChanged ? ' changed' : '') +
-          (this.state.fields.name.errors ? ' error' : '')}>
+          (this.state.fields.name.errors.length ? ' error' : '')}>
             <label className="col-sm-3 control-label">First Name</label>
             <div className="col-sm-9">
               <input
@@ -75,13 +75,13 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.name.value}
               />
-              {this.state.fields.name.errors &&
+              {this.state.fields.name.errors.length &&
               <small className="control-label">{this.state.fields.name.errors[0]?.message}</small>}
             </div>
           </div>
           <div
             className={"form-group" + (this.state.fields.surname.isChanged ? ' changed' : '') +
-            (this.state.fields.surname.errors ? ' error' : '')}>
+            (this.state.fields.surname.errors.length ? ' error' : '')}>
             <label className="col-sm-3 control-label">Last Name</label>
             <div className="col-sm-9">
               <input
@@ -93,13 +93,13 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.surname.value}
               />
-              {this.state.fields.surname.errors &&
+              {this.state.fields.surname.errors.length &&
               <small className="control-label">{this.state.fields.surname.errors[0]?.message}</small>}
             </div>
           </div>
           <div
             className={"form-group" + (this.state.fields.phone.isChanged ? ' changed' : '') +
-            (this.state.fields.phone.errors ? ' error' : '')}>
+            (this.state.fields.phone.errors.length ? ' error' : '')}>
             <label className="col-sm-3 control-label">Phone</label>
             <div className="col-sm-9">
               <input
@@ -111,13 +111,13 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.phone.value}
               />
-              {this.state.fields.phone.errors &&
+              {this.state.fields.phone.errors.length &&
               <small className="control-label">{this.state.fields.phone.errors[0]?.message}</small>}
             </div>
           </div>
           <div
             className={"form-group" + (this.state.fields.age.isChanged ? ' changed' : '') +
-            (this.state.fields.age.errors ? ' error' : '')}>
+            (this.state.fields.age.errors.length ? ' error' : '')}>
             <label className="col-sm-3 control-label">Age</label>
             <div className="col-sm-9">
               <UIKernel.Editors.Number
@@ -128,7 +128,7 @@ class CreateForm extends React.Component {
                 onBlur={this.form.validateForm}
                 value={this.state.fields.age.value}
               />
-              {this.state.fields.age.errors &&
+              {this.state.fields.age.errors.length &&
               <small className="control-label">{this.state.fields.age.errors[0]?.message}</small>}
             </div>
           </div>

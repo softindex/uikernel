@@ -62,7 +62,7 @@ class Form extends React.Component {
               <table className="table my-form">
                 <tbody>
                   <tr
-                    className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.fields.country.errors ? ' error' : '')}
+                    className={(this.state.form.changes.country ? 'changed' : '') + (this.state.form.fields.country.errors.length ? ' error' : '')}
                   >
                     <td>Country:</td>
                     <td>

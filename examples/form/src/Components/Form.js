@@ -54,7 +54,7 @@ class Form extends React.Component {
         </div>
         <div className="body">
           <form className="form-horizontal change-second-field-form">
-            <div className={'form-group' + (this.props.state.fields.name.errors ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.fields.name.errors.length ? ' error' : '')}>
               <label className="col-sm-2 control-label">Name</label>
               <div className="col-sm-6">
                 <input
@@ -68,7 +68,7 @@ class Form extends React.Component {
                 <div className="validation-error">{this.props.state.fields.name.errors[0]?.message}</div>
               </div>
             </div>
-            <div className={'form-group' + (this.props.state.fields.age.errors ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.fields.age.errors.length ? ' error' : '')}>
               <label className="col-sm-2 control-label">Age</label>
               <div className="col-sm-6">
                 {/* we use UIKernel.Editors.Number instead of <input type =" number "/>          */}
