@@ -58,8 +58,8 @@ class SelectEditor extends React.Component {
 
   handleChange(e) {
     let option = this.getOptions()[e.target.value];
-    if (!(option instanceof Array)) {
-      option = [option, option];
+    if (!(option instanceof Array)) { // if options is [label1, label2, ...]
+      option = [option, option]; // [value, label]
     }
     this.props.onChange(option[0]);
     if (this.props.onLabelChange) {
