@@ -303,7 +303,12 @@ render() {
                 model={this.state.model}
                 columns={columns}
                 viewCount={10}
-                defaultSort={{column: "name", direction: "asc"}} // default sorting
+                defaultSort={ // default sorting
+                  {
+                    column: "name",
+                    direction: "asc"
+                  }
+                }
               />
               <div className="panel-footer">
                 <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
