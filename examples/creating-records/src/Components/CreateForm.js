@@ -76,7 +76,7 @@ class CreateForm extends React.Component {
                 value={this.state.fields.name.value}
               />
               {this.state.fields.name.errors &&
-              <small className="control-label">{this.state.fields.name.errors[0]}</small>}
+              <small className="control-label">{this.state.fields.name.errors[0]?.message}</small>}
             </div>
           </div>
           <div
@@ -94,7 +94,7 @@ class CreateForm extends React.Component {
                 value={this.state.fields.surname.value}
               />
               {this.state.fields.surname.errors &&
-              <small className="control-label">{this.state.fields.surname.errors[0]}</small>}
+              <small className="control-label">{this.state.fields.surname.errors[0]?.message}</small>}
             </div>
           </div>
           <div
@@ -112,7 +112,7 @@ class CreateForm extends React.Component {
                 value={this.state.fields.phone.value}
               />
               {this.state.fields.phone.errors &&
-              <small className="control-label">{this.state.fields.phone.errors[0]}</small>}
+              <small className="control-label">{this.state.fields.phone.errors[0]?.message}</small>}
             </div>
           </div>
           <div
@@ -129,7 +129,7 @@ class CreateForm extends React.Component {
                 value={this.state.fields.age.value}
               />
               {this.state.fields.age.errors &&
-              <small className="control-label">{this.state.fields.age.errors[0]}</small>}
+              <small className="control-label">{this.state.fields.age.errors[0]?.message}</small>}
             </div>
           </div>
           <div
