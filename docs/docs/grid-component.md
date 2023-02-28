@@ -513,8 +513,7 @@ Calls `props.onSorting` and rerenders grid table afterwards.
   grid.addRecordStatus(recordId, status);
 {% endhighlight %}
 
-Add record status(the status will be stored in internal hash map
-and it will be set className with the `status` value to the corresponding row in the grid).
+Add record status. It will be set className with the `status` value to the corresponding row in the grid. So you can define css styles for record with this status (className).
 
 **Parameters**:
 
@@ -531,9 +530,7 @@ and it will be set className with the `status` value to the corresponding row in
   grid.addRecordStatusGroup(Array group, status);
 {% endhighlight %}
 
-Add status to records group(to each record of the specified array `group`)
-(the status will be stored in an internal hash map
-and it will be set className with the `status` value to the corresponding row in the grid).
+Add status to records group(to each record of the specified array `group`). It will be set className with the `status` value to the corresponding row in the grid. So you can define css styles for record with this status (className).
 
 **Parameters**:
 
@@ -550,8 +547,7 @@ and it will be set className with the `status` value to the corresponding row in
   grid.removeRecordStatus(recordId, status);
 {% endhighlight %}
 
-Remove record status(the status will be removed from the internal hash map
-and it will be removed className with the `status` value from the corresponding row in the grid).
+Remove record status. It will be removed className with the `status` value from the corresponding row in the grid. You also should remove css styles for record with this status (className).
 
 **Parameters**:
 
