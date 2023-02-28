@@ -29,6 +29,7 @@ class FormService {
     this.clearError = this.clearError.bind(this);
     this.clearValidation = this.clearValidation.bind(this);
     this.updateField = this.updateField.bind(this);
+    this.updateFieldWithPrevValidation = this.updateFieldWithPrevValidation.bind(this);
     this.validateField = this.validateField.bind(this);
     this._getData = this._getData.bind(this);
     this._getChanges = this._getChanges.bind(this);
@@ -180,13 +181,24 @@ class FormService {
     this.clearValidation(field);
   }
 
-  async validateField(field, value) {
+  /**
+   * Update field value and validate form.
+   *
+   * @param {string}  field  Parameter
+   * @param {*}       value  Event or data
+   */
+  async updateFieldWithPrevValidation(field, value) {
     await this.set(
       {
         [field]: parseValueFromEvent(value)
       },
       true
     );
+  }
+
+  validateField(field, value) {
+    console.warn('Deprecated: FormService method "validateField" renamed to "updateFieldWithPrevValidation"');
+    this.updateFieldWithPrevValidation(field, value);
   }
 
   /**

@@ -22,12 +22,12 @@ ___
 - [removeChangeListener(handler)](#removechangelistener)
 - [removeAllListeners()](#removealllisteners)
 - [async updateField(field, value)](#async-updatefield)
-- [async validateField(field, value)](#async-validatefield)
+- [async updateFieldWithPrevValidation(field, value)](#async-updatefieldwithprevvalidation)
 - [async validateForm()](#async-validateform)
 - [async set(data, validate)](#async-set)
 - [async submit()](#async-submit)
 - [async submitData(data)](#async-submitdata)
-- [clearValidation(field)](#clearvalidation)
+- [clearValidation(field)](#clearValidation)
 - [clearFieldChanges(field)](#clearfieldchanges)
 - [clearChanges()](#clearchanges)
 
@@ -127,10 +127,10 @@ Update changes of the specified form field(s). Returns promise which resolves wh
 
 ----
 
-### async validateField
+### async updateFieldWithPrevValidation
 
 {% highlight javascript %}
-  let validationErrors = await formService.validateField(field, value);
+  let validationErrors = await formService.updateFieldWithPrevValidation(field, value);
 {% endhighlight %}
 
 Update field value and validate form. Returns Promise which resolves with validation errors
@@ -209,7 +209,7 @@ The method triggers 'update' event eventually
 
 ----
 
-### clearvalidation
+### clearValidation
 
 {% highlight javascript %}
   formService.clearValidation(field);

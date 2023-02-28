@@ -236,10 +236,10 @@ describe('clearValidation', () => {
   });
 });
 
-describe('validateField', () => {
+describe('updateFieldWithPrevValidation', () => {
   it('Set run', () => {
     form.set = jest.fn();
-    form.validateField('name', 'newName');
+    form.updateFieldWithPrevValidation('name', 'newName');
     expect(form.set).toHaveBeenCalledTimes(1);
   });
 });

@@ -86,7 +86,7 @@ declare module 'uikernel' {
   export class FormService<TRecord, TField extends keyof TRecord> {
     init: (settings: FormSettings<TRecord, TField>) => Promise<void>;
     updateField: (field: TField, value: any) => Promise<void>;
-    validateField: (field: TField, value: any) => Promise<void>;
+    updateFieldWithPrevValidation: (field: TField, value: any) => Promise<void>;
     validateForm: () => Promise<{
       errors: ValidationErrors<keyof TRecord> | null;
       warnings: ValidationErrors<keyof TRecord> | null;

@@ -308,6 +308,10 @@ const FormMixin = {
     }, true, cb);
   },
 
+  updateFieldWithPrevValidation: function (field, value, cb) {
+    this.validateField(field, value, cb);
+  },
+
   validateForm: function (cb) {
     this._validateForm(function (err) {
       if (typeof cb === 'function') {

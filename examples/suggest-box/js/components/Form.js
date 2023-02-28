@@ -68,7 +68,7 @@ class Form extends React.Component {
                     <td>
                       <UIKernel.Editors.SuggestBox
                         model={countries}
-                        onChange={this.form.validateField.bind(this.form, 'country')}
+                        onChange={this.form.updateFieldWithPrevValidation.bind(this.form, 'country')}
                         onLabelChange={this.form.updateField.bind(this.form, 'countryName')}
                         select={true}
                         value={this.state.form.data.country}
