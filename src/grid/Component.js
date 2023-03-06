@@ -897,17 +897,20 @@ class GridComponent extends React.Component {
       return;
     }
 
-    const nextData = new EqualMap([...this.state.data].map(([dataRecordId, record]) => {
-      if (!isEqual(recordId, dataRecordId)) {
-        return [dataRecordId, record];
-      }
+    this.setState((state) => {
+      state.data = new EqualMap([...state.data].map(([dataRecordId, record]) => {
+        if (!isEqual(recordId, dataRecordId)) {
+          return [dataRecordId, record];
+        }
+  
+        return [dataRecordId, {
+          ...record,
+          ...data
+        }];
+      }));
 
-      return [dataRecordId, {
-        ...record,
-        ...data
-      }];
-    }));
-    this.setState({data: nextData});
+      return state;
+    });
   }
 
   /**
