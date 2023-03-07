@@ -45,7 +45,7 @@ import FormMixin from './form/mixin';
 import useForm from './form/useForm';
 import PureGridComponent from './grid/PureGridComponent';
 
-if (!global._babelPolyfill) {
+if (!window._babelPolyfill) {
   require('@babel/polyfill/browser');
 }
 
