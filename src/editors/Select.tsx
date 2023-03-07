@@ -17,16 +17,16 @@ type AdvencedOptions<TValue> = [
   StrictOmit<React.OptionHTMLAttributes<HTMLOptionElement>, 'value'>?
 ][];
 
-type AvailevleOptions<TValue> = Exclude<TValue, string | null> extends never
+type AvailableOptions<TValue> = Exclude<TValue, string | null> extends never
   ? AdvencedOptions<TValue> | string[]
   : AdvencedOptions<TValue>;
 
-type State<TValue, TOptions extends AvailevleOptions<TValue>> = {
+type State<TValue, TOptions extends AvailableOptions<TValue>> = {
   loading: boolean;
   options: TOptions | [[null, ''], ...TOptions];
 };
 
-type Props<TValue, TOptions extends AvailevleOptions<TValue>> = StrictOmit<
+type Props<TValue, TOptions extends AvailableOptions<TValue>> = StrictOmit<
   React.SelectHTMLAttributes<HTMLSelectElement>,
   'disabled' | 'onChange' | 'value'
 > & {
@@ -48,7 +48,7 @@ const DEFAULT_PROPS = {
   options: []
 } as const;
 
-class SelectEditor<TValue, TOptions extends AvailevleOptions<TValue>> extends React.Component<
+class SelectEditor<TValue, TOptions extends AvailableOptions<TValue>> extends React.Component<
   Props<TValue, TOptions>,
   State<TValue, TOptions>
 > {

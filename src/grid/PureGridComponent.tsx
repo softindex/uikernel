@@ -45,8 +45,7 @@ type Props<
   TKey,
   TRecord extends Record<string, unknown>,
   TFilters,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+  TColumns extends Partial<GridColumns<TKey, TRecord>>,
   TMultipleSorting extends boolean
 > = {
   changes: EqualMap<TKey, Partial<TRecord>>;
@@ -100,8 +99,7 @@ class PureGridComponent<
   TKey,
   TRecord extends Record<string, unknown>,
   TFilters,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+  TColumns extends Partial<GridColumns<TKey, TRecord>>,
   TMultipleSorting extends boolean
 > extends React.Component<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>> {
   static defaultProps = DEFAULT_PROPS;
@@ -1026,10 +1024,7 @@ class PureGridComponent<
   }
 
   private getEditorFieldName(id: string & keyof TColumns): string & keyof TRecord {
-    return (
-      (this.props.columns[id]?.editorField as (string & keyof TRecord) | undefined) ??
-      (id as string & keyof TRecord)
-    );
+    return this.props.columns[id]?.editorField ?? (id as string & keyof TRecord);
   }
 }
 

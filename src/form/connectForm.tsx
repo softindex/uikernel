@@ -7,15 +7,14 @@
  */
 
 import React from 'react';
-import {ArrayWithAtLeastOneElement} from '../common/types';
 import FormService from './FormService';
 
 type ConnectFormProps<
   TRecord extends Record<string, unknown>,
-  TAvailableField extends string & keyof TRecord
+  TRequestedField extends string & keyof TRecord
 > = {
-  formData: ReturnType<FormService<TRecord, TAvailableField>['getAll']>;
-  formService: FormService<TRecord, TAvailableField>;
+  formData: ReturnType<FormService<TRecord, TRequestedField>['getAll']>;
+  formService: FormService<TRecord, TRequestedField>;
 };
 
 export type WithoutConnectFormProps<TProps extends Record<string, unknown>> = Omit<
@@ -25,21 +24,21 @@ export type WithoutConnectFormProps<TProps extends Record<string, unknown>> = Om
 
 export type WithConnectFormProps<
   TRecord extends Record<string, unknown>,
-  TAvailableField extends string & keyof TRecord,
+  TRequestedField extends string & keyof TRecord,
   TProps extends Record<string, unknown>
-> = ConnectFormProps<TRecord, TAvailableField> & WithoutConnectFormProps<TProps>;
+> = ConnectFormProps<TRecord, TRequestedField> & WithoutConnectFormProps<TProps>;
 
-function connectForm<TRecord extends Record<string, unknown>, TAvailableField extends string & keyof TRecord>(
-  fields: ArrayWithAtLeastOneElement<TAvailableField> | null = null
+function connectForm<TRecord extends Record<string, unknown>, TRequestedField extends string & keyof TRecord>(
+  fields: TRequestedField[] = []
 ) {
-  return <TProps extends Record<string, unknown>>(
-    Component: React.ComponentType<WithConnectFormProps<TRecord, TAvailableField, TProps>>
+  return <TProps extends ConnectFormProps<TRecord, TRequestedField>>(
+    Component: React.ComponentType<TProps>
   ): React.ComponentType<WithoutConnectFormProps<TProps>> => {
     class ComponentWithFormService extends React.Component<
       WithoutConnectFormProps<TProps>,
-      ReturnType<FormService<TRecord, TAvailableField>['getAll']>
+      ReturnType<FormService<TRecord, TRequestedField>['getAll']>
     > {
-      private form = new FormService<TRecord, TAvailableField>(fields ?? []);
+      private form = new FormService<TRecord, TRequestedField>(fields);
 
       constructor(props: WithoutConnectFormProps<TProps>) {
         super(props);
@@ -60,12 +59,13 @@ function connectForm<TRecord extends Record<string, unknown>, TAvailableField ex
         this.form.removeChangeListener(this.onFormChange);
       }
 
-      onFormChange = (newFormState: ReturnType<FormService<TRecord, TAvailableField>['getAll']>): void => {
+      onFormChange = (newFormState: ReturnType<FormService<TRecord, TRequestedField>['getAll']>): void => {
         this.setState(newFormState);
       };
 
       render(): JSX.Element {
-        return <Component {...this.props} formData={this.state} formService={this.form} />;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return <Component {...(this.props as any)} formData={this.state} formService={this.form} />;
       }
     }
 

@@ -38,8 +38,7 @@ export interface IGridRef<
   TKey,
   TRecord extends Record<string, unknown>,
   TFilters,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+  TColumns extends Partial<GridColumns<TKey, TRecord>>,
   TMultipleSorting extends boolean
 > {
   /**

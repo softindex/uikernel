@@ -72,7 +72,7 @@ export type GridColumnConfig<
   TColumnId extends string,
   TRecord extends Record<string, unknown>,
   TEditorField extends string & keyof TRecord,
-  TKey = never,
+  TKey,
   TElement extends HTMLElement = HTMLElement
 > = {
   className?: string;
@@ -94,24 +94,7 @@ export type GridColumnConfig<
       }
   );
 
-export type GridColumns<
-  TRecord extends Record<string, unknown>,
-  TColumnId extends string,
-  TColumnToEditorField extends {[K in TColumnId]?: string & keyof TRecord} = {
-    [K in TColumnId]?: string & keyof TRecord;
-  },
-  TKey = never,
-  TElement extends HTMLElement = HTMLElement
-> = {
-  [K in TColumnId]: GridColumnConfig<
-    K,
-    TRecord,
-    TColumnToEditorField[K] extends string & keyof TRecord
-      ? TColumnToEditorField[K]
-      : K extends string & keyof TRecord
-      ? K
-      : never,
-    TKey,
-    TElement
-  >;
+export type GridColumns<TKey, TRecord extends Record<string, unknown>, TColumnId extends string = string> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [K in TColumnId]: GridColumnConfig<K, TRecord, string & keyof TRecord, TKey, any>;
 };

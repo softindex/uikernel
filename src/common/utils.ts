@@ -233,3 +233,7 @@ export function parents(element: Element, selector: string): Element[] {
 export function keys<T extends Record<string, unknown>>(obj: T): (string & keyof T)[] {
   return Object.keys(obj) as (string & keyof T)[];
 }
+
+export function isCorrectNumber(value: number): boolean {
+  return !isNaN(value) && isFinite(value);
+}

@@ -7,6 +7,7 @@
  */
 
 import isNil from 'lodash/isNil';
+import {isCorrectNumber} from '../../common/utils';
 
 type Limit = number | null | undefined;
 
@@ -27,7 +28,7 @@ function baseValidator(
 
   if (
     typeof value !== 'number' ||
-    isNaN(value) ||
+    !isCorrectNumber(value) ||
     parseInt(value.toString(), 10).toString() !== value.toString() ||
     (typeof min === 'number' && value < min) ||
     (typeof max === 'number' && value > max)

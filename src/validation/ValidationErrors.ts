@@ -18,7 +18,7 @@ class ValidationErrors<TField extends string> {
    * Convert JSON to ValidationErrors object
    */
   static createFromJSON<TField extends string>(
-    jsonObject: Record<TField, (ValidationJSONError | string)[]>
+    jsonObject: Partial<Record<TField, (ValidationJSONError | string)[]>>
   ): ValidationErrors<TField> {
     const validationErrors = new ValidationErrors<TField>();
     for (const key in jsonObject) {
@@ -27,7 +27,9 @@ class ValidationErrors<TField extends string> {
       }
 
       const value = jsonObject[key];
-      value.forEach((errMessage) => validationErrors.add(key, errMessage));
+      if (value) {
+        value.forEach((errMessage) => validationErrors.add(key, errMessage));
+      }
     }
 
     return validationErrors;

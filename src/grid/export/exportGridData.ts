@@ -20,7 +20,7 @@ function formatColumns<
   TColumn extends string,
   TViewColumn extends TColumn
 >(
-  columns: Partial<GridColumns<TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatColumnsResult<TViewColumn> {
   const formattedColumns = {} as unknown as FormatColumnsResult<TViewColumn>;
@@ -51,7 +51,7 @@ function formatRecord<
   TViewColumn extends TColumn
 >(
   record: TRecord,
-  columns: Partial<GridColumns<TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatRecordResult<TViewColumn> {
   const formattedRecord: Partial<FormatRecordResult<TViewColumn>> = {};
@@ -86,7 +86,7 @@ function formatData<
 >(
   records: [unknown, TRecord][],
   totals: TRecord | undefined,
-  columns: Partial<GridColumns<TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatDataResult<TViewColumn> {
   const formatted: FormatDataResult<TViewColumn> = {
@@ -104,7 +104,10 @@ function getFields<
   TRecord extends Record<string, unknown>,
   TColumn extends string,
   TViewColumn extends TColumn
->(columns: Partial<GridColumns<TRecord, TColumn>>, viewColumns: TViewColumn[]): (keyof TRecord & string)[] {
+>(
+  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
+  viewColumns: TViewColumn[]
+): (keyof TRecord & string)[] {
   const fields: Partial<Record<keyof TRecord & string, boolean>> = {};
   for (const columnId of viewColumns) {
     const column = columns[columnId];
@@ -126,7 +129,7 @@ function assertValidViewColumns<
   TRecord extends Record<string, unknown>,
   TColumn extends string,
   TViewColumn extends TColumn
->(columns: Partial<GridColumns<TRecord, TColumn>>, viewColumns?: TViewColumn[] | null): void {
+>(columns: Partial<GridColumns<unknown, TRecord, TColumn>>, viewColumns?: TViewColumn[] | null): void {
   if (!viewColumns?.length) {
     throw new ArgumentsError('"viewColumns" can`t be empty');
   }
@@ -163,7 +166,7 @@ async function exportGridData<
   TExportRunner extends (data: FormatDataResult<TViewColumn>) => Promise<{data: unknown; mime: string}>
 >(
   gridModel: IGridModel<unknown, TRecord, unknown>,
-  columns: Partial<GridColumns<TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
   viewColumns: TViewColumn[],
   exportRunner: TExportRunner,
   settings: ExportGridDataParams<TRecord>

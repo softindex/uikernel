@@ -10,7 +10,7 @@ import boolean from '../rules/boolean';
 import date from '../rules/date';
 import enumValidator from '../rules/enum';
 import float from '../rules/float';
-import number from '../rules/integer';
+import integer from '../rules/integer';
 import notNull from '../rules/notNull';
 import regExp from '../rules/regExp';
 import set from '../rules/set';
@@ -26,7 +26,7 @@ describe('ValidationError', () => {
   });
 
   it('add', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
+    const validationError = ValidationError.createFromJSON<'test' | 'test2'>({test: ['error']});
     validationError.add('test2', 'error2');
     expect(validationError.toJSON()).toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
   });
@@ -68,7 +68,7 @@ describe('ValidationError', () => {
   });
 
   it('merge', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
+    const validationError = ValidationError.createFromJSON<'test' | 'test2'>({test: ['error']});
     const errorToMerge = ValidationError.createFromJSON({test2: [{message: 'error2'}]});
     expect(validationError.merge(errorToMerge).toJSON()).toEqual({
       test: [{message: 'error'}],
@@ -85,7 +85,7 @@ describe('validators', () => {
     expect(validator('rtrtr')).toBe('err text');
     expect(validatorNotNull(false)).toBeUndefined();
     expect(validatorNotNull(34)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 
   it('date', () => {
@@ -96,7 +96,7 @@ describe('validators', () => {
     expect(validatorNotNull('1970-01-01T01:00:00.000Z')).toBe('err text');
     expect(validatorNotNull('1970-01-01T03:00:00.000Z')).toBeUndefined();
     expect(validatorNotNull(600000)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 
   it('enum', () => {
@@ -106,7 +106,7 @@ describe('validators', () => {
     expect(validator('rtrtr')).toBe('err text');
     expect(validatorNotNull('b')).toBeUndefined();
     expect(validatorNotNull(34)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 
   it('float', () => {
@@ -114,9 +114,9 @@ describe('validators', () => {
     const validatorNotNull = float.notNull(3, 10, 'err text');
     expect(validator(4)).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
-    expect(validatorNotNull(7, 5)).toBeUndefined();
+    expect(validatorNotNull(7)).toBeUndefined();
     expect(validatorNotNull(34)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 
   it('notNull', () => {
@@ -125,14 +125,14 @@ describe('validators', () => {
     expect(validator(null)).toBe('err text');
   });
 
-  it('number', () => {
-    const validator = number(3, 10, 'err text');
-    const validatorNotNull = number.notNull(3, 10, 'err text');
+  it('integer', () => {
+    const validator = integer(3, 10, 'err text');
+    const validatorNotNull = integer.notNull(3, 10, 'err text');
     expect(validator(4)).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
     expect(validatorNotNull(7)).toBeUndefined();
-    expect(validatorNotNull(34, 5)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(34)).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 
   it('regExp', () => {
@@ -141,8 +141,8 @@ describe('validators', () => {
     expect(validator('abcd')).toBeUndefined();
     expect(validator('rtrtr')).toBe('err text');
     expect(validatorNotNull('abcd')).toBeUndefined();
-    expect(validatorNotNull(34, 5)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(34)).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 
   it('set', () => {
@@ -152,13 +152,13 @@ describe('validators', () => {
     expect(validator(['a', 'rtrtr'])).toBe('err text');
     expect(validatorNotNull(['b'])).toBeUndefined();
     expect(validatorNotNull(34)).toBe('err text');
-    expect(validatorNotNull()).toBe('err text');
+    expect(validatorNotNull(undefined)).toBe('err text');
   });
 });
 
 describe('Validator', () => {
   const validatorBoolean = boolean('err text');
-  let validator;
+  let validator: Validator<Record<string, unknown>>;
   beforeEach(() => {
     validator = new Validator();
   });

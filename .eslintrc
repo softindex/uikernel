@@ -85,7 +85,7 @@
     "eol-last": "error",
     "no-trailing-spaces": "error",
     "quotes": ["error", "single", {"avoidEscape": true, "allowTemplateLiterals": true}],
-    "strict": [2, "never"],
+    "strict": ["error", "never"],
     "no-underscore-dangle": "off",
     "no-loop-func": "off",
     "no-undef": "error",

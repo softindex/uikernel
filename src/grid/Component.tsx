@@ -63,8 +63,7 @@ type Props<
   TKey,
   TRecord extends Record<string, unknown>,
   TFilters,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+  TColumns extends Partial<GridColumns<TKey, TRecord>>,
   TMultipleSorting extends boolean
 > = {
   autoSubmit?: boolean;
@@ -138,8 +137,7 @@ class GridComponent<
     TKey,
     TRecord extends Record<string, unknown>,
     TFilters,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    TColumns extends Partial<GridColumns<TRecord, any, any, TKey>>,
+    TColumns extends Partial<GridColumns<TKey, TRecord>>,
     TMultipleSorting extends boolean = false
   >
   extends React.Component<
@@ -1693,7 +1691,7 @@ class GridComponent<
     assertNonNullish<object | null>(record, '"record" unknown');
     assertNonNullish(columnConfig.editor, '"columnConfig.editor" unknown');
 
-    const context = cloneDeep(editorContext);
+    const context = cloneDeep(editorContext) as unknown as EditorContext<TRecord, keyof TRecord & string>;
     context.props.value = value;
     const element = columnConfig.editor.call(context, record, this);
     assertNonNullish(element, 'received unknown element on change editor');
@@ -1825,10 +1823,7 @@ class GridComponent<
   }
 
   private getEditorFieldName(columnId: string & keyof TColumns): string & keyof TRecord {
-    return (
-      (this.props.columns[columnId]?.editorField as (string & keyof TRecord) | undefined) ??
-      (columnId as string & keyof TRecord)
-    );
+    return this.props.columns[columnId]?.editorField ?? (columnId as string & keyof TRecord);
   }
 }
 

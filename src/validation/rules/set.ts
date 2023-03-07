@@ -12,9 +12,9 @@ function baseValidator(
   notNull: boolean,
   variants: unknown[],
   error = 'Not in variants',
-  values: unknown[] | null | undefined
+  values: unknown | null | undefined
 ): string | undefined {
-  if (isNil(values) || !values.length) {
+  if (isNil(values) || !Array.isArray(values) || !values.length) {
     if (notNull) {
       return error;
     }
@@ -32,11 +32,11 @@ function baseValidator(
 }
 
 export interface SetValidation {
-  (variants: unknown[], error?: string): (values: unknown[] | null | undefined) => string | undefined;
+  (variants: unknown[], error?: string): (values: unknown | null | undefined) => string | undefined;
   notNull: (
     variants: unknown[],
     error?: string
-  ) => (values: unknown[] | null | undefined) => string | undefined;
+  ) => (values: unknown | null | undefined) => string | undefined;
 }
 
 /**

@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import numberValidator from '../integer';
+import integerValidator from '../integer';
 
 describe('Without range and can be empty', () => {
-  const validator = numberValidator(null, null, 'test');
+  const validator = integerValidator(null, null, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).toBeDefined();
@@ -81,7 +81,7 @@ describe('Without range and can be empty', () => {
 });
 
 describe('Without range and can not be empty', () => {
-  const validator = numberValidator.notNull(null, null, 'test');
+  const validator = integerValidator.notNull(null, null, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).toBeDefined();
@@ -153,7 +153,7 @@ describe('Without range and can not be empty', () => {
 });
 
 describe('With range [-1, 1] and can be empty', () => {
-  const validator = numberValidator(-1, 1, 'test');
+  const validator = integerValidator(-1, 1, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).toBeDefined();
@@ -221,7 +221,7 @@ describe('With range [-1, 1] and can be empty', () => {
 });
 
 describe('With range [-1, 1] and can not be empty', () => {
-  const validator = numberValidator.notNull(-1, 1, 'test');
+  const validator = integerValidator.notNull(-1, 1, 'test');
 
   it('"1" should not be valid', () => {
     expect(validator('1')).toBeDefined();
@@ -289,7 +289,7 @@ describe('With range [-1, 1] and can not be empty', () => {
 });
 
 describe('Error message is not defined', () => {
-  const validator = numberValidator(null, null);
+  const validator = integerValidator(null, null);
   it('Should be return default message', () => {
     expect(validator(NaN)).toBe('Invalid number');
   });

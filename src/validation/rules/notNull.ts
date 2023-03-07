@@ -7,13 +7,14 @@
  */
 
 import isNil from 'lodash/isNil';
+import {isCorrectNumber} from '../../common/utils';
 
 /**
  * Create NULL validator
  */
 export default function noNull(error = 'Can not be empty'): (value: unknown) => string | undefined {
   return (value) => {
-    if (isNil(value) || value === '' || (typeof value === 'number' && (isNaN(value) || !isFinite(value)))) {
+    if (isNil(value) || value === '' || (typeof value === 'number' && !isCorrectNumber(value))) {
       return error;
     }
 
