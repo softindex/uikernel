@@ -11,15 +11,15 @@ import React from 'react';
 import {StrictOmit} from 'ts-essentials';
 import {isEqual} from '../common/utils';
 
-type AdvencedOptions<TValue> = [
+type AdvancedOptions<TValue> = [
   Exclude<TValue, null>,
   string,
   StrictOmit<React.OptionHTMLAttributes<HTMLOptionElement>, 'value'>?
 ][];
 
 type AvailableOptions<TValue> = Exclude<TValue, string | null> extends never
-  ? AdvencedOptions<TValue> | string[]
-  : AdvencedOptions<TValue>;
+  ? AdvancedOptions<TValue> | string[]
+  : AdvancedOptions<TValue>;
 
 type State<TValue, TOptions extends AvailableOptions<TValue>> = {
   loading: boolean;
