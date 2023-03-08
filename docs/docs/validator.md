@@ -233,41 +233,165 @@ Checks validity of the given `record`.
 ## Built-in Validation Rules
 There is a set of basic validation rules is provided out of the box:
 
+### notNull
+
 {% highlight javascript %}
-// Check if value is not empty string, null and undefined
-UIKernel.Validators.notNull(string errorMessage)
-
-// Check if value is not an empty string, array or object and not null, undefined, 0
-UIKernel.Validators.notEmpty(string errorMessage)
-
-// Check if value is boolean
-UIKernel.Validators.boolean(string errorMessage)
-UIKernel.Validators.boolean.notNull(string errorMessage)
-
-// Check if date matches min-to-max range
-UIKernel.Validators.date(Date | null min, Date | null max, string errorMessage)
-UIKernel.Validators.date.notNull(Date | null min, Date | null max, string errorMessage)
-
-// Check if variants contain the value
-UIKernel.Validators.enum(Array variants, string errorMessage)
-UIKernel.Validators.enum.notNull(Array variants, string errorMessage)
-
-// Check if value is float
-UIKernel.Validators.float(number min, number max, string errorMessage)
-UIKernel.Validators.float.notNull(number min, number max, string errorMessage)
-
-// Check if value is integer
-UIKernel.Validators.number(number min, number max, string errorMessage)
-UIKernel.Validators.number.notNull(number min, number max, string errorMessage)
-
-// Check if value matches regular expression
-UIKernel.Validators.regExp(RegExp regExp, string errorMessage)
-UIKernel.Validators.regExp.notNull(RegExp regExp, string errorMessage)
-
-// Check if value belongs to set
-UIKernel.Validators.set(Array set, string errorMessage)
-UIKernel.Validators.set.notNull(Array set, string errorMessage)
+  UIKernel.Validators.notNull(errorMessage);
 {% endhighlight %}
+
+Check if value is not empty string, null and undefined.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### notEmpty
+
+{% highlight javascript %}
+  UIKernel.Validators.notEmpty(errorMessage);
+{% endhighlight %}
+
+Check if value is not an empty string, array or object and not null, undefined, 0.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### boolean
+
+{% highlight javascript %}
+  UIKernel.Validators.boolean(errorMessage);
+  UIKernel.Validators.boolean.notNull(errorMessage);
+{% endhighlight %}
+
+Check if value is boolean.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### date
+
+{% highlight javascript %}
+  UIKernel.Validators.date(min, max, errorMessage);
+  UIKernel.Validators.date.notNull(min, max, errorMessage);
+{% endhighlight %}
+
+Check if date matches min-to-max range.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> Date \|\| Number \|\| String \|\| null \|\| undefined </span> | min    | Minimum value for date |
+| <span style="white-space:nowrap;"> Date \|\| Number \|\| String \|\| null \|\| undefined </span> | max    | Maximum value for date |
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### enum
+
+{% highlight javascript %}
+  UIKernel.Validators.enum(variants, errorMessage);
+  UIKernel.Validators.enum.notNull(variants, errorMessage);
+{% endhighlight %}
+
+Check if variants contain the value.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> Array </span> | variants    | Array of available values |
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### float
+
+{% highlight javascript %}
+  UIKernel.Validators.float(min, max, errorMessage);
+  UIKernel.Validators.float.notNull(min, max, errorMessage);
+{% endhighlight %}
+
+Check if value is float.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> Number \|\| null \|\| undefined </span> | min    | Minimum value for float |
+| <span style="white-space:nowrap;"> Number \|\| null \|\| undefined </span> | max    | Maximum value for float |
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### number
+
+{% highlight javascript %}
+  UIKernel.Validators.number(min, max, errorMessage);
+  UIKernel.Validators.number.notNull(min, max, errorMessage);
+{% endhighlight %}
+
+Check if value is integer.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> Number \|\| null \|\| undefined </span> | min    | Minimum value for integer |
+| <span style="white-space:nowrap;"> Number \|\| null \|\| undefined </span> | max    | Maximum value for integer |
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### regExp
+
+{% highlight javascript %}
+  UIKernel.Validators.regExp(regExp, errorMessage);
+  UIKernel.Validators.regExp.notNull(regExp, errorMessage);
+{% endhighlight %}
+
+Check if value matches regular expression.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> RegExp </span> | regExp    | Pattern to match character combinations in strings |
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
+
+### set
+
+{% highlight javascript %}
+  UIKernel.Validators.set(set, errorMessage);
+  UIKernel.Validators.set.notNull(set, errorMessage);
+{% endhighlight %}
+
+Check if values belongs to set. Instead of `enum` it checks array of values.
+
+**Parameters**:
+
+| Type                                                  | Name      | Description                                                        |
+|-------------------------------------------------------|-----------|--------------------------------------------------------------------|
+| <span style="white-space:nowrap;"> Array </span> | set    | Array of available values |
+| <span style="white-space:nowrap;"> String </span> | errorMessage    | Message with information about error |
+
+**Returns**: UIKernel validation function
 
 ---
 
