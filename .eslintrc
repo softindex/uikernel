@@ -113,7 +113,6 @@
     "no-case-declarations": "off",
     "keyword-spacing": ["error", {"before": true, "after": true}],
     "space-before-blocks": "error",
-    "no-cond-assign": "off",
     "space-before-function-paren": [
       "error",
       {"anonymous": "always", "named": "never", "asyncArrow": "always"}

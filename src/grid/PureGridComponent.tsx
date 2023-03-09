@@ -18,7 +18,7 @@ import assert, {assertNonNullish} from '../common/assert';
 import EqualMap from '../common/EqualMap';
 import {keys, parents, toEncodedString, isEqual} from '../common/utils';
 import ValidationErrors from '../validation/ValidationErrors';
-import {GridColumnName, GridColumns, GridGetColumn} from './types/GridColumns';
+import {GridColumnName, GridColumns, GridGetCell} from './types/GridColumns';
 import {GridEditor, IGridRef, SortElementProps} from './types/IGridRef';
 
 const findDOMNode = ReactDOM.findDOMNode;
@@ -626,7 +626,7 @@ class PureGridComponent<
     const column = this.props.columns[columnId];
     assertNonNullish<object | undefined>(column, `"${columnId}" column unavailable`);
 
-    const render = last(column.render) as GridGetColumn<TRecord>;
+    const render = last(column.render) as GridGetCell<TRecord>;
     const cellHtml = render(
       this.escapeRecord(columnId, recordWithChanges),
       selected,

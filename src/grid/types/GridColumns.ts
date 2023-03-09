@@ -32,7 +32,7 @@ export type OnColumnClick<TKey, TRecord extends Record<string, unknown>, TElemen
   self: any
 ) => void;
 
-export type GridGetColumn<TRecord extends Record<string, unknown>> = (
+export type GridGetCell<TRecord extends Record<string, unknown>> = (
   recordWithChanges: TRecord,
   selected: boolean,
   initialRecord: Partial<TRecord>,
@@ -40,9 +40,9 @@ export type GridGetColumn<TRecord extends Record<string, unknown>> = (
   gridRef: IGridRef<any, TRecord, any, any, boolean> | undefined
 ) => string;
 
-export type GridColumnRender<TRecord extends Record<string, unknown>> = readonly [
-  ...(ArrayWithAtLeastOneElement<string & keyof TRecord> | []),
-  GridGetColumn<TRecord>
+export type GridCellRender<TRecord extends Record<string, unknown>> = readonly [
+  ...ArrayWithAtLeastOneElement<string & keyof TRecord>,
+  GridGetCell<TRecord>
 ];
 
 type GridEditorConfig<
@@ -79,7 +79,7 @@ export type GridColumnConfig<
   escape?: boolean;
   name: GridColumnName<TKey, TRecord>;
   parent?: GridColumnName<TKey, TRecord>;
-  render: GridColumnRender<TRecord>;
+  render: GridCellRender<TRecord>;
   sortCycle?: Readonly<ArrayWithAtLeastOneElement<GridModelSortMode>>;
   width?: number | string;
 } & GridEditorConfig<TColumnId, TRecord, TEditorField> &
@@ -95,6 +95,5 @@ export type GridColumnConfig<
   );
 
 export type GridColumns<TKey, TRecord extends Record<string, unknown>, TColumnId extends string = string> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in TColumnId]: GridColumnConfig<K, TRecord, string & keyof TRecord, TKey, any>;
+  [K in TColumnId]: GridColumnConfig<K, TRecord, string & keyof TRecord, TKey>;
 };

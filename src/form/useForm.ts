@@ -8,9 +8,8 @@
 
 import {useEffect, useMemo, useState} from 'react';
 import FormService from './FormService';
+import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
 import {FormServiceEmptyState, FormServiceParams, FormServiceState} from './types/IFormService';
-
-type ModelListenerArgsByEventName<TRecord extends Record<string, unknown>> = {update: [Partial<TRecord>]};
 
 export type UseFormResult<
   TRecord extends Record<string, unknown>,
@@ -21,7 +20,7 @@ export type UseFormResult<
 ];
 
 function useForm<TRecord extends Record<string, unknown>, TAvailableField extends keyof TRecord & string>(
-  settings: FormServiceParams<TRecord, TAvailableField, ModelListenerArgsByEventName<TRecord>>,
+  settings: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>,
   onError: (error: Error) => void = console.error
 ): UseFormResult<TRecord, TAvailableField> {
   const formService = useMemo(() => new FormService<TRecord, TAvailableField>([]), []);

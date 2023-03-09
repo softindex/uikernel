@@ -11,7 +11,7 @@ import ArgumentsError from '../../common/error/ArgumentsError';
 import {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
 import {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
-import {GridColumns, GridGetColumn} from '../types/GridColumns';
+import {GridColumns, GridGetCell} from '../types/GridColumns';
 
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 
@@ -62,7 +62,7 @@ function formatRecord<
       continue;
     }
 
-    formattedRecord[viewColumn] = (column.render[column.render.length - 1] as GridGetColumn<TRecord>)(
+    formattedRecord[viewColumn] = (column.render[column.render.length - 1] as GridGetCell<TRecord>)(
       record,
       false,
       record,
