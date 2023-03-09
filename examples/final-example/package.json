@@ -9,6 +9,7 @@
     "react-scripts": "5.0.1",
     "uikernel": "../../"
   },
+  "homepage": "/examples/final-example",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

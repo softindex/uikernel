@@ -10,6 +10,7 @@
     "react-scripts": "5.0.1",
     "uikernel": "../../"
   },
+  "homepage": "/examples/suggest-box-simple",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
