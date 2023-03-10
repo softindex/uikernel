@@ -51,7 +51,6 @@ Initialize a form
 | Object                                                | settings.changes                    | *Optional*. Preset changes
 | Boolean                                               | settings.submitAll=false            | *Optional*. Send all form for validity check
 | Boolean                                               | settings.partialErrorChecking=false | *Optional*. Activate partial gradual form validation
-| Boolean                                               | settings.showDependentFields=false  | *Optional*. Mark the fields which are involved in group validation |
 
 ----
 
