@@ -12,13 +12,15 @@ import {ArrayWithAtLeastOneElement} from '../common/types';
 import {isIntersection, keys} from '../common/utils';
 import ValidationErrors from './ValidationErrors';
 
+type ValidationResult<T, TAsync extends 'async' | 'sync'> = TAsync extends 'sync' ? T : Promise<T>;
+
 type ValidationFunction<TValue, TAsync extends 'async' | 'sync'> = (
   value: TValue | undefined
-) => TAsync extends 'sync' ? string | undefined : Promise<string | undefined>;
+) => ValidationResult<string | undefined, TAsync>;
 type GroupValidationFunction<TRecord extends Record<string, unknown>, TAsync extends 'async' | 'sync'> = (
   record: Partial<TRecord>,
   errors: ValidationErrors<keyof TRecord & string>
-) => TAsync extends 'sync' ? undefined : Promise<undefined>;
+) => ValidationResult<void, TAsync>;
 
 type ValidatorSettings<TRecord extends Record<string, unknown>> = {
   asyncDependenies: ArrayWithAtLeastOneElement<keyof TRecord & string>[];
