@@ -299,7 +299,7 @@ In case of an unexpected error it will be thrown(e.g. if there are async validat
 
 {% highlight javascript %}
   try {
-    const validationRes = await gridXhrModel model.isValidRecord({
+    const validationRes = await gridCollectionModel.isValidRecord({
       id: 4,
       name: 'Michal',
       phone: '',

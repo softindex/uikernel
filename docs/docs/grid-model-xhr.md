@@ -279,7 +279,7 @@ This method is required for creating group validators\(read details [here](/docs
 ### async isValidRecord
 
 {% highlight javascript %}
-  const validationRes = await gridXhrModelisValidRecord(record);
+  const validationRes = await gridXhrModel.isValidRecord(record);
 {% endhighlight %}
 
 Validate specified record by means of the validator passed in the constructor, or the default one.
@@ -295,7 +295,7 @@ In case of an unexpected error it will be thrown(e.g. if there are async validat
 
 {% highlight javascript %}
   try {
-    const validationRes = await gridXhrModel model.isValidRecord({
+    const validationRes = await gridXhrModel.isValidRecord({
       id: 4,
       name: 'Box',
       phone: '',
