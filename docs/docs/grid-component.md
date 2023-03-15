@@ -23,7 +23,6 @@ which helps to create data driven spreadsheets with capabilities of:
     columns={columns}
     viewColumns={viewColumns}
     height={height}
-    saveFullRecord={saveFullRecord}
     autoSubmit={autoSubmit}
     defaultViewCount={defaultViewCount}
     viewCount={viewCount}
@@ -51,7 +50,6 @@ which helps to create data driven spreadsheets with capabilities of:
 | Object                                                            | columns                    | *Required*. Grid columns configuration. [Check out description here](http://localhost:4000/docs/grid-columns.html) |
 | <span style="white-space:nowrap;"> String [ ] \|\| Object </span> | viewColumns                | *Optional*. Visible columns list                            |
 | String                                                            | height                     | *Optional*. Table height if you need grid to be scrollable  |
-| Boolean                                                           | saveFullRecord=false       | *Optional*. Pass all record fields (not just changed) flag  |
 | Boolean                                                           | autoSubmit                 | *Optional*. Submit changed(in inplace editor) grid records on blur event |
 | Number                                                            | viewCount                  | *Optional*. Static records count per page. Locks records count per page preventing further changes by grid methods. |
 | Number                                                            | defaultViewCount=0         | *Optional*. Default records count per page which can be further changed by grid methods (e.g. viewVariants select). Default 0 also means no pages. |

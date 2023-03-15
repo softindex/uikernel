@@ -110,7 +110,6 @@ const propTypes = (() => {
         return Error('You need to define the "onSorting" prop when "sort" is set');
       }
     },
-    saveFullRecord: PropTypes.bool,
     partialErrorChecking: PropTypes.bool,
     warningsValidator: PropTypes.shape({
       isValidRecord: PropTypes.func,
