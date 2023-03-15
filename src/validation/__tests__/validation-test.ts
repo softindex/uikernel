@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import ArgumentsError from '../../common/error/ArgumentsError';
 import boolean from '../rules/boolean';
 import date from '../rules/date';
 import enumValidator from '../rules/enum';
@@ -25,59 +26,77 @@ describe('ValidationError', () => {
     });
   });
 
-  it('add', () => {
-    const validationError = ValidationError.createFromJSON<'test' | 'test2'>({test: ['error']});
-    validationError.add('test2', 'error2');
-    expect(validationError.toJSON()).toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
+  describe('Check "add" method', () => {
+    it('Should add a new error to the ValidationErrors error instance', () => {
+      const validationError = ValidationError.createFromJSON<'test' | 'test2'>({test: ['error']});
+      validationError.add('test2', 'error2');
+      expect(validationError.toJSON()).toEqual({test: [{message: 'error'}], test2: [{message: 'error2'}]});
+    });
   });
 
-  it('hasError', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.hasError('test')).toBeTruthy();
+  describe('Check "hasError" method', () => {
+    it('Should return true if the ValidationErrors instance has an error for a given field', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.hasError('test')).toBeTruthy();
+    });
   });
 
-  it('getFieldErrorMessages', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.getFieldErrorMessages('test')).toEqual(['error']);
+  describe('Check "getFieldErrorMessages" method', () => {
+    it('Should return an array of error messages for a given field', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.getFieldErrorMessages('test')).toEqual(['error']);
+    });
   });
 
-  it('getFailedFields', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.getFailedFields()).toEqual(['test']);
+  describe('Check "getFailedFields" method', () => {
+    it('Should return an array of failed field keys', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.getFailedFields()).toEqual(['test']);
+    });
   });
 
-  it('isEmpty', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.isEmpty()).not.toBeTruthy();
+  describe('Check "isEmpty" method', () => {
+    it('Should return true if ValidationErrors instance is empty', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.isEmpty()).not.toBeTruthy();
+    });
   });
 
-  it('clearField', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.clearField('test').toJSON()).toEqual({});
+  describe('Check "clearField" method', () => {
+    it('Should remove all error messages for a given field', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.clearField('test').toJSON()).toEqual({});
+    });
   });
 
-  it('clear', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.clear().toJSON()).toEqual({});
+  describe('Check "clear" method', () => {
+    it('Should remove all error messages in ValidationErrors instance', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.clear().toJSON()).toEqual({});
+    });
   });
 
-  it('clone', () => {
-    const validationError = ValidationError.createFromJSON({test: ['error']});
-    expect(validationError.clone()).not.toBe(validationError);
-    expect(validationError.clone().toJSON()).toEqual({test: [{message: 'error'}]});
+  describe('Check "clone" method', () => {
+    it('Should create a deep copy of ValidationErrors instance', () => {
+      const validationError = ValidationError.createFromJSON({test: ['error']});
+      expect(validationError.clone()).not.toBe(validationError);
+      expect(validationError.clone().toJSON()).toEqual({test: [{message: 'error'}]});
+    });
   });
 
-  it('merge', () => {
-    const validationError = ValidationError.createFromJSON<'test' | 'test2'>({test: ['error']});
-    const errorToMerge = ValidationError.createFromJSON({test2: [{message: 'error2'}]});
-    expect(validationError.merge(errorToMerge).toJSON()).toEqual({
-      test: [{message: 'error'}],
-      test2: [{message: 'error2'}]
+  describe('Check "merge" method', () => {
+    it('Should merge error messages from another ValidationErrors instance', () => {
+      const validationError = ValidationError.createFromJSON<'test' | 'test2'>({test: ['error']});
+      const errorToMerge = ValidationError.createFromJSON({test2: [{message: 'error2'}]});
+      expect(validationError.merge(errorToMerge).toJSON()).toEqual({
+        test: [{message: 'error'}],
+        test2: [{message: 'error2'}]
+      });
     });
   });
 });
 
-describe('validators', () => {
+describe('UIKernel validation functions', () => {
   it('boolean', () => {
     const validator = boolean('err text');
     const validatorNotNull = boolean.notNull('err text');
@@ -163,11 +182,73 @@ describe('Validator', () => {
     validator = new Validator();
   });
 
-  it('field', async () => {
-    validator.field('name', validatorBoolean);
-    let result = await validator.isValidRecord({name: true});
-    expect(result.toJSON()).toEqual({});
-    result = await validator.isValidRecord({name: 6456});
-    expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
+  describe('Check "field" method', () => {
+    it('Should add field sync validator', async () => {
+      validator.field('name', validatorBoolean);
+      let result = await validator.isValidRecord({name: true});
+      expect(result.toJSON()).toEqual({});
+      result = await validator.isValidRecord({name: 6456});
+      expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
+    });
+  });
+
+  describe('Check "getValidationDependency" method', () => {
+    it('Should return list of dependent fields', async () => {
+      const groupValidationFunction = <TRecord extends Record<string, unknown>>(
+        data: Partial<TRecord>,
+        errors: ValidationError<keyof TRecord & string>
+      ): void => {
+        if (data.password !== data.passwordConfirm) {
+          errors.add('passwordConfirm', "Passwords don't match");
+        }
+      };
+      validator.fields(['password', 'passwordConfirm'], groupValidationFunction);
+      const dependentFields = validator.getValidationDependency(['passwordConfirm']);
+      expect(dependentFields).toEqual(['password']);
+    });
+  });
+
+  describe('Check "isValidRecord" method', () => {
+    it('Should return {} if client record is valid', async () => {
+      validator.field('name', validatorBoolean);
+      const result = await validator.isValidRecord({name: true});
+      expect(result.toJSON()).toEqual({});
+    });
+
+    it('Should return errors if client record is not valid', async () => {
+      validator.field('name', validatorBoolean);
+      const result = await validator.isValidRecord({name: 6456});
+      expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
+    });
+    it('Should return {} if all additional values are passed', async () => {
+      const groupValidationFunction = <TRecord extends Record<string, unknown>>(
+        data: Partial<TRecord>,
+        errors: ValidationError<keyof TRecord & string>
+      ): void => {
+        if (data.password !== data.passwordConfirm) {
+          errors.add('passwordConfirm', "Passwords don't match");
+        }
+      };
+      validator.fields(['password', 'passwordConfirm'], groupValidationFunction);
+      const result = await validator.isValidRecord({password: 'password', passwordConfirm: 'password'});
+      expect(result.toJSON()).toEqual({});
+    });
+    it('Should return {} if some additional values are not passed', async () => {
+      const groupValidationFunction = <TRecord extends Record<string, unknown>>(
+        data: Partial<TRecord>,
+        errors: ValidationError<keyof TRecord & string>
+      ): void => {
+        if (data.password !== data.passwordConfirm) {
+          errors.add('passwordConfirm', "Passwords don't match");
+        }
+      };
+      const checkPassword = async (): Promise<void> => {
+        validator.fields(['password', 'passwordConfirm'], groupValidationFunction);
+        await validator.isValidRecord({password: 'password'});
+      };
+      await expect(checkPassword).rejects.toThrow(
+        new ArgumentsError('Not enough fields for validator: passwordConfirm')
+      );
+    });
   });
 });
