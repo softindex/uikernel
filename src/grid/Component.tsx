@@ -1499,32 +1499,37 @@ class GridComponent<
       return;
     }
 
-    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    this.setState((state) => {
+      assertNonNullish(state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
 
-    const nextData = new EqualMap(
-      [...this.state.data].map(([dataRecordId, record]) => {
-        if (!isEqual(recordId, dataRecordId)) {
-          return [dataRecordId, record];
-        }
+      return {
+        ...state,
+        data: new EqualMap(
+          [...state.data].map(([dataRecordId, record]) => {
+            if (!isEqual(recordId, dataRecordId)) {
+              return [dataRecordId, record];
+            }
 
-        return [
-          dataRecordId,
-          {
-            ...record,
-            ...data
-          }
-        ];
-      })
-    );
-
-    this.setState({data: nextData});
+            return [
+              dataRecordId,
+              {
+                ...record,
+                ...data
+              }
+            ];
+          })
+        )
+      };
+    });
   }
 
   /**
    * Is record loaded
    */
   private isRecordLoaded(recordId: TKey): boolean {
-    assertNonNullish(this.state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
+    if (!this.state.data) {
+      return false;
+    }
 
     return this.state.data.has(recordId);
   }

@@ -30,7 +30,7 @@ class MainComponent extends React.Component {
       <div>
         <UIKernel.Grid
           ref={(grid) => this.grid = grid}
-          cols={columns}
+          columns={columns}
           model={this.state.model}
           viewCount={10}
         />

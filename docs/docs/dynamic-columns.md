@@ -18,122 +18,99 @@ When checkboxes are clicked, the value of viewColumns changes and the grid updat
 import columns from '../columns';
 import React from 'react';
 
-class Form extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      columns: _.clone(this.props.columns) // Copy all columns
-    };
-    this.applyChanges = this.applyChanges.bind(this);
-    this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
-  }
-
-  applyChanges() {
-    this.props.onChange(_.clone(this.state.columns));
-  }
-
-  onChangeCheckbox(key, value) {
-    this.state.columns[key] = value; // Change checkbox value
-    this.forceUpdate(); // and update it
+class FormCheckbox extends React.Component {
+  onChangeHandler() {
+    this.props.onChange(!this.props.value); // Change state of our value
   }
 
   render() {
+    const id = `col-${this.props.id}`;
     return (
-      <div className="modal-dialog">
-        <div className="modal-content animated fadeIn">
-          <div className="modal-header">
-            <button type="button" className="close" data-dismiss="modal">
-              <span aria-hidden="true">×</span>
-              <span className="sr-only">Close</span>
-            </button>
-            <h4 className="modal-title">Columns</h4>
-          </div>
-          <div className="modal-body">
-            <form className="form-horizontal">
-              {
-                Object.keys(columns).map((key)=>{
-                  return(
-                    <FormCheckbox
-                      id={key}
-                      key={key}
-                      value={this.state.columns[key]}
-                      label={columns[key].name}
-                      onChange={this.onChangeCheckbox.bind(null, key)}
-                    />
-                  )
-                })
-              }
-            </form>
-          </div>
-          <div className="modal-footer">
-            <button type="button" className="btn btn-white" data-dismiss="modal">Cancel</button>
-            <button type="submit" className="btn btn-primary" onClick={this.applyChanges}>Apply</button>
-          </div>
-        </div>
+      <div className="form-check">
+        <input
+          id={id}
+          type="checkbox"
+          checked={this.props.value}
+          onChange={this.onChangeHandler.bind(this)}
+        />
+        {' '}
+        <label htmlFor={id}>{this.props.label}</label>
       </div>
     );
   }
 }
 
-export default Form
+class Form extends React.Component {
+  constructor(props) {
+    super(props);
+    this.onChangeCheckbox = this.onChangeCheckbox.bind(this);
+  }
+
+  onChangeCheckbox(key, value) {
+    // Change checkbox value
+    this.props.onChange({
+      ...this.props.cols,
+      [key]: value
+    });
+  }
+
+  render() {
+    return (
+      <form className="form-horizontal">
+        {Object.keys(columns).map((key) => {
+          return (
+            <FormCheckbox
+              id={key}
+              key={key}
+              value={this.props.cols[key]}
+              label={columns[key].name}
+              onChange={value => this.onChangeCheckbox(key, value)}
+            />
+          );
+        })}
+      </form>
+    );
+  }
+}
+
+export default Form;
 {% endhighlight %}
 ---
 
 `MainComponent.js`:
 {% highlight javascript %}
-import React from 'react';
+import React, {useState} from 'react';
 import columns from '../columns';
 import model from '../model';
 import UIKernel from 'uikernel';
 import Form from './Form';
 
-class MainComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      model: model,
-      columns: {
-        // display name, surname, phone by default
-        name: true,
-        surname: true,
-        phone: true,
-        // hide age, gender
-        age: false,
-        gender: false
-      }
-    };
-    this.openColumnsForm = this.openColumnsForm.bind(this);
-  }
+function MainComponent() {
+  const [cols, setCols] = useState({
+    name: true,
+    surname: true,
+    phone: true,
+    age: false,
+    gender: false
+  });
 
-  openColumnsForm() {
-    //open modal with our information (you can use your own modal)
-    const columnsWindow = popup.open(Form, {
-      columns: this.state.columns,
-      onChange: (columns) => {
-        columnsWindow.close();
-        this.setState({columns});
-      }
-    }, "opened");
-  }
-
-  render() {
-    return (
-      <div>
-        <a href="#" className="btn btn-success" onClick={this.openColumnsForm}>
-          <i className="fa fa-th-list"></i>{' '}Columns
-        </a>
-        <UIKernel.Grid
-          columns={columns}
-          model={this.state.model}
-          viewColumns={this.state.columns}
-          viewCount={20}
-        />
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Form
+        cols={cols}
+        onChange={cols => setCols(cols)}
+      />
+      <UIKernel.Grid
+        columns={columns}
+        model={model}
+        viewColumns={cols}
+        viewCount={20}
+      />
+    </div>
+  );
 }
 
-export default MainComponent
+export default MainComponent;
 {% endhighlight %}
 ---
 
@@ -142,7 +119,7 @@ export default MainComponent
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'uikernel/dist/themes/base/uikernel.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.css';
 import './main.css';
 import MainComponent from './Components/MainComponent.js';
 
