@@ -38,7 +38,7 @@ import booleanValidationRule from './validation/rules/boolean';
 import dateValidationRule from './validation/rules/date';
 import enumValidationRule from './validation/rules/enum';
 import floatValidationRule from './validation/rules/float';
-import numberValidationRule from './validation/rules/integer';
+import integerValidationRule from './validation/rules/integer';
 import notEmptyValidationRule from './validation/rules/notEmpty';
 import notNullValidationRule from './validation/rules/notNull';
 import regExpValidationRule from './validation/rules/regExp';
@@ -95,7 +95,11 @@ const UIKernel = {
     float: floatValidationRule,
     regExp: regExpValidationRule,
     notNull: notNullValidationRule,
-    number: numberValidationRule,
+    /**
+     * @deprecated use integer insted
+     */
+    number: integerValidationRule,
+    integer: integerValidationRule,
     notEmpty: notEmptyValidationRule
   },
   Mixins: {
