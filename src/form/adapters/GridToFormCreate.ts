@@ -12,7 +12,6 @@ import {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
 import {IFormModel} from '../types/IFormModel';
 
-// TODO dispatch events not implemented
 /**
  * Adapter allows to use Grid model as a model for new form record creation
  */

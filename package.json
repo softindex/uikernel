@@ -14,8 +14,8 @@
   "browser": "./lib/browser",
   "repository": "git@github.com:softindex/uikernel.git",
   "scripts": {
-    "build": "yarn validate && yarn tsBuild && gulp",
-    "tsBuild": "tsc",
+    "build": "yarn validate && yarn build:ts && gulp",
+    "build:ts": "tsc",
     "test": "jest",
     "start-site": "sh ./scripts/start_local_site.sh",
     "ts": "tsc --preserveWatchOutput --noEmit",
