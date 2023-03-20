@@ -8303,7 +8303,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
+"lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -10377,10 +10377,10 @@ __metadata:
   resolution: "react-app@workspace:."
   dependencies:
     bootstrap: ^5.2.2
-    lodash: 4.17.21
+    lodash: ^4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
-    react-scripts: 5.0.1
+    react-scripts: ^5.0.1
     uikernel: ../../
   languageName: unknown
   linkType: soft
@@ -10507,7 +10507,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-scripts@npm:5.0.1":
+"react-scripts@npm:^5.0.1":
   version: 5.0.1
   resolution: "react-scripts@npm:5.0.1"
   dependencies:
@@ -12104,8 +12104,8 @@ __metadata:
   linkType: hard
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
-  version: 1.0.1-dev11.9
-  resolution: "uikernel@file:../../#../../::hash=648297&locator=react-app%40workspace%3A."
+  version: 1.0.1-dev11.10
+  resolution: "uikernel@file:../../#../../::hash=08dcb1&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     "@babel/runtime": ^7.1.2
@@ -12121,7 +12121,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 6438752d7a1c2824d393d85a613df9cb1989cda153d5a32303354d2e38277b5762d3a2ae75630511a54f9267eb24d4e5c7731a82b3afbb8f00574f116febd15a
+  checksum: ab4e329c672182f05cf2f5c820e631bde5691f73f2d5d503465030b073446c0250699c6707cc0aef146769c6ecec0eaea56e7e0018cbd07e4579b47afb7129bd
   languageName: node
   linkType: hard
 
@@ -12498,8 +12498,8 @@ __metadata:
   linkType: hard
 
 "webpack@npm:^5.64.4":
-  version: 5.75.0
-  resolution: "webpack@npm:5.75.0"
+  version: 5.76.1
+  resolution: "webpack@npm:5.76.1"
   dependencies:
     "@types/eslint-scope": ^3.7.3
     "@types/estree": ^0.0.51
@@ -12530,7 +12530,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: 2bcc5f3c195f375944e8af2f00bf2feea39cb9fda5f763b0d1b00077f1c51783db25c94d3fae96a07dead9fa085e6ae7474417e5ab31719c9776ea5969ceb83a
+  checksum: b01fe0bc2dbca0e10d290ddb0bf81e807a031de48028176e2b21afd696b4d3f25ab9accdad888ef4a1f7c7f4d41f13d5bf2395b7653fdf3e5e3dafa54e56dab2
   languageName: node
   linkType: hard
 
