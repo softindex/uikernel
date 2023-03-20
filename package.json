@@ -14,52 +14,64 @@
   "browser": "./lib/browser",
   "repository": "git@github.com:softindex/uikernel.git",
   "scripts": {
-    "build": "gulp",
+    "build": "yarn validate && yarn tsBuild && gulp",
+    "tsBuild": "tsc",
     "test": "jest",
     "start-site": "sh ./scripts/start_local_site.sh",
-    "flow": "flow"
+    "ts": "tsc --preserveWatchOutput --noEmit",
+    "lint": "esw src --color --ext=.jsx,.js,.tsx,.ts --cache",
+    "validate": "yarn lint --fix && yarn ts && yarn test"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.0.0",
-    "@babel/runtime": "^7.1.2",
     "classnames": "^2.2.6",
     "csv-stringify": "^5.6.5",
     "date-fns": "^2.19.0",
     "express": "^4.16.4",
     "http-errors": "^1.7.3",
+    "lodash": "^4.17.21",
     "multer": "^1.4.1",
-    "prop-types": "^15.6.2",
     "react-datepicker": "^3.6.0",
+    "ts-essentials": "^9.1.2",
     "xhr": "^2.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.5",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-function-bind": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
-    "@babel/preset-flow": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-loader": "^8.0.5",
-    "babel-plugin-add-module-exports": "^1.0.0",
+    "@types/enzyme": "^3.10.12",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/express": "^4.17.15",
+    "@types/http-errors": "^2.0.1",
+    "@types/jest": "^29.2.4",
+    "@types/lodash": "^4.14.191",
+    "@types/multer": "^1.4.7",
+    "@types/react": "^16.14.34",
+    "@types/react-datepicker": "^4.8.0",
+    "@types/react-dom": "^16.9.17",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
     "browserify": "^15.2.0",
     "browserify-shim": "^3.8.12",
     "del": "^4.1.0",
     "enzyme": "^3.7.0",
     "enzyme-adapter-react-16": "^1.6.0",
-    "eslint": "^4.19.1",
-    "eslint-plugin-react": "^7.11.1",
-    "flow-bin": "^0.71.0",
-    "flow-typed": "^2.5.1",
+    "eslint": "^7.32.0",
+    "eslint-config-alloy": "~4.5.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^27.1.7",
+    "eslint-plugin-only-error": "^1.0.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.20.6",
+    "eslint-plugin-react-hooks": "^4.1.0",
+    "eslint-plugin-typescript-custom-sort-keys": "^1.0.5",
+    "eslint-plugin-xss": "^0.1.11",
+    "eslint-watch": "^7.0.0",
     "gulp": "^4.0.0",
     "gulp-archiver": "^1.0.0",
-    "gulp-babel": "^8.0.0-beta.2",
-    "gulp-changed": "^3.2.0",
-    "gulp-count": "^1.0.0",
     "gulp-eslint": "^4.0.0",
+    "gulp-eslint7": "^0.3.2",
     "gulp-gh-pages": "^0.5.4",
     "gulp-if": "^2.0.2",
     "gulp-less": "^3.5.0",
@@ -68,30 +80,48 @@
     "jest": "^29.0.3",
     "jest-environment-jsdom": "^29.0.3",
     "merge-stream": "^1.0.0",
+    "prettier": "^2.7.1",
     "raf": "^3.4.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "ts-jest": "^29.0.3",
+    "typescript": "^4.9.4",
     "yargs": "^11.1.0"
   },
   "peerDependencies": {
     "react": ">=16.12.0",
     "react-dom": ">=16.12.0"
   },
+  "resolutions": {
+    "@types/react": "^16.14.34",
+    "@types/react-dom": "^16.9.17"
+  },
   "jest": {
+    "transform": {
+      "^.+\\.(t|j)sx?$": "ts-jest"
+    },
     "testRegex": "/__tests__/",
     "roots": [
       "<rootDir>/src"
     ],
     "collectCoverageFrom": [
-      "src/**/*.js"
+      "src/**/*.(j|t)sx?"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/src/test/setupTestFramework.js"
+      "<rootDir>/src/test/setupTestFramework.ts"
     ],
-    "testEnvironmentOptions": {
-      "url": "http://localhost"
-    },
-    "testEnvironment": "jsdom"
+    "testURL": "http://localhost",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
-  "packageManager": "yarn@3.2.3"
+  "packageManager": "yarn@3.2.3",
+  "engines": {
+    "node": ">=12"
+  }
 }

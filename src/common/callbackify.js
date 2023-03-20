@@ -6,10 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {warn} from '../common/utils';
+import {warn} from './utils';
 
 const functionsNames = [];
-export default function (func, hideWarning = false) {
+
+function callbackify(func, hideWarning = false) {
   const funcName = func.name;
 
   return function (...args) {
@@ -23,12 +24,12 @@ export default function (func, hideWarning = false) {
       }
 
       const result = func.apply(this, args);
-      if (result && result.then) {
+      if (result?.then) {
         result
-          .then(data => {
+          .then((data) => {
             cb(null, data);
           })
-          .catch(err => {
+          .catch((err) => {
             cb(err);
           });
       }
@@ -37,3 +38,5 @@ export default function (func, hideWarning = false) {
     }
   };
 }
+
+export default callbackify;

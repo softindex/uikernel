@@ -29,8 +29,10 @@ function toPromise(func, hideWarning) {
         if (err) {
           return reject(err);
         }
+
         resolve(data);
       }
+
       toPromiseCallback.__ignoreUIKernelWarning = true;
       mainArguments.push(toPromiseCallback);
       promise = func(...mainArguments);
@@ -40,19 +42,20 @@ function toPromise(func, hideWarning) {
       if (promise.then && promise.catch) {
         return promise;
       }
+
       promiseWarn(
         `The return value is not a Promise in '${funcName}'.\n` +
-        `Arguments: ${JSON.stringify(mainArguments)}\n` +
-        `Returns: ${JSON.stringify(promise)}`
-      );
-      return callbackPromise;
-    } else {
-      promiseWarn(
-        `You are using callback in: '${funcName}'. Use promise instead.\n` +
-        `Arguments: ${JSON.stringify(mainArguments)}`
+          `Arguments: ${JSON.stringify(mainArguments)}\n` +
+          `Returns: ${JSON.stringify(promise)}`
       );
       return callbackPromise;
     }
+
+    promiseWarn(
+      `You are using callback in: '${funcName}'. Use promise instead.\n` +
+        `Arguments: ${JSON.stringify(mainArguments)}`
+    );
+    return callbackPromise;
   };
 }
 
