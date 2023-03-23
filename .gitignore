@@ -6,8 +6,6 @@ _site
 .publish
 npm-debug.log
 examples/libs/
-lib
-dist
 coverage
 .DS_Store
 .eslintcache
