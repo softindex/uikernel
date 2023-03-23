@@ -40,7 +40,12 @@ type ValidatorSettings<TRecord extends Record<string, unknown>> = {
   };
 };
 
-class Validator<TRecord extends Record<string, unknown>> {
+export interface IValidator<TRecord> {
+  getValidationDependency: (fields: (keyof TRecord & string)[]) => (keyof TRecord & string)[];
+  isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TRecord & string>>;
+}
+
+class Validator<TRecord extends Record<string, unknown>> implements IValidator<TRecord> {
   static create<TRecord extends Record<string, unknown>>(): Validator<TRecord> {
     return new Validator();
   }
