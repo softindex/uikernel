@@ -6,10 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import {Component} from 'react'
 import UIKernel from 'uikernel';
 
-class FiltersForm extends React.Component {
+class FiltersForm extends Component {
   updateFilter(filter, value) {
     this.props.onChange({
       ...this.props.filters,

@@ -1,7 +1,37 @@
 <!-- Example -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"/>
-<script defer="defer" src="/examples/final-example/static/js/main.f79859e3.js"></script>
-<link href="/examples/final-example/static/css/main.cf777a14.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="../dist/themes/base/uikernel.css" rel="stylesheet" type="text/css"/>
+<link href="../static/css/final-example.css" rel="stylesheet" type="text/css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+<script id='js' defer="defer"></script>
+
+<script>
+    const path = '/examples/final-example/static'
+    async function getFilenames(ext) {
+        const folderUrl = `${path}/${ext}`;
+        try {
+            const response = await fetch(folderUrl);
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const files = [...doc.querySelectorAll('a')].map(link => link.getAttribute('href'));
+            return files
+        } catch (err) {
+            console.error(err)
+        }
+    }
+    async function getScriptPath(ext) {
+        const pattern = new RegExp(`^main\\.[a-zA-Z0-9]+\\.${ext}$`)
+        const filenames = await getFilenames(ext)
+        const filename = filenames.filter(filename => pattern.test(filename)).pop()
+        const pathToFile = `${path}/${ext}/${filename}`;
+        return pathToFile;
+    }
+    async function setSources() {
+        document.getElementById('js').src = await getScriptPath('js');
+    }   
+    setSources()
+</script>
 
 <div class="container" id="root"></div>

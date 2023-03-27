@@ -10,13 +10,14 @@ import {useEffect, useState, useMemo} from 'react';
 import FormService from './FormService';
 
 function useForm(settings, onError = console.error) {
-  const formService = useMemo(() => new FormService(), []);
-  const [formState, setFormState] = useState(formService.getAll());
+  const formService = useMemo(() => new FormService([]), []);
+  const [formState, setFormState] = useState(() => formService.getAll());
 
   useEffect(() => {
     formService.init(settings).catch(onError);
     formService.addChangeListener(setFormState);
     return () => formService.removeChangeListener(setFormState);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formService]);
 
   return [formState, formService];

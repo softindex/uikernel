@@ -16,11 +16,8 @@
   "scripts": {
     "build": "gulp",
     "test": "jest",
-    "build-local-site": "sh ./scripts/build_local_site.sh",
-    "start-local-site": "sh ./scripts/start_local_site.sh",
-    "build-examples": "npx zx ./scripts/build_examples.mjs",
-    "move-examples": "npx zx ./scripts/move_examples.mjs",
-    "start-dev": "npm run build-local-site && npm run build-examples && npm run move-examples && npm run start-local-site",
+    "site:start": "sh ./scripts/site_build.sh && sh ./scripts/site_start.sh",
+    "site:start+examples": "sh ./scripts/site_build.sh && npx zx ./scripts/examples_build.mjs && sh ./scripts/site_start.sh",
     "flow": "flow"
   },
   "dependencies": {

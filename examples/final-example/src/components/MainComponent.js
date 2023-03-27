@@ -14,7 +14,7 @@ import EditRecordForm from './EditRecordForm';
 import useGridSelect from '../utils/useGridSelect';
 import DynamicColumnsForm from './DynamicColumnsForm';
 import FiltersForm from './FiltersForm';
-// import CreateForm from './CreateForm';
+import CreateForm from './CreateForm';
 
 const DEFAULT_FILTERS = {
   search: '',
@@ -131,7 +131,7 @@ function MainComponent() {
           <h2 className="panel-title">Add record</h2>
         </div>
         <div className="panel-body">
-          {/* <CreateForm onSubmit={recordId => gridRef.current.addRecordStatus(recordId, 'new')}/> */}
+           <CreateForm onSubmit={recordId => gridRef.current.addRecordStatus(recordId, 'new')}/> 
         </div>
       </div>
     </>
