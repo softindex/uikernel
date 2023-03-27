@@ -12342,7 +12342,7 @@ __metadata:
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
   version: 1.0.1-dev11.10
-  resolution: "uikernel@file:../../#../../::hash=0f3837&locator=react-app%40workspace%3A."
+  resolution: "uikernel@file:../../#../../::hash=e1ef6a&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     "@babel/runtime": ^7.1.2
@@ -12359,7 +12359,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 0101e2df376186daa614f00a2991f98ed030f7df072d02d0663f4ed187e84384c2f918c5b98fe74d2502d10ebca774f83890a1de7bbb3d5d51caaa5e30912ecd
+  checksum: e3dbc86de6ac55cc3ecabefd27f53c114db4605e09a782a2b72276d4d46674b36ac5d199785601701fbc6739e14013e8afe93043942448bb380b53de91cb86a1
   languageName: node
   linkType: hard
 
