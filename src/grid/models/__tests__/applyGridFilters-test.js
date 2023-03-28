@@ -9,7 +9,9 @@
 import applyGridFilters from '../applyGridFilters';
 
 describe('applyGridFilters test', () => {
-  let model, newModel, filters;
+  let model;
+  let newModel;
+  let filters;
   beforeEach(() => {
     model = {
       read: jest.fn(async (arg) => arg)

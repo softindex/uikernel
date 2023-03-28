@@ -11,6 +11,7 @@ dist
 build
 coverage
 .DS_Store
+.eslintcache
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

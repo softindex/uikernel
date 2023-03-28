@@ -7,15 +7,16 @@
  */
 
 if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') {
-  window.setImmediate = ((() => {
+  window.setImmediate = (() => {
     let head = {};
     let tail = head;
     const ID = Math.random();
 
-    function onMessage(e) {
-      if (e.data !== ID) {
+    function onMessage(error) {
+      if (error.data !== ID) {
         return;
       }
+
       head = head.next;
       const func = head.func;
       delete head.func;
@@ -27,11 +28,14 @@ if (typeof window !== 'undefined' && typeof window.setImmediate !== 'function') 
     } else {
       window.attachEvent('onmessage', onMessage);
     }
-    return window.postMessage ? func => {
-      tail = tail.next = {func: func};
-      window.postMessage(ID, '*');
-    } : func => {
-      setTimeout(func, 0);
-    };
-  })());
+
+    return window.postMessage
+      ? (func) => {
+          tail = tail.next = {func: func};
+          window.postMessage(ID, '*');
+        }
+      : (func) => {
+          setTimeout(func, 0);
+        };
+  })();
 }
