@@ -215,8 +215,8 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     value: Element | TRecord[TField]
   ): Promise<void> => {
     console.warn('Deprecated: FormService method "validateField" renamed to "updateFieldWithPrevValidation"');
-    this.updateFieldWithPrevValidation(field, value);
-  }
+    await this.updateFieldWithPrevValidation(field, value);
+  };
 
   /**
    * Set data in the form
