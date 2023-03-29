@@ -10,7 +10,7 @@ import UIKernel from 'uikernel';
 import validator from './validator';
 import generateInitialData from './utils/generateInitialData';
 
-const gridModel = new UIKernel.Models.Grid.Collection({
+const gridModel = new UIKernel.Models.Grid.Collection.create({
   data: generateInitialData(200),
   filtersHandler: function (data, filters) {
     if (!filters) {

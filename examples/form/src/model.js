@@ -9,7 +9,7 @@
 import UIKernel from 'uikernel';
 import validator from './validator';
 
-const model = new UIKernel.Models.Grid.Collection({
+const model = new UIKernel.Models.Grid.Collection.create({
   data: [
     [1, {'id': 1, 'name': 'Stacey', 'age': 22}],
     [2, {'id': 2, 'name': 'Adam',   'age': 43}],

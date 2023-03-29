@@ -31,7 +31,7 @@ for (let i = 0; i < 200; i++) {
 }
 
 
-const model = new UIKernel.Models.Grid.Collection({
+const model = new UIKernel.Models.Grid.Collection.create({
   data: data,
   filtersHandler(data, filters) {
     return data.filter((record) => {

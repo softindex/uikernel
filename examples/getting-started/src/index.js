@@ -10,7 +10,7 @@ import { createRoot } from 'react-dom/client';
 import UIKernel from 'uikernel';
 import 'uikernel/dist/themes/base/uikernel.css';
 
-const model = new UIKernel.Models.Grid.Collection({
+const model = new UIKernel.Models.Grid.Collection.create({
   data: [
     [1, {
       name: 'Pace',
