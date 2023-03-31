@@ -33,6 +33,17 @@ const model = (function () {
     }]);
   }
 
+  function _getNumberIdGeneration() {
+    let initalId = 1;
+    return (existsIds) => {
+      const existsIdsSet = new Set(existsIds);
+      while (existsIdsSet.has(initalId)) {
+        initalId++;
+      }
+
+      return initalId;
+    };
+  }
 
   return new UIKernel.Models.Grid.Collection.create({
     data: data,
@@ -63,7 +74,8 @@ const model = (function () {
 
         return true;
       });
-    }
+    },
+    generateId: _getNumberIdGeneration()
   });
 })();
 

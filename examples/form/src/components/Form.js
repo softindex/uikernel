@@ -6,11 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import UIKernel, {useForm} from 'uikernel';
+import UIKernel from 'uikernel';
 import model from '../model';
 
 const Form = () => {
-  const [formState, formService] = useForm({
+  const [formState, formService] = UIKernel.useForm({
     fields: ['name', 'age'], // Fields we need
     model: new UIKernel.Adapters.Grid.ToFormUpdate(model, 2), // We're going to change record with ID = 2
   });
