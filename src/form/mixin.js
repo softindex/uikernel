@@ -10,6 +10,7 @@
 import clone from 'lodash/clone';
 import cloneDeep from 'lodash/cloneDeep';
 import callbackify from '../common/callbackify';
+import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import toPromise from '../common/toPromise';
 import {parseValueFromEvent, getRecordChanges, forEach, isEmpty, isEqual} from '../common/utils';
@@ -22,7 +23,14 @@ import Validator from '../validation/Validator';
  */
 const FormMixin = {
   getInitialState: function () {
-    this._validateForm = throttle(this._validateForm);
+    const throttledValidateForm = throttle(this._validateForm);
+    this._validateForm = () => {
+      return throttledValidateForm().catch((error) => {
+        if (!(error instanceof ThrottleError)) {
+          throw error;
+        }
+      });
+    };
 
     if (this._handleModelChange.name.indexOf('bound ') !== 0) {
       // Support React.createClass and mixin-decorators
