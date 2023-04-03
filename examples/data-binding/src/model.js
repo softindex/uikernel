@@ -34,7 +34,7 @@ const model = (function () {
   }
 
 
-  return new UIKernel.Models.Grid.Collection({
+  return new UIKernel.Models.Grid.Collection.create({
     data: data,
     validator,
     filtersHandler(data, filters) {

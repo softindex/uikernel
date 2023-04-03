@@ -8,6 +8,7 @@ npm-debug.log
 examples/libs/
 lib
 dist
+build
 coverage
 .DS_Store
 .eslintcache

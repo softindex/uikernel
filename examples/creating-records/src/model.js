@@ -33,8 +33,19 @@ const model = (function () {
     }]);
   }
 
+  function _getNumberIdGeneration() {
+    let initalId = 1;
+    return (existsIds) => {
+      const existsIdsSet = new Set(existsIds);
+      while (existsIdsSet.has(initalId)) {
+        initalId++;
+      }
 
-  return new UIKernel.Models.Grid.Collection({
+      return initalId;
+    };
+  }
+
+  return new UIKernel.Models.Grid.Collection.create({
     data: data,
     validator,
     filtersHandler(data, filters) {
@@ -63,12 +74,14 @@ const model = (function () {
 
         return true;
       });
-    }
+    },
+    generateId: _getNumberIdGeneration()
   });
 })();
 
 model.delete = function (id) {
-  this.data = this.data.filter((record) => record[0] !== id) ;
+  const filteredData = this.getData().filter((record) => record[0] !== id);
+  this.setData(filteredData);
   return Promise.resolve(id);
 };
 

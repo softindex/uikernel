@@ -10,7 +10,19 @@ import UIKernel from 'uikernel';
 import validator from './validator';
 import generateInitialData from './utils/generateInitialData';
 
-const gridModel = new UIKernel.Models.Grid.Collection({
+function _getNumberIdGeneration() {
+  let initalId = 1;
+  return (existsIds) => {
+    const existsIdsSet = new Set(existsIds);
+    while (existsIdsSet.has(initalId)) {
+      initalId++;
+    }
+
+    return initalId;
+  };
+}
+
+const gridModel = new UIKernel.Models.Grid.Collection.create({
   data: generateInitialData(200),
   filtersHandler: function (data, filters) {
     if (!filters) {
@@ -43,7 +55,8 @@ const gridModel = new UIKernel.Models.Grid.Collection({
     });
   },
   validator: validator,
-  requiredFields: ["name", "surname", "phone", "age", "gender"]
+  requiredFields: ["name", "surname", "phone", "age", "gender"],
+  generateId: _getNumberIdGeneration()
 });
 
 export default gridModel;

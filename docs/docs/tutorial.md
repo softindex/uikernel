@@ -37,7 +37,8 @@ Change structure in the react-app folder to the next structure:
 |-- src
     |-- Components
         MainComponent.js
-        FormComponent.js
+        CreateForm.js
+        FiltersForm.js
     index.js
     columns.js
     model.js
@@ -83,7 +84,7 @@ and `main.css` look like this:
 }
 
 .btn-success {
-    margin: 0 15px 15px 0;
+    margin: 0 15px 0 0;
 }
 .action{
     margin-top: 15px;

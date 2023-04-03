@@ -18,7 +18,7 @@ You need to use an `onLabelChange={handler}` prop to automatically synchronize I
 
 {% highlight javascript %}
 <UIKernel.SuggestBox
-  onChange={this.validateField.bind(null, 'countryId')}
+  onChange={this.updateFieldWithPrevValidation.bind(null, 'countryId')}
   onLabelChange={this.updateField.bind(null, 'countryName')} // Update string name
   value={data.countryId}
   ...

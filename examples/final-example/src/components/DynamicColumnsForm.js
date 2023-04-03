@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-
 function DynamicColumnsForm({onClose, onChange, value, columns}) {
   function onChangeCheckbox(key, show) {
     onChange({

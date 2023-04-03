@@ -29,7 +29,7 @@ Grid Express API helps to perform the next requests:
 | Type    | Name                    | Description                                               |
 |---------|-------------------------|-----------------------------------------------------------|
 | Boolean | multipartFormData       | Handle multipart/form-data responses. False by default.   |
-| Number  | maxFileSize             | Max request size for multipart/form-data. False by 100MB. |
+| Number  | maxFileSize             | Max request size for multipart/form-data. 100MB by default. |
 
 
 ----

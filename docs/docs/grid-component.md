@@ -23,7 +23,6 @@ which helps to create data driven spreadsheets with capabilities of:
     columns={columns}
     viewColumns={viewColumns}
     height={height}
-    saveFullRecord={saveFullRecord}
     autoSubmit={autoSubmit}
     defaultViewCount={defaultViewCount}
     viewCount={viewCount}
@@ -51,14 +50,13 @@ which helps to create data driven spreadsheets with capabilities of:
 | Object                                                            | columns                    | *Required*. Grid columns configuration. [Check out description here](http://localhost:4000/docs/grid-columns.html) |
 | <span style="white-space:nowrap;"> String [ ] \|\| Object </span> | viewColumns                | *Optional*. Visible columns list                            |
 | String                                                            | height                     | *Optional*. Table height if you need grid to be scrollable  |
-| Boolean                                                           | saveFullRecord=false       | *Optional*. Pass all record fields (not just changed) flag  |
 | Boolean                                                           | autoSubmit                 | *Optional*. Submit changed(in inplace editor) grid records on blur event |
-| Number                                                            | defaultViewCount=0         | *Optional*. Default records count per page (which can be further changed by grid methods)                 |
-| Number                                                            | viewCount                  | *Optional*. Static records count per page. Locks records count per page preventing further changes by grid methods |
-| Number [ ]                                                        | viewVariants               | *Optional*. Records count per page options                  |
-| Function                                                          | onChangeViewCount          | *Optional*. Records count per page change handler           |
-| Function                                                          | onSelectedChange           | *Optional*. Custom records selection(by checkboxes in grid) change handler         |
-| String                                                            | className                  | *Optional*. HTML 'class' attribute                                      |
+| Number                                                            | viewCount                  | *Optional*. Static records count per page. Locks records count per page preventing further changes by grid methods. |
+| Number                                                            | defaultViewCount=0         | *Optional*. Default records count per page which can be further changed by grid methods (e.g. viewVariants select). Default 0 also means no pages. |
+| Number [ ]                                                        | viewVariants               | *Optional*. Records count per page select options                  |
+| Function                                                          | onChangeViewCount          | *Optional*. Records count per page options select handler   |
+| Function                                                          | onSelectedChange           | *Optional*. Custom records selection(by checkboxes in grid) change handler |
+| String                                                            | className                  | *Optional*. HTML 'class' attribute                          |
 | Boolean                                                           | multipleSorting=false      | *Optional*. Multiple sorting flag. If `true` - it will be available to sort by multiple rules.                           |
 | <span style="white-space:nowrap;"> Object \|\| Object [ ] </span> | defaultSort                | *Optional*. Default sorting direction(which can be further changed by grid methods). Should be an Object (or Arry of such objects) with fields `column` and `direction`(one of 'asc'/'desc'), e.g.: {column: "age", direction: "asc"} |
 | <span style="white-space:nowrap;"> Object \|\| Object [ ] </span> | sort                       | *Optional*. Static sorting direction. Locks sorting in only this way preventing further changes by grid methods. Should be an Object (or Arry of such objects) with fields `column` and `direction`(one of 'asc'/'desc'), e.g.: {column: "age", direction: "asc"}. If an array is passed, the sorting will be performed by all specified rules one by one(rule with smaller index has bigger priority).  |
@@ -513,8 +511,7 @@ Calls `props.onSorting` and rerenders grid table afterwards.
   grid.addRecordStatus(recordId, status);
 {% endhighlight %}
 
-Add record status(the status will be stored in internal hash map
-and it will be set className with the `status` value to the corresponding row in the grid).
+Add record status. It will be set className with the `status` value to the corresponding row in the grid. So you can define css styles for record with this status (className).
 
 **Parameters**:
 
@@ -531,9 +528,7 @@ and it will be set className with the `status` value to the corresponding row in
   grid.addRecordStatusGroup(Array group, status);
 {% endhighlight %}
 
-Add status to records group(to each record of the specified array `group`)
-(the status will be stored in an internal hash map
-and it will be set className with the `status` value to the corresponding row in the grid).
+Add status to records group(to each record of the specified array `group`). It will be set className with the `status` value to the corresponding row in the grid. So you can define css styles for record with this status (className).
 
 **Parameters**:
 
@@ -550,8 +545,7 @@ and it will be set className with the `status` value to the corresponding row in
   grid.removeRecordStatus(recordId, status);
 {% endhighlight %}
 
-Remove record status(the status will be removed from the internal hash map
-and it will be removed className with the `status` value from the corresponding row in the grid).
+Remove record status. It will be removed className with the `status` value from the corresponding row in the grid. You also should remove css styles for record with this status (className).
 
 **Parameters**:
 

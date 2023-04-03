@@ -75,10 +75,16 @@ Get record by ID.
 ### async update
 
 {% highlight javascript %}
-  async Array update(Object[][] changes)
+  async Array update(Object[] | [][Any] changes)
 {% endhighlight %}
 
 Applies record changes.
+
+**Parameters**:
+
+| Type                                                                 | Name    | Description                                 |
+|----------------------------------------------------------------------|---------|---------------------------------------------|
+| <span style="white-space:nowrap;"> Object [ ] \| [ ] \[Any\] </span> | changes | *Required*. Array of changed records data.  |
 
 **Returns**:
 
@@ -97,7 +103,7 @@ Promise which resolves with an Array where each item is an array of 2 fields:
 **Returns**
 
 Return fields(Array of string values) that need to be sent additionally to validate fields specified in passed parameters.
-This method is required for creating group validators\(read details [here](/validator.html)\).
+This method is required for creating group validators\(read details [here](/docs/validator.html)\).
 
 ---
 

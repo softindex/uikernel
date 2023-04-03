@@ -71,7 +71,7 @@ These props are passed through `UIKernel.Grid`. They include `onChange`, `onFocu
 ---
 We'll also need to validate our edited data. So let's define some validation rules.
 
-`validation.js`:
+`validator.js`:
 {% highlight javascript %}
 import UIKernel from 'uikernel'
 
@@ -96,7 +96,7 @@ Now let's modify our `model.js` file as follows:
 
 {% highlight javascript %}
 import UIKernel from 'uikernel';
-import validator from './validation';
+import validator from './validator';
 
 const model = new UIKernel.Models.Grid.Collection({
   // ...

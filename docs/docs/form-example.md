@@ -12,8 +12,7 @@ In this example, we use `UIKernel.Form` to create a simple form for editing grid
 
 To initialize a form, we use `initForm` function and pass it a settings object with `fields` and `model` props as an argument.
 A settings object can also have [other props](form-service.html).
-To update field values, you can use either `updateField` or `validateField`.
-`validateField` not only updates a field, but also validates it.
+To update field values, you can use either `updateField` or `updateFieldWithPrevValidation`.
 `getValidationError` returns validation errors for a specific field.
 `getData` returns form data.
 `submit` is used to submit a form.
@@ -68,7 +67,7 @@ class Form extends React.Component {
         </div>
         <div className="body">
           <form className="form-horizontal change-second-field-form">
-            <div className={'form-group' + (this.props.state.fields.name.errors ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.fields.name.errors.length ? ' error' : '')}>
               <label className="col-sm-2 control-label">Name</label>
               <div className="col-sm-6">
                 <input
@@ -78,11 +77,11 @@ class Form extends React.Component {
                   value={this.props.state.fields.name.value}
                 />
               </div>
-              <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.fields.name.errors}</div>
+              <div className="col-sm-4">
+                <div className="validation-error">{this.props.state.fields.name.errors[0]?.message}</div>
               </div>
             </div>
-            <div className={'form-group' + (this.props.state.fields.age.errors ? ' error' : '')}>
+            <div className={'form-group' + (this.props.state.fields.age.errors.length ? ' error' : '')}>
               <label className="col-sm-2 control-label">Age</label>
               <div className="col-sm-6">
                 {/* we use UIKernel.Editors.Number instead of <input type =" number "/>          */}
@@ -93,8 +92,8 @@ class Form extends React.Component {
                   value={this.props.state.fields.age.value}
                 />
               </div>
-              <div className="col-sm-3">
-                <div className="validation-error">{this.props.state.fields.age.errors}</div>
+              <div className="col-sm-4">
+                <div className="validation-error">{this.props.state.fields.age.errors[0]?.message}</div>
               </div>
             </div>
           </form>

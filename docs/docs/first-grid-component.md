@@ -8,8 +8,9 @@ next: sorting-and-pagination.html
 * [Live demo](/examples/first-grid-component/){:target="_blank"}
 * [Code]({{ site.github }}/examples/first-grid-component/){:target="_blank"}
 
+Let's create [Grid Component](/docs/grid-component.html).
 
-First, let's create a client model for our grid and pass it some fake data.
+First, we'll create a client model for our grid and pass it some fake data.
 
 `model.js`:
 {% highlight javascript %}

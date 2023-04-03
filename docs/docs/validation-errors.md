@@ -15,7 +15,8 @@ Returns an instance of the ValidationErrors class.
 {% highlight javascript %}
   import {ValidationErrors} from 'uikernel';
 
-  const validationErrors = new ValidationErrors();
+  const validationErrors = new ValidationErrors(); 
+  // validationErrors = {field1: [“field1 error1”], field2: [“field2 error1”, “field2 error2”], …}
 {% endhighlight %}
 
 ---
@@ -191,8 +192,8 @@ Get errors entries of this ValidationErrors instance.
 
 **Example**:
 {% highlight javascript %}
-  for(let [field, error] of validationErrors.getErrors())
-    console.log(field, ": ", error);
+  for(let [field, errors] of validationErrors.getErrors())
+    console.log(field, ": ", errors);
 {% endhighlight %}
 
 ---

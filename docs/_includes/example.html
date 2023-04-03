@@ -1,32 +1,37 @@
 <!-- Example -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
 <link href="../dist/themes/base/uikernel.css" rel="stylesheet" type="text/css"/>
-<link href="/examples/final-example/css/main.css" rel="stylesheet" type="text/css"/>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/16.2.0/umd/react.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.2.0/umd/react-dom.development.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.15.0/babel.min.js"></script>
-<script src="../../dist/uikernel.js"></script>
-
+<link href="../static/css/final-example.css" rel="stylesheet" type="text/css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-<script src="/examples/final-example/js/model/validation.js"></script>
-<script src="/examples/final-example/js/model/model.js"></script>
-<script src="/examples/final-example/js/libs/selectHandler.js" type="text/babel"></script>
-<script src="/examples/final-example/js/columns.js" type="text/babel"></script>
-<script src="/examples/final-example/js/components/FiltersForm.js" type="text/babel"></script>
-<script src="/examples/final-example/js/components/RecordForm.js" type="text/babel"></script>
-<script src="/examples/final-example/js/components/DynamicColumnsForm.js" type="text/babel"></script>
-<script src="/examples/final-example/js/components/CreateForm.js" type="text/babel"></script>
-<script src="/examples/final-example/js/components/MainComponent.js" type="text/babel"></script>
-<script src="/examples/final-example/js/main.js" type="text/babel"></script>
+<script id='js' defer="defer"></script>
 
-<script src="/examples/final-example/js/libs/popup.js" type="text/babel"></script>
+<script>
+    const path = '/examples/final-example/static'
+    async function getFilenames(ext) {
+        const folderUrl = `${path}/${ext}`;
+        try {
+            const response = await fetch(folderUrl);
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const files = [...doc.querySelectorAll('a')].map(link => link.getAttribute('href'));
+            return files
+        } catch (err) {
+            console.error(err)
+        }
+    }
+    async function getScriptPath(ext) {
+        const pattern = new RegExp(`^main\\.[a-zA-Z0-9]+\\.${ext}$`)
+        const filenames = await getFilenames(ext)
+        const filename = filenames.filter(filename => pattern.test(filename)).pop()
+        const pathToFile = `${path}/${ext}/${filename}`;
+        return pathToFile;
+    }
+    async function setSources() {
+        document.getElementById('js').src = await getScriptPath('js');
+    }   
+    setSources()
+</script>
 
-<div class="container" id="example"></div>
-
-<div class="modal fade" id="popup" tabIndex="-1" role="dialog" aria-hidden="true">
-  <div class="popup-inner-content"></div>
-</div>
+<div class="container" id="root"></div>

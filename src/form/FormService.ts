@@ -194,7 +194,13 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     this.clearValidation(field);
   };
 
-  validateField = async <TField extends keyof TRecord & string>(
+  /**
+   * Update field value and validate form.
+   *
+   * @param {string}  field  Parameter
+   * @param {*}       value  Event or data
+   */
+  updateFieldWithPrevValidation = async <TField extends keyof TRecord & string>(
     field: TField,
     value: Element | TRecord[TField]
   ): Promise<void> => {
@@ -202,6 +208,14 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     changes[field] = parseValueFromEvent(value) as TRecord[TField] | undefined;
 
     await this.set(changes, true);
+  };
+
+  validateField = async <TField extends keyof TRecord & string>(
+    field: TField,
+    value: Element | TRecord[TField]
+  ): Promise<void> => {
+    console.warn('Deprecated: FormService method "validateField" renamed to "updateFieldWithPrevValidation"');
+    await this.updateFieldWithPrevValidation(field, value);
   };
 
   /**

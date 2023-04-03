@@ -131,7 +131,7 @@ function MainComponent() {
           <h2 className="panel-title">Add record</h2>
         </div>
         <div className="panel-body">
-          <CreateForm onSubmit={recordId => gridRef.current.addRecordStatus(recordId, 'new')}/>
+           <CreateForm onSubmit={recordId => gridRef.current.addRecordStatus(recordId, 'new')}/> 
         </div>
       </div>
     </>
