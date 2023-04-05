@@ -23,7 +23,7 @@ type GroupValidationFunction<TRecord extends Record<string, unknown>, TAsync ext
 ) => ValidationResult<void, TAsync>;
 
 type ValidatorSettings<TRecord extends Record<string, unknown>> = {
-  asyncDependenies: ArrayWithAtLeastOneElement<keyof TRecord & string>[];
+  asyncDependencies: ArrayWithAtLeastOneElement<keyof TRecord & string>[];
   asyncGroupValidators: {
     fields: ArrayWithAtLeastOneElement<keyof TRecord & string>;
     fn: GroupValidationFunction<TRecord, 'async'>;
@@ -55,7 +55,7 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
     groupValidators: [],
     asyncValidators: {},
     asyncGroupValidators: [],
-    asyncDependenies: []
+    asyncDependencies: []
   };
 
   /**
@@ -91,7 +91,7 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
    * Point which fields server validation needs
    */
   asyncDependence(fields: ArrayWithAtLeastOneElement<keyof TRecord & string>): this {
-    this.settings.asyncDependenies.push(fields);
+    this.settings.asyncDependencies.push(fields);
     return this;
   }
 
@@ -136,7 +136,7 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
       [...this.settings.groupValidators, ...this.settings.asyncGroupValidators],
       'fields'
     );
-    const allGroupedDependenciesFields = [...groupValidatorsFields, ...this.settings.asyncDependenies];
+    const allGroupedDependenciesFields = [...groupValidatorsFields, ...this.settings.asyncDependencies];
 
     while (length !== result.size) {
       length = result.size;
@@ -162,13 +162,18 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
   /**
    * Check client record validity
    */
-  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+  async isValidRecord(
+    record: Partial<TRecord>,
+    addValues?: Partial<TRecord>
+  ): Promise<ValidationErrors<keyof TRecord & string>> {
     const fields = keys(record);
+    const addFields = addValues ? keys(addValues) : [];
     const errors = new ValidationErrors<keyof TRecord & string>();
 
     const dependentFields = this.getValidationDependency(fields);
-    if (dependentFields.length) {
-      throw new ArgumentsError('Not enough fields for validator: ' + dependentFields.join(', '));
+    const notPassedDependentFields = dependentFields.filter((e) => !addFields.includes(e));
+    if (notPassedDependentFields.length) {
+      throw new ArgumentsError('Not enough fields for validator: ' + notPassedDependentFields.join(', '));
     }
 
     // Add sync and async validators

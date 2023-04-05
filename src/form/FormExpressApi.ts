@@ -50,7 +50,7 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
       }
     });
 
-    this.addMidelware(
+    this.addMiddleware(
       'getData',
       asyncServerRouteHandler(async (req, res) => {
         const fields = req.query.fields
@@ -61,7 +61,7 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
       })
     );
 
-    this.addMidelware(
+    this.addMiddleware(
       'getDataPost',
       asyncServerRouteHandler(async (req, res) => {
         const {fields} = req.body as {fields: (keyof TRecord & string)[] | null | undefined};
@@ -70,7 +70,7 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
       })
     );
 
-    this.addMidelware('submit', [
+    this.addMiddleware('submit', [
       ...(multipartFormData ? [upload.any()] : []),
       asyncServerRouteHandler(async (req, res) => {
         const model = this.getModel(req, res);
@@ -113,7 +113,7 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
       })
     ]);
 
-    this.addMidelware(
+    this.addMiddleware(
       'validate',
       asyncServerRouteHandler(async (req, res) => {
         const model = this.getModel(req, res);
@@ -143,18 +143,18 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
   }
 
   getData(middleware: RequestHandler | RequestHandler[]): this {
-    return this.addMidelware('getData', middleware);
+    return this.addMiddleware('getData', middleware);
   }
 
   submit(middleware: RequestHandler | RequestHandler[]): this {
-    return this.addMidelware('submit', middleware);
+    return this.addMiddleware('submit', middleware);
   }
 
   validate(middleware: RequestHandler | RequestHandler[]): this {
-    return this.addMidelware('validate', middleware);
+    return this.addMiddleware('validate', middleware);
   }
 
-  private addMidelware(
+  private addMiddleware(
     method: keyof FormExpressApiMiddlewares,
     middleware: RequestHandler | RequestHandler[]
   ): this {
