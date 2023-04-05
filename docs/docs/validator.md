@@ -205,17 +205,17 @@ Dependent fields come up when you use group validation methods: `fields()`, `asy
 ### async isValidRecord
 
 {% highlight javascript %}
-  const validationResult = await validator.isValidRecord(record, addValues);
+  const validationResult = await validator.isValidRecord(record, additionalValues);
 {% endhighlight %}
 
 Checks validity of the given `record`. Returns ValidationErrors instance.
 
 **Parameters**:
 
-| Type      | Name    | Description                                                                                                             |
-|-----------|---------|-------------------------------------------------------------------------------------------------------------------------|
-| Object    | record  | *Required*. Record to validate. The object has the following structure: {field1: field1Value, field2: field2Value, ...} |
-| Object    | addValues  | Additional values that are necessary to validate record. The object has the following structure: {field1: field1Value, field2: field2Value, ...} |
+| Type      | Name             | Description                                                                                                                                                  |
+|-----------|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Object    | record           | *Required*. Record to validate. The object has the following structure: {field1: field1Value, field2: field2Value, ...}                                      |
+| Object    | additionalValues | *Optional*. Additional values that are necessary to validate record. The object has the following structure: {field1: field1Value, field2: field2Value, ...} |
 
 **Returns**: Promise which resolves with *ValidationErrors* instance.
 

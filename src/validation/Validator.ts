@@ -164,14 +164,16 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
    */
   async isValidRecord(
     record: Partial<TRecord>,
-    addValues?: Partial<TRecord>
+    additionalValues?: Partial<TRecord>
   ): Promise<ValidationErrors<keyof TRecord & string>> {
     const fields = keys(record);
-    const addFields = addValues ? keys(addValues) : [];
+    const additionalFields = additionalValues ? keys(additionalValues) : [];
     const errors = new ValidationErrors<keyof TRecord & string>();
 
     const dependentFields = this.getValidationDependency(fields);
-    const notPassedDependentFields = dependentFields.filter((e) => !addFields.includes(e));
+    const notPassedDependentFields = dependentFields.filter((e) => {
+      return !additionalFields.includes(e);
+    });
     if (notPassedDependentFields.length) {
       throw new ArgumentsError('Not enough fields for validator: ' + notPassedDependentFields.join(', '));
     }
