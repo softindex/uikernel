@@ -1615,13 +1615,14 @@ class GridComponent<
    * Check warnings
    */
   private async checkWarnings(recordId: TKey): Promise<void> {
-    if (!this.props.warningsValidator) {
+    const {warningsValidator} = this.props;
+    if (!warningsValidator) {
       return;
     }
 
     const warnings = await this.checkValidatorErrors(
       recordId,
-      this.props.warningsValidator.isValidRecord.bind(this.props.warningsValidator),
+      (record) => warningsValidator.isValidRecord(record),
       (recordId) => {
         return this.getRecordWithChanges(recordId) ?? {};
       },
