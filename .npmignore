@@ -1,10 +1,13 @@
-docs
-src
-gulp
-examples
-coverage
-scripts
+.DS_Store
 .idea
+.yarn
+_site
+docs
+examples
+gulp
+scripts
+src
+coverage
 .publish
 .editorconfig
 .eslintrc
@@ -13,5 +16,3 @@ scripts
 .babelrc
 gulpfile.babel.js
 npm-debug.log
-.DS_Store
-.yarn

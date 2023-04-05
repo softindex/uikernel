@@ -12,7 +12,7 @@ In this example, we use `UIKernel.Form` to create a simple form for editing grid
 
 To initialize a form, we use `initForm` function and pass it a settings object with `fields` and `model` props as an argument.
 A settings object can also have [other props](form-service.html).
-To update field values, you can use either `updateField` or `updateFieldWithPrevValidation`.
+To update field values, you can use `updateField` method.
 `getValidationError` returns validation errors for a specific field.
 `getData` returns form data.
 `submit` is used to submit a form.

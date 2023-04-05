@@ -137,12 +137,13 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
    */
   updateField = async <TField extends keyof TRecord & string>(
     field: TField,
-    value: Element | TRecord[TField]
+    value: Element | TRecord[TField],
+    validate = false
   ): Promise<void> => {
     const changes: Partial<TRecord> = {};
     changes[field] = parseValueFromEvent(value) as TRecord[TField] | undefined;
 
-    await this.set(changes);
+    await this.set(changes, validate);
   };
 
   addChangeListener(
@@ -194,28 +195,14 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     this.clearValidation(field);
   };
 
-  /**
-   * Update field value and validate form.
-   *
-   * @param {string}  field  Parameter
-   * @param {*}       value  Event or data
-   */
-  updateFieldWithPrevValidation = async <TField extends keyof TRecord & string>(
-    field: TField,
-    value: Element | TRecord[TField]
-  ): Promise<void> => {
-    const changes: Partial<TRecord> = {};
-    changes[field] = parseValueFromEvent(value) as TRecord[TField] | undefined;
-
-    await this.set(changes, true);
-  };
-
   validateField = async <TField extends keyof TRecord & string>(
     field: TField,
     value: Element | TRecord[TField]
   ): Promise<void> => {
-    console.warn('Deprecated: FormService method "validateField" renamed to "updateFieldWithPrevValidation"');
-    await this.updateFieldWithPrevValidation(field, value);
+    console.warn(
+      'Deprecated: Use "updateField" method with "validate" param instead of "validateField" method'
+    );
+    await this.updateField(field, value, true);
   };
 
   /**

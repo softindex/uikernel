@@ -330,10 +330,6 @@ const FormMixin = {
     );
   },
 
-  updateFieldWithPrevValidation: function (field, value, cb) {
-    this.validateField(field, value, cb);
-  },
-
   validateForm: function (cb) {
     const handler =
       typeof cb === 'function'

@@ -17,8 +17,8 @@
     "build": "yarn validate && yarn build:ts && gulp",
     "build:ts": "tsc",
     "test": "jest",
-    "site:start": "sh ./scripts/site_build.sh && sh ./scripts/site_start.sh",
-    "site:start+examples": "sh ./scripts/site_build.sh && npx zx ./scripts/examples_build.mjs && sh ./scripts/site_start.sh",
+    "site:start": "rm -rf _site && yarn build -- buildSite && sh ./scripts/site_start.sh",
+    "site:start+examples": "rm -rf _site && yarn build -- buildSite && npx zx ./scripts/build_examples.mjs && sh ./scripts/site_start.sh",
     "ts": "tsc --preserveWatchOutput --noEmit",
     "lint": "esw src --color --ext=.jsx,.js,.tsx,.ts --cache",
     "validate": "yarn lint --fix && yarn ts && yarn test"
@@ -33,16 +33,13 @@
     "multer": "^1.4.1",
     "react-datepicker": "^3.6.0",
     "ts-essentials": "^9.1.2",
-    "xhr": "^2.5.0",
-    "zx": "^7.2.0"
+    "xhr": "^2.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.7.5",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/register": "^7.0.0",
-    "@types/enzyme": "^3.10.12",
-    "@types/enzyme-adapter-react-16": "^1.0.6",
     "@types/express": "^4.17.15",
     "@types/http-errors": "^2.0.1",
     "@types/jest": "^29.2.4",
@@ -56,8 +53,6 @@
     "browserify": "^15.2.0",
     "browserify-shim": "^3.8.12",
     "del": "^4.1.0",
-    "enzyme": "^3.7.0",
-    "enzyme-adapter-react-16": "^1.6.0",
     "eslint": "^7.32.0",
     "eslint-config-alloy": "~4.5.1",
     "eslint-config-prettier": "^8.5.0",
@@ -88,7 +83,8 @@
     "react-dom": ">=16.12.0",
     "ts-jest": "^29.0.3",
     "typescript": "^4.9.4",
-    "yargs": "^11.1.0"
+    "yargs": "^11.1.0",
+    "zx": "^7.2.1"
   },
   "peerDependencies": {
     "react": ">=16.12.0",
@@ -109,9 +105,6 @@
     "collectCoverageFrom": [
       "src/**/*.(j|t)sx?"
     ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/test/setupTestFramework.ts"
-    ],
     "testURL": "http://localhost",
     "moduleFileExtensions": [
       "ts",
@@ -122,7 +115,7 @@
       "node"
     ]
   },
-  "packageManager": "yarn@3.2.3",
+  "packageManager": "yarn@3.5.0",
   "engines": {
     "node": ">=12"
   }

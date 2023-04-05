@@ -21,8 +21,7 @@ ___
 - [addChangeListener(handler)](#addchangelistener)
 - [removeChangeListener(handler)](#removechangelistener)
 - [removeAllListeners()](#removealllisteners)
-- [async updateField(field, value)](#async-updatefield)
-- [async updateFieldWithPrevValidation(field, value)](#async-updatefieldwithprevvalidation)
+- [async updateField(field, value, validate)](#async-updatefield)
 - [async validateForm()](#async-validateform)
 - [async set(data, validate)](#async-set)
 - [async submit()](#async-submit)
@@ -111,7 +110,7 @@ Unsubscribe all formService 'update' events handlers.
 ### async updateField
 
 {% highlight javascript %}
-  await formService.updateField(field, value);
+  await formService.updateField(field, value, validate);
 {% endhighlight %}
 
 Update changes of the specified form field(s). Returns promise which resolves when the field is updated.
@@ -119,22 +118,13 @@ Update changes of the specified form field(s). Returns promise which resolves wh
 
 **Parameters**:
 
-| Type     | Name    | Description                                                        |
-|----------|---------|--------------------------------------------------------------------|
-| String   | field   | *Required*. Field name to update.                                              |
-| Any      | value   | *Required*. Value to update the field with. Can be either an event or any serializable data |
+| Type     | Name           | Description                                                                                 |
+|----------|----------------|---------------------------------------------------------------------------------------------|
+| String   | field          | *Required*. Field name to update.                                                           |
+| Any      | value          | *Required*. Value to update the field with. Can be either an event or any serializable data |
+| Boolean  | validate=false | *Optional*. If the field should be validated after saving                                   |
 
 ----
-
-### async updateFieldWithPrevValidation
-
-{% highlight javascript %}
-  let validationErrors = await formService.updateFieldWithPrevValidation(field, value);
-{% endhighlight %}
-
-Update field value and validate form. Returns Promise which resolves with validation errors
-(if there are some invalid fields) or empty result.
- The method triggers 'update' event eventually
 
 **Parameters**:
 

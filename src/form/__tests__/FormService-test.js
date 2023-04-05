@@ -264,17 +264,6 @@ describe('clearValidation', () => {
   });
 });
 
-describe('updateFieldWithPrevValidation', () => {
-  it('Set run', async () => {
-    const {instance} = await createInitedInstance();
-    instance.set = jest.fn(async () => {});
-
-    instance.updateFieldWithPrevValidation('name', 'newName');
-
-    expect(instance.set).toHaveBeenCalledTimes(1);
-  });
-});
-
 describe('set', () => {
   it('Before loaded', async () => {
     const instance = new FormService();

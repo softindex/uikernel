@@ -154,7 +154,7 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.surname.value}
             />
-            {Boolean(this.state.fields.name.errors.length) &&
+            {Boolean(this.state.fields.surname.errors.length) &&
             <small className="control-label">{this.state.fields.surname.errors[0]?.message}</small>}
           </div>
         </div>
@@ -172,7 +172,7 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.phone.value}
             />
-            {Boolean(this.state.fields.name.errors.length) &&
+            {Boolean(this.state.fields.phone.errors.length) &&
             <small className="control-label">{this.state.fields.phone.errors[0]?.message}</small>}
           </div>
         </div>
@@ -189,7 +189,7 @@ render() {
               onBlur={this.form.validateForm}
               value={this.state.fields.age.value}
             />
-            {Boolean(this.state.fields.name.errors.length) &&
+            {Boolean(this.state.fields.age.errors.length) &&
             <small className="control-label">{this.state.fields.age.errors[0]?.message}</small>}
           </div>
         </div>
@@ -316,7 +316,7 @@ render() {
                 model={this.state.model}
                 columns={columns}
                 viewCount={10}
-                defaultSort={ // default sorting
+                defaultSort={
                   {
                     column: "name",
                     direction: "asc"

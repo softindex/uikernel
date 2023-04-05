@@ -6,13 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { useMemo } from 'react';
 import UIKernel from 'uikernel';
 import gridModel from '../gridModel';
 import FormFields from './FormFields';
 
 function CreateForm({onSubmit}) {
-  useMemo(() => {return 0}, [])
   const [formState, formService] = UIKernel.useForm({
     fields: ['name', 'surname', 'phone', 'age', 'gender'],
     model: new UIKernel.Adapters.Grid.ToFormCreate(gridModel, { // default field values
