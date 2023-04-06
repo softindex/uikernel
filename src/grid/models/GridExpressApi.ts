@@ -258,28 +258,28 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
   }
 
   read(middlewares: RequestHandler | RequestHandler[]): this {
-    this.addMidelwares('readGet', middlewares);
-    this.addMidelwares('readPost', middlewares);
+    this.addMiddlewares('readGet', middlewares);
+    this.addMiddlewares('readPost', middlewares);
     return this;
   }
 
   validate(middlewares: RequestHandler | RequestHandler[]): this {
-    return this.addMidelwares('validate', middlewares);
+    return this.addMiddlewares('validate', middlewares);
   }
 
   getRecord(middlewares: RequestHandler | RequestHandler[]): this {
-    return this.addMidelwares('getRecord', middlewares);
+    return this.addMiddlewares('getRecord', middlewares);
   }
 
   update(middlewares: RequestHandler | RequestHandler[]): this {
-    return this.addMidelwares('update', middlewares);
+    return this.addMiddlewares('update', middlewares);
   }
 
   create(middlewares: RequestHandler | RequestHandler[]): this {
-    return this.addMidelwares('create', middlewares);
+    return this.addMiddlewares('create', middlewares);
   }
 
-  private addMidelwares(
+  private addMiddlewares(
     method: keyof GridExpressApiMiddlewares,
     middleware: RequestHandler | RequestHandler[]
   ): this {
