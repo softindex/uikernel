@@ -3858,13 +3858,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap@npm:4.2.1":
-  version: 4.2.1
-  resolution: "bootstrap@npm:4.2.1"
+"bootstrap@npm:4.3.1":
+  version: 4.3.1
+  resolution: "bootstrap@npm:4.3.1"
   peerDependencies:
     jquery: 1.9.1 - 3
-    popper.js: ^1.14.6
-  checksum: cbea5bc720d48606c9246940ac1360030c5414db77cb2155015f805c287064324eb95dbee7809eaeca13e63cfcc1fcaf026250fff4d692a499afac69f73d2367
+    popper.js: ^1.14.7
+  checksum: c78694db1d80b1ed91abc67a49edf2f48618bb52380432a7de60c40d203a3aa4a5bb65f4c68b732cb75ef8ca915c0e6bb3fe0009b830b2fc455a74b2b6a61d8d
   languageName: node
   linkType: hard
 
@@ -8331,7 +8331,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
+"lodash@npm:4.17.11":
+  version: 4.17.11
+  resolution: "lodash@npm:4.17.11"
+  checksum: 0611590f43371f1dc93f8ad6d73feab7e301417ff7bbd4f7af4421def41d7b3210230539ae952884a0c7b944ba3266dd2723c02b79f36a7906e8d9e2e280a498
+  languageName: node
+  linkType: hard
+
+"lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -10415,8 +10422,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-app@workspace:."
   dependencies:
-    bootstrap: 4.2.1
-    lodash: 4.17.21
+    bootstrap: 4.3.1
+    lodash: 4.17.11
     react: ^18.2.0
     react-dom: ^18.2.0
     react-scripts: 5.0.1
@@ -12200,7 +12207,7 @@ __metadata:
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
   version: 1.0.1-dev13.0
-  resolution: "uikernel@file:../../#../../::hash=2a2e10&locator=react-app%40workspace%3A."
+  resolution: "uikernel@file:../../#../../::hash=9649a8&locator=react-app%40workspace%3A."
   dependencies:
     classnames: ^2.2.6
     csv-stringify: ^5.6.5
@@ -12215,7 +12222,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 7734a349f77455a4e8c21cbbc4c9b7cd7d1ebaf7171a8f890190ee27e2d91b6fc235c3fc5c720c905ccf0135681bd6f0d52c4ad5c1c60a01c97c45510f31cb6c
+  checksum: d3420da50ead8a7b7261a4ae85c0ed973a694bd466bcf3d7645181f22239c1d2d5353b209e9872c90cfca5e1a874c0c77597213d006df9b276a11cb6b122e445
   languageName: node
   linkType: hard
 
