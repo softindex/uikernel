@@ -19,8 +19,9 @@ class GridToFormCreate<TKey, TRecord extends Record<string, unknown>, TFilters>
   implements IFormModel<TRecord>, IObservable<Record<string, unknown[]>>
 {
   constructor(
-    private gridModel: IGridModel<TKey, TRecord, TFilters> & IObservable<Record<string, unknown[]>>,
-    private initialData: Partial<TRecord> = {}
+    private gridModel: IGridModel<TKey, TRecord, TFilters>,
+    private initialData: Partial<TRecord> = {},
+    private onSubmit?: (recordId: TKey) => void
   ) {}
 
   getData(): Promise<Partial<TRecord>>;
@@ -38,7 +39,9 @@ class GridToFormCreate<TKey, TRecord extends Record<string, unknown>, TFilters>
   }
 
   async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
-    await this.gridModel.create(changes);
+    const id = await this.gridModel.create(changes);
+    this.onSubmit?.(id);
+
     return changes;
   }
 

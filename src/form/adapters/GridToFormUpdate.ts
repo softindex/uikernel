@@ -7,41 +7,28 @@
  */
 
 import {assertNonNullish} from '../../common/assert';
-import EventsModel from '../../common/EventsModel';
 import {EventListener, IObservable} from '../../common/types';
 import {isEqual} from '../../common/utils';
 import {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
 import {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
+import {FormModelListenerArgsByEventName} from '../types/FormModelListenerArgsByEventName';
 import {IFormModel} from '../types/IFormModel';
-
-type RequiredGridModelListenerArgsByEventName<TKey, TRecord extends Record<string, unknown>> = Pick<
-  GridModelListenerArgsByEventName<TKey, TRecord>,
-  'update'
->;
 
 /**
  * Adapter that allows us to use Grid model record as a form model
  */
-class GridToFormUpdate<
-  TKey,
-  TRecord extends Record<string, unknown>,
-  TListenerArgsByEventName extends {
-    [x: string]: unknown[];
-    update: [Partial<TRecord>];
-  },
-  TFilters
-> implements IFormModel<TRecord>, IObservable<TListenerArgsByEventName>
+class GridToFormUpdate<TKey, TRecord extends Record<string, unknown>, TFilters>
+  implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
-  private eventsModel = new EventsModel<TListenerArgsByEventName>();
   private onUpdateHandlers: {
-    originalCallback: EventListener<TListenerArgsByEventName['update']>;
-    wrappedCallback: EventListener<RequiredGridModelListenerArgsByEventName<TKey, TRecord>['update']>;
+    originalCallback: EventListener<FormModelListenerArgsByEventName<TRecord>['update']>;
+    wrappedCallback: EventListener<GridModelListenerArgsByEventName<TKey, TRecord>['update']>;
   }[] = [];
 
   constructor(
     private gridModel: IGridModel<TKey, TRecord, TFilters> &
-      IObservable<RequiredGridModelListenerArgsByEventName<TKey, TRecord>>,
+      IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>,
     private id: TKey
   ) {}
 
@@ -74,50 +61,36 @@ class GridToFormUpdate<
     return this.gridModel.getValidationDependency(fields);
   }
 
-  on<TEventName extends keyof TListenerArgsByEventName & string>(
+  on<TEventName extends keyof FormModelListenerArgsByEventName<TRecord>>(
     eventName: TEventName,
-    cb: EventListener<TListenerArgsByEventName[TEventName]>
+    cb: EventListener<FormModelListenerArgsByEventName<TRecord>[TEventName]>
   ): this {
-    if (eventName !== 'update') {
-      this.eventsModel.on(eventName, cb);
-      return this;
-    }
-
-    const callback = cb as EventListener<TListenerArgsByEventName['update']>;
-
     // onChange filters out table events, that do not regard to our record
-    const onChange: EventListener<RequiredGridModelListenerArgsByEventName<TKey, TRecord>['update']> = (
-      changes
-    ) => {
+    const onChange: EventListener<GridModelListenerArgsByEventName<TKey, TRecord>['update']> = (changes) => {
       for (const [key, record] of changes) {
         if (isEqual(key, this.id)) {
-          callback(record);
+          cb(record);
         }
       }
     };
 
     this.onUpdateHandlers.push({
-      originalCallback: callback,
+      originalCallback: cb,
       wrappedCallback: onChange
     });
 
-    this.gridModel.on('update', onChange);
+    this.gridModel.on(eventName, onChange);
 
     return this;
   }
 
-  off<TEventName extends keyof TListenerArgsByEventName & string>(
+  off<TEventName extends keyof FormModelListenerArgsByEventName<TRecord>>(
     eventName: TEventName,
-    cb: EventListener<TListenerArgsByEventName[TEventName]>
+    cb: EventListener<FormModelListenerArgsByEventName<TRecord>[TEventName]>
   ): this {
-    if (eventName !== 'update') {
-      this.eventsModel.off(eventName, cb);
-      return this;
-    }
-
     this.onUpdateHandlers = this.onUpdateHandlers.filter((handler) => {
       if (handler.originalCallback === cb) {
-        this.gridModel.off('update', handler.wrappedCallback);
+        this.gridModel.off(eventName, handler.wrappedCallback);
         return false;
       }
 
