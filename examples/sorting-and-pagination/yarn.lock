@@ -8331,14 +8331,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.11":
-  version: 4.17.11
-  resolution: "lodash@npm:4.17.11"
-  checksum: 0611590f43371f1dc93f8ad6d73feab7e301417ff7bbd4f7af4421def41d7b3210230539ae952884a0c7b944ba3266dd2723c02b79f36a7906e8d9e2e280a498
-  languageName: node
-  linkType: hard
-
-"lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
+"lodash@npm:4.17.21, lodash@npm:^4.17.20, lodash@npm:^4.17.21, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: eb835a2e51d381e561e508ce932ea50a8e5a68f4ebdd771ea240d3048244a8d13658acbd502cd4829768c56f2e16bdd4340b9ea141297d472517b83868e677f7
@@ -10423,7 +10416,7 @@ __metadata:
   resolution: "react-app@workspace:."
   dependencies:
     bootstrap: 4.2.1
-    lodash: 4.17.11
+    lodash: 4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
     react-scripts: 5.0.1
@@ -12206,8 +12199,8 @@ __metadata:
   linkType: hard
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
-  version: 1.0.1-dev12.2
-  resolution: "uikernel@file:../../#../../::hash=bcc90b&locator=react-app%40workspace%3A."
+  version: 1.0.1-dev13.0
+  resolution: "uikernel@file:../../#../../::hash=2a2e10&locator=react-app%40workspace%3A."
   dependencies:
     classnames: ^2.2.6
     csv-stringify: ^5.6.5
@@ -12222,7 +12215,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 79538d79cb0b755ce7d7eb45cf9ccc09864349b1cd3c170dac476ad9cc2c8c2e306a71148b0851f4aeaa88e20d93e7f93c19909d54e6c2ec2fb69d09d73e36e1
+  checksum: 7734a349f77455a4e8c21cbbc4c9b7cd7d1ebaf7171a8f890190ee27e2d91b6fc235c3fc5c720c905ccf0135681bd6f0d52c4ad5c1c60a01c97c45510f31cb6c
   languageName: node
   linkType: hard
 
