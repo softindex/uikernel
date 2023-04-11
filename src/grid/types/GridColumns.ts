@@ -41,7 +41,7 @@ export type GridGetCell<TRecord extends Record<string, unknown>> = (
 ) => string;
 
 export type GridCellRender<TRecord extends Record<string, unknown>> = readonly [
-  ...ArrayWithAtLeastOneElement<string & keyof TRecord>,
+  ...(string & keyof TRecord)[],
   GridGetCell<TRecord>
 ];
 
