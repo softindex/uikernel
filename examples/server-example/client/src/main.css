@@ -1,0 +1,24 @@
+#body {
+    margin: 0 auto;
+}
+
+.container {
+    padding-top: 10px;
+}
+
+.btn-success {
+    margin: 0 15px 0 0;
+}
+.action{
+    margin-top: 15px;
+}
+.data-grid {
+    margin: 10px 0;
+}
+
+.form-group.changed input{
+    background-color: #ffff38;
+}
+.form-group.error input{
+    background-color: #ff8689;
+}
