@@ -97,14 +97,11 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
     }
 
     const connection = this.pool.getConnection();
-
-    const insertId = await connection
+    return await connection
       .insertInto(tUser)
       .set(record as UserRecord)
       .returningLastInsertedId()
       .executeInsert();
-
-    return insertId;
   }
 
   async update(changes: [number, Partial<UserRecord>][]): Promise<GridModelUpdateResult<number, UserRecord>> {
@@ -112,14 +109,12 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
 
     for (const [recordId, record] of changes) {
       const validationResult = await this.isValidRecord(record);
-
       if (!validationResult.isEmpty()) {
         result.push([recordId, validationResult]);
         continue;
       }
 
       const connection = this.pool.getConnection();
-
       try {
         await connection.update(tUser).set(record).where(tUser.id.equals(recordId)).executeUpdate();
       } catch (err) {
@@ -133,12 +128,9 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
     return result;
   }
 
-  async delete(id: number): Promise<number> {
+  async delete(id: number): Promise<void> {
     const connection = this.pool.getConnection();
-
-    const deleteId = await connection.deleteFrom(tUser).where(tUser.id.equals(id)).executeDelete();
-
-    return deleteId;
+    await connection.deleteFrom(tUser).where(tUser.id.equals(id)).executeDelete();
   }
 
   async isValidRecord(record: Partial<UserRecord>): Promise<ValidationErrors<UserField>> {
@@ -151,10 +143,7 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
 
   private getSelect(fields: UserField[]) {
     const fieldsToPick = Object.fromEntries(fields.map((field) => [field, true]));
-
-    const pickedColumns = dynamicPick(avaliableColumns, fieldsToPick, ['id']);
-
-    return pickedColumns;
+    return dynamicPick(avaliableColumns, fieldsToPick, ['id']);
   }
 
   private getWhere(filters: Filters | undefined) {
@@ -172,7 +161,6 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
     }
 
     const [sortField, sortDirection] = sort[0];
-
     return `${sortField} ${sortDirection === 'asc' ? 'asc' : 'desc'}`;
   }
 }

@@ -1,4 +1,4 @@
-import sql, {Pool, PoolConfig} from 'mysql';
+import mysql, {Pool, PoolConfig} from 'mysql';
 import {MySqlConnection} from 'ts-sql-query/connections/MySqlConnection';
 import {MySqlPoolQueryRunner} from 'ts-sql-query/queryRunners/MySqlPoolQueryRunner';
 
@@ -19,7 +19,7 @@ export class MySqlPool {
   private pool: Pool;
 
   constructor(config: PoolConfig) {
-    this.pool = sql.createPool(config);
+    this.pool = mysql.createPool(config);
   }
 
   getConnection(): DBConnection {
