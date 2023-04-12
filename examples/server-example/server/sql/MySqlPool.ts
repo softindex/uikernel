@@ -2,7 +2,7 @@ import mysql, {Pool, PoolConfig} from 'mysql';
 import {MySqlConnection} from 'ts-sql-query/connections/MySqlConnection';
 import {MySqlPoolQueryRunner} from 'ts-sql-query/queryRunners/MySqlPoolQueryRunner';
 
-const sqlConfig = {
+const sqlConfig: PoolConfig = {
   host: 'localhost',
   user: 'test',
   password: 'hello_world',
