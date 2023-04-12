@@ -50,16 +50,17 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
       .offsetIfValue(offset)
       .executeSelectPage();
 
-    const extraData = await connection
-      .selectFrom(tUser)
-      .select(select)
-      .where(tUser.id.inIfValue(extra))
-      .executeSelectMany();
+    let allData = data;
+    if (extra && extra.length !== 0) {
+      const extraData = await connection
+        .selectFrom(tUser)
+        .select(select)
+        .where(tUser.id.in(extra))
+        .executeSelectMany();
+      allData = [...extraData, ...data];
+    }
 
-    const records = [...extraData, ...data].map(({id, ...item}) => [id, item]) as [
-      number,
-      Pick<UserRecord, TField>
-    ][];
+    const records = allData.map(({id, ...item}) => [id, item]) as [number, Pick<UserRecord, TField>][];
 
     return {
       records,
