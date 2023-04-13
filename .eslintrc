@@ -90,7 +90,7 @@
     "no-loop-func": "off",
     "no-undef": "error",
     "consistent-return": "off",
-    "no-console": ["error", {"allow": ["warn", "error"]}],
+    "no-console": ["error", {"allow": ["warn", "error", "info"]}],
     "prefer-const": ["error", {"destructuring": "all"}],
     "no-multiple-empty-lines": ["error", {"max": 1}],
     "max-len": [

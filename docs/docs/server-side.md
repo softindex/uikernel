@@ -6,24 +6,26 @@ next: server-routes.html
 ---
 
 In this tutorial, we'll be writing an example of the server-side part of the app which will use UIKernel.
-We are going to use Node.js, Express and MySql.
+We are going to use Node.js with ts-node, Express and MySql with ts-sql-query.
 
 Our app will have the following structure:
 
 {% highlight html %}
-|-- src
-    |-- client // the client-side part of the app described in the previous tutorial
-    |-- server
-        |-- common
-            mysql.js
-        |-- modules
-            |--userGrid
-                model.js
-                router.js
-                validator.js
-        api.js
-package.json
-server.js
+|-- client // the client-side part of the app described in the previous tutorial
+    server
+    |-- sql
+        |-- MySqlPool.ts
+            UserTable.ts
+        api
+        |-- users
+            |-- types.ts
+                UserGridModel.ts
+                userRouter.ts
+                userValidator
+            index.ts
+        server.ts
+        tsconfig.json
+        package.json
 {% endhighlight %}
 
 First, we'll define packages in `package.json`.
@@ -32,16 +34,22 @@ First, we'll define packages in `package.json`.
 {% highlight javascript %}
 {
   "name": "uikernel-server-example",
-  "main": "server.js",
+  "main": "server.ts",
   "scripts": {
-    "start": "node server.js"
+    "start": "ts-node server.ts"
   },
   "dependencies": {
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "mysql": "^2.12.0",
-    "squel": "^5.5.0",
-    "uikernel": "^0.17.0"
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "ts-node": "^10.9.1",
+    "ts-sql-query": "^1.51.0",
+    "typescript": "^5.0.4",
+    "uikernel": "https://github.com/softindex/uikernel/tarball/v1.0.1-dev13.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/mysql": "^2.15.21"
   }
 }
 {% endhighlight %}
@@ -50,38 +58,33 @@ To install them, we'll need to run `npm i` from the command line.
 
 Next, let's configure the server.
 
-`server.js`:
-{% highlight javascript %}
-const express = require('express');
-const bodyParser = require('body-parser');
-const api = require('./api');
+`server.ts`:
+{% highlight typescript %}
+import bodyParser from 'body-parser';
+import express, {NextFunction, Request, Response} from 'express';
+import {api} from './api';
+
+// set our port
+const PORT = process.env.PORT ?? 8000;
 
 // define our app using express
 const app = express();
 
 // configure our app to use bodyParser so that we could get the data from a POST
 app.use(bodyParser.json());
-app.use('/static', express.static('/static'));
-// we'll be using UIKernel from "node_modules" on the client side
-app.use('/node_modules', express.static('node_modules'));
 
-app.use('/', express.static('/src/client'));
 // register routes
 app.use('/api', api);
 
 // define error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err);
-  const statusCode = err.statusCode || 500;
-  res.sendStatus(statusCode);
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
+  console.error(err.message);
+  res.sendStatus(500);
 });
 
-// set our port
-const port = process.env.PORT || 8000;
-
 // start the server
-app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
 });
 {% endhighlight %}
 
@@ -92,20 +95,32 @@ the only difference is that the data model on the client-side part will be an in
 instead of UIKernel.Models.Grid.Collection, so that the client-side part will fetch grid data and synchronize it
 with the server's model:
 
-`client/js/model/model.js`
+`client/src/model.js`
 {% highlight javascript %}
-const UIKernel = require('uikernel');
+import UIKernel from 'uikernel';
+import validator from './validator';
 
 const model = new UIKernel.Models.Grid.Xhr({
-  api: '/api/records',
+  api: '/api/users',
   validator,
 });
 
 // do not forget to define a delete method for UserGridModel
-model.deleteItem = async function (recordId) {
-  await this._xhr({
+model.delete = async function (recordId) {
+  await this.xhr({
     method: 'DELETE',
-    uri: this._apiUrl + '/' + recordId
+    uri: `${this.apiUrl}/${recordId}`
   });
 };
+{% endhighlight %}
+
+And we need set proxy in client app.
+
+`client/package.json`:
+{% highlight javascript %}
+{
+  // ...
+  "proxy": "http://localhost:8000",
+  // ...
+}
 {% endhighlight %}

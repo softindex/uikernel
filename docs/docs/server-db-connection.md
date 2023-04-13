@@ -7,69 +7,65 @@ next: editors.html
 
 As mentioned, we're using a MySQL database for our example. Below is  the code for the example wrapper for working with database connections.
 
-`server/common/mysql.js`
-{% highlight javascript %}
-const mysql = require('mysql');
+`sql/MySqlPool.ts`:
+{% highlight typescript %}
+import sql, {Pool, PoolConfig} from 'mysql';
+import {MySqlConnection} from 'ts-sql-query/connections/MySqlConnection';
+import {MySqlPoolQueryRunner} from 'ts-sql-query/queryRunners/MySqlPoolQueryRunner';
 
-const pool = mysql.createPool({
+const sqlConfig: PoolConfig = {
   host: 'localhost',
-  port: '3306',
-  user: 'root',
-  password: 'passwordForRoot',
-  database: 'database',
-});
-
-function executeQuery(connection, query) {
-  return new Promise((resolve, reject) => {
-    let text = query;
-    let values = [];
-
-    if (typeof query === 'object') {
-      const param = query.toParam();
-      text = param.text;
-      values = param.values;
-    }
-
-    connection.query(text, values, (err, res) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(res)
-      }
-    });
-  });
-}
-
-const MySQLWrapper = {
-  /**
-   * Executes query in separate pool connection
-   */
-  async query(query) {
-    return await executeQuery(pool, query);
-  },
-
-  /**
-   * Provide methods to execute in separate connection
-   */
-  getConnection() {
-    return new Promise((resolve, reject) => {
-      pool.getConnection((error, connection) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve({
-          async query(query) {
-            return await executeQuery(connection, query);
-          },
-          release() {
-            connection.release();
-          }
-        });
-      });
-    });
-  }
+  user: 'test',
+  password: 'hello_world',
+  database: 'uikernel_test'
 };
 
-module.exports = MySQLWrapper;
+export class DBConnection extends MySqlConnection<'DBConnection'> {}
+
+export class MySqlPool {
+  static create(): MySqlPool {
+    return new MySqlPool(sqlConfig);
+  }
+
+  private pool: Pool;
+
+  constructor(config: PoolConfig) {
+    this.pool = sql.createPool(config);
+  }
+
+  getConnection(): DBConnection {
+    const sqlQueryRunner = new MySqlPoolQueryRunner(this.pool)
+
+    return new DBConnection(sqlQueryRunner);
+  }
+}
+{% endhighlight %}
+
+Then let's setup and configure MySql.
+
+For install MySql you can read [this tutorial](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04)
+
+And then we need configure the database.
+
+Create a user:
+{% highlight sql %}
+CREATE USER 'test'@'localhost' IDENTIFIED WITH mysql_native_password BY 'hello_world';
+{% endhighlight %}
+
+Create a database:
+{% highlight sql %}
+CREATE DATABASE uikernel_test;
+{% endhighlight %}
+
+And create a table:
+{% highlight sql %}
+USE uikernel_test;
+CREATE TABLE users (
+  id SERIAL,
+  name VARCHAR(30),
+  surname VARCHAR(30),
+  phone VARCHAR(14),
+  age TINYINT UNSIGNED,
+  gender TINYINT UNSIGNED
+);
 {% endhighlight %}
