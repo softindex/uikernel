@@ -7,7 +7,7 @@ next: server-db-connection.html
 
 Here, we're going to use [MySQL](https://github.com/mysqljs/mysql) and [ts-sql-query](https://ts-sql-query.readthedocs.io/en/stable/).
 
-For our model we need define `UserTable` with `ts-sql-query`.
+For our model we need to define `UserTable` using `ts-sql-query`.
 
 `sql/UserTable.ts`:
 {% highlight typescript %}
@@ -38,9 +38,8 @@ export class UserTable extends Table<DBConnection, 'TUser'> {
 export const tUser = new UserTable();
 {% endhighlight %}
 
-Our model will have the following methods: `read`, `getRecord`, `update`, `create`, `delete`, `isValidRecord` and `getValidationDependency`.
-
-For creating our model implements `IGridModel` interface:
+Our model will have the following methods: `read`, `getRecord`, `update`, `create`, `delete`, `isValidRecord` and
+`getValidationDependency`. It's methods of `IGridModel` interface.
 
 `api/users/UserGridModel.ts`:
 {% highlight typescript %}
@@ -49,12 +48,12 @@ export class UserGridModel implements IGridModel<number, UserRecord, Filters> {
 }
 {% endhighlight %}
 
-First we create some helper methods `getSelect`, `getWhere` and `getOrderBy`.
+First, let's create some helper methods: `getSelect`, `getWhere` and `getOrderBy`.
 
 `api/users/UserGridModel.ts`:
 {% highlight typescript %}
 // we need helper object with all columns
-const avalibaleColumns = {
+const availableColumns = {
   id: tUser.id,
   name: tUser.name,
   surname: tUser.surname,
@@ -143,7 +142,7 @@ class UserGridModel {
 }
 {% endhighlight %}
 
-The `read` method returns an object with two properties: `records` and `count`(the number of returned records).
+The `read` method returns an object with two properties: `records` and `count` (the number of returned records).
 
 Pay attention to this part:
 {% highlight typescript %}
@@ -187,7 +186,7 @@ class UserGridModel {
 
 The `getRecord` method returns a single record.
 
-For next we need validation methods. Let's define:
+Next, we need validation methods. Let's define:
 
 {% highlight typescript %}
 class UserGridModel {

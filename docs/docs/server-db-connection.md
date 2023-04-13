@@ -45,19 +45,19 @@ Then let's setup and configure MySql.
 
 For install MySql you can read [this tutorial](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04)
 
-And then we need configure database.
+And then we need configure the database.
 
-Create user:
+Create a user:
 {% highlight sql %}
 CREATE USER 'test'@'localhost' IDENTIFIED WITH mysql_native_password BY 'hello_world';
 {% endhighlight %}
 
-Create database:
+Create a database:
 {% highlight sql %}
 CREATE DATABASE uikernel_test;
 {% endhighlight %}
 
-And create table:
+And create a table:
 {% highlight sql %}
 USE uikernel_test;
 CREATE TABLE users (
