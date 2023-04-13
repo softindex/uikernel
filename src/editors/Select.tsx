@@ -107,7 +107,7 @@ class SelectEditor<TValue, TOptions extends AvailableOptions<TValue>> extends Re
         {...omit(this.props, ['value', 'options'])}
         value={valueIndex}
         onChange={this.handleChange}
-        disabled={this.props.disabled ?? this.state.loading}
+        disabled={this.props.disabled || this.state.loading}
       >
         {options.map((item, index) => {
           const optionProps = item instanceof Array && item[2] instanceof Object ? item[2] : {};
