@@ -1117,16 +1117,7 @@ class GridComponent<
     const statuses = this.getStatuses();
     const {showLoader, totals, count, page, data, changes, errors, warnings, editor, extra} = this.state;
 
-    const {
-      viewVariants: propsViewVariants,
-      viewColumns,
-      className,
-      height,
-      columns,
-      pageSizeLabel
-    } = this.props;
-
-    const viewVariants = this.isViewCountPropsMode() ? [viewCount] : propsViewVariants;
+    const {viewVariants, viewColumns, className, height, columns, pageSizeLabel} = this.props;
 
     if (className) {
       gridClassNames.push(className);
