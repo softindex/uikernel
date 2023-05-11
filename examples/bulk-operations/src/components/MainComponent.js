@@ -62,7 +62,7 @@ class MainComponent extends React.Component {
               ref={(grid) => this.grid = grid}
               columns={columns}
               model={this.state.model}
-              viewCount={10}
+              defaultViewCount={10}
               onSelectedChange={this.onSelectedChange}
             />
             <a href="#" className="btn btn-success" onClick={this.someAction}>Some action</a>

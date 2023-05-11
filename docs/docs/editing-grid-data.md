@@ -137,7 +137,7 @@ To make it all work, we also need to add the `ref` attribute to our grid and two
   ref={(grid) => this.grid = grid}
   model={this.state.model}
   columns={columns}
-  viewCount={10}
+  defaultViewCount={10}
 />
 <div className="panel-footer">
   <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>

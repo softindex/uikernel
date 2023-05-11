@@ -31,7 +31,7 @@ function MainComponent() {
         columns={columns}
         model={model}
         viewColumns={cols}
-        viewCount={20}
+        defaultViewCount={20}
       />
     </div>
   );

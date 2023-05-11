@@ -67,7 +67,7 @@ class MainComponent extends React.Component {
           <UIKernel.Grid
             model={this.state.model} // Grid model
             columns={columns} // columns configuration
-            viewCount={10} // display 10 records per page
+            defaultViewCount={10} // display 10 records per page
           />
         </div>
       </div>

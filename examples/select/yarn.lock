@@ -3868,13 +3868,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap@npm:4.2.1":
-  version: 4.2.1
-  resolution: "bootstrap@npm:4.2.1"
+"bootstrap@npm:4.3.1":
+  version: 4.3.1
+  resolution: "bootstrap@npm:4.3.1"
   peerDependencies:
     jquery: 1.9.1 - 3
-    popper.js: ^1.14.6
-  checksum: cbea5bc720d48606c9246940ac1360030c5414db77cb2155015f805c287064324eb95dbee7809eaeca13e63cfcc1fcaf026250fff4d692a499afac69f73d2367
+    popper.js: ^1.14.7
+  checksum: c78694db1d80b1ed91abc67a49edf2f48618bb52380432a7de60c40d203a3aa4a5bb65f4c68b732cb75ef8ca915c0e6bb3fe0009b830b2fc455a74b2b6a61d8d
   languageName: node
   linkType: hard
 
@@ -10432,7 +10432,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-app@workspace:."
   dependencies:
-    bootstrap: 4.2.1
+    bootstrap: 4.3.1
     lodash: 4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -12216,8 +12216,8 @@ __metadata:
   linkType: hard
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
-  version: 1.0.1-dev13.1
-  resolution: "uikernel@file:../../#../../::hash=14e938&locator=react-app%40workspace%3A."
+  version: 1.0.1-dev13.4
+  resolution: "uikernel@file:../../#../../::hash=ff4a7e&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     classnames: ^2.2.6
@@ -12233,7 +12233,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 4a161ca5c1dc5a58f7cf470e1b6965b87638f0cd3329bfcbd180792b5a229922575245d552d1fd5f949ee5df6c38bee3a8fb45663227153168d8a0197682c834
+  checksum: 5627ecff135567a38dbaf6055864e3c2575ec264cc9ff1549bcec25d6909111820a1ac5a26b4dccb206d14afb3cb54fcb83cf7027cc5a36b0ac78cf2c1b69944
   languageName: node
   linkType: hard
 

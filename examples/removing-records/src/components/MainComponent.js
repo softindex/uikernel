@@ -68,7 +68,7 @@ class MainComponent extends React.Component {
             ref={(grid) => this.grid = grid}
             model={this.state.model} // Grid model
             columns={columns} // columns configuration
-            viewCount={10} // display 10 records per page
+            defaultViewCount={10} // display 10 records per page
           />
           <div className="panel-footer">
             <a href="#" className="btn btn-success" onClick={() => this.clearChanges()}>Clear</a>
