@@ -1227,6 +1227,10 @@ class GridComponent<
         if (this.props.onPageLoad) {
           this.props.onPageLoad(loadedData);
         }
+
+        if (this.props.onChange) {
+          this.props.onChange(this.state.changes);
+        }
       }
     );
   }
