@@ -99,6 +99,7 @@ type Props<
   ) => void;
   onToggleSelectAll?: () => void;
   onToggleSelected?: (recordId: TKey) => void;
+  shouldChangePage?: (page: number) => Promise<boolean>;
 };
 
 type State<
@@ -801,9 +802,25 @@ class GridComponent<
    * Move to other page
    */
   setPage(page: number): void {
+    const newPage = this.getValidPage(page, this.state.viewCount, this.state.count);
+    const updatePage = () => {
     // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
-    this.state.page = this.getValidPage(page, this.state.viewCount, this.state.count);
-    this.updateTableInBackground();
+      this.state.page = newPage;
+      this.updateTableInBackground();
+    }
+
+    if (!this.props.shouldChangePage) {
+      updatePage();
+      return;
+    }
+
+    this.props.shouldChangePage(newPage)
+      .then((shouldChange) => {
+        if (shouldChange) {
+          updatePage()
+        }
+      })
+      .catch(console.error);
   }
 
   /**
