@@ -803,21 +803,22 @@ class GridComponent<
    */
   setPage(page: number): void {
     const newPage = this.getValidPage(page, this.state.viewCount, this.state.count);
-    const updatePage = () => {
-    // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
+    const updatePage = (): void => {
+      // @ts-expect-error: TS2540 Cannot assign to 'page' because it is a read-only property
       this.state.page = newPage;
       this.updateTableInBackground();
-    }
+    };
 
     if (!this.props.shouldChangePage) {
       updatePage();
       return;
     }
 
-    this.props.shouldChangePage(newPage)
+    this.props
+      .shouldChangePage(newPage)
       .then((shouldChange) => {
         if (shouldChange) {
-          updatePage()
+          updatePage();
         }
       })
       .catch(console.error);
