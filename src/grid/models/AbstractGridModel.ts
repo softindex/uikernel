@@ -43,7 +43,7 @@ abstract class AbstractGridModel<
   async getRecord<TField extends keyof TRecord & string>(
     _id: TKey,
     _fields: TField[]
-  ): Promise<Pick<TRecord, TField>> {
+  ): Promise<Pick<TRecord, TField> | null> {
     throw new Error('method getRecord not implemented yet');
   }
 

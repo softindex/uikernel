@@ -37,7 +37,12 @@ class GridToFormUpdate<TKey, TRecord extends Record<string, unknown>, TFilters>
   async getData<TField extends keyof TRecord & string>(
     fields?: TField[]
   ): Promise<Partial<Pick<TRecord, TField>>> {
-    return await this.gridModel.getRecord(this.id, fields ?? []);
+    const data = await this.gridModel.getRecord(this.id, fields ?? []);
+    if (!data) {
+      throw new Error('Invalid recordId');
+    }
+
+    return data;
   }
 
   async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {

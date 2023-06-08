@@ -19,7 +19,7 @@ export type JsonGridApiResult<
     {data: TKey; error: null},
     {data: null; error: ValidationErrorsToJsonResult<keyof TRecord & string>}
   >;
-  getRecord: Pick<TRecord, TField>;
+  getRecord: Pick<TRecord, TField> | null;
   read: GridModelReadResult<TKey, TRecord, TField>;
   update: {
     changes: [TKey, Partial<TRecord>][];

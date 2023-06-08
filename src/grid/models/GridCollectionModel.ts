@@ -271,7 +271,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
   async getRecord<TField extends keyof TRecord & string>(
     id: TKey,
     fields: TField[]
-  ): Promise<Pick<TRecord, TField>> {
+  ): Promise<Pick<TRecord, TField> | null> {
     const record = cloneDeep(this.getRecordByID(id));
     if (!record) {
       throw new Error('Record not found.');

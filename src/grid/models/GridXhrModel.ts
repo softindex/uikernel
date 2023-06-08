@@ -147,7 +147,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   async getRecord<TField extends keyof TRecord & string>(
     id: TKey,
     fields: TField[]
-  ): Promise<Pick<TRecord, TField>> {
+  ): Promise<Pick<TRecord, TField> | null> {
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.query.cols = JSON.stringify(fields); // TODO rename cols to fields
     parsedUrl.pathname = url.resolve(parsedUrl.pathname ?? '', JSON.stringify(id));

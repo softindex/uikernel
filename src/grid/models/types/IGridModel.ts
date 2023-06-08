@@ -64,7 +64,7 @@ export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilt
   getRecord: <TField extends keyof TRecord & string>(
     id: TKey,
     fields: TField[]
-  ) => Promise<Pick<TRecord, TField>>;
+  ) => Promise<Pick<TRecord, TField> | null>;
 
   /**
    * Get all dependent fields, that are required for validation
