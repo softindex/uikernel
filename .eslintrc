@@ -196,8 +196,7 @@
         "@typescript-eslint/no-explicit-any": "error",
         // https://github.com/typescript-eslint/typescript-eslint/issues/2421- closed, but not resolved
         "@typescript-eslint/no-unnecessary-condition": "off",
-        // TODO Vlad
-        // "@typescript-eslint/consistent-type-imports": "error",
+        "@typescript-eslint/consistent-type-imports": "error",
         "no-unused-vars": "off",
         "no-undef": "off"
       }

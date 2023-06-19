@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {XOR} from 'ts-essentials';
-import {ValidationErrorsToJsonResult, ValidationJSONError} from '../../../validation/ValidationErrors';
-import {GridModelReadResult} from './IGridModel';
+import type {XOR} from 'ts-essentials';
+import type {ValidationErrorsToJsonResult, ValidationJSONError} from '../../../validation/ValidationErrors';
+import type {GridModelReadResult} from './IGridModel';
 
 export type JsonGridApiResult<
   TKey,

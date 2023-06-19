@@ -6,14 +6,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Request, RequestHandler, Response, Router} from 'express';
+import type {Request, RequestHandler, Response} from 'express';
+import {Router} from 'express';
 import httpError from 'http-errors';
 import multer from 'multer';
 import asyncServerRouteHandler from '../../common/asyncServerRouteHandler';
 import parseJson from '../../common/parseJson';
 import ValidationErrors from '../../validation/ValidationErrors';
-import {GridModelReadParams, IGridModel, GridModelSortMode, GridModelUpdateResult} from './types/IGridModel';
-import {JsonGridApiResult} from './types/JsonGridApiResult';
+import type {
+  GridModelReadParams,
+  IGridModel,
+  GridModelSortMode,
+  GridModelUpdateResult
+} from './types/IGridModel';
+import type {JsonGridApiResult} from './types/JsonGridApiResult';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 

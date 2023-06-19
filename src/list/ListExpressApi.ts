@@ -6,10 +6,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Request, RequestHandler, Response, Router} from 'express';
+import type {Request, RequestHandler, Response} from 'express';
+import {Router} from 'express';
 import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
 import parseJson from '../common/parseJson';
-import {IListModel} from './types/IListModel';
+import type {IListModel} from './types/IListModel';
 
 type ListExpressApiMiddlewares = {
   getLabel: RequestHandler[];

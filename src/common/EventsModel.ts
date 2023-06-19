@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {EventListener, IObservable} from './types';
+import type {EventListener, IObservable} from './types';
 
 type Subscribers<TListenerArgsByEventName extends Record<string, unknown[]>> = {
   [K in keyof TListenerArgsByEventName & string]?: EventListener<TListenerArgsByEventName[K]>[];

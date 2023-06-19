@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import {IObservable} from '../../common/types';
-import ValidationErrors from '../../validation/ValidationErrors';
-import {GridModelListenerArgsByEventName} from '../models/types/GridModelListenerArgsByEventName';
-import {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
-import {GridColumns} from './GridColumns';
+import type React from 'react';
+import type {IObservable} from '../../common/types';
+import type ValidationErrors from '../../validation/ValidationErrors';
+import type {GridModelListenerArgsByEventName} from '../models/types/GridModelListenerArgsByEventName';
+import type {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
+import type {GridColumns} from './GridColumns';
 
 export type SortElementProps<TColumnId extends string> = {
   column: TColumnId;

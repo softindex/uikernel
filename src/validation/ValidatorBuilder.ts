@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {ArrayWithAtLeastOneElement} from '../common/types';
-import {IValidator} from './types/IValidator';
-import {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
+import type {ArrayWithAtLeastOneElement} from '../common/types';
+import type {IValidator} from './types/IValidator';
+import type {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
 import Validator from './Validator';
 
 class ValidatorBuilder<

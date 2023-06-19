@@ -8,7 +8,7 @@
  */
 
 import React from 'react';
-import {StrictOmit} from 'ts-essentials';
+import type {StrictOmit} from 'ts-essentials';
 import {assertNonNullish} from '../common/assert';
 import {isEqual} from '../common/utils';
 import floatValidator from '../validation/rules/float';

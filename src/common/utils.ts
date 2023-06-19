@@ -8,7 +8,7 @@
 
 import omitBy from 'lodash/omitBy';
 import pick from 'lodash/pick';
-import EqualMap from './EqualMap';
+import type EqualMap from './EqualMap';
 
 /**
  * Check if two arrays intersection exists

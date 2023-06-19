@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {DefaultXhr} from './defaultXhr';
+import type {DefaultXhr} from './defaultXhr';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const collection: Record<string, unknown> = {};

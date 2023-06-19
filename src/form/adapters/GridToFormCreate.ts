@@ -7,10 +7,10 @@
  */
 
 import pick from 'lodash/pick';
-import {IObservable} from '../../common/types';
-import {IGridModel} from '../../grid/models/types/IGridModel';
-import ValidationErrors from '../../validation/ValidationErrors';
-import {IFormModel} from '../types/IFormModel';
+import type {IObservable} from '../../common/types';
+import type {IGridModel} from '../../grid/models/types/IGridModel';
+import type ValidationErrors from '../../validation/ValidationErrors';
+import type {IFormModel} from '../types/IFormModel';
 
 /**
  * Adapter allows to use Grid model as a model for new form record creation

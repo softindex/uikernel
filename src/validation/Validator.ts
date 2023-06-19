@@ -9,8 +9,8 @@
 import lodashMap from 'lodash/map';
 import ArgumentsError from '../common/error/ArgumentsError';
 import {isIntersection, keys} from '../common/utils';
-import {IValidator} from './types/IValidator';
-import {ValidatorSettings} from './types/ValidatorSettings';
+import type {IValidator} from './types/IValidator';
+import type {ValidatorSettings} from './types/ValidatorSettings';
 import ValidationErrors from './ValidationErrors';
 
 class Validator<TRecord extends Record<string, unknown>> implements IValidator<TRecord> {

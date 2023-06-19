@@ -6,13 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {IObservable} from '../common/types';
-import {IValidator} from '../validation/types/IValidator';
-import ValidationErrors from '../validation/ValidationErrors';
+import type {IObservable} from '../common/types';
+import type {IValidator} from '../validation/types/IValidator';
+import type ValidationErrors from '../validation/ValidationErrors';
 import ValidatorBuilder from '../validation/ValidatorBuilder';
 import AbstractFormModel from './AbstractFormModel';
-import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
-import {IFormModel} from './types/IFormModel';
+import type {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import type {IFormModel} from './types/IFormModel';
 
 /**
  * Simple form model

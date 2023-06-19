@@ -7,9 +7,9 @@
  */
 
 import decorate from '../../common/decorate';
-import {IObservable} from '../../common/types';
-import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
-import {IGridModel} from './types/IGridModel';
+import type {IObservable} from '../../common/types';
+import type {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
+import type {IGridModel} from './types/IGridModel';
 
 /**
  * Defines filter values while reading Grid model data

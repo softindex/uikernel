@@ -6,8 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {XOR} from 'ts-essentials';
-import {ValidationErrorsToJsonResult} from '../../validation/ValidationErrors';
+import type {XOR} from 'ts-essentials';
+import type {ValidationErrorsToJsonResult} from '../../validation/ValidationErrors';
 
 export type JsonFormApiResult<TRecord> = {
   getData: Partial<Pick<TRecord, keyof TRecord & string>>;

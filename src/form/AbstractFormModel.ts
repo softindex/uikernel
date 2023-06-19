@@ -7,9 +7,9 @@
  */
 
 import EventsModel from '../common/EventsModel';
-import {IObservable, EventListener} from '../common/types';
+import type {IObservable, EventListener} from '../common/types';
 import ValidationErrors from '../validation/ValidationErrors';
-import {IFormModel} from './types/IFormModel';
+import type {IFormModel} from './types/IFormModel';
 
 abstract class AbstractFormModel<
   TRecord extends Record<string, unknown>,

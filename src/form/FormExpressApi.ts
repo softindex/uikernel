@@ -6,14 +6,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Request, RequestHandler, Response, Router} from 'express';
+import type {Request, RequestHandler, Response} from 'express';
+import {Router} from 'express';
 import multer from 'multer';
 import {assertNonNullish} from '../common/assert';
 import asyncServerRouteHandler from '../common/asyncServerRouteHandler';
 import parseJson from '../common/parseJson';
 import ValidationErrors from '../validation/ValidationErrors';
-import {IFormModel} from './types/IFormModel';
-import {JsonFormApiResult} from './types/JsonFormApiResult';
+import type {IFormModel} from './types/IFormModel';
+import type {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const DEFAULT_MAX_FILE_SIZE = 104857600; // 100 MB
 

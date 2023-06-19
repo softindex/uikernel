@@ -9,15 +9,15 @@
 import cloneDeep from 'lodash/cloneDeep';
 import pick from 'lodash/pick';
 import without from 'lodash/without';
-import {StrictOmit} from 'ts-essentials';
-import {AllAsOptionalWithRequired, IObservable} from '../../common/types';
+import type {StrictOmit} from 'ts-essentials';
+import type {AllAsOptionalWithRequired, IObservable} from '../../common/types';
 import {keys, isEqual, warn} from '../../common/utils';
-import {IValidator} from '../../validation/types/IValidator';
-import ValidationErrors from '../../validation/ValidationErrors';
+import type {IValidator} from '../../validation/types/IValidator';
+import type ValidationErrors from '../../validation/ValidationErrors';
 import ValidatorBuilder from '../../validation/ValidatorBuilder';
 import AbstractGridModel from './AbstractGridModel';
-import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
-import {
+import type {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
+import type {
   IGridModel,
   GridModelReadParams,
   GridModelReadResult,

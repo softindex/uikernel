@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {IListModel, ListModelReadResult} from './types/IListModel';
+import type {IListModel, ListModelReadResult} from './types/IListModel';
 
 /**
  * Abstract List model

@@ -1,5 +1,5 @@
-import {ArrayWithAtLeastOneElement} from '../../common/types';
-import ValidationErrors from '../ValidationErrors';
+import type {ArrayWithAtLeastOneElement} from '../../common/types';
+import type ValidationErrors from '../ValidationErrors';
 
 export type ValidationResult<T, TAsync extends 'async' | 'sync'> = TAsync extends 'sync' ? T : Promise<T>;
 

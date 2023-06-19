@@ -7,9 +7,9 @@
  */
 
 import EventsModel from '../../common/EventsModel';
-import {EventListener, IObservable} from '../../common/types';
+import type {EventListener, IObservable} from '../../common/types';
 import ValidationErrors from '../../validation/ValidationErrors';
-import {
+import type {
   GridModelReadParams,
   IGridModel,
   GridModelReadResult,

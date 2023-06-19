@@ -6,8 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {StrictOmit} from 'ts-essentials';
-import xhr, {XhrResponse, XhrUriConfig, XhrUrlConfig} from 'xhr';
+import type {StrictOmit} from 'ts-essentials';
+import type {XhrResponse, XhrUriConfig, XhrUrlConfig} from 'xhr';
+import xhr from 'xhr';
 import RequestError from './error/RequestError';
 import variables from './variables';
 

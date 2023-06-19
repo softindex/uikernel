@@ -7,7 +7,8 @@
  */
 
 import {promisify} from 'util';
-import {default as csv, default as stringify} from 'csv-stringify';
+import type {default as stringify} from 'csv-stringify';
+import {default as csv} from 'csv-stringify';
 
 export type CSVExportRunnerParams<TColumn extends string> = {
   columns: stringify.Options['columns'];

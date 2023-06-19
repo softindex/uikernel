@@ -13,13 +13,13 @@ import isNil from 'lodash/isNil';
 import last from 'lodash/last';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {StrictExtract} from 'ts-essentials';
+import type {StrictExtract} from 'ts-essentials';
 import assert, {assertNonNullish} from '../common/assert';
-import EqualMap from '../common/EqualMap';
+import type EqualMap from '../common/EqualMap';
 import {keys, parents, toEncodedString, isEqual} from '../common/utils';
-import ValidationErrors from '../validation/ValidationErrors';
-import {GridColumnName, GridColumns, GridGetCell} from './types/GridColumns';
-import {GridEditor, IGridRef, SortElementProps} from './types/IGridRef';
+import type ValidationErrors from '../validation/ValidationErrors';
+import type {GridColumnName, GridColumns, GridGetCell} from './types/GridColumns';
+import type {GridEditor, IGridRef, SortElementProps} from './types/IGridRef';
 
 const findDOMNode = ReactDOM.findDOMNode;
 const EXTRA_RECORD_CLASS_NAME = 'dgrid-others';

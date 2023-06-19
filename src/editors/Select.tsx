@@ -8,7 +8,7 @@
 
 import omit from 'lodash/omit';
 import React from 'react';
-import {StrictOmit} from 'ts-essentials';
+import type {StrictOmit} from 'ts-essentials';
 import {isEqual} from '../common/utils';
 
 type AdvancedOptions<TValue> = [

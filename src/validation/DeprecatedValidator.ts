@@ -8,10 +8,10 @@
 
 import lodashMap from 'lodash/map';
 import ArgumentsError from '../common/error/ArgumentsError';
-import {ArrayWithAtLeastOneElement} from '../common/types';
+import type {ArrayWithAtLeastOneElement} from '../common/types';
 import {isIntersection, keys} from '../common/utils';
-import {IValidator} from './types/IValidator';
-import {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
+import type {IValidator} from './types/IValidator';
+import type {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
 import ValidationErrors from './ValidationErrors';
 
 /**

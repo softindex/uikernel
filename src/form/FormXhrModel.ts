@@ -8,16 +8,17 @@
 
 import url from 'url';
 import {assertNonNullish} from '../common/assert';
-import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
+import type {DefaultXhr} from '../common/defaultXhr';
+import defaultXhr from '../common/defaultXhr';
 import EventsModel from '../common/EventsModel';
 import parseJson from '../common/parseJson';
-import {EventListener, IObservable} from '../common/types';
-import {IValidator} from '../validation/types/IValidator';
+import type {EventListener, IObservable} from '../common/types';
+import type {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
 import ValidatorBuilder from '../validation/ValidatorBuilder';
-import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
-import {IFormModel} from './types/IFormModel';
-import {JsonFormApiResult} from './types/JsonFormApiResult';
+import type {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import type {IFormModel} from './types/IFormModel';
+import type {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const MAX_URI_LENGTH = 2048;
 

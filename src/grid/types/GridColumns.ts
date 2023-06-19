@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {ArrayWithAtLeastOneElement} from '../../common/types';
-import {GridModelSortMode} from '../models/types/IGridModel';
-import {IGridRef} from './IGridRef';
+import type {ArrayWithAtLeastOneElement} from '../../common/types';
+import type {GridModelSortMode} from '../models/types/IGridModel';
+import type {IGridRef} from './IGridRef';
 
 export type EditorContext<TRecord extends Record<string, unknown>, TField extends string & keyof TRecord> = {
   props: {

@@ -8,8 +8,8 @@
 
 import {useEffect, useMemo, useState} from 'react';
 import FormService from './FormService';
-import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
-import {FormServiceEmptyState, FormServiceParams, FormServiceState} from './types/IFormService';
+import type {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import type {FormServiceEmptyState, FormServiceParams, FormServiceState} from './types/IFormService';
 
 export type UseFormResult<
   TRecord extends Record<string, unknown>,

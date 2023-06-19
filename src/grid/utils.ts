@@ -7,8 +7,8 @@
  */
 
 import {assertNonNullish} from '../common/assert';
-import {ArrayWithAtLeastOneElement} from '../common/types';
-import {GridModelSortMode} from './models/types/IGridModel';
+import type {ArrayWithAtLeastOneElement} from '../common/types';
+import type {GridModelSortMode} from './models/types/IGridModel';
 
 type SortingRule<TColumn extends string> = {column: TColumn; direction: GridModelSortMode};
 

@@ -7,22 +7,23 @@
  */
 
 import url from 'url';
-import defaultXhr, {DefaultXhr} from '../../common/defaultXhr';
+import type {DefaultXhr} from '../../common/defaultXhr';
+import defaultXhr from '../../common/defaultXhr';
 import parseJson from '../../common/parseJson';
-import {IObservable} from '../../common/types';
+import type {IObservable} from '../../common/types';
 import {keys} from '../../common/utils';
-import {IValidator} from '../../validation/types/IValidator';
+import type {IValidator} from '../../validation/types/IValidator';
 import ValidationErrors from '../../validation/ValidationErrors';
 import ValidatorBuilder from '../../validation/ValidatorBuilder';
 import AbstractGridModel from './AbstractGridModel';
-import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
-import {
+import type {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
+import type {
   GridModelReadParams,
   IGridModel,
   GridModelReadResult,
   GridModelUpdateResult
 } from './types/IGridModel';
-import {JsonGridApiResult} from './types/JsonGridApiResult';
+import type {JsonGridApiResult} from './types/JsonGridApiResult';
 
 const MAX_URI_LENGTH = 2048;
 

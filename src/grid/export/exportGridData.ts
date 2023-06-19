@@ -8,10 +8,10 @@
 
 import assert from '../../common/assert';
 import ArgumentsError from '../../common/error/ArgumentsError';
-import {AnyFunction} from '../../common/types';
+import type {AnyFunction} from '../../common/types';
 import {keys} from '../../common/utils';
-import {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
-import {GridColumns, GridGetCell} from '../types/GridColumns';
+import type {IGridModel, GridModelSortMode} from '../models/types/IGridModel';
+import type {GridColumns, GridGetCell} from '../types/GridColumns';
 
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 

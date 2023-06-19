@@ -6,7 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Request, RequestHandler, Response} from 'express';
+import type {Request, RequestHandler, Response} from 'express';
 
 function asyncServerRouteHandler(handler: (req: Request, res: Response) => Promise<void>): RequestHandler {
   return (req, res, next) => {

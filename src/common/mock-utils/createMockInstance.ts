@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Newable} from 'ts-essentials';
+import type {Newable} from 'ts-essentials';
 import createMockedMethod from './createMockedMethod';
 
 function createMockInstance<TClass>(Schema: Newable<TClass>): jest.Mocked<TClass> {

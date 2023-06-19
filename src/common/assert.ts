@@ -1,4 +1,4 @@
-import {IsNever} from 'ts-essentials';
+import type {IsNever} from 'ts-essentials';
 import ArgumentsError from './error/ArgumentsError';
 
 type Assert = (value: unknown, message?: string) => asserts value;

@@ -9,20 +9,21 @@
 import ThrottleError from '../common/error/ThrottleError';
 import EventEmitter from '../common/EventsModel';
 import throttle from '../common/throttle';
-import {EventListener, IObservable} from '../common/types';
+import type {EventListener, IObservable} from '../common/types';
 import {getRecordChanges, keys, parseValueFromEvent, isEmpty, isEqual, warn} from '../common/utils';
-import {IValidator} from '../validation/types/IValidator';
+import type {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
 import ValidatorBuilder from '../validation/ValidatorBuilder';
-import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
-import {IFormModel} from './types/IFormModel';
-import IFormService, {
+import type {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
+import type {IFormModel} from './types/IFormModel';
+import type {
   FormServiceEmptyState,
   FormServiceParams,
   FormServiceState,
   FormServiceStateFields,
   FormServiceListenerArgsByEventName
 } from './types/IFormService';
+import type IFormService from './types/IFormService';
 
 type InitalizedState<TRecord extends Record<string, unknown>> =
   | {

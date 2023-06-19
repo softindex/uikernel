@@ -1,4 +1,4 @@
-import ValidationErrors from '../ValidationErrors';
+import type ValidationErrors from '../ValidationErrors';
 
 export interface IValidator<TRecord> {
   getValidationDependency: (fields: (keyof TRecord & string)[]) => (keyof TRecord & string)[];

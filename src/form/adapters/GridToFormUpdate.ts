@@ -7,13 +7,13 @@
  */
 
 import {assertNonNullish} from '../../common/assert';
-import {EventListener, IObservable} from '../../common/types';
+import type {EventListener, IObservable} from '../../common/types';
 import {isEqual} from '../../common/utils';
-import {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
-import {IGridModel} from '../../grid/models/types/IGridModel';
+import type {GridModelListenerArgsByEventName} from '../../grid/models/types/GridModelListenerArgsByEventName';
+import type {IGridModel} from '../../grid/models/types/IGridModel';
 import ValidationErrors from '../../validation/ValidationErrors';
-import {FormModelListenerArgsByEventName} from '../types/FormModelListenerArgsByEventName';
-import {IFormModel} from '../types/IFormModel';
+import type {FormModelListenerArgsByEventName} from '../types/FormModelListenerArgsByEventName';
+import type {IFormModel} from '../types/IFormModel';
 
 /**
  * Adapter that allows us to use Grid model record as a form model

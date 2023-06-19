@@ -11,12 +11,12 @@
 import omit from 'lodash/omit';
 import React from 'react';
 import {findDOMNode} from 'react-dom';
-import {StrictOmit} from 'ts-essentials';
+import type {StrictOmit} from 'ts-essentials';
 import {assertNonNullish} from '../common/assert';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import {isEqual, parents} from '../common/utils';
-import {IListModel, ListModelReadResult} from '../list/types/IListModel';
+import type {IListModel, ListModelReadResult} from '../list/types/IListModel';
 import Portal from '../portal/Portal';
 
 const PRODUCT_ID = '__suggestBoxPopUp';

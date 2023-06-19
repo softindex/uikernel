@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {EventListener, IObservable} from '../../common/types';
-import {IValidator} from '../../validation/types/IValidator';
-import ValidationErrors from '../../validation/ValidationErrors';
+import type {EventListener, IObservable} from '../../common/types';
+import type {IValidator} from '../../validation/types/IValidator';
+import type ValidationErrors from '../../validation/ValidationErrors';
 import ValidatorBuilder from '../../validation/ValidatorBuilder';
-import {FormModelListenerArgsByEventName} from './FormModelListenerArgsByEventName';
-import {IFormModel} from './IFormModel';
+import type {FormModelListenerArgsByEventName} from './FormModelListenerArgsByEventName';
+import type {IFormModel} from './IFormModel';
 
 type ToEmptyRecord<TRecord extends Record<string, unknown>> = {
   [K in keyof TRecord]?: undefined;

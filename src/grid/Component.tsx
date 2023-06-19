@@ -20,7 +20,7 @@ import {assertNonNullish} from '../common/assert';
 import EqualMap from '../common/EqualMap';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
-import {EventListener, IObservable} from '../common/types';
+import type {EventListener, IObservable} from '../common/types';
 import {
   equalMapToArray,
   forEach,
@@ -31,18 +31,18 @@ import {
   parseValueFromEvent,
   warn
 } from '../common/utils';
-import {IValidator} from '../validation/types/IValidator';
+import type {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
-import {GridModelListenerArgsByEventName} from './models/types/GridModelListenerArgsByEventName';
-import {
+import type {GridModelListenerArgsByEventName} from './models/types/GridModelListenerArgsByEventName';
+import type {
   IGridModel,
   GridModelReadParams,
   GridModelReadResult,
   GridModelSortMode
 } from './models/types/IGridModel';
 import PureGridComponent from './PureGridComponent';
-import {EditorContext, GridColumns} from './types/GridColumns';
-import {GridEditor, IGridRef, SortElementProps, SortRuleType} from './types/IGridRef';
+import type {EditorContext, GridColumns} from './types/GridColumns';
+import type {GridEditor, IGridRef, SortElementProps, SortRuleType} from './types/IGridRef';
 import {getNextMultipleSorting, getNextSingleSorting} from './utils';
 
 const ERROR_MESSAGE_DATA_UNAVAILABLE = '"data" is not avaiable yet';

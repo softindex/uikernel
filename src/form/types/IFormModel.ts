@@ -7,7 +7,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ValidationErrors from '../../validation/ValidationErrors';
+import type ValidationErrors from '../../validation/ValidationErrors';
 
 export interface IFormModel<TRecord extends Record<string, unknown>> {
   /**

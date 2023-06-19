@@ -7,8 +7,9 @@
  */
 
 import url from 'url';
-import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
-import {IListModel, ListModelReadResult} from './types/IListModel';
+import type {DefaultXhr} from '../common/defaultXhr';
+import defaultXhr from '../common/defaultXhr';
+import type {IListModel, ListModelReadResult} from './types/IListModel';
 
 class ListXhrModel<TKey, TMetadata extends Record<string, unknown>> implements IListModel<TKey, TMetadata> {
   /**
