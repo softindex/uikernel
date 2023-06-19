@@ -11,8 +11,9 @@ import EventEmitter from '../common/EventsModel';
 import throttle from '../common/throttle';
 import {EventListener, IObservable} from '../common/types';
 import {getRecordChanges, keys, parseValueFromEvent, isEmpty, isEqual, warn} from '../common/utils';
+import {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
-import Validator from '../validation/Validator';
+import ValidatorBuilder from '../validation/ValidatorBuilder';
 import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
 import {IFormModel} from './types/IFormModel';
 import IFormService, {
@@ -28,7 +29,7 @@ type InitalizedState<TRecord extends Record<string, unknown>> =
       data: Partial<TRecord>;
       initialized: true;
       model: IFormModel<TRecord> & IObservable<FormModelListenerArgsByEventName<TRecord>>;
-      warningsValidator: Validator<TRecord>;
+      warningsValidator: IValidator<TRecord>;
     }
   | {
       data: undefined;
@@ -74,7 +75,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     model,
     data,
     changes = {},
-    warningsValidator = new Validator(),
+    warningsValidator = ValidatorBuilder.createEmptyValidator(),
     partialErrorChecking = false,
     submitAll = false
   }: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>): Promise<void> {

@@ -12,8 +12,9 @@ import defaultXhr, {DefaultXhr} from '../common/defaultXhr';
 import EventsModel from '../common/EventsModel';
 import parseJson from '../common/parseJson';
 import {EventListener, IObservable} from '../common/types';
+import {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
-import Validator from '../validation/Validator';
+import ValidatorBuilder from '../validation/ValidatorBuilder';
 import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
 import {IFormModel} from './types/IFormModel';
 import {JsonFormApiResult} from './types/JsonFormApiResult';
@@ -25,7 +26,7 @@ type FormXhrModelParams<TRecord extends Record<string, unknown>> = {
   eventsModel?: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
   multipartFormData?: boolean;
   validateOnClient?: boolean;
-  validator?: Validator<TRecord>;
+  validator?: IValidator<TRecord>;
   xhr?: DefaultXhr;
 };
 
@@ -33,7 +34,7 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
   implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
   private multipartFormDataEncoded: boolean;
-  private validator: Validator<TRecord>;
+  private validator: IValidator<TRecord>;
   private validateOnClient: boolean;
   private xhr: DefaultXhr;
   private apiURL: string;
@@ -41,7 +42,7 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
 
   constructor(settings: FormXhrModelParams<TRecord>) {
     this.multipartFormDataEncoded = settings.multipartFormData ?? false;
-    this.validator = settings.validator ?? new Validator();
+    this.validator = settings.validator ?? ValidatorBuilder.createEmptyValidator();
     this.validateOnClient = settings.validateOnClient ?? false;
     this.xhr = settings.xhr ?? defaultXhr;
     this.eventsModel = settings.eventsModel ?? new EventsModel();

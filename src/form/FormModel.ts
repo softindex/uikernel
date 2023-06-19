@@ -7,8 +7,9 @@
  */
 
 import {IObservable} from '../common/types';
+import {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
-import Validator from '../validation/Validator';
+import ValidatorBuilder from '../validation/ValidatorBuilder';
 import AbstractFormModel from './AbstractFormModel';
 import {FormModelListenerArgsByEventName} from './types/FormModelListenerArgsByEventName';
 import {IFormModel} from './types/IFormModel';
@@ -22,12 +23,12 @@ class FormModel<TRecord extends Record<string, unknown>>
 {
   static create<TRecord extends Record<string, unknown>>(
     defaultValues?: Partial<TRecord>,
-    validator?: Validator<TRecord>
+    validator?: IValidator<TRecord>
   ): FormModel<TRecord> {
-    return new FormModel(validator ?? new Validator(), defaultValues ?? {});
+    return new FormModel(validator ?? ValidatorBuilder.createEmptyValidator(), defaultValues ?? {});
   }
 
-  constructor(private validator: Validator<TRecord>, private data: Partial<TRecord>) {
+  constructor(private validator: IValidator<TRecord>, private data: Partial<TRecord>) {
     super();
   }
 

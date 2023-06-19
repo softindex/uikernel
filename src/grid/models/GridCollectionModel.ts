@@ -12,8 +12,9 @@ import without from 'lodash/without';
 import {StrictOmit} from 'ts-essentials';
 import {AllAsOptionalWithRequired, IObservable} from '../../common/types';
 import {keys, isEqual, warn} from '../../common/utils';
+import {IValidator} from '../../validation/types/IValidator';
 import ValidationErrors from '../../validation/ValidationErrors';
-import Validator from '../../validation/Validator';
+import ValidatorBuilder from '../../validation/ValidatorBuilder';
 import AbstractGridModel from './AbstractGridModel';
 import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
 import {
@@ -26,7 +27,7 @@ import {
 type GridCollectionModelParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
   data: [TKey, TRecord][];
   requiredFields: (keyof TRecord & string)[];
-  validator: Validator<TRecord>;
+  validator: IValidator<TRecord>;
   filtersHandler: (data: [TKey, TRecord][], filters: TFilters) => [TKey, TRecord][];
   generateId: (existsIds: TKey[]) => TKey;
 };
@@ -87,7 +88,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     return new GridCollectionModel(
       cloneDeep(data) ?? [],
       requiredFields ?? [],
-      validator ?? new Validator(),
+      validator ?? ValidatorBuilder.createEmptyValidator(),
       filtersHandler,
       generateId
     );

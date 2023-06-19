@@ -7,8 +7,9 @@
  */
 
 import {EventListener, IObservable} from '../../common/types';
+import {IValidator} from '../../validation/types/IValidator';
 import ValidationErrors from '../../validation/ValidationErrors';
-import Validator from '../../validation/Validator';
+import ValidatorBuilder from '../../validation/ValidatorBuilder';
 import {FormModelListenerArgsByEventName} from './FormModelListenerArgsByEventName';
 import {IFormModel} from './IFormModel';
 
@@ -88,7 +89,7 @@ export type FormServiceParams<
   /**
    * @description Warnings validator for fields
    */
-  warningsValidator?: Validator<TRecord>;
+  warningsValidator?: IValidator<TRecord>;
 };
 
 export type FormServiceListenerArgsByEventName<
@@ -132,7 +133,7 @@ interface IFormService<
     model,
     data,
     changes = {},
-    warningsValidator = new Validator(),
+    warningsValidator = ValidatorBuilder.createEmptyValidator(),
     partialErrorChecking = false,
     submitAll = false
   }: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>) => Promise<void>;

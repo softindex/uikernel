@@ -34,6 +34,7 @@ import GridXhrModel from './grid/models/GridXhrModel';
 import PureGridComponent from './grid/PureGridComponent';
 import AbstractListModel from './list/AbstractListModel';
 import ListXhrModel from './list/ListXhrModel';
+import DeprecatedValidator from './validation/DeprecatedValidator';
 import booleanValidationRule from './validation/rules/boolean';
 import dateValidationRule from './validation/rules/date';
 import enumValidationRule from './validation/rules/enum';
@@ -44,7 +45,7 @@ import notNullValidationRule from './validation/rules/notNull';
 import regExpValidationRule from './validation/rules/regExp';
 import setValidationRule from './validation/rules/set';
 import ValidationErrors from './validation/ValidationErrors';
-import Validator from './validation/Validator';
+import ValidatorBuilder from './validation/ValidatorBuilder';
 
 const UIKernel = {
   applyGridFilters,
@@ -52,8 +53,12 @@ const UIKernel = {
   PureGrid: PureGridComponent,
   Form: FormService,
   connectForm,
-  createValidator: Validator.create,
-  Validator,
+  /**
+   * @deprecated use createValidatorBuilder or createEmptyValidator instead
+   */
+  createValidator: DeprecatedValidator.create,
+  createValidatorBuilder: ValidatorBuilder.create,
+  createEmptyValidator: ValidatorBuilder.createEmptyValidator,
   ValidationErrors,
   Models: {
     Grid: {
@@ -96,7 +101,7 @@ const UIKernel = {
     regExp: regExpValidationRule,
     notNull: notNullValidationRule,
     /**
-     * @deprecated use integer insted
+     * @deprecated use integer instead
      */
     number: integerValidationRule,
     integer: integerValidationRule,

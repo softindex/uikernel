@@ -11,8 +11,9 @@ import defaultXhr, {DefaultXhr} from '../../common/defaultXhr';
 import parseJson from '../../common/parseJson';
 import {IObservable} from '../../common/types';
 import {keys} from '../../common/utils';
+import {IValidator} from '../../validation/types/IValidator';
 import ValidationErrors from '../../validation/ValidationErrors';
-import Validator from '../../validation/Validator';
+import ValidatorBuilder from '../../validation/ValidatorBuilder';
 import AbstractGridModel from './AbstractGridModel';
 import {GridModelListenerArgsByEventName} from './types/GridModelListenerArgsByEventName';
 import {
@@ -41,7 +42,7 @@ type GridXhrModelParams<TRecord extends Record<string, unknown>> = {
   /**
    * @description General validator
    */
-  validator?: Validator<TRecord>;
+  validator?: IValidator<TRecord>;
   xhr?: DefaultXhr;
 };
 
@@ -55,14 +56,14 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>
 {
   private xhr: DefaultXhr;
-  private validator: Validator<TRecord>;
+  private validator: IValidator<TRecord>;
   private apiUrl: string;
   private validateOnClient: boolean;
   private multipartFormDataEncoded: boolean;
 
   constructor({
     api,
-    validator = new Validator(),
+    validator = ValidatorBuilder.createEmptyValidator(),
     xhr = defaultXhr,
     validateOnClient = false,
     multipartFormData = false

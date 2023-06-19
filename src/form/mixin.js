@@ -15,7 +15,7 @@ import throttle from '../common/throttle';
 import toPromise from '../common/toPromise';
 import {parseValueFromEvent, getRecordChanges, forEach, isEmpty, isEqual} from '../common/utils';
 import ValidationErrors from '../validation/ValidationErrors';
-import Validator from '../validation/Validator';
+import ValidatorBuilder from '../validation/ValidatorBuilder';
 
 /**
  * Grid form mixin
@@ -546,7 +546,7 @@ const FormMixin = {
       pendingClearErrors: [],
       submitting: false,
       showDependentFields: settings.showDependentFields || false,
-      warningsValidator: settings.warningsValidator || new Validator(),
+      warningsValidator: settings.warningsValidator || ValidatorBuilder.createEmptyValidator(),
 
       partialErrorChecking: settings.partialErrorChecking, // Current mode
       partialErrorCheckingDefault: settings.partialErrorChecking, // Default mode

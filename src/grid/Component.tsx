@@ -31,8 +31,8 @@ import {
   parseValueFromEvent,
   warn
 } from '../common/utils';
+import {IValidator} from '../validation/types/IValidator';
 import ValidationErrors from '../validation/ValidationErrors';
-import Validator from '../validation/Validator';
 import {GridModelListenerArgsByEventName} from './models/types/GridModelListenerArgsByEventName';
 import {
   IGridModel,
@@ -84,7 +84,7 @@ type Props<
   viewColumns?: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean};
   viewCount?: number;
   viewVariants?: number[] | null;
-  warningsValidator?: Validator<TRecord>;
+  warningsValidator?: IValidator<TRecord>;
   onChange?: (changes: EqualMap<TKey, Partial<TRecord>>) => void;
   onChangeViewCount?: (viewCount: number) => void;
   onDestroy?: () => void;

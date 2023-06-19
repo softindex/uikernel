@@ -7,6 +7,7 @@
  */
 
 import ArgumentsError from '../../common/error/ArgumentsError';
+import DeprecatedValidator from '../DeprecatedValidator';
 import boolean from '../rules/boolean';
 import date from '../rules/date';
 import enumValidator from '../rules/enum';
@@ -16,7 +17,6 @@ import notNull from '../rules/notNull';
 import regExp from '../rules/regExp';
 import set from '../rules/set';
 import ValidationError from '../ValidationErrors';
-import Validator from '../Validator';
 
 describe('ValidationError', () => {
   describe('Check "static createWithError" method', () => {
@@ -177,9 +177,9 @@ describe('UIKernel validation functions', () => {
 
 describe('Validator', () => {
   const validatorBoolean = boolean('err text');
-  let validator: Validator<Record<string, unknown>>;
+  let validator: DeprecatedValidator<Record<string, unknown>>;
   beforeEach(() => {
-    validator = new Validator();
+    validator = new DeprecatedValidator();
   });
 
   describe('Check "field" method', () => {
