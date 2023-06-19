@@ -8,22 +8,15 @@
 
 import type {ArrayWithAtLeastOneElement} from '../common/types';
 import type {IValidator} from './types/IValidator';
-import type {IValidatorBuilder} from './types/IvalidatorBuilder';
 import type {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
 import Validator from './Validator';
 
-class ValidatorBuilder<TRecord extends Record<string, unknown>, TEditableField extends keyof TRecord & string>
-  implements IValidatorBuilder<TRecord, TEditableField>
-{
-  static create<
-    TRecord extends Record<string, unknown>,
-    TEditableField extends keyof TRecord & string = keyof TRecord & string
-  >(): ValidatorBuilder<TRecord, TEditableField> {
-    return new ValidatorBuilder();
-  }
-
+class ValidatorBuilder<
+  TRecord extends Record<string, unknown>,
+  TEditableField extends keyof TRecord & string = keyof TRecord & string
+> {
   static createEmptyValidator<TRecord extends Record<string, unknown>>(): IValidator<TRecord> {
-    return ValidatorBuilder.create<TRecord>().build();
+    return new ValidatorBuilder<TRecord>().build();
   }
 
   private settings: ValidatorSettings<TRecord, TEditableField> = {

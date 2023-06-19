@@ -54,11 +54,10 @@ const UIKernel = {
   Form: FormService,
   connectForm,
   /**
-   * @deprecated use createValidatorBuilder or createEmptyValidator instead
+   * @deprecated use ValidatorBuilder instead
    */
   createValidator: DeprecatedValidator.create,
-  createValidatorBuilder: ValidatorBuilder.create,
-  createEmptyValidator: ValidatorBuilder.createEmptyValidator,
+  ValidatorBuilder,
   ValidationErrors,
   Models: {
     Grid: {
