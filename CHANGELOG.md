@@ -59,6 +59,7 @@
 
   * Validators
     * Added UIKernel.Validator
+    * [createValidator is deprecated. Use ValidatorBuilder](https://github.com/softindex/uikernel/pull/422)
 
   ### Fixed
 
