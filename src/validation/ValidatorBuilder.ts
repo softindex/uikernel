@@ -59,7 +59,7 @@ class ValidatorBuilder<
   /**
    * Point which fields server validation needs
    */
-  asyncDependence(fields: ArrayWithAtLeastOneElement<TEditableField>): this {
+  asyncDependence(fields: ArrayWithAtLeastOneElement<keyof TRecord & string>): this {
     this.settings.asyncDependencies.push(fields);
     return this;
   }
