@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:8000",
+  "homepage": "/examples/server-example",
   "dependencies": {
     "bootstrap": "4.2.1",
     "lodash": "4.17.11",

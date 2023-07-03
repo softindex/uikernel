@@ -1,9 +1,10 @@
 {
   "exclude": ["node_modules"],
+  "include": ["src"],
   "compilerOptions": {
     "target": "ES2016",
     "module": "CommonJS",
-
+    "outDir": "build",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

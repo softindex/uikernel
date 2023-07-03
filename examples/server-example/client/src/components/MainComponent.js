@@ -89,7 +89,7 @@ class MainComponent extends React.Component {
                 ref={(grid) => this.grid = grid}
                 model={this.state.model}
                 columns={columns}
-                viewCount={10}
+                defaultViewCount={10}
                 defaultSort={
                   {
                     column: "name",

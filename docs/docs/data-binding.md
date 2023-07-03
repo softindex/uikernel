@@ -156,7 +156,7 @@ class MainComponent extends React.Component {
             <UIKernel.Grid
               model={this.state.model} // Grid model
               columns={columns} // columns configuration
-              viewCount={10}
+              defaultViewCount={10}
               autoSubmit={true}
             />
           </div>
@@ -166,7 +166,7 @@ class MainComponent extends React.Component {
               ref={(grid) => this.grid = grid}
               model={this.state.model}
               columns={columns}
-              viewCount={10}
+              defaultViewCount={10}
             />
             <a href="#" className="btn btn-default" onClick={this.clearChanges}>Clear</a>
             {' '}

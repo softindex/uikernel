@@ -51,10 +51,10 @@ which helps to create data driven spreadsheets with capabilities of:
 | <span style="white-space:nowrap;"> String [ ] \|\| Object </span> | viewColumns                | *Optional*. Visible columns list                            |
 | String                                                            | height                     | *Optional*. Table height if you need grid to be scrollable  |
 | Boolean                                                           | autoSubmit                 | *Optional*. Submit changed(in inplace editor) grid records on blur event |
-| Number                                                            | viewCount                  | *Optional*. Static records count per page. Locks records count per page preventing further changes by grid methods. |
+| Number                                                            | viewCount                  | *Optional*. Records count per page selected option. Locks records count per page preventing further changes by grid methods. |
 | Number                                                            | defaultViewCount=0         | *Optional*. Default records count per page which can be further changed by grid methods (e.g. viewVariants select). Default 0 also means no pages. |
 | Number [ ]                                                        | viewVariants               | *Optional*. Records count per page select options                  |
-| Function                                                          | onChangeViewCount          | *Optional*. Records count per page options select handler   |
+| Function                                                          | onChangeViewCount          | *Optional*, but *Required* if 'viewCount' passed. Records count per page options select handler   |
 | Function                                                          | onSelectedChange           | *Optional*. Custom records selection(by checkboxes in grid) change handler |
 | String                                                            | className                  | *Optional*. HTML 'class' attribute                          |
 | Boolean                                                           | multipleSorting=false      | *Optional*. Multiple sorting flag. If `true` - it will be available to sort by multiple rules.                           |
@@ -784,7 +784,7 @@ class ExampleComponent extends React.Component {
         ref={(grid) => this.grid = grid}
         model={this.state.model}                             // Grid model
         columns={columns}                                       // columns configuration
-        viewCount={10}                                       // display 10 records per page
+        defaultViewCount={10}                                       // display 10 records per page
         defaultSort=\{\{column: "name", direction: "asc"\}\} // default sorting
       />
       <a href="#" className="btn btn-success" onClick={this.clearChanges}>Clear</a>

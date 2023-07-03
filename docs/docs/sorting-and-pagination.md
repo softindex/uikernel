@@ -9,14 +9,14 @@ next: applying-filters.html
 
 Let's add some functionality to our grid, such as sorting and pagination.
 
-To create pagination, we'll pass our `UIKernel.Grid` the `viewCount` property. In this example, we’re going to display 10 records per page.
+To create pagination, we'll pass our `UIKernel.Grid` the `defaultViewCount` property (we can also use `viewCount` property if we need use current page view count value in external code). In this example, we’re going to display 10 records per page.
 
 `MainComponent.js`:
 {% highlight javascript %}
 <UIKernel.Grid
   model={this.state.model}
   columns={columns}
-  viewCount={10} // display 10 records per page
+  defaultViewCount={10} // display 10 records per page
 />
 {% endhighlight %}
 

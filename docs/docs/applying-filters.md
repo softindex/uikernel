@@ -196,7 +196,7 @@ Finally, let's add our form into the `render` method of `MainComponent`.
             <UIKernel.Grid
               model={this.state.model}
               columns={columns}
-              viewCount={10}
+              defaultViewCount={10}
             />
           </div>
         </div>

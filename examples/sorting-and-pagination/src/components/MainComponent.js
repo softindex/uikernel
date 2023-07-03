@@ -23,7 +23,7 @@ class MainComponent extends React.Component {
         <UIKernel.Grid
           model={this.state.model} // Grid model
           columns={columns} // columns configuration
-          viewCount={10}
+          defaultViewCount={10}
         />
       </div>
     );
