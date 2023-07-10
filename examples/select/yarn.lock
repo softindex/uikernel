@@ -3868,13 +3868,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bootstrap@npm:4.2.1":
-  version: 4.2.1
-  resolution: "bootstrap@npm:4.2.1"
+"bootstrap@npm:4.3.1":
+  version: 4.3.1
+  resolution: "bootstrap@npm:4.3.1"
   peerDependencies:
     jquery: 1.9.1 - 3
-    popper.js: ^1.14.6
-  checksum: cbea5bc720d48606c9246940ac1360030c5414db77cb2155015f805c287064324eb95dbee7809eaeca13e63cfcc1fcaf026250fff4d692a499afac69f73d2367
+    popper.js: ^1.14.7
+  checksum: c78694db1d80b1ed91abc67a49edf2f48618bb52380432a7de60c40d203a3aa4a5bb65f4c68b732cb75ef8ca915c0e6bb3fe0009b830b2fc455a74b2b6a61d8d
   languageName: node
   linkType: hard
 
@@ -10432,7 +10432,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-app@workspace:."
   dependencies:
-    bootstrap: 4.2.1
+    bootstrap: 4.3.1
     lodash: 4.17.21
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -12036,14 +12036,14 @@ __metadata:
   linkType: hard
 
 "tough-cookie@npm:^4.0.0":
-  version: 4.1.2
-  resolution: "tough-cookie@npm:4.1.2"
+  version: 4.1.3
+  resolution: "tough-cookie@npm:4.1.3"
   dependencies:
     psl: ^1.1.33
     punycode: ^2.1.1
     universalify: ^0.2.0
     url-parse: ^1.5.3
-  checksum: a7359e9a3e875121a84d6ba40cc184dec5784af84f67f3a56d1d2ae39b87c0e004e6ba7c7331f9622a7d2c88609032473488b28fe9f59a1fec115674589de39a
+  checksum: c9226afff36492a52118432611af083d1d8493a53ff41ec4ea48e5b583aec744b989e4280bcf476c910ec1525a89a4a0f1cae81c08b18fb2ec3a9b3a72b91dcc
   languageName: node
   linkType: hard
 
@@ -12216,8 +12216,8 @@ __metadata:
   linkType: hard
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
-  version: 1.0.1-dev13.1
-  resolution: "uikernel@file:../../#../../::hash=14e938&locator=react-app%40workspace%3A."
+  version: 1.0.1-dev13.10
+  resolution: "uikernel@file:../../#../../::hash=e3d5c2&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     classnames: ^2.2.6
@@ -12233,7 +12233,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 4a161ca5c1dc5a58f7cf470e1b6965b87638f0cd3329bfcbd180792b5a229922575245d552d1fd5f949ee5df6c38bee3a8fb45663227153168d8a0197682c834
+  checksum: 31e0e5c874971502a9f8d008b0e809b85045ebe2f72916a4b98b4655954859880840cd41dbeaf29e29f7864fb4bde7887dceda54289ff403a94b9ce391de2f0e
   languageName: node
   linkType: hard
 
