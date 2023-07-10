@@ -1317,6 +1317,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/polyfill@npm:^7.0.0":
+  version: 7.12.1
+  resolution: "@babel/polyfill@npm:7.12.1"
+  dependencies:
+    core-js: ^2.6.5
+    regenerator-runtime: ^0.13.4
+  checksum: 3f59a9d85a41b390b044a1be13e11ae6d8efbfcf4e07217964585c7cef337b828eecfc5e164083227189146d2b6efc1affae8f59c831438eb40b848ab6fe5f39
+  languageName: node
+  linkType: hard
+
 "@babel/preset-env@npm:^7.11.0, @babel/preset-env@npm:^7.12.1, @babel/preset-env@npm:^7.16.4":
   version: 7.21.4
   resolution: "@babel/preset-env@npm:7.21.4"
@@ -4439,6 +4449,13 @@ __metadata:
   version: 3.30.0
   resolution: "core-js-pure@npm:3.30.0"
   checksum: 57573b18d8900ad0a34a0806491bb49774dfcbb6d022b61094d6afc9f6c3d833c1b6c1f5afb5e6a7caca235fa4db00b317de80bfd8ac8e2d9a4f738c4bf233ed
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^2.6.5":
+  version: 2.6.12
+  resolution: "core-js@npm:2.6.12"
+  checksum: 44fa9934a85f8c78d61e0c8b7b22436330471ffe59ec5076fe7f324d6e8cf7f824b14b1c81ca73608b13bdb0fef035bd820989bf059767ad6fa13123bb8bd016
   languageName: node
   linkType: hard
 
@@ -10710,7 +10727,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:^0.13.11, regenerator-runtime@npm:^0.13.9":
+"regenerator-runtime@npm:^0.13.11, regenerator-runtime@npm:^0.13.4, regenerator-runtime@npm:^0.13.9":
   version: 0.13.11
   resolution: "regenerator-runtime@npm:0.13.11"
   checksum: 27481628d22a1c4e3ff551096a683b424242a216fee44685467307f14d58020af1e19660bf2e26064de946bad7eff28950eae9f8209d55723e2d9351e632bbb4
@@ -12026,14 +12043,14 @@ __metadata:
   linkType: hard
 
 "tough-cookie@npm:^4.0.0":
-  version: 4.1.2
-  resolution: "tough-cookie@npm:4.1.2"
+  version: 4.1.3
+  resolution: "tough-cookie@npm:4.1.3"
   dependencies:
     psl: ^1.1.33
     punycode: ^2.1.1
     universalify: ^0.2.0
     url-parse: ^1.5.3
-  checksum: a7359e9a3e875121a84d6ba40cc184dec5784af84f67f3a56d1d2ae39b87c0e004e6ba7c7331f9622a7d2c88609032473488b28fe9f59a1fec115674589de39a
+  checksum: c9226afff36492a52118432611af083d1d8493a53ff41ec4ea48e5b583aec744b989e4280bcf476c910ec1525a89a4a0f1cae81c08b18fb2ec3a9b3a72b91dcc
   languageName: node
   linkType: hard
 
@@ -12206,9 +12223,10 @@ __metadata:
   linkType: hard
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
-  version: 1.0.1-dev12.2
-  resolution: "uikernel@file:../../#../../::hash=5855c1&locator=react-app%40workspace%3A."
+  version: 1.0.1-dev13.10
+  resolution: "uikernel@file:../../#../../::hash=c8339e&locator=react-app%40workspace%3A."
   dependencies:
+    "@babel/polyfill": ^7.0.0
     classnames: ^2.2.6
     csv-stringify: ^5.6.5
     date-fns: ^2.19.0
@@ -12222,7 +12240,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 30e605619a5d6f50741f0e5f4cbb04eb2c9f4e57dc517f47cdc31c5244925c2dcd73c09a00e0cba7e5dbe8b5eec5e063d430f850d4a4e7e1a9ed80393d5ace25
+  checksum: 17a1dae6ef492ab22ca745aca9147d32ec7097954cdf0a092f8dee3785af16a5dbd1e229f647068ad06db77262efa77a2e2a82f88599d210c14e43b3d6edff14
   languageName: node
   linkType: hard
 
