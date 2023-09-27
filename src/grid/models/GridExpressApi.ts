@@ -35,11 +35,8 @@ type GridExpressApiMiddlewares = {
 /**
  * Form Express API for Grid model interaction
  */
-class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
-  static create<TKey, TRecord extends Record<string, unknown>, TFilters>(
-    multipartFormData = false,
-    maxFileSize = DEFAULT_MAX_FILE_SIZE
-  ): GridExpressApi<TKey, TRecord, TFilters> {
+class GridExpressApi {
+  static create(multipartFormData = false, maxFileSize = DEFAULT_MAX_FILE_SIZE): GridExpressApi {
     return new GridExpressApi(multipartFormData, maxFileSize);
   }
 
@@ -55,7 +52,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
     this.middlewares = {
       readGet: [
         asyncServerRouteHandler(async (req, res) => {
-          const settings: GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
+          const settings: GridModelReadParams<unknown, Record<string, unknown>, string, unknown> = {
             fields: []
           };
 
@@ -69,22 +66,21 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
 
           if (req.query.sort) {
             settings.sort = parseJson(req.query.sort, 'Invalid JSON in "sort"') as [
-              keyof TRecord & string,
+              string,
               GridModelSortMode
             ][];
           }
 
           if (req.query.fields) {
-            settings.fields = parseJson(req.query.fields, 'Invalid JSON in "fields"') as (keyof TRecord &
-              string)[];
+            settings.fields = parseJson(req.query.fields, 'Invalid JSON in "fields"') as string[];
           }
 
           if (req.query.extra) {
-            settings.extra = parseJson(req.query.extra, 'Invalid JSON in "extra"') as TKey[];
+            settings.extra = parseJson(req.query.extra, 'Invalid JSON in "extra"') as unknown[];
           }
 
           if (req.query.filters) {
-            settings.filters = parseJson(req.query.filters, 'Invalid JSON in "filters"') as TFilters;
+            settings.filters = parseJson(req.query.filters, 'Invalid JSON in "filters"');
           }
 
           const model = this.getModel(req, res);
@@ -95,11 +91,11 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
       ],
       readPost: [
         asyncServerRouteHandler(async (req, res) => {
-          const settings: GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters> = {
+          const settings: GridModelReadParams<unknown, Record<string, unknown>, string, unknown> = {
             fields: []
           };
           const body = req.body as Partial<
-            GridModelReadParams<TKey, TRecord, keyof TRecord & string, TFilters>
+            GridModelReadParams<unknown, Record<string, unknown>, string, unknown>
           >;
 
           if (body.limit) {
@@ -135,15 +131,15 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
       validate: [
         asyncServerRouteHandler(async (req, res) => {
           const model = this.getModel(req, res);
-          const body = req.body as {id?: TKey; record: Partial<TRecord>};
+          const body = req.body as {id?: unknown; record: Record<string, unknown>};
           const errors = await model.isValidRecord(body.record, body.id);
           this.sendResult<'validate'>(res, errors.toJSON());
         })
       ],
       getRecord: [
         asyncServerRouteHandler(async (req, res) => {
-          const cols = parseJson(req.query.cols, 'Invalid JSON in "cols"') as (keyof TRecord & string)[];
-          const recordId = parseJson(req.params.recordId, 'Invalid JSON in "recordId"') as TKey;
+          const cols = parseJson(req.query.cols, 'Invalid JSON in "cols"') as string[];
+          const recordId = parseJson(req.params.recordId, 'Invalid JSON in "recordId"');
           const model = this.getModel(req, res);
           const result = await model.getRecord(recordId, cols);
 
@@ -154,7 +150,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
         ...(multipartFormData ? [upload.any()] : []),
         asyncServerRouteHandler(async (req, res) => {
           const model = this.getModel(req, res);
-          let body: [TKey, Partial<TRecord>][];
+          let body: [unknown, Record<string, unknown>][];
 
           if (multipartFormData) {
             const filesByRecordId: Record<string, Record<string, Buffer>> = {};
@@ -170,17 +166,17 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
               filesByRecordId[recordId] = recordFiles;
             }
 
-            body = (parseJson(req.body.rest, 'Incorrect "rest" json') as [TKey, Partial<TRecord>][]).map(
-              ([recordId, record]) => {
-                return [
-                  recordId,
-                  {
-                    ...record,
-                    ...(filesByRecordId[recordId as string] as Partial<TRecord>)
-                  }
-                ];
-              }
-            );
+            body = (
+              parseJson(req.body.rest, 'Incorrect "rest" json') as [unknown, Record<string, unknown>][]
+            ).map(([recordId, record]) => {
+              return [
+                recordId,
+                {
+                  ...record,
+                  ...(filesByRecordId[recordId as string] as Record<string, unknown>)
+                }
+              ];
+            });
           } else {
             body = req.body;
           }
@@ -197,25 +193,21 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
         ...(multipartFormData ? [upload.any()] : []),
         asyncServerRouteHandler(async (req, res) => {
           const model = this.getModel(req, res);
-          let body: Partial<TRecord>;
+          let body: Record<string, unknown>;
 
           if (multipartFormData) {
-            body = parseJson(req.body.rest) as Partial<TRecord>;
+            body = parseJson(req.body.rest) as Record<string, unknown>;
 
             for (const {fieldname, buffer} of req.files as Express.Multer.File[]) {
-              const parsedFieldName = parseJson(
-                decodeURI(fieldname),
-                'Invalid JSON in field name'
-              ) as keyof TRecord & string;
-              // @ts-expect-error: TS2322 Type 'Buffer' is not assignable to type 'TRecord[keyof TRecord & string]'
+              const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name') as string;
               body[parsedFieldName] = buffer;
             }
           } else {
             body = req.body;
           }
 
-          let result: TKey | undefined;
-          let validationErrors: ValidationErrors<keyof TRecord & string> | undefined;
+          let result: unknown | undefined;
+          let validationErrors: ValidationErrors<string> | undefined;
           try {
             result = await model.create(body);
           } catch (error) {
@@ -229,7 +221,7 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
           if (validationErrors) {
             this.sendResult<'create'>(res, {data: null, error: validationErrors.toJSON()});
           } else {
-            this.sendResult<'create'>(res, {data: result as TKey, error: null});
+            this.sendResult<'create'>(res, {data: result, error: null});
           }
         })
       ]
@@ -241,8 +233,8 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
    */
   model(
     model:
-      | IGridModel<TKey, TRecord, TFilters>
-      | ((req: Request, res: Response) => IGridModel<TKey, TRecord, TFilters>)
+      | IGridModel<unknown, Record<string, unknown>, unknown>
+      | ((req: Request, res: Response) => IGridModel<unknown, Record<string, unknown>, unknown>)
   ): this {
     if (typeof model === 'function') {
       this.getModel = model;
@@ -295,14 +287,14 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
   }
 
   // Default implementation
-  private getModel(_req: Request, _res: Response): IGridModel<TKey, TRecord, TFilters> {
+  private getModel(_req: Request, _res: Response): IGridModel<unknown, Record<string, unknown>, unknown> {
     throw new Error('Model is not defined.');
   }
 
   private transformUpdateResult(
-    data: GridModelUpdateResult<TKey, TRecord>
-  ): JsonGridApiResult<TKey, TRecord>['update'] {
-    const result: JsonGridApiResult<TKey, TRecord>['update'] = {
+    data: GridModelUpdateResult<unknown, Record<string, unknown>>
+  ): JsonGridApiResult<unknown, Record<string, unknown>>['update'] {
+    const result: JsonGridApiResult<unknown, Record<string, unknown>>['update'] = {
       changes: [],
       errors: [],
       validation: []
@@ -321,9 +313,9 @@ class GridExpressApi<TKey, TRecord extends Record<string, unknown>, TFilters> {
     }, result);
   }
 
-  private sendResult<TMethodName extends keyof JsonGridApiResult<TKey, TRecord>>(
+  private sendResult<TMethodName extends keyof JsonGridApiResult<unknown, Record<string, unknown>>>(
     res: Response,
-    result: JsonGridApiResult<TKey, TRecord>[TMethodName]
+    result: JsonGridApiResult<unknown, Record<string, unknown>>[TMethodName]
   ): void {
     res.json(result);
   }
