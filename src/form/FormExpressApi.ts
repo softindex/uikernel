@@ -30,10 +30,8 @@ type FormExpressApiMiddlewares = {
   validate: RequestHandler[];
 };
 
-class FormExpressApi<TRecord extends Record<string, unknown>> {
-  static create<TRecord extends Record<string, unknown>>(
-    settings: FormExpressApiParams = {}
-  ): FormExpressApi<TRecord> {
+class FormExpressApi {
+  static create(settings: FormExpressApiParams = {}): FormExpressApi {
     return new FormExpressApi(settings);
   }
 
@@ -54,9 +52,7 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
     this.addMiddleware(
       'getData',
       asyncServerRouteHandler(async (req, res) => {
-        const fields = req.query.fields
-          ? (parseJson(req.query.fields.toString()) as (keyof TRecord & string)[])
-          : undefined;
+        const fields = req.query.fields ? (parseJson(req.query.fields.toString()) as string[]) : undefined;
         const result = await this.getModel(req, res).getData(fields);
         this.sendResult<'getData'>(res, result);
       })
@@ -65,7 +61,7 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
     this.addMiddleware(
       'getDataPost',
       asyncServerRouteHandler(async (req, res) => {
-        const {fields} = req.body as {fields: (keyof TRecord & string)[] | null | undefined};
+        const {fields} = req.body as {fields: string[] | null | undefined};
         const result = await this.getModel(req, res).getData(fields ?? undefined);
         this.sendResult<'getData'>(res, result);
       })
@@ -75,26 +71,22 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
       ...(multipartFormData ? [upload.any()] : []),
       asyncServerRouteHandler(async (req, res) => {
         const model = this.getModel(req, res);
-        let body: Partial<TRecord>;
+        let body: Record<string, unknown>;
 
         if (multipartFormData) {
-          body = parseJson(req.body.rest) as Partial<TRecord>;
+          body = parseJson(req.body.rest) as Record<string, unknown>;
           const files = req.files as Express.Multer.File[];
 
           for (const {fieldname, buffer} of files) {
-            const parsedFieldName = parseJson(
-              decodeURI(fieldname),
-              'Invalid JSON in field name'
-            ) as keyof TRecord & string;
-            // @ts-expect-error: TS2322 Type 'Buffer' is not assignable to type 'TRecord[keyof TRecord & string]'
+            const parsedFieldName = parseJson(decodeURI(fieldname), 'Invalid JSON in field name') as string;
             body[parsedFieldName] = buffer;
           }
         } else {
           body = req.body;
         }
 
-        let data: Partial<TRecord> | undefined;
-        let validationErrors: ValidationErrors<keyof TRecord & string> | undefined;
+        let data: Record<string, unknown> | undefined;
+        let validationErrors: ValidationErrors<string> | undefined;
         try {
           data = await model.submit(body);
         } catch (error) {
@@ -118,13 +110,15 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
       'validate',
       asyncServerRouteHandler(async (req, res) => {
         const model = this.getModel(req, res);
-        const validationErrors = await model.isValidRecord(req.body as Partial<TRecord>);
+        const validationErrors = await model.isValidRecord(req.body as Record<string, unknown>);
         this.sendResult<'validate'>(res, validationErrors.toJSON());
       })
     );
   }
 
-  model(model: IFormModel<TRecord> | ((req: Request, res: Response) => IFormModel<TRecord>)): this {
+  model<TRecord extends Record<string, unknown>>(
+    model: IFormModel<TRecord> | ((req: Request, res: Response) => IFormModel<TRecord>)
+  ): this {
     if (typeof model === 'function') {
       this.getModel = model;
     } else {
@@ -166,13 +160,13 @@ class FormExpressApi<TRecord extends Record<string, unknown>> {
   }
 
   // Default implementation
-  private getModel(_req: Request, _res: Response): IFormModel<TRecord> {
+  private getModel(_req: Request, _res: Response): IFormModel<Record<string, unknown>> {
     throw new Error('Model is not defined.');
   }
 
-  private sendResult<TMethodName extends keyof JsonFormApiResult<TRecord>>(
+  private sendResult<TMethodName extends keyof JsonFormApiResult<Record<string, unknown>>>(
     res: Response,
-    result: JsonFormApiResult<TRecord>[TMethodName]
+    result: JsonFormApiResult<Record<string, unknown>>[TMethodName]
   ): void {
     res.json(result);
   }

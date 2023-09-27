@@ -237,7 +237,7 @@ class GridExpressApi {
       | ((req: Request, res: Response) => IGridModel<TKey, TRecord, TFilter>)
   ): this {
     if (typeof model === 'function') {
-      this.getModel = model as unknown as () => IGridModel<unknown, Record<string, unknown>, unknown>;
+      this.getModel = model as () => IGridModel<unknown, Record<string, unknown>, unknown>;
     } else {
       this.getModel = () => model as IGridModel<unknown, Record<string, unknown>, unknown>;
     }
