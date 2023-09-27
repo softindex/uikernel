@@ -1,0 +1,1 @@
+{"version":3,"file":"toJSON.js","sourceRoot":"","sources":["../../../../src/grid/export/exporters/toJSON.ts"],"names":[],"mappings":";;AAyBA,MAAM,MAAM,GAAqB,KAAK,EAAE,IAAI,EAAE,EAAE;IAC9C,OAAO;QACL,IAAI,EAAE,kBAAkB;QACxB,IAAI,EAAE;YACJ,OAAO,EAAE,IAAI,CAAC,OAAO;YACrB,MAAM,EAAE,IAAI,CAAC,MAAM;SACpB;KACF,CAAC;AACJ,CAAC,CAAC;AAEF,kBAAe,MAAM,CAAC"}
