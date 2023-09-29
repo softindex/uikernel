@@ -1667,7 +1667,7 @@ class GridComponent<
     resultField: TStateValidationField
   ): Promise<EqualMap<TKey, ValidationErrors<string & keyof TRecord>>> {
     const record = getData(recordId);
-    const validErrors = await validate(record);
+    const validErrors = await validate(record, recordId);
     const clonedResult = new EqualMap(this.state[resultField]);
     if (isEqual(record, getData(recordId))) {
       if (validErrors.isEmpty()) {
