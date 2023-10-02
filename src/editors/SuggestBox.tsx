@@ -16,7 +16,12 @@ import {assertNonNullish} from '../common/assert';
 import ThrottleError from '../common/error/ThrottleError';
 import throttle from '../common/throttle';
 import {isEqual, parents} from '../common/utils';
-import type {IListModel, ListModelReadResult} from '../list/types/IListModel';
+import type {
+  IListModel,
+  ListModelReadResult,
+  SelectableListOption,
+  ListOption
+} from '../list/types/IListModel';
 import Portal from '../portal/Portal';
 
 const PRODUCT_ID = '__suggestBoxPopUp';
@@ -42,8 +47,6 @@ const ARROW_UP_KEY = 38;
 const ARROW_DOWN_KEY = 40;
 const MIN_POPUP_HEIGHT = 100;
 
-type Option<TValue> = ListModelReadResult<TValue, Record<string, unknown>>[number];
-
 type ComputedPopupStyles = Partial<{
   bottom: number;
   left: number;
@@ -57,7 +60,7 @@ type State<TValue> = {
   label: string[] | string;
   lastValidLabel: string[] | string;
   loading?: boolean;
-  options: Option<Exclude<TValue, null>>[] | [Option<null>, ...Option<Exclude<TValue, null>>[]];
+  options: ListModelReadResult<TValue | null, Record<string, unknown>>;
   popupStyles: ComputedPopupStyles;
   selectedOptionKey: number | null;
 };
@@ -76,10 +79,10 @@ type Props<TValue> = StrictOmit<
   notFoundElement: React.ReactNode;
   value: TValue | null;
   withEmptyOption: boolean;
-  onChange: (value: TValue | null, option: Option<TValue | null>) => void;
+  onChange: (value: TValue | null, option: ListOption<TValue | null, Record<string, unknown>>) => void;
   onFocus?: (value: React.FocusEvent<HTMLInputElement>) => void;
   onLabelChange?: (value: string[] | string) => void;
-  onMetadataChange?: (value: Option<TValue | null>['metadata']) => void;
+  onMetadataChange?: (value?: Record<string, unknown>) => void;
 };
 
 const DEFAULT_PROPS = {
@@ -179,7 +182,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
               optionClassNames.push(CLASSES.optionFocused);
             }
 
-            if (option.id !== undefined) {
+            if ('id' in option) {
               optionClassNames.push(CLASSES.optionSelectable);
             }
 
@@ -330,7 +333,9 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     this.scrollListTo(undefined);
   }
 
-  private loadData = (searchPattern?: string | null): Promise<Option<Exclude<TValue, null>>[]> => {
+  private loadData = (
+    searchPattern?: string | null
+  ): Promise<ListOption<TValue, Record<string, unknown>>[]> => {
     return this.props.model.read(searchPattern ?? '');
   };
 
@@ -363,13 +368,16 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     }
 
     if (focusFirstOption) {
-      const key = this.state.options[0].type !== 'group' ? 0 : 1;
-      await this.focusOption(key, true);
+      if (this.state.options[0]) {
+        const key = this.state.options[0].type !== 'group' ? 0 : 1;
+        await this.focusOption(key, true);
+      }
+
       return;
     }
 
     const selectedOptionKey = this.state.options.findIndex((option) => {
-      return isEqual(option.id, this.props.value);
+      return 'id' in option && isEqual(option.id, this.props.value);
     });
 
     if (selectedOptionKey !== -1) {
@@ -417,8 +425,10 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     }
   };
 
-  private selectOption(option: Option<TValue | null> | null | undefined): void {
-    const performedOption: Option<TValue | null> = option ?? {
+  private selectOption(
+    option: SelectableListOption<TValue | null, Record<string, unknown>> | null | undefined
+  ): void {
+    const performedOption: SelectableListOption<TValue | null, Record<string, unknown>> = option ?? {
       id: null,
       label: '',
       metadata: {}
@@ -491,7 +501,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     for (let key = this.state.selectedOptionKey + 1; key < this.state.options.length; key++) {
       const option = this.state.options[key];
       assertNonNullish(option, `key "${key}" unavailable`);
-      if (option.id) {
+      if ('id' in option) {
         this.focusOption(key, true).catch(console.error);
         return;
       }
@@ -500,7 +510,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     for (let key = 0; key < this.state.selectedOptionKey + 1; key++) {
       const option = this.state.options[key];
       assertNonNullish(option, `key "${key}" unavailable`);
-      if (option.id) {
+      if ('id' in option) {
         this.focusOption(key, true).catch(console.error);
         return;
       }
@@ -519,7 +529,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     for (let key = this.state.selectedOptionKey - 1; key >= 0; key--) {
       const option = this.state.options[key];
       assertNonNullish(option, `key "${key}" unavailable`);
-      if (option.id) {
+      if ('id' in option) {
         this.focusOption(key, true).catch(console.error);
         return;
       }
@@ -528,7 +538,7 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
     for (let key = this.state.options.length - 1; key > this.state.selectedOptionKey - 1; key--) {
       const option = this.state.options[key];
       assertNonNullish(option, `key "${key}" unavailable`);
-      if (option.id) {
+      if ('id' in option) {
         this.focusOption(key, true).catch(console.error);
         return;
       }
@@ -578,7 +588,12 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
       }
 
       if (target.classList.contains(CLASSES.optionSelectable) && this.state.isOpened) {
-        this.selectOption(this.state.options[Number(target.getAttribute('data-key'))]);
+        this.selectOption(
+          this.state.options[Number(target.getAttribute('data-key'))] as SelectableListOption<
+            TValue,
+            Record<string, unknown>
+          >
+        );
         if (this.props.closeMenuOnSelect) {
           this.closeList(true);
         }
@@ -643,7 +658,12 @@ class SuggestBoxEditor<TValue> extends React.Component<Props<TValue>, State<TVal
         if (this.state.selectedOptionKey === null) {
           this.selectOption(null);
         } else {
-          this.selectOption(this.state.options[this.state.selectedOptionKey]);
+          this.selectOption(
+            this.state.options[this.state.selectedOptionKey] as SelectableListOption<
+              TValue,
+              Record<string, unknown>
+            >
+          );
         }
 
         this.closeList();
