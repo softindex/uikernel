@@ -12,18 +12,31 @@ import type {FormModelListenerArgsByEventName} from './types/FormModelListenerAr
 import type {FormServiceEmptyState, FormServiceParams, FormServiceState} from './types/IFormService';
 
 export type UseFormResult<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TAvailableField extends keyof TRecord & string
 > = [
-  FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField>,
-  FormService<TRecord, TAvailableField>
+  (
+    | FormServiceEmptyState<TRecord, TAvailableField, keyof TEditableRecord & string>
+    | FormServiceState<TRecord, TAvailableField, keyof TEditableRecord & string>
+  ),
+  FormService<TEditableRecord, TRecord, TAvailableField>
 ];
 
-function useForm<TRecord extends Record<string, unknown>, TAvailableField extends keyof TRecord & string>(
-  settings: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>,
+function useForm<
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
+  TAvailableField extends keyof TRecord & string
+>(
+  settings: FormServiceParams<
+    TEditableRecord,
+    TRecord,
+    TAvailableField,
+    FormModelListenerArgsByEventName<TRecord>
+  >,
   onError: (error: Error) => void = console.error
-): UseFormResult<TRecord, TAvailableField> {
-  const formService = useMemo(() => new FormService<TRecord, TAvailableField>([]), []);
+): UseFormResult<TEditableRecord, TRecord, TAvailableField> {
+  const formService = useMemo(() => new FormService<TEditableRecord, TRecord, TAvailableField>([]), []);
   const [formState, setFormState] = useState(() => formService.getAll());
 
   useEffect(() => {

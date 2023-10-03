@@ -9,7 +9,10 @@
 
 import type ValidationErrors from '../../validation/ValidationErrors';
 
-export interface IFormModel<TRecord extends Record<string, unknown>> {
+export interface IFormModel<
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord
+> {
   /**
    * Get data
    */
@@ -25,10 +28,10 @@ export interface IFormModel<TRecord extends Record<string, unknown>> {
   /**
    * Validation check
    */
-  isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>>;
+  isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TEditableRecord & string>>;
 
   /**
    * Process form data
    */
-  submit(changes: Partial<TRecord>): Promise<Partial<TRecord>>;
+  submit(changes: Partial<TEditableRecord>): Promise<Partial<TRecord>>;
 }

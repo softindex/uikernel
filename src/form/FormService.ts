@@ -25,12 +25,12 @@ import type {
 } from './types/IFormService';
 import type IFormService from './types/IFormService';
 
-type InitalizedState<TRecord extends Record<string, unknown>> =
+type InitializedState<TEditableRecord extends Record<string, unknown>, TRecord extends TEditableRecord> =
   | {
       data: Partial<TRecord>;
       initialized: true;
-      model: IFormModel<TRecord> & IObservable<FormModelListenerArgsByEventName<TRecord>>;
-      warningsValidator: IValidator<TRecord, keyof TRecord & string>;
+      model: IFormModel<TEditableRecord, TRecord> & IObservable<FormModelListenerArgsByEventName<TRecord>>;
+      warningsValidator: IValidator<TRecord, keyof TEditableRecord & string>;
     }
   | {
       data: undefined;
@@ -39,15 +39,20 @@ type InitalizedState<TRecord extends Record<string, unknown>> =
       warningsValidator: null;
     };
 
-class FormService<TRecord extends Record<string, unknown>, TAvailableField extends keyof TRecord & string>
-  implements IFormService<TRecord, TAvailableField>
+class FormService<
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
+  TAvailableField extends keyof TRecord & string
+> implements IFormService<TEditableRecord, TRecord, TAvailableField>
 {
   validating = false;
   submitting = false;
-  private eventEmitter = new EventEmitter<FormServiceListenerArgsByEventName<TRecord, TAvailableField>>();
+  private eventEmitter = new EventEmitter<
+    FormServiceListenerArgsByEventName<TRecord, TAvailableField, keyof TEditableRecord & string>
+  >();
 
-  private errors = new ValidationErrors<keyof TRecord & string>();
-  private warnings = new ValidationErrors<keyof TRecord & string>();
+  private errors = new ValidationErrors<keyof TEditableRecord & string>();
+  private warnings = new ValidationErrors<keyof TEditableRecord & string>();
   private hiddenValidationFields: (keyof TRecord & string)[] = [];
 
   // next props will be redefined via the "init"
@@ -56,7 +61,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
   private partialErrorChecking = false;
   private partialErrorCheckingDefault = false;
   private submitAll = false;
-  private initalizedState: InitalizedState<TRecord> = {
+  private initializedState: InitializedState<TEditableRecord, TRecord> = {
     initialized: false,
     data: undefined,
     model: null,
@@ -79,7 +84,12 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     warningsValidator = ValidatorBuilder.createEmptyValidator(),
     partialErrorChecking = false,
     submitAll = false
-  }: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>): Promise<void> {
+  }: FormServiceParams<
+    TEditableRecord,
+    TRecord,
+    TAvailableField,
+    FormModelListenerArgsByEventName<TRecord>
+  >): Promise<void> {
     this.changes = changes;
     this.hiddenValidationFields = [];
     this.partialErrorCheckingDefault = this.partialErrorChecking = partialErrorChecking;
@@ -87,22 +97,22 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     this.validating = false;
     this.submitting = false;
 
-    this.initalizedState.data = data;
-    this.initalizedState.model = model;
-    this.initalizedState.warningsValidator = warningsValidator;
-    this.initalizedState.initialized = true;
+    this.initializedState.data = data;
+    this.initializedState.model = model;
+    this.initializedState.warningsValidator = warningsValidator;
+    this.initializedState.initialized = true;
 
     if (fields) {
       this.fields = fields;
     }
 
-    if (!this.initalizedState.data) {
-      this.initalizedState.data = (await this.initalizedState.model.getData([
+    if (!this.initializedState.data) {
+      this.initializedState.data = (await this.initializedState.model.getData([
         ...this.fields
       ])) as Partial<TRecord>;
     }
 
-    this.initalizedState.model.on('update', this.onModelChange);
+    this.initializedState.model.on('update', this.onModelChange);
     this.setState();
 
     if (!this.partialErrorChecking) {
@@ -110,7 +120,9 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     }
   }
 
-  getAll(): FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField> {
+  getAll():
+    | FormServiceEmptyState<TRecord, TAvailableField, keyof TEditableRecord & string>
+    | FormServiceState<TRecord, TAvailableField, keyof TEditableRecord & string> {
     if (!this.isLoaded()) {
       return this.getEmptyState();
     }
@@ -123,7 +135,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     return {
       isLoaded: true,
       data,
-      originalData: this.initalizedState.data ?? {},
+      originalData: this.initializedState.data ?? {},
       changes,
       errors,
       warnings,
@@ -149,27 +161,29 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
   };
 
   addChangeListener(
-    func: EventListener<FormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
+    func: EventListener<
+      FormServiceListenerArgsByEventName<TRecord, TAvailableField, keyof TEditableRecord & string>['update']
+    >
   ): void {
     this.eventEmitter.on('update', func);
   }
 
   removeChangeListener(
-    func: (state: ReturnType<IFormService<TRecord, TAvailableField>['getAll']>) => void
+    func: (state: ReturnType<IFormService<TEditableRecord, TRecord, TAvailableField>['getAll']>) => void
   ): void {
     this.eventEmitter.off('update', func);
-    if (this.eventEmitter.listenerCount('update') === 0 && this.initalizedState.initialized) {
-      this.initalizedState.model.off('update', this.onModelChange);
+    if (this.eventEmitter.listenerCount('update') === 0 && this.initializedState.initialized) {
+      this.initializedState.model.off('update', this.onModelChange);
     }
   }
 
   removeAllListeners(): void {
     this.eventEmitter.removeAllListeners('update');
-    this.initalizedState.model?.off('update', this.onModelChange);
+    this.initializedState.model?.off('update', this.onModelChange);
   }
 
   clearValidation = (fields: (keyof TRecord & string)[] | (keyof TRecord & string)): void => {
-    if (!this.initalizedState.initialized) {
+    if (!this.initializedState.initialized) {
       return;
     }
 
@@ -211,19 +225,19 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
    * Set data in the form
    */
   async set(data: Partial<TRecord>, validate = false): Promise<void> {
-    if (!this.isLoaded() || !this.initalizedState.initialized) {
+    if (!this.isLoaded() || !this.initializedState.initialized) {
       return;
     }
 
     this.changes = getRecordChanges(
-      this.initalizedState.model.getValidationDependency.bind(this.initalizedState.model),
-      this.initalizedState.data,
+      this.initializedState.model.getValidationDependency.bind(this.initializedState.model),
+      this.initializedState.data,
       this.changes,
       data
     );
 
     const changedFields = keys(data);
-    const validationDependencies = this.initalizedState.model.getValidationDependency(changedFields);
+    const validationDependencies = this.initializedState.model.getValidationDependency(changedFields);
     this.clearValidation(changedFields.concat(validationDependencies));
 
     if (validate) {
@@ -238,7 +252,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
   }
 
   async submitData(data: Partial<TRecord>): Promise<Partial<TRecord> | undefined> {
-    if (!this.initalizedState.initialized) {
+    if (!this.initializedState.initialized) {
       return;
     }
 
@@ -250,7 +264,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
    * Send form data to the model
    */
   async submit(): Promise<Partial<TRecord> | undefined> {
-    if (!this.initalizedState.initialized || this.submitting) {
+    if (!this.initializedState.initialized || this.submitting) {
       return;
     }
 
@@ -266,7 +280,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     let data;
     let validationErrors;
     try {
-      data = await this.initalizedState.model.submit(changes);
+      data = await this.initializedState.model.submit(changes);
     } catch (error) {
       if (!(error instanceof ValidationErrors)) {
         this.submitting = false;
@@ -303,8 +317,8 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     return data;
   }
 
-  clearFieldChanges(field: keyof TRecord & string): void {
-    if (!this.initalizedState.initialized) {
+  clearFieldChanges(field: keyof TEditableRecord & TAvailableField): void {
+    if (!this.initializedState.initialized) {
       return;
     }
 
@@ -316,7 +330,7 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
   }
 
   clearChanges = (): void => {
-    if (!this.initalizedState.initialized) {
+    if (!this.initializedState.initialized) {
       return;
     }
 
@@ -338,8 +352,8 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
 
   validateForm = async (): Promise<
     | {
-        errors: ValidationErrors<keyof TRecord & string> | null;
-        warnings: ValidationErrors<keyof TRecord & string> | null;
+        errors: ValidationErrors<keyof TEditableRecord & string> | null;
+        warnings: ValidationErrors<keyof TEditableRecord & string> | null;
       }
     | undefined
   > => {
@@ -356,12 +370,12 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
 
   private throttledValidateForm = async (): Promise<
     | {
-        errors: ValidationErrors<keyof TRecord & string> | null;
-        warnings: ValidationErrors<keyof TRecord & string> | null;
+        errors: ValidationErrors<keyof TEditableRecord & string> | null;
+        warnings: ValidationErrors<keyof TEditableRecord & string> | null;
       }
     | undefined
   > => {
-    if (!this.initalizedState.initialized) {
+    if (!this.initializedState.initialized) {
       return;
     }
 
@@ -376,8 +390,8 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     let result;
     try {
       result = await Promise.all([
-        this.runValidator(this.initalizedState.model, this.getChanges, 'errors'),
-        this.runValidator(this.initalizedState.warningsValidator, this.getData, 'warnings')
+        this.runValidator(this.initializedState.model, this.getChanges, 'errors'),
+        this.runValidator(this.initializedState.warningsValidator, this.getData, 'warnings')
       ]);
     } finally {
       if (!result || (result[0] && result[1])) {
@@ -399,19 +413,22 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
   private getFields<TField extends TAvailableField>(
     data: Partial<TRecord>,
     changes: Partial<TRecord>,
-    errors: ValidationErrors<keyof TRecord & string>,
-    warnings: ValidationErrors<keyof TRecord & string>
-  ): FormServiceStateFields<TRecord, TAvailableField> {
+    errors: ValidationErrors<keyof TEditableRecord & string>,
+    warnings: ValidationErrors<keyof TEditableRecord & string>
+  ): FormServiceStateFields<TRecord, TAvailableField, keyof TEditableRecord & string> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const proxy: any = new Proxy(
       {},
       {
-        get(_target, fieldName: TField): FormServiceStateFields<TRecord, TAvailableField>[TField] {
+        get(
+          _target,
+          fieldName: TField
+        ): FormServiceStateFields<TRecord, TAvailableField, keyof TEditableRecord & string>[TField] {
           return {
             value: data[fieldName],
             isChanged: changes.hasOwnProperty(fieldName),
-            errors: errors.getFieldErrors(fieldName),
-            warnings: warnings.getFieldErrors(fieldName)
+            errors: errors.getFieldErrors(fieldName as unknown as keyof TEditableRecord & string),
+            warnings: warnings.getFieldErrors(fieldName as unknown as keyof TEditableRecord & string)
           };
         }
       }
@@ -423,14 +440,14 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
       proxy[field] = proxy[field];
     }
 
-    return proxy as FormServiceStateFields<TRecord, TAvailableField>;
+    return proxy as FormServiceStateFields<TRecord, TAvailableField, keyof TEditableRecord & string>;
   }
 
   /**
    * Check is data loaded
    */
   private isLoaded(): boolean {
-    return this.initalizedState.data !== undefined;
+    return this.initializedState.data !== undefined;
   }
 
   /**
@@ -452,10 +469,10 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
    * Filter errors depending on the partialErrorChecking mode and clearValidation method
    */
   private getDisplayedErrors(
-    validationErrors: ValidationErrors<keyof TRecord & string>
-  ): ValidationErrors<keyof TRecord & string> {
+    validationErrors: ValidationErrors<keyof TEditableRecord & string>
+  ): ValidationErrors<keyof TEditableRecord & string> {
     const filteredErrors = validationErrors.clone();
-    const data: Partial<TRecord> = this.initalizedState.data ?? {};
+    const data: Partial<TRecord> = this.initializedState.data ?? {};
 
     for (const field of validationErrors.getErrors().keys()) {
       const isFieldPristine =
@@ -476,12 +493,12 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
    * Model records changes handler
    */
   private onModelChange = (changes: Partial<TRecord>): void => {
-    this.initalizedState.data = {...this.initalizedState.data, ...changes};
+    this.initializedState.data = {...this.initializedState.data, ...changes};
     this.setState();
   };
 
   private getData = (): Partial<TRecord> => {
-    return {...this.initalizedState.data, ...this.changes};
+    return {...this.initializedState.data, ...this.changes};
   };
 
   private getChanges = (): Partial<TRecord> => {
@@ -495,13 +512,13 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
 
   private isDependentField(field: keyof TRecord & string): boolean {
     return (
-      this.changes.hasOwnProperty(field) && isEqual(this.changes[field], this.initalizedState.data?.[field])
+      this.changes.hasOwnProperty(field) && isEqual(this.changes[field], this.initializedState.data?.[field])
     );
   }
 
   private async runValidator(
     validator: {
-      isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TRecord & string>>;
+      isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<keyof TEditableRecord & string>>;
     },
     getData: () => Partial<TRecord>,
     output: 'errors' | 'warnings'
@@ -528,14 +545,24 @@ class FormService<TRecord extends Record<string, unknown>, TAvailableField exten
     return true;
   }
 
-  private getEmptyState(): FormServiceEmptyState<TRecord, TAvailableField> {
-    const data: FormServiceEmptyState<TRecord, TAvailableField>['data'] = {};
-    const changes: FormServiceEmptyState<TRecord, TAvailableField>['changes'] = {};
-    const errors: FormServiceEmptyState<TRecord, TAvailableField>['errors'] = new ValidationErrors();
-    const warnings: FormServiceEmptyState<TRecord, TAvailableField>['warnings'] = new ValidationErrors();
+  private getEmptyState(): FormServiceEmptyState<TRecord, TAvailableField, keyof TEditableRecord & string> {
+    const data: FormServiceEmptyState<TRecord, TAvailableField, keyof TEditableRecord & string>['data'] = {};
+    const changes: FormServiceEmptyState<
+      TRecord,
+      TAvailableField,
+      keyof TEditableRecord & string
+    >['changes'] = {};
+    const errors: FormServiceEmptyState<TRecord, TAvailableField, keyof TEditableRecord & string>['errors'] =
+      new ValidationErrors();
+    const warnings: FormServiceEmptyState<
+      TRecord,
+      TAvailableField,
+      keyof TEditableRecord & string
+    >['warnings'] = new ValidationErrors();
     const fields = this.getFields(data, changes, errors, warnings) as FormServiceEmptyState<
       TRecord,
-      TAvailableField
+      TAvailableField,
+      keyof TEditableRecord & string
     >['fields'];
 
     return {

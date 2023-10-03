@@ -231,15 +231,21 @@ class GridExpressApi {
   /**
    * Specify Grid model
    */
-  model<TKey, TRecord extends Record<string, unknown>, TFilter>(
+  model<TKey, TEditableRecord extends Record<string, unknown>, TRecord extends TEditableRecord, TFilter>(
     model:
-      | IGridModel<TKey, TRecord, TFilter>
-      | ((req: Request, res: Response) => IGridModel<TKey, TRecord, TFilter>)
+      | IGridModel<TKey, TEditableRecord, TRecord, TFilter>
+      | ((req: Request, res: Response) => IGridModel<TKey, TEditableRecord, TRecord, TFilter>)
   ): this {
     if (typeof model === 'function') {
-      this.getModel = model as () => IGridModel<unknown, Record<string, unknown>, unknown>;
+      this.getModel = model as unknown as () => IGridModel<
+        unknown,
+        Record<string, unknown>,
+        Record<string, unknown>,
+        unknown
+      >;
     } else {
-      this.getModel = () => model as IGridModel<unknown, Record<string, unknown>, unknown>;
+      this.getModel = () =>
+        model as IGridModel<unknown, Record<string, unknown>, Record<string, unknown>, unknown>;
     }
 
     return this;
@@ -287,14 +293,17 @@ class GridExpressApi {
   }
 
   // Default implementation
-  private getModel(_req: Request, _res: Response): IGridModel<unknown, Record<string, unknown>, unknown> {
+  private getModel(
+    _req: Request,
+    _res: Response
+  ): IGridModel<unknown, Record<string, unknown>, Record<string, unknown>, unknown> {
     throw new Error('Model is not defined.');
   }
 
   private transformUpdateResult(
-    data: GridModelUpdateResult<unknown, Record<string, unknown>>
-  ): JsonGridApiResult<unknown, Record<string, unknown>>['update'] {
-    const result: JsonGridApiResult<unknown, Record<string, unknown>>['update'] = {
+    data: GridModelUpdateResult<unknown, Record<string, unknown>, Record<string, unknown>>
+  ): JsonGridApiResult<unknown, Record<string, unknown>, string>['update'] {
+    const result: JsonGridApiResult<unknown, Record<string, unknown>, string>['update'] = {
       changes: [],
       errors: [],
       validation: []
@@ -313,9 +322,9 @@ class GridExpressApi {
     }, result);
   }
 
-  private sendResult<TMethodName extends keyof JsonGridApiResult<unknown, Record<string, unknown>>>(
+  private sendResult<TMethodName extends keyof JsonGridApiResult<unknown, Record<string, unknown>, string>>(
     res: Response,
-    result: JsonGridApiResult<unknown, Record<string, unknown>>[TMethodName]
+    result: JsonGridApiResult<unknown, Record<string, unknown>, string>[TMethodName]
   ): void {
     res.json(result);
   }

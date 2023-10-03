@@ -22,26 +22,29 @@ import type {JsonFormApiResult} from './types/JsonFormApiResult';
 
 const MAX_URI_LENGTH = 2048;
 
-type FormXhrModelParams<TRecord extends Record<string, unknown>> = {
+type FormXhrModelParams<
+  TRecord extends Record<string, unknown>,
+  TEditableField extends keyof TRecord & string
+> = {
   api: string;
   eventsModel?: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
   multipartFormData?: boolean;
   validateOnClient?: boolean;
-  validator?: IValidator<TRecord, keyof TRecord & string>;
+  validator?: IValidator<TRecord, TEditableField>;
   xhr?: DefaultXhr;
 };
 
-class FormXhrModel<TRecord extends Record<string, unknown>>
-  implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
+class FormXhrModel<TEditableRecord extends Record<string, unknown>, TRecord extends TEditableRecord>
+  implements IFormModel<TEditableRecord, TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
   private multipartFormDataEncoded: boolean;
-  private validator: IValidator<TRecord, keyof TRecord & string>;
+  private validator: IValidator<TRecord, keyof TEditableRecord & string>;
   private validateOnClient: boolean;
   private xhr: DefaultXhr;
   private apiURL: string;
   private eventsModel: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
 
-  constructor(settings: FormXhrModelParams<TRecord>) {
+  constructor(settings: FormXhrModelParams<TRecord, keyof TEditableRecord & string>) {
     this.multipartFormDataEncoded = settings.multipartFormData ?? false;
     this.validator = settings.validator ?? ValidatorBuilder.createEmptyValidator();
     this.validateOnClient = settings.validateOnClient ?? false;
@@ -71,7 +74,7 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
       method: 'GET',
       uri: url.format(parsedURL),
       json: true
-    })) as JsonFormApiResult<TRecord>['getData'];
+    })) as JsonFormApiResult<TRecord, keyof TEditableRecord & string>['getData'];
   }
 
   async submit(record: Partial<TRecord>): Promise<Partial<TRecord>> {
@@ -106,7 +109,10 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
       body: this.multipartFormDataEncoded ? formData : JSON.stringify(record)
     });
 
-    const {data, error} = parseJson(rawBody) as JsonFormApiResult<TRecord>['submit'];
+    const {data, error} = parseJson(rawBody) as JsonFormApiResult<
+      TRecord,
+      keyof TEditableRecord & string
+    >['submit'];
 
     if (error) {
       // eslint-disable-next-line @typescript-eslint/no-throw-literal
@@ -121,7 +127,7 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
   /**
    * Validation check
    */
-  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TEditableRecord & string>> {
     if (this.validateOnClient) {
       return this.validator.isValidRecord(record);
     }
@@ -129,14 +135,14 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
     const parsedURL = url.parse(this.apiURL, true);
     parsedURL.pathname = url.resolve(parsedURL.pathname ?? '', 'validation');
 
-    let response: JsonFormApiResult<TRecord>['validate'];
+    let response: JsonFormApiResult<TRecord, keyof TEditableRecord & string>['validate'];
     try {
       response = (await this.xhr({
         method: 'POST',
         uri: url.format(parsedURL),
         body: record,
         json: true
-      })) as JsonFormApiResult<TRecord>['validate'];
+      })) as JsonFormApiResult<TRecord, keyof TEditableRecord & string>['validate'];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       if (error.statusCode === 413) {
@@ -193,7 +199,7 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
       json: true,
       uri: url.format(parsedURL),
       body: {fields}
-    })) as JsonFormApiResult<TRecord>['getData'];
+    })) as JsonFormApiResult<TRecord, keyof TEditableRecord & string>['getData'];
   }
 }
 

@@ -7,7 +7,7 @@
  */
 
 import EventsModel from '../../common/EventsModel';
-import type {EventListener, IObservable} from '../../common/types';
+import type {EventListener, IObservable, OptionalRecord} from '../../common/types';
 import ValidationErrors from '../../validation/ValidationErrors';
 import type {
   GridModelReadParams,
@@ -21,14 +21,15 @@ import type {
  */
 abstract class AbstractGridModel<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TFilters,
   TListenerArgsByEventName extends Record<string, unknown[]>
-> implements IGridModel<TKey, TRecord, TFilters>, IObservable<TListenerArgsByEventName>
+> implements IGridModel<TKey, TEditableRecord, TRecord, TFilters>, IObservable<TListenerArgsByEventName>
 {
   private eventsModel = new EventsModel<TListenerArgsByEventName>();
 
-  async create(_record: Partial<TRecord>): Promise<TKey> {
+  async create(_record: OptionalRecord<TEditableRecord>): Promise<TKey> {
     throw Error('method "create" not implemented yet');
   }
 
@@ -47,14 +48,16 @@ abstract class AbstractGridModel<
     throw new Error('method getRecord not implemented yet');
   }
 
-  async update(_changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord>> {
+  async update(
+    _changes: [TKey, Partial<TEditableRecord>][]
+  ): Promise<GridModelUpdateResult<TKey, TEditableRecord, TRecord>> {
     return [];
   }
 
   async isValidRecord(
-    _record: Partial<TRecord>,
+    _record: OptionalRecord<TRecord>,
     _recordId?: TKey | null
-  ): Promise<ValidationErrors<keyof TRecord & string>> {
+  ): Promise<ValidationErrors<keyof TEditableRecord & string>> {
     return new ValidationErrors();
   }
 

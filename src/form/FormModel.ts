@@ -17,19 +17,19 @@ import type {IFormModel} from './types/IFormModel';
 /**
  * Simple form model
  */
-class FormModel<TRecord extends Record<string, unknown>>
-  extends AbstractFormModel<TRecord, FormModelListenerArgsByEventName<TRecord>>
-  implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
+class FormModel<TEditableRecord extends Record<string, unknown>, TRecord extends TEditableRecord>
+  extends AbstractFormModel<TEditableRecord, TRecord, FormModelListenerArgsByEventName<TRecord>>
+  implements IFormModel<TEditableRecord, TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
-  static create<TRecord extends Record<string, unknown>>(
+  static create<TEditableRecord extends Record<string, unknown>, TRecord extends TEditableRecord>(
     defaultValues?: Partial<TRecord>,
-    validator?: IValidator<TRecord, keyof TRecord & string>
-  ): FormModel<TRecord> {
+    validator?: IValidator<TRecord, keyof TEditableRecord & string>
+  ): FormModel<TEditableRecord, TRecord> {
     return new FormModel(validator ?? ValidatorBuilder.createEmptyValidator(), defaultValues ?? {});
   }
 
   constructor(
-    private validator: IValidator<TRecord, keyof TRecord & string>,
+    private validator: IValidator<TRecord, keyof TEditableRecord & string>,
     private data: Partial<TRecord>
   ) {
     super();
@@ -73,7 +73,7 @@ class FormModel<TRecord extends Record<string, unknown>>
   /**
    * Validation check
    */
-  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TEditableRecord & string>> {
     return await this.validator.isValidRecord(record);
   }
 

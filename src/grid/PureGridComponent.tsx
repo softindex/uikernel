@@ -43,19 +43,20 @@ type FormHeader<TKey, TRecord extends Record<string, unknown>, TColumnId extends
 
 type Props<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TFilters,
-  TColumns extends Partial<GridColumns<TKey, TRecord>>,
+  TColumns extends Partial<GridColumns<TKey, TEditableRecord, TRecord, keyof TRecord & string>>,
   TMultipleSorting extends boolean
 > = {
-  changes: EqualMap<TKey, Partial<TRecord>>;
+  changes: EqualMap<TKey, Partial<TEditableRecord>>;
   classNames: string[];
   columns: TColumns;
   count: number;
   editor: GridEditor<TKey, string & keyof TColumns>;
-  errors: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  errors: EqualMap<TKey, ValidationErrors<keyof TEditableRecord & string>>;
   extraRecords: EqualMap<TKey, TRecord>;
-  gridRef: IGridRef<TKey, TRecord, TFilters, TColumns, TMultipleSorting>;
+  gridRef: IGridRef<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>;
   height: number | undefined;
   page: number;
   pageSizeLabel: string;
@@ -74,7 +75,7 @@ type Props<
   viewColumns: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean} | undefined;
   viewCount: number;
   viewVariants: number[];
-  warnings: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  warnings: EqualMap<TKey, ValidationErrors<keyof TEditableRecord & string>>;
   onCellClick: (
     event: React.MouseEvent<HTMLTableElement>,
     recordId: TKey,
@@ -97,18 +98,21 @@ const DEFAULT_PROPS = {
 
 class PureGridComponent<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TFilters,
-  TColumns extends Partial<GridColumns<TKey, TRecord>>,
+  TColumns extends Partial<GridColumns<TKey, TEditableRecord, TRecord>>,
   TMultipleSorting extends boolean
-> extends React.Component<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>> {
+> extends React.Component<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>> {
   static defaultProps = DEFAULT_PROPS;
 
   private recordMap: Map<string, TKey> | null = null;
   private tBodyElement: HTMLTableSectionElement | null = null;
   private columnsWithEscapeError = new Set<string & keyof TColumns>();
 
-  componentDidUpdate(prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>): void {
+  componentDidUpdate(
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>
+  ): void {
     this.initRecordsMap(prevProps);
 
     if (
@@ -242,7 +246,7 @@ class PureGridComponent<
    * Create recordId map with encoded ids
    */
   private initRecordsMap(
-    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>
   ): void {
     if (this.props.records === prevProps.records && this.props.extraRecords === prevProps.extraRecords) {
       return;
@@ -261,9 +265,9 @@ class PureGridComponent<
    * Should component render body
    */
   private shouldRenderBody(
-    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>,
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>,
     propName: StrictExtract<
-      keyof Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+      keyof Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>,
       'extraRecords' | 'records'
     >
   ): boolean {
@@ -306,7 +310,7 @@ class PureGridComponent<
    * Get rows that need to be re rendered
    */
   private getRowsToRerender(
-    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>
   ): Set<TKey> {
     const rowsToReRender = new Set<TKey>();
 
@@ -326,9 +330,9 @@ class PureGridComponent<
    */
   private checkPropForRerender(
     rowsToReRender: Set<TKey>,
-    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>,
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>,
     propName: StrictExtract<
-      keyof Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+      keyof Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>,
       'changes' | 'errors' | 'statuses' | 'warnings'
     >
   ): void {
@@ -371,7 +375,7 @@ class PureGridComponent<
    */
   private checkEditorForRender(
     rowsToReRender: Set<TKey>,
-    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>
   ): void {
     const {editor} = this.props;
     const prevEditor = prevProps.editor;
@@ -412,9 +416,9 @@ class PureGridComponent<
    */
   private checkRecordsForRender(
     rowsToReRender: Set<TKey>,
-    prevProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>,
+    prevProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>,
     propName: StrictExtract<
-      keyof Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
+      keyof Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>,
       'extraRecords' | 'records'
     >
   ): void {
@@ -527,8 +531,8 @@ class PureGridComponent<
     const gridCellClass = classNames(this.getColumnClass(columnId), {
       'dgrid-cell': true,
       'dgrid-changed': this.isChanged(recordId, editorFieldName),
-      'dgrid-error': this.hasError(recordId, editorFieldName),
-      'dgrid-warning': this.hasWarning(recordId, editorFieldName)
+      'dgrid-error': this.hasError(recordId, editorFieldName as keyof TEditableRecord & string),
+      'dgrid-warning': this.hasWarning(recordId, editorFieldName as keyof TEditableRecord & string)
     });
     const html = `
       <td class="${gridCellClass}" key="${columnId}">
@@ -594,8 +598,8 @@ class PureGridComponent<
         const gridCellClass = classNames(this.getColumnClass(columnId), {
           'dgrid-cell': true,
           'dgrid-changed': this.isChanged(recordId, editorFieldName),
-          'dgrid-error': this.hasError(recordId, editorFieldName),
-          'dgrid-warning': this.hasWarning(recordId, editorFieldName)
+          'dgrid-error': this.hasError(recordId, editorFieldName as keyof TEditableRecord & string),
+          'dgrid-warning': this.hasWarning(recordId, editorFieldName as keyof TEditableRecord & string)
         });
         html += `
           <td class="${gridCellClass}" key="${columnId}">
@@ -676,16 +680,16 @@ class PureGridComponent<
   /**
    * Table row has warning flag
    */
-  private hasWarning(row: TKey, fields: string & keyof TRecord): boolean {
-    return this.checkFieldInValidation(row, fields, this.props.warnings);
+  private hasWarning(row: TKey, field: keyof TEditableRecord & string): boolean {
+    return this.checkFieldInValidation(row, field, this.props.warnings);
   }
 
   /**
    * Table row has error flag
    *
    */
-  private hasError(recordId: TKey, fields: string & keyof TRecord): boolean {
-    return this.checkFieldInValidation(recordId, fields, this.props.errors);
+  private hasError(recordId: TKey, field: keyof TEditableRecord & string): boolean {
+    return this.checkFieldInValidation(recordId, field, this.props.errors);
   }
 
   /**
@@ -693,8 +697,8 @@ class PureGridComponent<
    */
   private checkFieldInValidation(
     recordId: TKey,
-    field: string & keyof TRecord,
-    validation: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>
+    field: keyof TEditableRecord & string,
+    validation: EqualMap<TKey, ValidationErrors<keyof TEditableRecord & string>>
   ): boolean {
     const recordValidation = validation.get(recordId);
 

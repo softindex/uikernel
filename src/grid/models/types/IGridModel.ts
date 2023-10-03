@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import type {OptionalRecord} from '../../../common/types';
 import type ValidationErrors from '../../../validation/ValidationErrors';
 
 export type GridModelCustomError = Error & Record<string, unknown>;
@@ -26,10 +27,11 @@ export type GridModelReadParams<
   sort?: [keyof TRecord & string, GridModelSortMode][];
 };
 
-export type GridModelUpdateResult<TKey, TRecord> = [
+export type GridModelUpdateResult<
   TKey,
-  GridModelCustomError | Partial<TRecord> | ValidationErrors<keyof TRecord & string>
-][];
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord
+> = [TKey, GridModelCustomError | Partial<TRecord> | ValidationErrors<keyof TEditableRecord & string>][];
 
 export type GridModelReadResult<
   TKey,
@@ -52,15 +54,14 @@ export type GridModelReadResult<
   totals?: Partial<Pick<TRecord, TField>>;
 };
 
-export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilters> {
-  /**
-   * Add a record
-   */
-  create: (record: Partial<TRecord>) => Promise<TKey>;
+export interface IGridModel<
+  TKey,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
+  TFilters
+> {
+  create: (record: OptionalRecord<TEditableRecord>) => Promise<TKey>;
 
-  /**
-   * Get the particular record
-   */
   getRecord: <TField extends keyof TRecord & string>(
     id: TKey,
     fields: TField[]
@@ -75,9 +76,9 @@ export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilt
    * Validation check
    */
   isValidRecord: (
-    record: Partial<TRecord>,
+    record: OptionalRecord<TRecord>,
     recordId?: TKey | null
-  ) => Promise<ValidationErrors<keyof TRecord & string>>;
+  ) => Promise<ValidationErrors<keyof TEditableRecord & string>>;
 
   /**
    * Get records list
@@ -86,8 +87,7 @@ export interface IGridModel<TKey, TRecord extends Record<string, unknown>, TFilt
     params: GridModelReadParams<TKey, TRecord, TField, TFilters>
   ) => Promise<GridModelReadResult<TKey, TRecord, TField>>;
 
-  /**
-   * Apply record changes
-   */
-  update: (changes: [TKey, Partial<TRecord>][]) => Promise<GridModelUpdateResult<TKey, TRecord>>;
+  update: (
+    changes: [TKey, Partial<TEditableRecord>][]
+  ) => Promise<GridModelUpdateResult<TKey, TEditableRecord, TRecord>>;
 }

@@ -18,6 +18,12 @@ import regExp from '../rules/regExp';
 import set from '../rules/set';
 import ValidationError from '../ValidationErrors';
 
+type TestRecord = {
+  name: boolean;
+  password: string;
+  passwordConfirm: string;
+};
+
 describe('ValidationError', () => {
   describe('Check "static createWithError" method', () => {
     it('Should create ValidationErrors instance with one error', () => {
@@ -177,7 +183,7 @@ describe('UIKernel validation functions', () => {
 
 describe('Validator', () => {
   const validatorBoolean = boolean('err text');
-  let validator: DeprecatedValidator<Record<string, unknown>>;
+  let validator: DeprecatedValidator<TestRecord>;
   beforeEach(() => {
     validator = new DeprecatedValidator();
   });
@@ -187,16 +193,16 @@ describe('Validator', () => {
       validator.field('name', validatorBoolean);
       let result = await validator.isValidRecord({name: true});
       expect(result.toJSON()).toEqual({});
-      result = await validator.isValidRecord({name: 6456});
+      result = await validator.isValidRecord({name: 6456 as never});
       expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
     });
   });
 
   describe('Check "getValidationDependency" method', () => {
     it('Should return list of dependent fields', async () => {
-      const groupValidationFunction = <TRecord extends Record<string, unknown>>(
-        data: Partial<TRecord>,
-        errors: ValidationError<keyof TRecord & string>
+      const groupValidationFunction = (
+        data: Pick<TestRecord, 'password' | 'passwordConfirm'>,
+        errors: ValidationError<keyof TestRecord>
       ): void => {
         if (data.password !== data.passwordConfirm) {
           errors.add('passwordConfirm', "Passwords don't match");
@@ -217,13 +223,13 @@ describe('Validator', () => {
 
     it('Should return errors if client record is not valid', async () => {
       validator.field('name', validatorBoolean);
-      const result = await validator.isValidRecord({name: 6456});
+      const result = await validator.isValidRecord({name: 6456 as never});
       expect(result.toJSON()).toEqual({name: [{message: 'err text'}]});
     });
     it('Should return {} if all additional values are passed', async () => {
-      const groupValidationFunction = <TRecord extends Record<string, unknown>>(
-        data: Partial<TRecord>,
-        errors: ValidationError<keyof TRecord & string>
+      const groupValidationFunction = (
+        data: Pick<TestRecord, 'password' | 'passwordConfirm'>,
+        errors: ValidationError<keyof TestRecord>
       ): void => {
         if (data.password !== data.passwordConfirm) {
           errors.add('passwordConfirm', "Passwords don't match");
@@ -234,9 +240,9 @@ describe('Validator', () => {
       expect(result.toJSON()).toEqual({});
     });
     it('Should return {} if some additional values are not passed', async () => {
-      const groupValidationFunction = <TRecord extends Record<string, unknown>>(
-        data: Partial<TRecord>,
-        errors: ValidationError<keyof TRecord & string>
+      const groupValidationFunction = (
+        data: Pick<TestRecord, 'password' | 'passwordConfirm'>,
+        errors: ValidationError<keyof TestRecord & string>
       ): void => {
         if (data.password !== data.passwordConfirm) {
           errors.add('passwordConfirm', "Passwords don't match");

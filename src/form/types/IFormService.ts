@@ -19,46 +19,50 @@ type ToEmptyRecord<TRecord extends Record<string, unknown>> = {
 
 export type FormServiceEmptyState<
   TRecord extends Record<string, unknown>,
-  TAvailableField extends keyof TRecord & string
+  TAvailableField extends keyof TRecord & string,
+  TEditableField extends keyof TRecord & string
 > = {
   changes: ToEmptyRecord<TRecord>;
   data: ToEmptyRecord<TRecord>;
-  errors: ValidationErrors<keyof TRecord & string>;
-  fields: FormServiceStateFields<ToEmptyRecord<TRecord>, TAvailableField>;
+  errors: ValidationErrors<TEditableField>;
+  fields: FormServiceStateFields<ToEmptyRecord<TRecord>, TAvailableField, TEditableField>;
   isLoaded: false;
   isSubmitting: false;
   originalData: ToEmptyRecord<TRecord>;
-  warnings: ValidationErrors<keyof TRecord & string>;
+  warnings: ValidationErrors<TEditableField>;
 };
 
 export type FormServiceStateFields<
   TRecord extends Record<string, unknown>,
-  TAvailableField extends keyof TRecord & string
+  TAvailableField extends keyof TRecord & string,
+  TEditableField extends keyof TRecord & string
 > = Readonly<{
   [FIELD in TAvailableField]: Readonly<{
-    errors: ReturnType<ValidationErrors<keyof TRecord & string>['getFieldErrors']>;
+    errors: ReturnType<ValidationErrors<TEditableField>['getFieldErrors']>;
     isChanged: boolean;
     value: TRecord[FIELD] | undefined;
-    warnings: ReturnType<ValidationErrors<keyof TRecord & string>['getFieldErrors']>;
+    warnings: ReturnType<ValidationErrors<TEditableField>['getFieldErrors']>;
   }>;
 }>;
 
 export type FormServiceState<
   TRecord extends Record<string, unknown>,
-  TAvailableField extends keyof TRecord & string
+  TAvailableField extends keyof TRecord & string,
+  TEditableField extends keyof TRecord & string
 > = {
   changes: Partial<TRecord>;
   data: Partial<TRecord>;
-  errors: ValidationErrors<keyof TRecord & string>;
-  fields: FormServiceStateFields<TRecord, TAvailableField>;
+  errors: ValidationErrors<TEditableField>;
+  fields: FormServiceStateFields<TRecord, TAvailableField, TEditableField>;
   isLoaded: true;
   isSubmitting: boolean;
   originalData: Partial<TRecord>;
-  warnings: ValidationErrors<keyof TRecord & string>;
+  warnings: ValidationErrors<TEditableField>;
 };
 
 export type FormServiceParams<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TAvailableField extends keyof TRecord & string,
   TListenerArgsByEventName extends Record<string, unknown[]>
 > = {
@@ -77,7 +81,7 @@ export type FormServiceParams<
   /**
    * @description Model of form
    */
-  model: IFormModel<TRecord> & IObservable<TListenerArgsByEventName>;
+  model: IFormModel<TEditableRecord, TRecord> & IObservable<TListenerArgsByEventName>;
   /**
    * @description Activate partial gradual form validation - default `false`
    */
@@ -89,25 +93,32 @@ export type FormServiceParams<
   /**
    * @description Warnings validator for fields
    */
-  warningsValidator?: IValidator<TRecord, keyof TRecord & string>;
+  warningsValidator?: IValidator<TRecord, keyof TEditableRecord & string>;
 };
 
 export type FormServiceListenerArgsByEventName<
   TRecord extends Record<string, unknown>,
-  TAvailableField extends keyof TRecord & string
+  TAvailableField extends keyof TRecord & string,
+  TEditableField extends keyof TRecord & string
 > = {
-  update: [FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField>];
+  update: [
+    | FormServiceEmptyState<TRecord, TAvailableField, TEditableField>
+    | FormServiceState<TRecord, TAvailableField, TEditableField>
+  ];
 };
 
 interface IFormService<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TAvailableField extends keyof TRecord & string
 > {
   submitting: boolean;
   validating: boolean;
 
   addChangeListener: (
-    func: EventListener<FormServiceListenerArgsByEventName<TRecord, TAvailableField>['update']>
+    func: EventListener<
+      FormServiceListenerArgsByEventName<TRecord, TAvailableField, keyof TEditableRecord & string>['update']
+    >
   ) => void;
 
   clearChanges: () => void;
@@ -115,13 +126,17 @@ interface IFormService<
   /**
    * @deprecated
    */
-  clearError: (field: keyof TRecord & string) => void;
+  clearError: (field: keyof TEditableRecord & TAvailableField) => void;
 
-  clearFieldChanges: (field: keyof TRecord & string) => void;
+  clearFieldChanges: (field: keyof TEditableRecord & TAvailableField) => void;
 
-  clearValidation: (fields: (keyof TRecord & string)[] | (keyof TRecord & string)) => void;
+  clearValidation: (
+    fields: (keyof TEditableRecord & TAvailableField)[] | (keyof TEditableRecord & TAvailableField)
+  ) => void;
 
-  getAll: () => FormServiceEmptyState<TRecord, TAvailableField> | FormServiceState<TRecord, TAvailableField>;
+  getAll: () =>
+    | FormServiceEmptyState<TRecord, TAvailableField, keyof TEditableRecord & string>
+    | FormServiceState<TRecord, TAvailableField, keyof TEditableRecord & string>;
 
   getPartialErrorChecking: () => boolean;
 
@@ -136,12 +151,17 @@ interface IFormService<
     warningsValidator = ValidatorBuilder.createEmptyValidator(),
     partialErrorChecking = false,
     submitAll = false
-  }: FormServiceParams<TRecord, TAvailableField, FormModelListenerArgsByEventName<TRecord>>) => Promise<void>;
+  }: FormServiceParams<
+    TEditableRecord,
+    TRecord,
+    TAvailableField,
+    FormModelListenerArgsByEventName<TRecord>
+  >) => Promise<void>;
 
   removeAllListeners: () => void;
 
   removeChangeListener: (
-    func: (state: ReturnType<IFormService<TRecord, TAvailableField>['getAll']>) => void
+    func: (state: ReturnType<IFormService<TEditableRecord, TRecord, TAvailableField>['getAll']>) => void
   ) => void;
 
   /**
@@ -173,8 +193,8 @@ interface IFormService<
 
   validateForm: () => Promise<
     | {
-        errors: ValidationErrors<keyof TRecord & string> | null;
-        warnings: ValidationErrors<keyof TRecord & string> | null;
+        errors: ValidationErrors<keyof TEditableRecord & string> | null;
+        warnings: ValidationErrors<keyof TEditableRecord & string> | null;
       }
     | undefined
   >;

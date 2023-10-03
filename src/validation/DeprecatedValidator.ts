@@ -8,7 +8,7 @@
 
 import lodashMap from 'lodash/map';
 import ArgumentsError from '../common/error/ArgumentsError';
-import type {ArrayWithAtLeastOneElement} from '../common/types';
+import type {ArrayWithAtLeastOneElement, OptionalRecord} from '../common/types';
 import {isIntersection, keys} from '../common/utils';
 import type {IValidator} from './types/IValidator';
 import type {
@@ -69,7 +69,7 @@ class DeprecatedValidator<
    */
   fields<TField extends keyof TRecord & string>(
     fields: ArrayWithAtLeastOneElement<TField>,
-    groupValidationFunction: GroupValidationFunction<Pick<TRecord, TField>, TField, 'sync'>
+    groupValidationFunction: GroupValidationFunction<TRecord, TField, keyof TRecord & string, 'sync'>
   ): DeprecatedValidator<TRecord, TAsyncGroupValidators, [...TGroupValidators, TField]> {
     (
       this.settings.groupValidators as GroupValidators<
@@ -113,11 +113,7 @@ class DeprecatedValidator<
    */
   asyncFields<TField extends keyof TRecord & string>(
     fields: ArrayWithAtLeastOneElement<TField>,
-    groupValidationFunction: GroupValidationFunction<
-      Pick<TRecord, TField>,
-      TField & keyof TRecord & string,
-      'async'
-    >
+    groupValidationFunction: GroupValidationFunction<TRecord, TField, keyof TRecord & string, 'async'>
   ): DeprecatedValidator<TRecord, [...TAsyncGroupValidators, TField], TGroupValidators> {
     (
       this.settings.asyncGroupValidators as GroupValidators<
@@ -173,7 +169,7 @@ class DeprecatedValidator<
    * Check client record validity
    */
   async isValidRecord(
-    record: Partial<TRecord>,
+    record: OptionalRecord<TRecord>,
     additionalValues?: Partial<TRecord>
   ): Promise<ValidationErrors<keyof TRecord & string>> {
     const fields = keys(record);

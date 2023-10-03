@@ -30,3 +30,7 @@ export interface IObservable<TListenerArgsByEventName extends Record<string, unk
     cb: EventListener<TListenerArgsByEventName[TEventName]>
   ) => this;
 }
+
+export type OptionalRecord<TRecord> = {
+  [TKey in keyof TRecord]?: TRecord[TKey] | null;
+};

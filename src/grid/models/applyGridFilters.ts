@@ -16,14 +16,17 @@ import type {IGridModel} from './types/IGridModel';
  */
 function applyGridFilters<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TFilters extends Record<string, unknown>,
   TListenerArgsByEventName extends GridModelListenerArgsByEventName<TKey, TRecord>
 >(
-  model: IGridModel<TKey, TRecord, TFilters> & IObservable<TListenerArgsByEventName>,
+  model: IGridModel<TKey, TEditableRecord, TRecord, TFilters> & IObservable<TListenerArgsByEventName>,
   filters: TFilters
-): IGridModel<TKey, TRecord, TFilters> & IObservable<TListenerArgsByEventName> {
-  return decorate<IGridModel<TKey, TRecord, TFilters> & IObservable<TListenerArgsByEventName>>(model, {
+): IGridModel<TKey, TEditableRecord, TRecord, TFilters> & IObservable<TListenerArgsByEventName> {
+  return decorate<
+    IGridModel<TKey, TEditableRecord, TRecord, TFilters> & IObservable<TListenerArgsByEventName>
+  >(model, {
     async read(options) {
       options.filters = {
         ...filters,

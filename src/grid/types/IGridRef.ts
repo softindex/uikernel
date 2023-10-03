@@ -36,9 +36,10 @@ export type GridEditor<TKey, TColumnId extends string> =
 
 export interface IGridRef<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TFilters,
-  TColumns extends Partial<GridColumns<TKey, TRecord>>,
+  TColumns extends Partial<GridColumns<TKey, TEditableRecord, TRecord>>,
   TMultipleSorting extends boolean
 > {
   /**
@@ -91,16 +92,14 @@ export interface IGridRef<
    */
   getCurrentPage: () => number;
 
-  /**
-   * Get validation errors
-   */
-  getErrors: () => [TKey, ValidationErrors<string & keyof TRecord>][] | null;
+  getErrors: () => [TKey, ValidationErrors<keyof TEditableRecord & string>][] | null;
 
   /**
    * Get table model
    */
   getModel: () =>
-    | (IGridModel<TKey, TRecord, TFilters> & IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>)
+    | (IGridModel<TKey, TEditableRecord, TRecord, TFilters> &
+        IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>)
     | undefined;
 
   /**
@@ -122,9 +121,9 @@ export interface IGridRef<
    * Get record errors object
    * @deprecated - was marked as private, but not used in the component
    */
-  getRecordErrors: (recordId: TKey) => ValidationErrors<string & keyof TRecord>;
+  getRecordErrors: (recordId: TKey) => ValidationErrors<keyof TEditableRecord & string>;
 
-  getRecordWarnings: (recordId: TKey) => ValidationErrors<string & keyof TRecord>;
+  getRecordWarnings: (recordId: TKey) => ValidationErrors<keyof TEditableRecord & string>;
 
   /**
    * @deprecated

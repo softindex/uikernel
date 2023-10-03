@@ -10,7 +10,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import pick from 'lodash/pick';
 import without from 'lodash/without';
 import type {StrictOmit} from 'ts-essentials';
-import type {AllAsOptionalWithRequired, IObservable} from '../../common/types';
+import type {AllAsOptionalWithRequired, IObservable, OptionalRecord} from '../../common/types';
 import {keys, isEqual, warn} from '../../common/utils';
 import type {IValidator} from '../../validation/types/IValidator';
 import type ValidationErrors from '../../validation/ValidationErrors';
@@ -33,9 +33,9 @@ type GridCollectionModelParams<TKey, TRecord extends Record<string, unknown>, TF
 };
 
 class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilters>
-  extends AbstractGridModel<TKey, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
+  extends AbstractGridModel<TKey, TRecord, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
   implements
-    IGridModel<TKey, TRecord, TFilters>,
+    IGridModel<TKey, TRecord, TRecord, TFilters>,
     IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>
 {
   /**
@@ -169,22 +169,9 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     this.trigger('delete', recordIds);
   }
 
-  async create(record: Partial<TRecord> | [TKey, TRecord]): Promise<TKey> {
-    let recordId: TKey;
-    let clonedRecord: Partial<TRecord>;
-    if (Array.isArray(record)) {
-      // TODO deprecated implementation
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (record.length !== 2) {
-        throw new TypeError('expected record type [TKey, TRecord], but received unknown array');
-      }
-
-      recordId = record[0];
-      clonedRecord = {...record[1]};
-    } else {
-      recordId = this.createId();
-      clonedRecord = {...record};
-    }
+  async create(record: OptionalRecord<TRecord>): Promise<TKey> {
+    const recordId = this.createId();
+    const clonedRecord = {...record};
 
     for (const field of this.requiredFields) {
       if (!clonedRecord.hasOwnProperty(field)) {
@@ -279,12 +266,10 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     }
 
     // Deleting unused fields
-    const returnRecord = pick(record[1], fields);
-
-    return returnRecord;
+    return pick(record[1], fields);
   }
 
-  async update(changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord>> {
+  async update(changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord, TRecord>> {
     if (!changes.length) {
       return [];
     }
@@ -292,16 +277,18 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     const appliedChanges: [TKey, Partial<TRecord>][] = [];
 
     const result = await Promise.all(
-      changes.map(async ([recordId, changes]): Promise<GridModelUpdateResult<TKey, TRecord>[number]> => {
-        const validErrors = await this.isValidRecord(changes);
+      changes.map(
+        async ([recordId, changes]): Promise<GridModelUpdateResult<TKey, TRecord, TRecord>[number]> => {
+          const validErrors = await this.isValidRecord(changes);
 
-        if (!validErrors.isEmpty()) {
-          return [recordId, validErrors];
+          if (!validErrors.isEmpty()) {
+            return [recordId, validErrors];
+          }
+
+          appliedChanges.push([recordId, changes]);
+          return [recordId, changes];
         }
-
-        appliedChanges.push([recordId, changes]);
-        return [recordId, changes];
-      })
+      )
     );
 
     // Apply changes
@@ -328,7 +315,7 @@ class GridCollectionModel<TKey, TRecord extends Record<string, unknown>, TFilter
     return result;
   }
 
-  isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+  isValidRecord(record: OptionalRecord<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
     return this.validator.isValidRecord(record);
   }
 

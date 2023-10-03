@@ -18,8 +18,12 @@ import type {IFormModel} from '../types/IFormModel';
 /**
  * Adapter that allows us to use Grid model record as a form model
  */
-class GridToFormUpdate<TKey, TRecord extends Record<string, unknown>, TFilters>
-  implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
+class GridToFormUpdate<
+  TKey,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
+  TFilters
+> implements IFormModel<TEditableRecord, TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
   private onUpdateHandlers: {
     originalCallback: EventListener<FormModelListenerArgsByEventName<TRecord>['update']>;
@@ -27,7 +31,7 @@ class GridToFormUpdate<TKey, TRecord extends Record<string, unknown>, TFilters>
   }[] = [];
 
   constructor(
-    private gridModel: IGridModel<TKey, TRecord, TFilters> &
+    private gridModel: IGridModel<TKey, TEditableRecord, TRecord, TFilters> &
       IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>,
     private id: TKey
   ) {}
@@ -45,7 +49,7 @@ class GridToFormUpdate<TKey, TRecord extends Record<string, unknown>, TFilters>
     return data;
   }
 
-  async submit(changes: Partial<TRecord>): Promise<Partial<TRecord>> {
+  async submit(changes: Partial<TEditableRecord>): Promise<Partial<TRecord>> {
     const record = {...changes};
 
     const [[, result] = []] = await this.gridModel.update([[this.id, record]]);
@@ -58,7 +62,7 @@ class GridToFormUpdate<TKey, TRecord extends Record<string, unknown>, TFilters>
     return result;
   }
 
-  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+  async isValidRecord(record: Partial<TRecord>): Promise<ValidationErrors<keyof TEditableRecord & string>> {
     return await this.gridModel.isValidRecord(record, this.id);
   }
 

@@ -6,9 +6,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import type {OptionalRecord} from '../../common/types';
 import type ValidationErrors from '../ValidationErrors';
 
-export interface IValidator<TRecord, TEditable extends keyof TRecord & string> {
+export interface IValidator<TRecord, TEditableField extends keyof TRecord & string> {
   getValidationDependency: (fields: (keyof TRecord & string)[]) => (keyof TRecord & string)[];
-  isValidRecord: (record: Partial<TRecord>) => Promise<ValidationErrors<TEditable>>;
+  isValidRecord: (record: OptionalRecord<TRecord>) => Promise<ValidationErrors<TEditableField>>;
 }

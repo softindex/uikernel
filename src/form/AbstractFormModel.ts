@@ -12,9 +12,10 @@ import ValidationErrors from '../validation/ValidationErrors';
 import type {IFormModel} from './types/IFormModel';
 
 abstract class AbstractFormModel<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TListenerArgsByEventName extends Record<string, unknown[]>
-> implements IFormModel<TRecord>, IObservable<TListenerArgsByEventName>
+> implements IFormModel<TEditableRecord, TRecord>, IObservable<TListenerArgsByEventName>
 {
   protected eventsModel = new EventsModel<TListenerArgsByEventName>();
 
@@ -39,7 +40,7 @@ abstract class AbstractFormModel<
   /**
    * Record validity check
    */
-  isValidRecord(_record: Partial<TRecord>): Promise<ValidationErrors<keyof TRecord & string>> {
+  isValidRecord(_record: Partial<TRecord>): Promise<ValidationErrors<keyof TEditableRecord & string>> {
     return Promise.resolve(new ValidationErrors());
   }
 

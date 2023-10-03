@@ -24,9 +24,9 @@ class ValidatorBuilder<
 > {
   static createEmptyValidator<
     TRecord extends Record<string, unknown>,
-    TEditable extends keyof TRecord & string
-  >(): IValidator<TRecord, TEditable> {
-    return new ValidatorBuilder<TRecord, TEditable>().build();
+    TEditableField extends keyof TRecord & string
+  >(): IValidator<TRecord, TEditableField> {
+    return new ValidatorBuilder<TRecord, TEditableField>().build();
   }
 
   private settings: ValidatorSettings<TRecord, TEditableField, TAsyncGroupValidators, TGroupValidators> = {
@@ -56,7 +56,7 @@ class ValidatorBuilder<
    */
   fields<TField extends keyof TRecord & string>(
     fields: ArrayWithAtLeastOneElement<TField>,
-    groupValidationFunction: GroupValidationFunction<Pick<TRecord, TField>, TField & TEditableField, 'sync'>
+    groupValidationFunction: GroupValidationFunction<TRecord, TField, TEditableField, 'sync'>
   ): ValidatorBuilder<TRecord, TEditableField, TAsyncGroupValidators, [...TGroupValidators, TField]> {
     (
       this.settings.groupValidators as GroupValidators<
@@ -100,7 +100,7 @@ class ValidatorBuilder<
    */
   asyncFields<TField extends keyof TRecord & string>(
     fields: ArrayWithAtLeastOneElement<TField>,
-    groupValidationFunction: GroupValidationFunction<Pick<TRecord, TField>, TField & TEditableField, 'async'>
+    groupValidationFunction: GroupValidationFunction<TRecord, TField, TEditableField, 'async'>
   ): ValidatorBuilder<TRecord, TEditableField, [...TAsyncGroupValidators, TField], TGroupValidators> {
     (
       this.settings.asyncGroupValidators as GroupValidators<

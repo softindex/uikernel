@@ -8,21 +8,21 @@
 
 import lodashMap from 'lodash/map';
 import ArgumentsError from '../common/error/ArgumentsError';
+import type {OptionalRecord} from '../common/types';
 import {isIntersection, keys} from '../common/utils';
 import type {IValidator} from './types/IValidator';
 import type {ValidatorSettings} from './types/ValidatorSettings';
 import ValidationErrors from './ValidationErrors';
 
-class Validator<TRecord extends Record<string, unknown>, TEditable extends keyof TRecord & string>
-  implements IValidator<TRecord, TEditable>
+class Validator<
+  TRecord extends Record<string, unknown>,
+  TEditable extends keyof TRecord & string,
+  TAsyncGroupValidators extends (keyof TRecord & string)[] = [],
+  TGroupValidators extends (keyof TRecord & string)[] = []
+> implements IValidator<TRecord, TEditable>
 {
   constructor(
-    private settings: ValidatorSettings<
-      TRecord,
-      TEditable,
-      (keyof TRecord & string)[],
-      (keyof TRecord & string)[]
-    >
+    private settings: ValidatorSettings<TRecord, TEditable, TAsyncGroupValidators, TGroupValidators>
   ) {}
 
   /**
@@ -64,7 +64,7 @@ class Validator<TRecord extends Record<string, unknown>, TEditable extends keyof
    * Check client record validity
    */
   async isValidRecord(
-    record: Partial<TRecord>,
+    record: OptionalRecord<TRecord>,
     additionalValues?: Partial<TRecord>
   ): Promise<ValidationErrors<TEditable>> {
     const fields = keys(record) as TEditable[];

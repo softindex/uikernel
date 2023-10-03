@@ -127,11 +127,6 @@ class ValidationErrors<TField extends string> {
     return this;
   }
 
-  /**
-   * Convert errors to JSON
-   *
-   * @return {{[string]: Array<string>}}
-   */
   toJSON(): ValidationErrorsToJsonResult<TField> {
     const json = {} as unknown as ValidationErrorsToJsonResult<TField>;
     for (const [key, value] of this.fields) {

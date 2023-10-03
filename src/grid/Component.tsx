@@ -61,9 +61,10 @@ const ESCAPE_KEY = 27;
 
 type Props<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TFilters,
-  TColumns extends Partial<GridColumns<TKey, TRecord>>,
+  TColumns extends Partial<GridColumns<TKey, TEditableRecord, TRecord>>,
   TMultipleSorting extends boolean
 > = {
   autoSubmit?: boolean;
@@ -72,7 +73,8 @@ type Props<
   defaultSort?: SortRuleType<TMultipleSorting, string & keyof TColumns & keyof TRecord>;
   defaultViewCount: number;
   height?: number;
-  model?: IGridModel<TKey, TRecord, TFilters> & IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>;
+  model?: IGridModel<TKey, TEditableRecord, TRecord, TFilters> &
+    IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>;
   multipleSorting?: TMultipleSorting;
   page: number;
   pageSizeLabel: string;
@@ -84,8 +86,8 @@ type Props<
   viewColumns?: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean};
   viewCount?: number;
   viewVariants?: number[] | null;
-  warningsValidator?: IValidator<TRecord, keyof TRecord & string>;
-  onChange?: (changes: EqualMap<TKey, Partial<TRecord>>) => void;
+  warningsValidator?: IValidator<TRecord, keyof TEditableRecord & string>;
+  onChange?: (changes: EqualMap<TKey, Partial<TEditableRecord>>) => void;
   onChangeViewCount?: (viewCount: number) => void;
   onDestroy?: () => void;
   onError?: (error: Error) => void;
@@ -104,15 +106,16 @@ type Props<
 
 type State<
   TKey,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumnId extends string,
   TMultipleSorting extends boolean
 > = {
-  changes: EqualMap<TKey, Partial<TRecord>>;
+  changes: EqualMap<TKey, Partial<TEditableRecord>>;
   count: number;
   data: EqualMap<TKey, TRecord> | null;
   editor: GridEditor<TKey, TColumnId>;
-  errors: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  errors: EqualMap<TKey, ValidationErrors<keyof TEditableRecord & string>>;
   extra: EqualMap<TKey, TRecord>;
   page: number;
   partialErrorChecking: boolean;
@@ -123,7 +126,7 @@ type State<
   statuses: EqualMap<TKey, Set<string>>;
   totals: Partial<TRecord>;
   viewCount: number;
-  warnings: EqualMap<TKey, ValidationErrors<string & keyof TRecord>>;
+  warnings: EqualMap<TKey, ValidationErrors<keyof TEditableRecord & string>>;
 };
 
 const DEFAULT_PROPS = {
@@ -136,16 +139,17 @@ const DEFAULT_PROPS = {
 
 class GridComponent<
     TKey,
-    TRecord extends Record<string, unknown>,
+    TEditableRecord extends Record<string, unknown>,
+    TRecord extends TEditableRecord,
     TFilters,
-    TColumns extends Partial<GridColumns<TKey, TRecord>>,
+    TColumns extends Partial<GridColumns<TKey, TEditableRecord, TRecord>>,
     TMultipleSorting extends boolean = false
   >
   extends React.Component<
-    Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>,
-    State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>
+    Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>,
+    State<TKey, TEditableRecord, TRecord, string & keyof TColumns, TMultipleSorting>
   >
-  implements IGridRef<TKey, TRecord, TFilters, TColumns, TMultipleSorting>
+  implements IGridRef<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>
 {
   static defaultProps = DEFAULT_PROPS;
 
@@ -154,7 +158,7 @@ class GridComponent<
 
   private throttledUpdateTable = throttle(() => this.unsafeUpdateTable());
 
-  constructor(props: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>) {
+  constructor(props: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>) {
     super(props);
 
     this.state = {
@@ -209,7 +213,7 @@ class GridComponent<
   }
 
   UNSAFE_componentWillReceiveProps(
-    nextProps: Readonly<Props<TKey, TRecord, TFilters, TColumns, TMultipleSorting>>
+    nextProps: Readonly<Props<TKey, TEditableRecord, TRecord, TFilters, TColumns, TMultipleSorting>>
   ): void {
     const resetFlags = new Set<ResetFlag>();
 
@@ -358,7 +362,7 @@ class GridComponent<
     return cloneDeep(recordChanges);
   };
 
-  getRecordWarnings(recordId: TKey): ValidationErrors<string & keyof TRecord> {
+  getRecordWarnings(recordId: TKey): ValidationErrors<keyof TEditableRecord & string> {
     return this.state.warnings.get(recordId) ?? new ValidationErrors();
   }
 
@@ -366,14 +370,14 @@ class GridComponent<
    * Get record errors object
    * @deprecated - was marked as private, but not used in the component
    */
-  getRecordErrors(recordId: TKey): ValidationErrors<string & keyof TRecord> {
+  getRecordErrors(recordId: TKey): ValidationErrors<keyof TEditableRecord & string> {
     return this.state.errors.get(recordId) ?? new ValidationErrors();
   }
 
   /**
    * Get validation errors
    */
-  getErrors(): [TKey, ValidationErrors<string & keyof TRecord>][] | null {
+  getErrors(): [TKey, ValidationErrors<keyof TEditableRecord & string>][] | null {
     const result = [...this.state.errors.entries()];
     return result.length ? result : null;
   }
@@ -382,7 +386,8 @@ class GridComponent<
    * Get table model
    */
   getModel():
-    | (IGridModel<TKey, TRecord, TFilters> & IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>)
+    | (IGridModel<TKey, TEditableRecord, TRecord, TFilters> &
+        IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>)
     | undefined {
     return this.props.model;
   }
@@ -594,10 +599,21 @@ class GridComponent<
    */
   clearAllChanges(): void {
     const nextState: Pick<
-      State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>,
+      State<TKey, TEditableRecord, TRecord, string & keyof TColumns, TMultipleSorting>,
       'changes' | 'errors' | 'extra' | 'partialErrorChecking' | 'warnings'
     > &
-      (object | {statuses: State<TKey, TRecord, string & keyof TColumns, TMultipleSorting>['statuses']}) = {
+      (
+        | object
+        | {
+            statuses: State<
+              TKey,
+              TEditableRecord,
+              TRecord,
+              string & keyof TColumns,
+              TMultipleSorting
+            >['statuses'];
+          }
+      ) = {
       extra: new EqualMap(),
       changes: new EqualMap(),
       warnings: new EqualMap(),
@@ -727,9 +743,9 @@ class GridComponent<
       return;
     }
 
-    const editorContext: EditorContext<TRecord, typeof editorFieldName> = {
+    const editorContext: EditorContext<TEditableRecord, keyof TEditableRecord & string> = {
       updateField: (field, nextValue) => {
-        const recordChanges: Partial<TRecord> = {};
+        const recordChanges: Partial<TEditableRecord> = {};
         recordChanges[field] = nextValue;
         this.setRowChanges(recordId, recordChanges);
       },
@@ -1401,7 +1417,7 @@ class GridComponent<
    * Pass changes to the table
    * This method marks changed fields
    */
-  private setRowChanges(recordId: TKey, data: Partial<TRecord>): void {
+  private setRowChanges(recordId: TKey, data: Partial<TEditableRecord>): void {
     this.setState(
       (state, props) => {
         assertNonNullish(state.data, ERROR_MESSAGE_DATA_UNAVAILABLE);
@@ -1516,7 +1532,7 @@ class GridComponent<
   /**
    * Set record data
    */
-  private setRecordData(recordId: TKey, data: Partial<TRecord>): void {
+  private setRecordData(recordId: TKey, data: Partial<TEditableRecord>): void {
     if (!this.isRecordLoaded(recordId)) {
       return;
     }
@@ -1626,7 +1642,13 @@ class GridComponent<
 
     const errors = await this.checkValidatorErrors(
       recordId,
-      this.props.model.isValidRecord.bind(this.props.model),
+      async (changes, recordId) => {
+        if (!this.props.model) {
+          return new ValidationErrors();
+        }
+
+        return await this.props.model.isValidRecord(changes, recordId);
+      },
       this.getRecordChanges,
       'errors'
     );
@@ -1662,10 +1684,10 @@ class GridComponent<
     validate: (
       record: Partial<TRecord>,
       recordId?: TKey
-    ) => Promise<ValidationErrors<string & keyof TRecord>>,
+    ) => Promise<ValidationErrors<keyof TEditableRecord & string>>,
     getData: (recordId: TKey) => Partial<TRecord>,
     resultField: TStateValidationField
-  ): Promise<EqualMap<TKey, ValidationErrors<string & keyof TRecord>>> {
+  ): Promise<EqualMap<TKey, ValidationErrors<keyof TEditableRecord & string>>> {
     const record = getData(recordId);
     const validErrors = await validate(record, recordId);
     const clonedResult = new EqualMap(this.state[resultField]);
@@ -1697,19 +1719,19 @@ class GridComponent<
     this.setState({errors});
   }
 
-  private onChangeEditor<TField extends string & keyof TRecord>(
+  private onChangeEditor<TField extends keyof TEditableRecord & string>(
     recordId: TKey,
     columnId: string & keyof TColumns,
     eventOrValue:
       | React.SyntheticEvent<
           Element & {
             target: {
-              value: TRecord[TField];
+              value: TEditableRecord[TField];
             };
           }
         >
-      | TRecord[TField],
-    editorContext: EditorContext<TRecord, TField>
+      | TEditableRecord[TField],
+    editorContext: EditorContext<TEditableRecord, TField>
   ): void {
     const value = cloneDeep(parseValueFromEvent(eventOrValue)) as TRecord[TField];
 
@@ -1719,7 +1741,10 @@ class GridComponent<
     assertNonNullish<object | null>(record, '"record" unknown');
     assertNonNullish(columnConfig.editor, '"columnConfig.editor" unknown');
 
-    const context = cloneDeep(editorContext) as unknown as EditorContext<TRecord, keyof TRecord & string>;
+    const context = cloneDeep(editorContext) as unknown as EditorContext<
+      TEditableRecord,
+      keyof TEditableRecord & string
+    >;
     context.props.value = value;
     const element = columnConfig.editor.call(context, record, this);
     assertNonNullish(element, 'received unknown element on change editor');
@@ -1850,8 +1875,8 @@ class GridComponent<
     return statuses;
   }
 
-  private getEditorFieldName(columnId: string & keyof TColumns): string & keyof TRecord {
-    return this.props.columns[columnId]?.editorField ?? (columnId as string & keyof TRecord);
+  private getEditorFieldName(columnId: string & keyof TColumns): keyof TEditableRecord & string {
+    return this.props.columns[columnId]?.editorField ?? (columnId as keyof TEditableRecord & string);
   }
 }
 

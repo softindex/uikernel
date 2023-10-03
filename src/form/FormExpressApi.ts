@@ -116,8 +116,10 @@ class FormExpressApi {
     );
   }
 
-  model<TRecord extends Record<string, unknown>>(
-    model: IFormModel<TRecord> | ((req: Request, res: Response) => IFormModel<TRecord>)
+  model<TEditableRecord extends Record<string, unknown>, TRecord extends TEditableRecord>(
+    model:
+      | IFormModel<TEditableRecord, TRecord>
+      | ((req: Request, res: Response) => IFormModel<TEditableRecord, TRecord>)
   ): this {
     if (typeof model === 'function') {
       this.getModel = model;
@@ -160,13 +162,16 @@ class FormExpressApi {
   }
 
   // Default implementation
-  private getModel(_req: Request, _res: Response): IFormModel<Record<string, unknown>> {
+  private getModel(
+    _req: Request,
+    _res: Response
+  ): IFormModel<Record<string, unknown>, Record<string, unknown>> {
     throw new Error('Model is not defined.');
   }
 
-  private sendResult<TMethodName extends keyof JsonFormApiResult<Record<string, unknown>>>(
+  private sendResult<TMethodName extends keyof JsonFormApiResult<Record<string, unknown>, string>>(
     res: Response,
-    result: JsonFormApiResult<Record<string, unknown>>[TMethodName]
+    result: JsonFormApiResult<Record<string, unknown>, string>[TMethodName]
   ): void {
     res.json(result);
   }

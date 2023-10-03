@@ -10,18 +10,23 @@ import type {ArrayWithAtLeastOneElement} from '../../common/types';
 import type {GridModelSortMode} from '../models/types/IGridModel';
 import type {IGridRef} from './IGridRef';
 
-export type EditorContext<TRecord extends Record<string, unknown>, TField extends string & keyof TRecord> = {
+export type EditorContext<
+  TEditableRecord extends Record<string, unknown>,
+  TField extends string & keyof TEditableRecord
+> = {
   props: {
-    value: TRecord[TField];
+    value: TEditableRecord[TField];
     onBlur: () => void;
     onChange: (
-      eventOrValue: React.SyntheticEvent<Element & {target: {value: TRecord[TField]}}> | TRecord[TField]
+      eventOrValue:
+        | React.SyntheticEvent<Element & {target: {value: TEditableRecord[TField]}}>
+        | TEditableRecord[TField]
     ) => void;
     onFocus: () => void;
     onKeyUp: (event: React.KeyboardEvent) => void;
   };
-  set: (changes: Partial<TRecord>) => void;
-  updateField: (field: TField, nextValue: TRecord[TField]) => void;
+  set: (changes: Partial<TEditableRecord>) => void;
+  updateField: (field: TField, nextValue: TEditableRecord[TField]) => void;
 };
 
 export type OnColumnClick<TKey, TRecord extends Record<string, unknown>, TElement extends HTMLElement> = (
@@ -37,7 +42,7 @@ export type GridGetCell<TRecord extends Record<string, unknown>> = (
   selected: boolean,
   initialRecord: Partial<TRecord>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  gridRef: IGridRef<any, TRecord, any, any, boolean> | undefined
+  gridRef: IGridRef<any, any, TRecord, any, any, boolean> | undefined
 ) => string;
 
 export type GridCellRender<TRecord extends Record<string, unknown>> = readonly [
@@ -47,8 +52,8 @@ export type GridCellRender<TRecord extends Record<string, unknown>> = readonly [
 
 type GridEditorConfig<
   TColumnId extends string,
-  TRecord extends Record<string, unknown>,
-  TEditorField extends string & keyof TRecord
+  TEditableRecord extends Record<string, unknown>,
+  TEditorField extends string & keyof TEditableRecord
 > =
   | {
       editor?: undefined;
@@ -56,21 +61,22 @@ type GridEditorConfig<
     }
   | ({
       editor: (
-        this: EditorContext<TRecord, TEditorField>,
-        record: TRecord,
+        this: EditorContext<TEditableRecord, TEditorField>,
+        record: TEditableRecord,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        gridRef: IGridRef<any, TRecord, any, any, boolean>
+        gridRef: IGridRef<any, TEditableRecord, any, any, any, boolean>
       ) => JSX.Element | null;
     } & (TColumnId extends TEditorField ? {editorField?: TEditorField} : {editorField: TEditorField}));
 
 export type GridColumnName<TKey, TRecord extends Record<string, unknown>> =
   | string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  | ((gridRef: IGridRef<TKey, TRecord, any, any, boolean>) => React.ReactNode);
+  | ((gridRef: IGridRef<TKey, any, TRecord, any, any, boolean>) => React.ReactNode);
 
 export type GridColumnConfig<
   TColumnId extends string,
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TEditorField extends string & keyof TRecord,
   TKey,
   TElement extends HTMLElement = HTMLElement
@@ -82,7 +88,7 @@ export type GridColumnConfig<
   render: GridCellRender<TRecord>;
   sortCycle?: Readonly<ArrayWithAtLeastOneElement<GridModelSortMode>>;
   width?: number | string;
-} & GridEditorConfig<TColumnId, TRecord, TEditorField> &
+} & GridEditorConfig<TColumnId, TEditableRecord, TEditorField> &
   (
     | {
         onClick?: OnColumnClick<TKey, TRecord, TElement>;
@@ -94,6 +100,11 @@ export type GridColumnConfig<
       }
   );
 
-export type GridColumns<TKey, TRecord extends Record<string, unknown>, TColumnId extends string = string> = {
-  [K in TColumnId]: GridColumnConfig<K, TRecord, string & keyof TRecord, TKey>;
+export type GridColumns<
+  TKey,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
+  TColumnId extends string = string
+> = {
+  [K in TColumnId]: GridColumnConfig<K, TEditableRecord, TRecord, keyof TEditableRecord & string, TKey>;
 };

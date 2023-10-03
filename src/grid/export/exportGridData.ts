@@ -16,11 +16,12 @@ import type {GridColumns, GridGetCell} from '../types/GridColumns';
 type FormatColumnsResult<TField extends string> = Record<TField, string>;
 
 function formatColumns<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumn extends string,
   TViewColumn extends TColumn
 >(
-  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TEditableRecord, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatColumnsResult<TViewColumn> {
   const formattedColumns = {} as unknown as FormatColumnsResult<TViewColumn>;
@@ -46,12 +47,13 @@ function formatColumns<
 type FormatRecordResult<TField extends string> = Record<TField, string>;
 
 function formatRecord<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumn extends string,
   TViewColumn extends TColumn
 >(
   record: TRecord,
-  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TEditableRecord, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatRecordResult<TViewColumn> {
   const formattedRecord: Partial<FormatRecordResult<TViewColumn>> = {};
@@ -80,13 +82,14 @@ type FormatDataResult<TColumn extends string> = {
 };
 
 function formatData<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumn extends string,
   TViewColumn extends TColumn
 >(
   records: [unknown, TRecord][],
   totals: TRecord | undefined,
-  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TEditableRecord, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): FormatDataResult<TViewColumn> {
   const formatted: FormatDataResult<TViewColumn> = {
@@ -101,11 +104,12 @@ function formatData<
 }
 
 function getFields<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumn extends string,
   TViewColumn extends TColumn
 >(
-  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
+  columns: Partial<GridColumns<unknown, TEditableRecord, TRecord, TColumn>>,
   viewColumns: TViewColumn[]
 ): (keyof TRecord & string)[] {
   const fields: Partial<Record<keyof TRecord & string, boolean>> = {};
@@ -126,10 +130,14 @@ function getFields<
 }
 
 function assertValidViewColumns<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumn extends string,
   TViewColumn extends TColumn
->(columns: Partial<GridColumns<unknown, TRecord, TColumn>>, viewColumns?: TViewColumn[] | null): void {
+>(
+  columns: Partial<GridColumns<unknown, TEditableRecord, TRecord, TColumn>>,
+  viewColumns?: TViewColumn[] | null
+): void {
   if (!viewColumns?.length) {
     throw new ArgumentsError('"viewColumns" can`t be empty');
   }
@@ -159,14 +167,15 @@ export type ExportGridDataResult<TExportRunner extends AnyFunction> = TExportRun
   : ReturnType<TExportRunner>;
 
 async function exportGridData<
-  TRecord extends Record<string, unknown>,
+  TEditableRecord extends Record<string, unknown>,
+  TRecord extends TEditableRecord,
   TColumn extends string,
   TViewColumn extends TColumn,
   // eslint-disable-next-line space-before-function-paren
   TExportRunner extends (data: FormatDataResult<TViewColumn>) => Promise<{data: unknown; mime: string}>
 >(
-  gridModel: IGridModel<unknown, TRecord, unknown>,
-  columns: Partial<GridColumns<unknown, TRecord, TColumn>>,
+  gridModel: IGridModel<unknown, TEditableRecord, TRecord, unknown>,
+  columns: Partial<GridColumns<unknown, TEditableRecord, TRecord, TColumn>>,
   viewColumns: TViewColumn[],
   exportRunner: TExportRunner,
   settings: ExportGridDataParams<TRecord>

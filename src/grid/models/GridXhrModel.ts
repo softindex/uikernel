@@ -10,7 +10,7 @@ import url from 'url';
 import type {DefaultXhr} from '../../common/defaultXhr';
 import defaultXhr from '../../common/defaultXhr';
 import parseJson from '../../common/parseJson';
-import type {IObservable} from '../../common/types';
+import type {IObservable, OptionalRecord} from '../../common/types';
 import {keys} from '../../common/utils';
 import type {IValidator} from '../../validation/types/IValidator';
 import ValidationErrors from '../../validation/ValidationErrors';
@@ -27,7 +27,10 @@ import type {JsonGridApiResult} from './types/JsonGridApiResult';
 
 const MAX_URI_LENGTH = 2048;
 
-type GridXhrModelParams<TRecord extends Record<string, unknown>> = {
+type GridXhrModelParams<
+  TRecord extends Record<string, unknown>,
+  TEditableField extends keyof TRecord & string
+> = {
   /**
    * @description API address
    */
@@ -43,21 +46,32 @@ type GridXhrModelParams<TRecord extends Record<string, unknown>> = {
   /**
    * @description General validator
    */
-  validator?: IValidator<TRecord, keyof TRecord & string>;
+  validator?: IValidator<TRecord, TEditableField>;
   xhr?: DefaultXhr;
 };
 
 /**
  * Grid model, that works with API via XHR
  */
-class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
-  extends AbstractGridModel<TKey, TRecord, TFilters, GridModelListenerArgsByEventName<TKey, TRecord>>
+class GridXhrModel<
+    TKey,
+    TEditableRecord extends Record<string, unknown>,
+    TRecord extends TEditableRecord,
+    TFilters
+  >
+  extends AbstractGridModel<
+    TKey,
+    TEditableRecord,
+    TRecord,
+    TFilters,
+    GridModelListenerArgsByEventName<TKey, TRecord>
+  >
   implements
-    IGridModel<TKey, TRecord, TFilters>,
+    IGridModel<TKey, TEditableRecord, TRecord, TFilters>,
     IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>
 {
   private xhr: DefaultXhr;
-  private validator: IValidator<TRecord, keyof TRecord & string>;
+  private validator: IValidator<TRecord, keyof TEditableRecord & string>;
   private apiUrl: string;
   private validateOnClient: boolean;
   private multipartFormDataEncoded: boolean;
@@ -68,7 +82,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     xhr = defaultXhr,
     validateOnClient = false,
     multipartFormData = false
-  }: GridXhrModelParams<TRecord>) {
+  }: GridXhrModelParams<TRecord, keyof TEditableRecord & string>) {
     super();
 
     this.validator = validator;
@@ -83,11 +97,11 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   /**
    * Add a record
    */
-  async create(record: Partial<TRecord>): Promise<TKey> {
+  async create(record: OptionalRecord<TEditableRecord>): Promise<TKey> {
     const formData = new FormData();
 
     if (this.multipartFormDataEncoded) {
-      const ordinaryData: Partial<TRecord> = {};
+      const ordinaryData: OptionalRecord<TEditableRecord> = {};
       for (const prop in record) {
         if (!Object.prototype.hasOwnProperty.call(record, prop)) {
           continue;
@@ -95,7 +109,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
 
         const value = record[prop];
         if (value instanceof File) {
-          // reslove name collision with "rest"
+          // Resolve name collision with "rest"
           formData.append(JSON.stringify(prop), value);
         } else {
           ordinaryData[prop] = value;
@@ -112,7 +126,11 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
       ...(!this.multipartFormDataEncoded && {headers: {'Content-type': 'application/json'}})
     });
 
-    const {data, error} = parseJson(rawBody) as JsonGridApiResult<TKey, TRecord>['create'];
+    const {data, error} = parseJson(rawBody) as JsonGridApiResult<
+      TKey,
+      TRecord,
+      keyof TEditableRecord & string
+    >['create'];
 
     if (error) {
       // eslint-disable-next-line @typescript-eslint/no-throw-literal
@@ -140,7 +158,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
       method: 'GET',
       uri: url.format(queryUrl),
       json: true
-    })) as JsonGridApiResult<TKey, TRecord>['read'];
+    })) as JsonGridApiResult<TKey, TRecord, keyof TEditableRecord & string>['read'];
   }
 
   /**
@@ -165,7 +183,9 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
   /**
    * Apply record changes
    */
-  async update(changes: [TKey, Partial<TRecord>][]): Promise<GridModelUpdateResult<TKey, TRecord>> {
+  async update(
+    changes: [TKey, Partial<TEditableRecord>][]
+  ): Promise<GridModelUpdateResult<TKey, TEditableRecord, TRecord>> {
     const formDataChanges = new FormData();
 
     if (this.multipartFormDataEncoded) {
@@ -206,8 +226,12 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
       body: this.multipartFormDataEncoded ? formDataChanges : JSON.stringify(changes)
     });
 
-    const parsedBody = parseJson(rawBody) as JsonGridApiResult<TKey, TRecord>['update'];
-    const result: GridModelUpdateResult<TKey, TRecord> = [];
+    const parsedBody = parseJson(rawBody) as JsonGridApiResult<
+      TKey,
+      TRecord,
+      keyof TEditableRecord & string
+    >['update'];
+    const result: GridModelUpdateResult<TKey, TEditableRecord, TRecord> = [];
 
     if (parsedBody.changes.length) {
       this.trigger('update', parsedBody.changes);
@@ -230,9 +254,9 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
    * Validation check
    */
   async isValidRecord(
-    record: Partial<TRecord>,
+    record: OptionalRecord<TRecord>,
     recordId?: TKey | null
-  ): Promise<ValidationErrors<keyof TRecord & string>> {
+  ): Promise<ValidationErrors<keyof TEditableRecord & string>> {
     if (this.validateOnClient) {
       return await this.validator.isValidRecord(record);
     }
@@ -240,7 +264,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     const parsedUrl = url.parse(this.apiUrl, true);
     parsedUrl.pathname = url.resolve(parsedUrl.pathname ?? '', 'validation');
 
-    let response: JsonGridApiResult<TKey, TRecord>['validate'];
+    let response: JsonGridApiResult<TKey, TRecord, keyof TEditableRecord & string>['validate'];
     try {
       response = (await this.xhr({
         method: 'POST',
@@ -250,7 +274,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
           id: recordId
         },
         json: true
-      })) as JsonGridApiResult<TKey, TRecord>['validate'];
+      })) as JsonGridApiResult<TKey, TRecord, keyof TEditableRecord & string>['validate'];
     } catch (error: unknown) {
       // @ts-expect-error: TS18046 error 'error' is of type 'unknown'
       if (error.statusCode === 413) {
@@ -346,7 +370,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
       json: true,
       uri: url.format(parsedUrl),
       body: requestBody
-    })) as JsonGridApiResult<TKey, TRecord>['read'];
+    })) as JsonGridApiResult<TKey, TRecord, keyof TEditableRecord & string>['read'];
   }
 }
 
