@@ -43,7 +43,7 @@ type GridXhrModelParams<TRecord extends Record<string, unknown>> = {
   /**
    * @description General validator
    */
-  validator?: IValidator<TRecord>;
+  validator?: IValidator<TRecord, keyof TRecord & string>;
   xhr?: DefaultXhr;
 };
 
@@ -57,7 +57,7 @@ class GridXhrModel<TKey, TRecord extends Record<string, unknown>, TFilters>
     IObservable<GridModelListenerArgsByEventName<TKey, TRecord>>
 {
   private xhr: DefaultXhr;
-  private validator: IValidator<TRecord>;
+  private validator: IValidator<TRecord, keyof TRecord & string>;
   private apiUrl: string;
   private validateOnClient: boolean;
   private multipartFormDataEncoded: boolean;

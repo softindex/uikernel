@@ -23,12 +23,15 @@ class FormModel<TRecord extends Record<string, unknown>>
 {
   static create<TRecord extends Record<string, unknown>>(
     defaultValues?: Partial<TRecord>,
-    validator?: IValidator<TRecord>
+    validator?: IValidator<TRecord, keyof TRecord & string>
   ): FormModel<TRecord> {
     return new FormModel(validator ?? ValidatorBuilder.createEmptyValidator(), defaultValues ?? {});
   }
 
-  constructor(private validator: IValidator<TRecord>, private data: Partial<TRecord>) {
+  constructor(
+    private validator: IValidator<TRecord, keyof TRecord & string>,
+    private data: Partial<TRecord>
+  ) {
     super();
   }
 

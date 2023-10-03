@@ -84,7 +84,7 @@ type Props<
   viewColumns?: (string & keyof TColumns)[] | {[K in string & keyof TColumns]?: boolean};
   viewCount?: number;
   viewVariants?: number[] | null;
-  warningsValidator?: IValidator<TRecord>;
+  warningsValidator?: IValidator<TRecord, keyof TRecord & string>;
   onChange?: (changes: EqualMap<TKey, Partial<TRecord>>) => void;
   onChangeViewCount?: (viewCount: number) => void;
   onDestroy?: () => void;

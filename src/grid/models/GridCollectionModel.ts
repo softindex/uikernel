@@ -27,7 +27,7 @@ import type {
 type GridCollectionModelParams<TKey, TRecord extends Record<string, unknown>, TFilters> = {
   data: [TKey, TRecord][];
   requiredFields: (keyof TRecord & string)[];
-  validator: IValidator<TRecord>;
+  validator: IValidator<TRecord, keyof TRecord & string>;
   filtersHandler: (data: [TKey, TRecord][], filters: TFilters) => [TKey, TRecord][];
   generateId: (existsIds: TKey[]) => TKey;
 };

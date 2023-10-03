@@ -89,7 +89,7 @@ export type FormServiceParams<
   /**
    * @description Warnings validator for fields
    */
-  warningsValidator?: IValidator<TRecord>;
+  warningsValidator?: IValidator<TRecord, keyof TRecord & string>;
 };
 
 export type FormServiceListenerArgsByEventName<

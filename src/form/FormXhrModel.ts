@@ -27,7 +27,7 @@ type FormXhrModelParams<TRecord extends Record<string, unknown>> = {
   eventsModel?: EventsModel<FormModelListenerArgsByEventName<TRecord>>;
   multipartFormData?: boolean;
   validateOnClient?: boolean;
-  validator?: IValidator<TRecord>;
+  validator?: IValidator<TRecord, keyof TRecord & string>;
   xhr?: DefaultXhr;
 };
 
@@ -35,7 +35,7 @@ class FormXhrModel<TRecord extends Record<string, unknown>>
   implements IFormModel<TRecord>, IObservable<FormModelListenerArgsByEventName<TRecord>>
 {
   private multipartFormDataEncoded: boolean;
-  private validator: IValidator<TRecord>;
+  private validator: IValidator<TRecord, keyof TRecord & string>;
   private validateOnClient: boolean;
   private xhr: DefaultXhr;
   private apiURL: string;

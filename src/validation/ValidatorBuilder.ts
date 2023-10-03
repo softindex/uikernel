@@ -8,22 +8,32 @@
 
 import type {ArrayWithAtLeastOneElement} from '../common/types';
 import type {IValidator} from './types/IValidator';
-import type {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
+import type {
+  GroupValidationFunction,
+  GroupValidators,
+  ValidationFunction,
+  ValidatorSettings
+} from './types/ValidatorSettings';
 import Validator from './Validator';
 
 class ValidatorBuilder<
   TRecord extends Record<string, unknown>,
-  TEditableField extends keyof TRecord & string = keyof TRecord & string
+  TEditableField extends keyof TRecord & string,
+  TAsyncGroupValidators extends (keyof TRecord & string)[] = [],
+  TGroupValidators extends (keyof TRecord & string)[] = []
 > {
-  static createEmptyValidator<TRecord extends Record<string, unknown>>(): IValidator<TRecord> {
-    return new ValidatorBuilder<TRecord>().build();
+  static createEmptyValidator<
+    TRecord extends Record<string, unknown>,
+    TEditable extends keyof TRecord & string
+  >(): IValidator<TRecord, TEditable> {
+    return new ValidatorBuilder<TRecord, TEditable>().build();
   }
 
-  private settings: ValidatorSettings<TRecord, TEditableField> = {
+  private settings: ValidatorSettings<TRecord, TEditableField, TAsyncGroupValidators, TGroupValidators> = {
     validators: {},
-    groupValidators: [],
+    groupValidators: [] as GroupValidators<TRecord, TEditableField, TGroupValidators, 'sync'>,
     asyncValidators: {},
-    asyncGroupValidators: [],
+    asyncGroupValidators: [] as GroupValidators<TRecord, TEditableField, TAsyncGroupValidators, 'async'>,
     asyncDependencies: []
   };
 
@@ -44,16 +54,23 @@ class ValidatorBuilder<
   /**
    * Specify multiple sync validators for fields group
    */
-  fields(
-    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>,
-    groupValidationFunction: GroupValidationFunction<TRecord, TEditableField, 'sync'>
-  ): this {
-    this.settings.groupValidators.push({
+  fields<TField extends keyof TRecord & string>(
+    fields: ArrayWithAtLeastOneElement<TField>,
+    groupValidationFunction: GroupValidationFunction<Pick<TRecord, TField>, TField & TEditableField, 'sync'>
+  ): ValidatorBuilder<TRecord, TEditableField, TAsyncGroupValidators, [...TGroupValidators, TField]> {
+    (
+      this.settings.groupValidators as GroupValidators<
+        TRecord,
+        TEditableField,
+        [...TGroupValidators, TField],
+        'sync'
+      >
+    ).push({
       fields,
       fn: groupValidationFunction
     });
 
-    return this;
+    return this as never;
   }
 
   /**
@@ -81,20 +98,27 @@ class ValidatorBuilder<
   /**
    * Specify multiple async validators for fields group
    */
-  asyncFields(
-    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>,
-    groupValidationFunction: GroupValidationFunction<TRecord, TEditableField, 'async'>
-  ): this {
-    this.settings.asyncGroupValidators.push({
+  asyncFields<TField extends keyof TRecord & string>(
+    fields: ArrayWithAtLeastOneElement<TField>,
+    groupValidationFunction: GroupValidationFunction<Pick<TRecord, TField>, TField & TEditableField, 'async'>
+  ): ValidatorBuilder<TRecord, TEditableField, [...TAsyncGroupValidators, TField], TGroupValidators> {
+    (
+      this.settings.asyncGroupValidators as GroupValidators<
+        TRecord,
+        TEditableField,
+        [...TAsyncGroupValidators, TField],
+        'async'
+      >
+    ).push({
       fields,
       fn: groupValidationFunction
     });
 
-    return this;
+    return this as never;
   }
 
-  build(): IValidator<TRecord> {
-    return new Validator(this.settings as ValidatorSettings<TRecord, string>);
+  build(): IValidator<TRecord, TEditableField> {
+    return new Validator(this.settings);
   }
 }
 

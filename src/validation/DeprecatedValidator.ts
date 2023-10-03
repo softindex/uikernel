@@ -11,22 +11,42 @@ import ArgumentsError from '../common/error/ArgumentsError';
 import type {ArrayWithAtLeastOneElement} from '../common/types';
 import {isIntersection, keys} from '../common/utils';
 import type {IValidator} from './types/IValidator';
-import type {GroupValidationFunction, ValidationFunction, ValidatorSettings} from './types/ValidatorSettings';
+import type {
+  GroupValidationFunction,
+  ValidationFunction,
+  ValidatorSettings,
+  GroupValidators
+} from './types/ValidatorSettings';
 import ValidationErrors from './ValidationErrors';
 
 /**
  * @deprecated use ValidatorBuilder instead
  */
-class DeprecatedValidator<TRecord extends Record<string, unknown>> implements IValidator<TRecord> {
+class DeprecatedValidator<
+  TRecord extends Record<string, unknown>,
+  TAsyncGroupValidators extends (keyof TRecord & string)[] = [],
+  TGroupValidators extends (keyof TRecord & string)[] = []
+> implements IValidator<TRecord, keyof TRecord & string>
+{
   static create<TRecord extends Record<string, unknown>>(): DeprecatedValidator<TRecord> {
     return new DeprecatedValidator();
   }
 
-  private settings: ValidatorSettings<TRecord, keyof TRecord & string> = {
+  private settings: ValidatorSettings<
+    TRecord,
+    keyof TRecord & string,
+    TAsyncGroupValidators,
+    TGroupValidators
+  > = {
     validators: {},
-    groupValidators: [],
+    groupValidators: [] as GroupValidators<TRecord, keyof TRecord & string, TGroupValidators, 'sync'>,
     asyncValidators: {},
-    asyncGroupValidators: [],
+    asyncGroupValidators: [] as GroupValidators<
+      TRecord,
+      keyof TRecord & string,
+      TAsyncGroupValidators,
+      'async'
+    >,
     asyncDependencies: []
   };
 
@@ -47,16 +67,23 @@ class DeprecatedValidator<TRecord extends Record<string, unknown>> implements IV
   /**
    * Specify multiple sync validators for fields group
    */
-  fields(
-    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>,
-    groupValidationFunction: GroupValidationFunction<TRecord, keyof TRecord & string, 'sync'>
-  ): this {
-    this.settings.groupValidators.push({
+  fields<TField extends keyof TRecord & string>(
+    fields: ArrayWithAtLeastOneElement<TField>,
+    groupValidationFunction: GroupValidationFunction<Pick<TRecord, TField>, TField, 'sync'>
+  ): DeprecatedValidator<TRecord, TAsyncGroupValidators, [...TGroupValidators, TField]> {
+    (
+      this.settings.groupValidators as GroupValidators<
+        TRecord,
+        keyof TRecord & string,
+        [...TGroupValidators, TField],
+        'sync'
+      >
+    ).push({
       fields,
       fn: groupValidationFunction
     });
 
-    return this;
+    return this as never;
   }
 
   /**
@@ -84,16 +111,27 @@ class DeprecatedValidator<TRecord extends Record<string, unknown>> implements IV
   /**
    * Specify multiple async validators for fields group
    */
-  asyncFields(
-    fields: ArrayWithAtLeastOneElement<keyof TRecord & string>,
-    groupValidationFunction: GroupValidationFunction<TRecord, keyof TRecord & string, 'async'>
-  ): this {
-    this.settings.asyncGroupValidators.push({
+  asyncFields<TField extends keyof TRecord & string>(
+    fields: ArrayWithAtLeastOneElement<TField>,
+    groupValidationFunction: GroupValidationFunction<
+      Pick<TRecord, TField>,
+      TField & keyof TRecord & string,
+      'async'
+    >
+  ): DeprecatedValidator<TRecord, [...TAsyncGroupValidators, TField], TGroupValidators> {
+    (
+      this.settings.asyncGroupValidators as GroupValidators<
+        TRecord,
+        keyof TRecord & string,
+        [...TAsyncGroupValidators, TField],
+        'async'
+      >
+    ).push({
       fields,
       fn: groupValidationFunction
     });
 
-    return this;
+    return this as never;
   }
 
   /**
@@ -152,7 +190,7 @@ class DeprecatedValidator<TRecord extends Record<string, unknown>> implements IV
 
     // Add sync and async validators
     for (const field of fields) {
-      const value = record[field];
+      const value = record[field] as TRecord[keyof TRecord & string];
       const validators = this.settings.validators[field] || [];
       for (const validator of validators) {
         const error = validator(value);
@@ -173,13 +211,13 @@ class DeprecatedValidator<TRecord extends Record<string, unknown>> implements IV
     // Add sync and async group validators
     for (const groupValidator of this.settings.groupValidators) {
       if (isIntersection(groupValidator.fields, fields)) {
-        groupValidator.fn(record, errors);
+        groupValidator.fn(record as Pick<TRecord, keyof TRecord & string>, errors);
       }
     }
 
     for (const asyncGroupValidator of this.settings.asyncGroupValidators) {
       if (isIntersection(asyncGroupValidator.fields, fields)) {
-        await asyncGroupValidator.fn(record, errors);
+        await asyncGroupValidator.fn(record as Pick<TRecord, keyof TRecord & string>, errors);
       }
     }
 

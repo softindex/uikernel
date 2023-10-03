@@ -13,8 +13,17 @@ import type {IValidator} from './types/IValidator';
 import type {ValidatorSettings} from './types/ValidatorSettings';
 import ValidationErrors from './ValidationErrors';
 
-class Validator<TRecord extends Record<string, unknown>> implements IValidator<TRecord> {
-  constructor(private settings: ValidatorSettings<TRecord, keyof TRecord & string>) {}
+class Validator<TRecord extends Record<string, unknown>, TEditable extends keyof TRecord & string>
+  implements IValidator<TRecord, TEditable>
+{
+  constructor(
+    private settings: ValidatorSettings<
+      TRecord,
+      TEditable,
+      (keyof TRecord & string)[],
+      (keyof TRecord & string)[]
+    >
+  ) {}
 
   /**
    * Get all dependent fields validation needs
@@ -57,10 +66,10 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
   async isValidRecord(
     record: Partial<TRecord>,
     additionalValues?: Partial<TRecord>
-  ): Promise<ValidationErrors<keyof TRecord & string>> {
-    const fields = keys(record);
+  ): Promise<ValidationErrors<TEditable>> {
+    const fields = keys(record) as TEditable[];
     const additionalFields = additionalValues ? keys(additionalValues) : [];
-    const errors = new ValidationErrors<keyof TRecord & string>();
+    const errors = new ValidationErrors<TEditable>();
 
     const dependentFields = this.getValidationDependency(fields);
     const notPassedDependentFields = dependentFields.filter((e) => {
@@ -75,7 +84,7 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
       const value = record[field];
       const validators = this.settings.validators[field] || [];
       for (const validator of validators) {
-        const error = validator(value);
+        const error = validator(value as TRecord[TEditable]);
         if (error) {
           errors.add(field, error);
         }
@@ -83,7 +92,7 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
 
       const asyncValidators = this.settings.asyncValidators[field] || [];
       for (const asyncValidator of asyncValidators) {
-        const error = await asyncValidator(value);
+        const error = await asyncValidator(value as TRecord[TEditable]);
         if (error) {
           errors.add(field, error);
         }
@@ -93,13 +102,13 @@ class Validator<TRecord extends Record<string, unknown>> implements IValidator<T
     // Add sync and async group validators
     for (const groupValidator of this.settings.groupValidators) {
       if (isIntersection(groupValidator.fields, fields)) {
-        groupValidator.fn(record, errors);
+        groupValidator.fn(record as Pick<TRecord, keyof TRecord & string>, errors);
       }
     }
 
     for (const asyncGroupValidator of this.settings.asyncGroupValidators) {
       if (isIntersection(asyncGroupValidator.fields, fields)) {
-        await asyncGroupValidator.fn(record, errors);
+        await asyncGroupValidator.fn(record as Pick<TRecord, keyof TRecord & string>, errors);
       }
     }
 

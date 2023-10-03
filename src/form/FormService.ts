@@ -30,7 +30,7 @@ type InitalizedState<TRecord extends Record<string, unknown>> =
       data: Partial<TRecord>;
       initialized: true;
       model: IFormModel<TRecord> & IObservable<FormModelListenerArgsByEventName<TRecord>>;
-      warningsValidator: IValidator<TRecord>;
+      warningsValidator: IValidator<TRecord, keyof TRecord & string>;
     }
   | {
       data: undefined;
