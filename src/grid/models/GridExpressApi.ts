@@ -15,9 +15,9 @@ import parseJson from '../../common/parseJson';
 import ValidationErrors from '../../validation/ValidationErrors';
 import type {
   GridModelReadParams,
-  IGridModel,
   GridModelSortMode,
-  GridModelUpdateResult
+  GridModelUpdateResult,
+  IGridModel
 } from './types/IGridModel';
 import type {JsonGridApiResult} from './types/JsonGridApiResult';
 
@@ -234,7 +234,8 @@ class GridExpressApi {
   model<TKey, TRecord extends Record<string, unknown>, TFilter>(
     model:
       | IGridModel<TKey, TRecord, TFilter>
-      | ((req: Request, res: Response) => IGridModel<TKey, TRecord, TFilter>)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      | ((req: Request, res: Response<unknown, any>) => IGridModel<TKey, TRecord, TFilter>)
   ): this {
     if (typeof model === 'function') {
       this.getModel = model as () => IGridModel<unknown, Record<string, unknown>, unknown>;
