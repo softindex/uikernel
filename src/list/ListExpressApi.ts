@@ -47,7 +47,10 @@ class ListExpressApi<TKey, TMetadata extends Record<string, unknown>> {
    * Specify List model
    */
   model(
-    model: IListModel<TKey, TMetadata> | ((req: Request, res: Response) => IListModel<TKey, TMetadata>)
+    model:
+      | IListModel<TKey, TMetadata>
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      | ((req: Request, res: Response<unknown, any>) => IListModel<TKey, TMetadata>)
   ): this {
     if (typeof model === 'function') {
       this.getModel = model;

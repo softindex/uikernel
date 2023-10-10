@@ -117,7 +117,8 @@ class FormExpressApi {
   }
 
   model<TRecord extends Record<string, unknown>>(
-    model: IFormModel<TRecord> | ((req: Request, res: Response) => IFormModel<TRecord>)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model: IFormModel<TRecord> | ((req: Request, res: Response<unknown, any>) => IFormModel<TRecord>)
   ): this {
     if (typeof model === 'function') {
       this.getModel = model;
