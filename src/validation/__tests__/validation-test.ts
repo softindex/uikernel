@@ -7,6 +7,7 @@
  */
 
 import ArgumentsError from '../../common/error/ArgumentsError';
+import type {OptionalRecord} from '../../common/types';
 import DeprecatedValidator from '../DeprecatedValidator';
 import boolean from '../rules/boolean';
 import date from '../rules/date';
@@ -201,7 +202,7 @@ describe('Validator', () => {
   describe('Check "getValidationDependency" method', () => {
     it('Should return list of dependent fields', async () => {
       const groupValidationFunction = (
-        data: Pick<TestRecord, 'password' | 'passwordConfirm'>,
+        data: OptionalRecord<Pick<TestRecord, 'password' | 'passwordConfirm'>>,
         errors: ValidationError<keyof TestRecord>
       ): void => {
         if (data.password !== data.passwordConfirm) {
@@ -228,7 +229,7 @@ describe('Validator', () => {
     });
     it('Should return {} if all additional values are passed', async () => {
       const groupValidationFunction = (
-        data: Pick<TestRecord, 'password' | 'passwordConfirm'>,
+        data: OptionalRecord<Pick<TestRecord, 'password' | 'passwordConfirm'>>,
         errors: ValidationError<keyof TestRecord>
       ): void => {
         if (data.password !== data.passwordConfirm) {
@@ -241,7 +242,7 @@ describe('Validator', () => {
     });
     it('Should return {} if some additional values are not passed', async () => {
       const groupValidationFunction = (
-        data: Pick<TestRecord, 'password' | 'passwordConfirm'>,
+        data: OptionalRecord<Pick<TestRecord, 'password' | 'passwordConfirm'>>,
         errors: ValidationError<keyof TestRecord & string>
       ): void => {
         if (data.password !== data.passwordConfirm) {

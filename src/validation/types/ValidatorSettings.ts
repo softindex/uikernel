@@ -6,12 +6,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import type {ArrayWithAtLeastOneElement} from '../../common/types';
+import type {ArrayWithAtLeastOneElement, OptionalRecord} from '../../common/types';
 import type ValidationErrors from '../ValidationErrors';
 
 export type ValidationResult<T, TAsync extends 'async' | 'sync'> = TAsync extends 'sync' ? T : Promise<T>;
 export type ValidationFunction<TValue, TAsync extends 'async' | 'sync'> = (
-  value: TValue
+  value: TValue | null | undefined
 ) => ValidationResult<string | undefined, TAsync>;
 
 export type GroupValidationFunction<
@@ -20,7 +20,7 @@ export type GroupValidationFunction<
   TEditableField extends keyof TRecord & string,
   TAsync extends 'async' | 'sync'
 > = (
-  record: Pick<TRecord, TValidatedField>,
+  record: OptionalRecord<Pick<TRecord, TValidatedField>>,
   errors: ValidationErrors<TEditableField>
 ) => ValidationResult<void, TAsync>;
 
