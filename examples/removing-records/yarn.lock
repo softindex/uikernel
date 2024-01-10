@@ -6093,12 +6093,12 @@ __metadata:
   linkType: hard
 
 "follow-redirects@npm:^1.0.0":
-  version: 1.15.2
-  resolution: "follow-redirects@npm:1.15.2"
+  version: 1.15.4
+  resolution: "follow-redirects@npm:1.15.4"
   peerDependenciesMeta:
     debug:
       optional: true
-  checksum: faa66059b66358ba65c234c2f2a37fcec029dc22775f35d9ad6abac56003268baf41e55f9ee645957b32c7d9f62baf1f0b906e68267276f54ec4b4c597c2b190
+  checksum: e178d1deff8b23d5d24ec3f7a94cde6e47d74d0dc649c35fc9857041267c12ec5d44650a0c5597ef83056ada9ea6ca0c30e7c4f97dbf07d035086be9e6a5b7b6
   languageName: node
   linkType: hard
 
@@ -12223,8 +12223,8 @@ __metadata:
   linkType: hard
 
 "uikernel@file:../../::locator=react-app%40workspace%3A.":
-  version: 1.0.1-dev13.10
-  resolution: "uikernel@file:../../#../../::hash=afe9c4&locator=react-app%40workspace%3A."
+  version: 1.0.1-dev14.0
+  resolution: "uikernel@file:../../#../../::hash=e6f367&locator=react-app%40workspace%3A."
   dependencies:
     "@babel/polyfill": ^7.0.0
     classnames: ^2.2.6
@@ -12240,7 +12240,7 @@ __metadata:
   peerDependencies:
     react: ">=16.12.0"
     react-dom: ">=16.12.0"
-  checksum: 305f624c5fc92df4a0629400d733cb6419cb797735e813609c43e1edafd65627cd8a396d91057232335498d7a698de0b1a05fd4701df1b3bf8a16493d6fbe3f5
+  checksum: a0c0f425bca99ca197c35dce291d9bb9c1608622362fc65207f475e482d0a2a07db1d45584a49827f9ae3f552c929fc11f63e2f84e9cf7955fd0c9f6199ad3f0
   languageName: node
   linkType: hard
 
